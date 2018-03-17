@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorator="layout">
+	layout:decorate="~{layout}">
 <head>
 <head>
 <title>Crew Members</title>
@@ -9,9 +9,14 @@
 </head>
 <body>
 	<div layout:fragment="content">
-		<h1>Crew Members</h1>
-		<a th:href="@{/}">Back</a>
-		<table>
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+				<li class="breadcrumb-item active" aria-current="page">List
+					Crew Members</li>
+			</ol>
+		</nav>
+		<table class="table">
 			<thead>
 				<tr>
 					<th></th>
@@ -22,10 +27,11 @@
 			</thead>
 			<tbody>
 				<tr th:each="crewMember: ${crewMembers}">
-					<td><a th:href="@{|/crewMember/${crewMember.id}|}">View</a></td>
+					<td><a class="btn btn-primary"
+						th:href="@{|/crewMember/${crewMember.id}|}">View</a></td>
 					<td th:text="${crewMember.id}">123</td>
-					<td th:text="${crewMember.firstName}">First Name</td>
-					<td th:text="${crewMember.lastName}">Last Name</td>
+					<td th:text="${crewMember.firstName}">USS Demo</td>
+					<td th:text="${crewMember.lastName}">USS Demo</td>
 				</tr>
 			</tbody>
 		</table>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorator="layout">
+	layout:decorate="~{layout}">
 <head>
 <head>
 <title>Crew Member</title>
@@ -9,24 +9,46 @@
 </head>
 <body>
 	<div layout:fragment="content">
-		<h1>Crew Member</h1>
-		<a th:href="@{/crewMember}">Back</a> <a
-			th:href="@{|/crewMember_edit/${crewMember.id}|}">Edit</a> <a
-			th:href="@{|/crewMember_delete/${crewMember.id}|}">Delete</a>
-		<table>
-			<tr>
-				<td>ID:</td>
-				<td th:text="${crewMember.id}">ID</td>
-			</tr>
-			<tr>
-				<td>First Name:</td>
-				<td th:text="${crewMember.firstName}">First Name</td>
-			</tr>
-			<tr>
-				<td>Last Name:</td>
-				<td th:text="${crewMember.lastName}">Last Name</td>
-			</tr>
-		</table>
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/crewMember}">List
+						Crew Members</a></li>
+				<li class="breadcrumb-item active" aria-current="page">View
+					Crew Member</li>
+			</ol>
+		</nav>
+		<p>
+			<a class="btn btn-primary"
+				th:href="@{|/crewMember_edit/${crewMember.id}|}">Edit</a> <a
+				class="btn btn-primary"
+				th:href="@{|/crewMember_delete/${crewMember.id}|}">Delete</a>
+		</p>
+		<form th:object="${crewMember}">
+			<div class="form-group row">
+				<label for="txtId" class="col-sm-2 col-form-label">ID</label>
+				<div class="col-sm-10">
+					<input type="text" readonly class="form-control-plaintext"
+						id="txtId" th:field="*{id}">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="txtFirstName" class="col-sm-2 col-form-label">First
+					Name</label>
+				<div class="col-sm-10">
+					<input type="text" readonly class="form-control-plaintext"
+						id="txtFirstName" th:field="*{firstName}">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="txtLastName" class="col-sm-2 col-form-label">Last
+					Name</label>
+				<div class="col-sm-10">
+					<input type="text" readonly class="form-control-plaintext"
+						id="txtLastName" th:field="*{lastName}">
+				</div>
+			</div>
+		</form>
 	</div>
 </body>
 </html>

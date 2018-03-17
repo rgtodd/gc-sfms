@@ -1,16 +1,31 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorator="layout">
+	layout:decorate="~{layout}">
 <head>
 <title>Home</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
 	<div layout:fragment="content">
-		<h1>Home</h1>
-		<a th:href="@{/spaceship}">Spaceships</a> <a th:href="@{/crewMember}">Crew
-			Members</a>
+		<div class="jumbotron">
+			<h1 class="display-4">Space Fleet Management System</h1>
+			<p class="lead">A sample Spring Boot application on the Google
+				Cloud Platform.</p>
+			<hr class="my-4">
+			<p>
+				Source code is available at <a
+					href="https://github.com/rgtodd/gc-sfms">https://github.com/rgtodd/gc-sfms</a>
+			</p>
+			<p>
+				Web application is deployed to <a
+					href="https://web-dot-rgt-ssms.appspot.com">https://web-dot-rgt-ssms.appspot.com</a>
+			</p>
+			<p>
+				REST services are deployed to <a
+					href="https://rest-dot-rgt-ssms.appspot.com">https://rest-dot-rgt-ssms.appspot.com</a>
+			</p>
+		</div>
 	</div>
 </body>
 </html>

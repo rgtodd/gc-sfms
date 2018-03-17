@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorator="layout">
+	layout:decorate="~{layout}">
 <head>
 <head>
 <title>Spaceships</title>
@@ -9,9 +9,14 @@
 </head>
 <body>
 	<div layout:fragment="content">
-		<h1>Spaceships</h1>
-		<a th:href="@{/}">Back</a>
-		<table>
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+				<li class="breadcrumb-item active" aria-current="page">List
+					Spaceships</li>
+			</ol>
+		</nav>
+		<table class="table">
 			<thead>
 				<tr>
 					<th></th>
@@ -21,7 +26,8 @@
 			</thead>
 			<tbody>
 				<tr th:each="spaceship: ${spaceships}">
-					<td><a th:href="@{|/spaceship/${spaceship.id}|}">View</a></td>
+					<td><a class="btn btn-primary"
+						th:href="@{|/spaceship/${spaceship.id}|}">View</a></td>
 					<td th:text="${spaceship.id}">123</td>
 					<td th:text="${spaceship.name}">USS Demo</td>
 				</tr>
