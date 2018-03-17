@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Test</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<p>Test</p>
+	<p th:text="${firstName}">First Name</p>
+	<table>
+		<tr>
+			<td>ID:</td>
+			<td th:text="${starship.id}">ID</td>
+		</tr>
+		<tr>
+			<td>Name:</td>
+			<td th:text="${starship.name}">Name</td>
+		</tr>
+	</table>
+</body>
+</html>

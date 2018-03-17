@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="layout">
+<head>
+<head>
+<title>Crew Members</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div layout:fragment="content">
+		<h1>Crew Members</h1>
+		<a th:href="@{/}">Back</a>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					<th>ID</th>
+					<th>First Name</th>
+					<th>Last Name</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="crewMember: ${crewMembers}">
+					<td><a th:href="@{|/crewMember/${crewMember.id}|}">View</a></td>
+					<td th:text="${crewMember.id}">123</td>
+					<td th:text="${crewMember.firstName}">First Name</td>
+					<td th:text="${crewMember.lastName}">Last Name</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="layout">
+<head>
+<head>
+<title>Delete Spaceship</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div layout:fragment="content">
+		<h1>Delete Spaceship</h1>
+		<p>Preparing to delete spaceship.</p>
+		<form action="#" th:action="@{/spaceship_deletePost}"
+			th:object="${spaceship}" method="post">
+			<input type="submit" value="Delete" /> <a
+				th:href="@{|/spaceship/${spaceship.id}|}">Cancel</a>
+			<table>
+				<tr>
+					<td>ID:</td>
+					<td th:text="${spaceship.id}">ID</td>
+				</tr>
+				<tr>
+					<td>Name:</td>
+					<td th:text="${spaceship.name}">ID</td>
+				</tr>
+			</table>
+			<input type="hidden" th:field="*{id}" />
+		</form>
+	</div>
+</body>
+</html>

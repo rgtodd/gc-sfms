@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="layout">
+<head>
+<head>
+<title>Spaceships</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div layout:fragment="content">
+		<h1>Spaceships</h1>
+		<a th:href="@{/}">Back</a>
+		<table>
+			<thead>
+				<tr>
+					<th></th>
+					<th>ID</th>
+					<th>Name</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="spaceship: ${spaceships}">
+					<td><a th:href="@{|/spaceship/${spaceship.id}|}">View</a></td>
+					<td th:text="${spaceship.id}">123</td>
+					<td th:text="${spaceship.name}">USS Demo</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
