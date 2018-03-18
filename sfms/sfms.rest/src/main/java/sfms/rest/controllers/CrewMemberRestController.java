@@ -3,6 +3,7 @@ package sfms.rest.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import sfms.rest.DbFactory;
 import sfms.rest.DeleteResult;
 import sfms.rest.RestFactory;
 import sfms.rest.SearchResult;
+import sfms.rest.Throttle;
 import sfms.rest.UpdateResult;
 import sfms.rest.models.CrewMember;
 
@@ -25,8 +27,15 @@ import sfms.rest.models.CrewMember;
 @RequestMapping("/crewMember")
 public class CrewMemberRestController {
 
+	@Autowired
+	private Throttle m_throttle;
+
 	@GetMapping(value = "/{id}")
 	public CrewMember get(@PathVariable Long id) throws Exception {
+
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
 
 		DbCrewMember dbCrewMember = Database.INSTANCE.getCrewMembers().get(id);
 		if (dbCrewMember == null) {
@@ -42,6 +51,10 @@ public class CrewMemberRestController {
 	@GetMapping(value = "")
 	public SearchResult<CrewMember> search() throws Exception {
 
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
+
 		RestFactory factory = new RestFactory();
 		List<CrewMember> crewMembers = new ArrayList<CrewMember>();
 		for (DbCrewMember dbCrewMember : Database.INSTANCE.getCrewMembers().values()) {
@@ -55,7 +68,11 @@ public class CrewMemberRestController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<Long> update(@PathVariable long id, @RequestBody CrewMember crewMember) {
+	public UpdateResult<Long> update(@PathVariable long id, @RequestBody CrewMember crewMember) throws Exception {
+
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
 
 		crewMember.setId(id);
 
@@ -70,7 +87,11 @@ public class CrewMemberRestController {
 	}
 
 	@PutMapping(value = "")
-	public CreateResult<Long> create(@RequestBody CrewMember crewMember) {
+	public CreateResult<Long> create(@RequestBody CrewMember crewMember) throws Exception {
+
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
 
 		crewMember.setId(Database.INSTANCE.getNextId());
 
@@ -85,7 +106,11 @@ public class CrewMemberRestController {
 	}
 
 	@DeleteMapping(value = "/{id}")
-	public DeleteResult<Long> delete(@PathVariable long id) {
+	public DeleteResult<Long> delete(@PathVariable long id) throws Exception {
+
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
 
 		Database.INSTANCE.getCrewMembers().remove(id);
 
@@ -94,5 +119,4 @@ public class CrewMemberRestController {
 
 		return result;
 	}
-
 }

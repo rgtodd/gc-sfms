@@ -3,6 +3,7 @@ package sfms.rest.controllers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import sfms.rest.DbFactory;
 import sfms.rest.DeleteResult;
 import sfms.rest.RestFactory;
 import sfms.rest.SearchResult;
+import sfms.rest.Throttle;
 import sfms.rest.UpdateResult;
 import sfms.rest.models.Spaceship;
 
@@ -25,8 +27,15 @@ import sfms.rest.models.Spaceship;
 @RequestMapping("/spaceship")
 public class SpaceshipRestController {
 
+	@Autowired
+	private Throttle m_throttle;
+
 	@GetMapping(value = "/{id}")
 	public Spaceship get(@PathVariable Long id) throws Exception {
+
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
 
 		DbSpaceship dbSpaceship = Database.INSTANCE.getSpaceships().get(id);
 		if (dbSpaceship == null) {
@@ -42,6 +51,10 @@ public class SpaceshipRestController {
 	@GetMapping(value = "")
 	public SearchResult<Spaceship> search() throws Exception {
 
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
+
 		RestFactory factory = new RestFactory();
 		List<Spaceship> spaceships = new ArrayList<Spaceship>();
 		for (DbSpaceship dbSpaceship : Database.INSTANCE.getSpaceships().values()) {
@@ -55,7 +68,11 @@ public class SpaceshipRestController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<Long> update(@PathVariable long id, @RequestBody Spaceship spaceship) {
+	public UpdateResult<Long> update(@PathVariable long id, @RequestBody Spaceship spaceship) throws Exception {
+
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
 
 		spaceship.setId(id);
 
@@ -70,7 +87,11 @@ public class SpaceshipRestController {
 	}
 
 	@PutMapping(value = "")
-	public CreateResult<Long> create(@RequestBody Spaceship spaceship) {
+	public CreateResult<Long> create(@RequestBody Spaceship spaceship) throws Exception {
+
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
 
 		spaceship.setId(Database.INSTANCE.getNextId());
 
@@ -85,7 +106,11 @@ public class SpaceshipRestController {
 	}
 
 	@DeleteMapping(value = "/{id}")
-	public DeleteResult<Long> delete(@PathVariable long id) {
+	public DeleteResult<Long> delete(@PathVariable long id) throws Exception {
+
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
 
 		Database.INSTANCE.getSpaceships().remove(id);
 
@@ -94,5 +119,4 @@ public class SpaceshipRestController {
 
 		return result;
 	}
-
 }
