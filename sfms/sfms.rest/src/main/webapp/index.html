@@ -1,20 +1,71 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
-  <head>
-    <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
-    <title>Hello App Engine</title>
-  </head>
-
-  <body>
-    <h1>Hello App Engine!</h1>
-  
-    <table>
-      <tr>
-        <td colspan="2" style="font-weight:bold;">Available Servlets:</td>        
-      </tr>
-      <tr>
-        <td><a href='/hello'>The servlet</a></td>
-      </tr>
-    </table>
-  </body>
+<head>
+<meta http-equiv="content-type"
+	content="application/xhtml+xml; charset=UTF-8" />
+<title>SFMS REST Services</title>
+</head>
+<body>
+	<h1>Space Fleet Management System REST Services</h1>
+	<dl>
+		<dt>Crew Members</dt>
+		<dd>
+			<a href="crewMember">crewMember</a>
+		</dd>
+		<dt>Spaceships</dt>
+		<dd>
+			<a href="spaceship">spaceship</a>
+		</dd>
+	</dl>
+	<p>Unless otherwise noted, all REST services support the following
+		operations:</p>
+	<table>
+		<thead>
+			<tr>
+				<th>URL</th>
+				<th>Operation</th>
+				<th>Request</th>
+				<th>Response</th>
+				<th>Description</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>/</td>
+				<td>GET</td>
+				<td>N/A</td>
+				<td>SearchResult&lt;TEntity&gt;</td>
+				<td>Retrieves all entities.</td>
+			</tr>
+			<tr>
+				<td>/<i>TKey</i></td>
+				<td>GET</td>
+				<td>N/A</td>
+				<td>TEntity</td>
+				<td>Retrieves entity associated with the specified key.</td>
+			</tr>
+			<tr>
+				<td>/</td>
+				<td>PUT</td>
+				<td>TEntity</td>
+				<td>CreateResult&lt;TKey&gt;</td>
+				<td>Creates a new entity.</td>
+			</tr>
+			<tr>
+				<td>/<i>TKey</i></td>
+				<td>PUT</td>
+				<td>TEntity</td>
+				<td>UpdateResult&lt;TKey&gt;</td>
+				<td>Updates an entity.</td>
+			</tr>
+			<tr>
+				<td>/<i>TKey</i></td>
+				<td>DELETE</td>
+				<td>N/A</td>
+				<td>DeleteResult&lt;TKey&gt;</td>
+				<td>Deletes an entity.</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
 </html>

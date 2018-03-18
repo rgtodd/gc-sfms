@@ -10,6 +10,11 @@ import sfms.web.models.SpaceshipModel;
 
 public class ModelFactory {
 
+	public SpaceshipModel createSpaceship() {
+		SpaceshipModel result = new SpaceshipModel();
+		return result;
+	}
+
 	public SpaceshipModel createSpaceship(Spaceship spaceship) {
 		SpaceshipModel result = new SpaceshipModel();
 		result.setId(asString(spaceship.getId()));
@@ -22,6 +27,11 @@ public class ModelFactory {
 		for (Spaceship spaceship : spaceships) {
 			result.add(createSpaceship(spaceship));
 		}
+		return result;
+	}
+
+	public CrewMemberModel createCrewMember() {
+		CrewMemberModel result = new CrewMemberModel();
 		return result;
 	}
 

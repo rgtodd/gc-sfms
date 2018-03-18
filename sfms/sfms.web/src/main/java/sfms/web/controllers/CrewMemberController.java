@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 
+import sfms.rest.CreateResult;
 import sfms.rest.DeleteResult;
 import sfms.rest.SearchResult;
 import sfms.rest.UpdateResult;
@@ -60,6 +61,33 @@ public class CrewMemberController {
 		return "crewMemberList";
 	}
 
+	@GetMapping({ "/crewMember_create" })
+	public String create(ModelMap modelMap) {
+
+		ModelFactory factory = new ModelFactory();
+		CrewMemberModel crewMemberModel = factory.createCrewMember();
+
+		modelMap.addAttribute("crewMember", crewMemberModel);
+
+		return "crewMemberCreate";
+	}
+
+	@PostMapping({ "/crewMember_createPost" })
+	public String createPost(@ModelAttribute CrewMemberModel crewMemberModel) {
+
+		RestFactory factory = new RestFactory();
+		CrewMember crewMember = factory.createCrewMember(crewMemberModel);
+
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<CreateResult<Long>> restResponse = restTemplate.exchange(getCrewMemberRestUrl("crewMember"),
+				HttpMethod.PUT, new HttpEntity<>(crewMember), new ParameterizedTypeReference<CreateResult<Long>>() {
+				}
+
+		);
+
+		return "redirect:/crewMember/" + restResponse.getBody().getKey().toString();
+	}
+
 	@GetMapping({ "/crewMember_edit/{id}" })
 	public String edit(@PathVariable Long id, ModelMap modelMap) {
 
@@ -85,7 +113,7 @@ public class CrewMemberController {
 
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<UpdateResult<Long>> restResponse = restTemplate.exchange(
-				getCrewMemberRestUrl("crewMember/" + crewMember.getId().toString()), HttpMethod.POST,
+				getCrewMemberRestUrl("crewMember/" + crewMember.getId().toString()), HttpMethod.PUT,
 				new HttpEntity<>(crewMember), new ParameterizedTypeReference<UpdateResult<Long>>() {
 				}
 

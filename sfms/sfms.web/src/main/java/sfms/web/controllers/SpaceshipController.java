@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 
+import sfms.rest.CreateResult;
 import sfms.rest.DeleteResult;
 import sfms.rest.SearchResult;
 import sfms.rest.UpdateResult;
@@ -59,6 +60,31 @@ public class SpaceshipController {
 		return "spaceshipList";
 	}
 
+	@GetMapping({ "/spaceship_create" })
+	public String create(ModelMap modelMap) {
+
+		ModelFactory factory = new ModelFactory();
+		SpaceshipModel spaceshipModel = factory.createSpaceship();
+
+		modelMap.addAttribute("spaceship", spaceshipModel);
+
+		return "spaceshipCreate";
+	}
+
+	@PostMapping({ "/spaceship_createPost" })
+	public String createPost(@ModelAttribute SpaceshipModel spaceshipModel) {
+
+		RestFactory factory = new RestFactory();
+		Spaceship spaceship = factory.createSpaceship(spaceshipModel);
+
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<CreateResult<Long>> restResponse = restTemplate.exchange(getSpaceshipRestUrl("spaceship"),
+				HttpMethod.PUT, new HttpEntity<>(spaceship), new ParameterizedTypeReference<CreateResult<Long>>() {
+				});
+
+		return "redirect:/spaceship/" + restResponse.getBody().getKey().toString();
+	}
+
 	@GetMapping({ "/spaceship_edit/{id}" })
 	public String edit(@PathVariable Long id, ModelMap modelMap) {
 
@@ -84,7 +110,7 @@ public class SpaceshipController {
 
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<UpdateResult<Long>> restResponse = restTemplate.exchange(
-				getSpaceshipRestUrl("spaceship/" + spaceship.getId().toString()), HttpMethod.POST,
+				getSpaceshipRestUrl("spaceship/" + spaceship.getId().toString()), HttpMethod.PUT,
 				new HttpEntity<>(spaceship), new ParameterizedTypeReference<UpdateResult<Long>>() {
 				}
 

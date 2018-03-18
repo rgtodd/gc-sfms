@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+<head>
+<head>
+<title>Create Crew Member</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div layout:fragment="content">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/crewMember}">List
+						Crew Members</a></li>
+				<li class="breadcrumb-item active" aria-current="page">Create
+					Crew Member</li>
+			</ol>
+		</nav>
+		<p>Specify information and click Save when complete.</p>
+		<form th:action="@{/crewMember_createPost}" th:object="${crewMember}"
+			method="post">
+			<div class="form-group row">
+				<label for="txtFirstName" class="col-sm-2 col-form-label">First
+					Name</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="txtFirstName"
+						th:field="*{firstName}" placeholder="Enter First Name" required
+						maxlength="100">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="txtLastName" class="col-sm-2 col-form-label">Last
+					Name</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="txtLastName"
+						th:field="*{lastName}" placeholder="Enter Last Name" required
+						maxlength="100">
+				</div>
+			</div>
+			<p>
+				<button type="submit" class="btn btn-primary">Save</button>
+			</p>
+		</form>
+	</div>
+</body>
+</html>
