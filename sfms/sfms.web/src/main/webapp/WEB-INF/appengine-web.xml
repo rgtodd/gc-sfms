@@ -4,4 +4,5 @@
 	<sessions-enabled>false</sessions-enabled>
 	<runtime>java8</runtime>
 	<module>web</module>
+	<version>v1</version>
 </appengine-web-app>

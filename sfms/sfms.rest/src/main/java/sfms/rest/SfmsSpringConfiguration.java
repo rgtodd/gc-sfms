@@ -11,4 +11,8 @@ public class SfmsSpringConfiguration {
 		return new Throttle();
 	}
 
+	// @Bean
+	// public AppEngineHeaderFilter appEngineHeaderFilter() {
+	// return new AppEngineHeaderFilter();
+	// }
 }
