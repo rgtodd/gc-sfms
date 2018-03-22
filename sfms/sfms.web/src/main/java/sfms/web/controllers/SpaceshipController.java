@@ -3,7 +3,6 @@ package sfms.web.controllers;
 import java.util.List;
 
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,20 +20,18 @@ import sfms.rest.UpdateResult;
 import sfms.rest.models.Spaceship;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
-import sfms.web.SfmsHttpRequestFactory;
-import sfms.web.SfmsProperties;
+import sfms.web.SfmsController;
 import sfms.web.models.SpaceshipModel;
 
 @Controller
-public class SpaceshipController {
+public class SpaceshipController extends SfmsController {
 
 	@GetMapping({ "/spaceship/{id}" })
 	public String get(@PathVariable Long id, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(
-				getSpaceshipRestUrl("spaceship/" + id.toString()), HttpMethod.GET, null,
-				new ParameterizedTypeReference<Spaceship>() {
+		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(getRestUrl("spaceship/" + id.toString()),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Spaceship>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -49,8 +46,8 @@ public class SpaceshipController {
 	public String getList(ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<SearchResult<Spaceship>> restResponse = restTemplate.exchange(getSpaceshipRestUrl("spaceship"),
-				HttpMethod.GET, null, new ParameterizedTypeReference<SearchResult<Spaceship>>() {
+		ResponseEntity<SearchResult<Spaceship>> restResponse = restTemplate.exchange(getRestUrl("spaceship"),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<SearchResult<Spaceship>>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -79,8 +76,8 @@ public class SpaceshipController {
 		Spaceship spaceship = factory.createSpaceship(spaceshipModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CreateResult<Long>> restResponse = restTemplate.exchange(getSpaceshipRestUrl("spaceship"),
-				HttpMethod.PUT, new HttpEntity<>(spaceship), new ParameterizedTypeReference<CreateResult<Long>>() {
+		ResponseEntity<CreateResult<Long>> restResponse = restTemplate.exchange(getRestUrl("spaceship"), HttpMethod.PUT,
+				createHttpEntity(spaceship), new ParameterizedTypeReference<CreateResult<Long>>() {
 				});
 
 		return "redirect:/spaceship/" + restResponse.getBody().getKey().toString();
@@ -90,9 +87,8 @@ public class SpaceshipController {
 	public String edit(@PathVariable Long id, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(
-				getSpaceshipRestUrl("spaceship/" + id.toString()), HttpMethod.GET, null,
-				new ParameterizedTypeReference<Spaceship>() {
+		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(getRestUrl("spaceship/" + id.toString()),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Spaceship>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -111,8 +107,8 @@ public class SpaceshipController {
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<UpdateResult<Long>> restResponse = restTemplate.exchange(
-				getSpaceshipRestUrl("spaceship/" + spaceship.getId().toString()), HttpMethod.PUT,
-				new HttpEntity<>(spaceship), new ParameterizedTypeReference<UpdateResult<Long>>() {
+				getRestUrl("spaceship/" + spaceship.getId().toString()), HttpMethod.PUT, createHttpEntity(spaceship),
+				new ParameterizedTypeReference<UpdateResult<Long>>() {
 				}
 
 		);
@@ -124,9 +120,8 @@ public class SpaceshipController {
 	public String delete(@PathVariable Long id, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(
-				getSpaceshipRestUrl("spaceship/" + id.toString()), HttpMethod.GET, null,
-				new ParameterizedTypeReference<Spaceship>() {
+		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(getRestUrl("spaceship/" + id.toString()),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Spaceship>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -146,23 +141,12 @@ public class SpaceshipController {
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
 		ResponseEntity<DeleteResult<Long>> restResponse = restTemplate.exchange(
-				getSpaceshipRestUrl("spaceship/" + spaceship.getId().toString()), HttpMethod.DELETE,
-				new HttpEntity<>(spaceship), new ParameterizedTypeReference<DeleteResult<Long>>() {
+				getRestUrl("spaceship/" + spaceship.getId().toString()), HttpMethod.DELETE, createHttpEntity(spaceship),
+				new ParameterizedTypeReference<DeleteResult<Long>>() {
 				}
 
 		);
 
 		return "redirect:/spaceship";
-	}
-
-	private RestTemplate createRestTempate() {
-		SfmsHttpRequestFactory httpRequestFactory = new SfmsHttpRequestFactory();
-		RestTemplate restTemplate = new RestTemplate(httpRequestFactory);
-		return restTemplate;
-	}
-
-	private String getSpaceshipRestUrl(String url) {
-		String host = SfmsProperties.INSTANCE.getProperty(SfmsProperties.APPLICATION, SfmsProperties.SFMS_REST_HOST);
-		return host + "/" + url;
 	}
 }

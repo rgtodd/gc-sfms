@@ -3,7 +3,6 @@ package sfms.web.controllers;
 import java.util.List;
 
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,20 +20,18 @@ import sfms.rest.UpdateResult;
 import sfms.rest.models.CrewMember;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
-import sfms.web.SfmsHttpRequestFactory;
-import sfms.web.SfmsProperties;
+import sfms.web.SfmsController;
 import sfms.web.models.CrewMemberModel;
 
 @Controller
-public class CrewMemberController {
+public class CrewMemberController extends SfmsController {
 
 	@GetMapping({ "/crewMember/{id}" })
 	public String get(@PathVariable Long id, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(
-				getCrewMemberRestUrl("crewMember/" + id.toString()), HttpMethod.GET, null,
-				new ParameterizedTypeReference<CrewMember>() {
+		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + id.toString()),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -49,9 +46,8 @@ public class CrewMemberController {
 	public String getList(ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<SearchResult<CrewMember>> restResponse = restTemplate.exchange(
-				getCrewMemberRestUrl("crewMember"), HttpMethod.GET, null,
-				new ParameterizedTypeReference<SearchResult<CrewMember>>() {
+		ResponseEntity<SearchResult<CrewMember>> restResponse = restTemplate.exchange(getRestUrl("crewMember"),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<SearchResult<CrewMember>>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -80,8 +76,8 @@ public class CrewMemberController {
 		CrewMember crewMember = factory.createCrewMember(crewMemberModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CreateResult<Long>> restResponse = restTemplate.exchange(getCrewMemberRestUrl("crewMember"),
-				HttpMethod.PUT, new HttpEntity<>(crewMember), new ParameterizedTypeReference<CreateResult<Long>>() {
+		ResponseEntity<CreateResult<Long>> restResponse = restTemplate.exchange(getRestUrl("crewMember"),
+				HttpMethod.PUT, createHttpEntity(crewMember), new ParameterizedTypeReference<CreateResult<Long>>() {
 				}
 
 		);
@@ -93,9 +89,8 @@ public class CrewMemberController {
 	public String edit(@PathVariable Long id, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(
-				getCrewMemberRestUrl("crewMember/" + id.toString()), HttpMethod.GET, null,
-				new ParameterizedTypeReference<CrewMember>() {
+		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + id.toString()),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -114,8 +109,8 @@ public class CrewMemberController {
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<UpdateResult<Long>> restResponse = restTemplate.exchange(
-				getCrewMemberRestUrl("crewMember/" + crewMember.getId().toString()), HttpMethod.PUT,
-				new HttpEntity<>(crewMember), new ParameterizedTypeReference<UpdateResult<Long>>() {
+				getRestUrl("crewMember/" + crewMember.getId().toString()), HttpMethod.PUT, createHttpEntity(crewMember),
+				new ParameterizedTypeReference<UpdateResult<Long>>() {
 				}
 
 		);
@@ -127,9 +122,8 @@ public class CrewMemberController {
 	public String delete(@PathVariable Long id, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(
-				getCrewMemberRestUrl("crewMember/" + id.toString()), HttpMethod.GET, null,
-				new ParameterizedTypeReference<CrewMember>() {
+		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + id.toString()),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -149,23 +143,12 @@ public class CrewMemberController {
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
 		ResponseEntity<DeleteResult<Long>> restResponse = restTemplate.exchange(
-				getCrewMemberRestUrl("crewMember/" + crewMember.getId().toString()), HttpMethod.DELETE,
-				new HttpEntity<>(crewMember), new ParameterizedTypeReference<DeleteResult<Long>>() {
+				getRestUrl("crewMember/" + crewMember.getId().toString()), HttpMethod.DELETE,
+				createHttpEntity(crewMember), new ParameterizedTypeReference<DeleteResult<Long>>() {
 				}
 
 		);
 
 		return "redirect:/crewMember";
-	}
-
-	private RestTemplate createRestTempate() {
-		SfmsHttpRequestFactory httpRequestFactory = new SfmsHttpRequestFactory();
-		RestTemplate restTemplate = new RestTemplate(httpRequestFactory);
-		return restTemplate;
-	}
-
-	private String getCrewMemberRestUrl(String url) {
-		String host = SfmsProperties.INSTANCE.getProperty(SfmsProperties.APPLICATION, SfmsProperties.SFMS_REST_HOST);
-		return host + "/" + url;
 	}
 }

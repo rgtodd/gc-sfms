@@ -28,9 +28,10 @@ public class AppEngineHeaderFilter implements Filter {
 			throws IOException, ServletException {
 
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		if (httpRequest.getHeader("X-Appengine-Inbound-Appid") == null) {
+		String restAuthorizationToken = httpRequest.getHeader(RestUtility.REST_AUTHORIZATION_TOKEN_HEADER_KEY);
+		if (restAuthorizationToken == null || !restAuthorizationToken.equals(Secret.getRestAuthorizationToken())) {
 
-			String message = "Required headers not specified in the request";
+			String message = "Invalid authorization token";
 
 			String prefix = ": ";
 			Enumeration<String> headerNames = httpRequest.getHeaderNames();

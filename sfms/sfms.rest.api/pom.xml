@@ -8,4 +8,11 @@
 		<artifactId>sfms</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
+	<dependencies>
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-storage</artifactId>
+			<version>1.14.0</version>
+		</dependency>
+	</dependencies>
 </project>
