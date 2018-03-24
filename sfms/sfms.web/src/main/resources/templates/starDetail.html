@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+<head>
+<head>
+<title>Star</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div layout:fragment="content">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/star}">List
+						Stars</a></li>
+				<li class="breadcrumb-item active" aria-current="page">View
+					Star</li>
+			</ol>
+		</nav>
+		<p>
+			<a class="btn btn-primary" th:href="@{|/star_edit/${star.key}|}">Edit</a>
+			<a class="btn btn-primary" th:href="@{|/star_delete/${star.key}|}">Delete</a>
+		</p>
+		<form th:object="${star}">
+			<div class="form-group row">
+				<label for="txtKey" class="col-sm-2 col-form-label">ID</label>
+				<div class="col-sm-10">
+					<input type="text" readonly class="form-control-plaintext"
+						id="txtKey" th:field="*{key}">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="txtStarId" class="col-sm-2 col-form-label">Star
+					ID</label>
+				<div class="col-sm-10">
+					<input type="text" readonly class="form-control-plaintext"
+						id="txtStarId" th:field="*{starId}">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="txtProperName" class="col-sm-2 col-form-label">Proper
+					Name</label>
+				<div class="col-sm-10">
+					<input type="text" readonly class="form-control-plaintext"
+						id="txtProperName" th:field="*{properName}">
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

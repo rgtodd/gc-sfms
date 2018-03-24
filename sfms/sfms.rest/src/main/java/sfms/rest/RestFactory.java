@@ -1,14 +1,36 @@
 package sfms.rest;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import com.google.cloud.datastore.Entity;
 
 import sfms.db.DbCrewMember;
 import sfms.db.DbSpaceship;
 import sfms.rest.models.CrewMember;
 import sfms.rest.models.Spaceship;
+import sfms.rest.models.Star;
+import sfms.rest.schemas.StarEntitySchema;
 
 public class RestFactory {
+
+	public Star createStar(Entity entity) {
+		Star result = new Star();
+		result.setKey(entity.getKey().getId().toString());
+		result.setStarId(entity.getString(StarEntitySchema.StarId));
+		result.setProperName(entity.getString(StarEntitySchema.ProperName));
+		return result;
+	}
+
+	public List<Star> createStars(Iterator<Entity> entities) {
+		List<Star> result = new ArrayList<Star>();
+		while (entities.hasNext()) {
+			Entity entity = entities.next();
+			result.add(createStar(entity));
+		}
+		return result;
+	}
 
 	public Spaceship createSpaceship(DbSpaceship dbSpaceship) {
 		Spaceship result = new Spaceship();

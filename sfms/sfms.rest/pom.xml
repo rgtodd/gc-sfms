@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>sfms.rest</artifactId>
@@ -14,6 +15,11 @@
 			<groupId>rgtodd</groupId>
 			<artifactId>sfms.rest.api</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-datastore</artifactId>
+			<version>1.14.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -23,6 +29,9 @@
 				<version>${appengine.maven.plugin.version}</version>
 				<configuration>
 					<deploy.project>rgt-ssms</deploy.project>
+					<enableJarClasses>false</enableJarClasses>
+					<port>8100</port>
+					<address>0.0.0.0</address>
 				</configuration>
 			</plugin>
 			<plugin>

@@ -27,30 +27,33 @@ public class AppEngineHeaderFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 
-		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		String restAuthorizationToken = httpRequest.getHeader(RestUtility.REST_AUTHORIZATION_TOKEN_HEADER_KEY);
-		if (restAuthorizationToken == null || !restAuthorizationToken.equals(Secret.getRestAuthorizationToken())) {
+		String expectedAuthorizationToken = Secret.getRestAuthorizationToken();
+		if (expectedAuthorizationToken != null && !expectedAuthorizationToken.isEmpty()) {
+			HttpServletRequest httpRequest = (HttpServletRequest) request;
+			String actualAuthorizationToken = httpRequest.getHeader(RestUtility.REST_AUTHORIZATION_TOKEN_HEADER_KEY);
+			if (actualAuthorizationToken == null || !actualAuthorizationToken.equals(expectedAuthorizationToken)) {
 
-			String message = "Invalid authorization token";
+				String message = "Invalid authorization token";
 
-			String prefix = ": ";
-			Enumeration<String> headerNames = httpRequest.getHeaderNames();
-			while (headerNames.hasMoreElements()) {
-				message += prefix;
-				prefix = ", ";
+				String prefix = ": ";
+				Enumeration<String> headerNames = httpRequest.getHeaderNames();
+				while (headerNames.hasMoreElements()) {
+					message += prefix;
+					prefix = ", ";
 
-				String headerName = headerNames.nextElement();
-				message += headerName;
+					String headerName = headerNames.nextElement();
+					message += headerName;
+				}
+				message += ".";
+
+				logger.log(Level.INFO, message);
+
+				HttpServletResponse httpResponse = (HttpServletResponse) response;
+				httpResponse.setContentType("text/plain");
+				httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, message);
+
+				return;
 			}
-			message += ".";
-
-			logger.log(Level.INFO, message);
-
-			HttpServletResponse httpResponse = (HttpServletResponse) response;
-			httpResponse.setContentType("text/plain");
-			httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, message);
-
-			return;
 		}
 
 		chain.doFilter(request, response);

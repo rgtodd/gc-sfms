@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>sfms.web</artifactId>
@@ -16,6 +17,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
+				<!-- <sfms.rest.host>http://localhost:8100</sfms.rest.host> -->
 				<sfms.rest.host>https://rest-dot-rgt-ssms.appspot.com</sfms.rest.host>
 			</properties>
 		</profile>
@@ -40,6 +42,9 @@
 				<version>${appengine.maven.plugin.version}</version>
 				<configuration>
 					<deploy.project>rgt-ssms</deploy.project>
+					<enableJarClasses>false</enableJarClasses>
+					<port>8200</port>
+					<address>0.0.0.0</address>
 				</configuration>
 			</plugin>
 			<plugin>

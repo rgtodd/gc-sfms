@@ -26,7 +26,8 @@ public class Secret {
 	}
 
 	public static String getRestAuthorizationToken() {
-		return INSTANCE.getProperty(REST_AUTHORIZATION_TOKEN_PROPERTY);
+		String result = INSTANCE.getProperty(REST_AUTHORIZATION_TOKEN_PROPERTY);
+		return result;
 	}
 
 	public Properties getProperties() {
@@ -42,45 +43,30 @@ public class Secret {
 	}
 
 	public String getProperty(String propertyName) {
-
 		Properties properties = getProperties();
-
-		// for (Object key : properties.keySet()) {
-		// Object value = properties.get(key);
-		// logger.log(Level.INFO, key.toString() + " : " + value.toString());
-		// }
-
 		String result = properties.getProperty(propertyName);
-
-		// logger.log(Level.INFO, "propertyName = " + propertyName);
-		// logger.log(Level.INFO, "result = " + result);
-
 		return result;
 	}
 
 	private Properties loadProperties() {
-
 		try {
+
 			Storage storage = StorageOptions.getDefaultInstance().getService();
 			BlobId blobId = BlobId.of(SECRET_BUCKET_NAME, SECRET_FILE_NAME);
 			Blob blob = storage.get(blobId);
-			byte[] bytes = blob.getContent();
-			String token = new String(bytes, "US-ASCII");
-			// logger.log(Level.INFO, "Secret properties: " + token);
-			try (StringReader reader = new StringReader(token)) {
+
+			byte[] contentBytes = blob.getContent();
+			String content = new String(contentBytes, "US-ASCII");
+
+			try (StringReader reader = new StringReader(content)) {
 				Properties properties = new Properties();
 				properties.load(reader);
-				// for (Object key : properties.keySet()) {
-				// Object value = properties.get(key);
-				// logger.log(Level.INFO, key.toString() + " : " + value.toString());
-				// }
 				return properties;
 			}
+
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Secrets could not be obtained.", e);
 			return new Properties();
 		}
-
 	}
-
 }

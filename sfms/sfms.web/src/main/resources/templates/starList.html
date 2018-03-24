@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+<head>
+<head>
+<title>Stars</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div layout:fragment="content">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+				<li class="breadcrumb-item active" aria-current="page">List
+					Stars</li>
+			</ol>
+		</nav>
+		<p>
+			<a class="btn btn-primary" th:href="@{/star_create}">Create</a>
+		</p>
+		<table class="table">
+			<thead>
+				<tr>
+					<th></th>
+					<th>Key</th>
+					<th>Star ID</th>
+					<th>Proper Name</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="star: ${stars}">
+					<td><a class="btn btn-primary" th:href="@{|/star/${star.key}|}">View</a></td>
+					<td th:text="${star.key}">123</td>
+					<td th:text="${star.starId}">123</td>
+					<td th:text="${star.properName}">USS Demo</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

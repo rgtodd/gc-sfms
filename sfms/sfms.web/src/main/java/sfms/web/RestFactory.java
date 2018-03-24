@@ -5,8 +5,10 @@ import java.util.List;
 
 import sfms.rest.models.CrewMember;
 import sfms.rest.models.Spaceship;
+import sfms.rest.models.Star;
 import sfms.web.models.CrewMemberModel;
 import sfms.web.models.SpaceshipModel;
+import sfms.web.models.StarModel;
 
 public class RestFactory {
 
@@ -21,6 +23,22 @@ public class RestFactory {
 		List<Spaceship> result = new ArrayList<Spaceship>();
 		for (SpaceshipModel spaceshipModel : spaceshipModels) {
 			result.add(createSpaceship(spaceshipModel));
+		}
+		return result;
+	}
+
+	public Star createStar(StarModel starModel) {
+		Star result = new Star();
+		result.setKey(starModel.getKey());
+		result.setStarId(starModel.getStarId());
+		result.setProperName(starModel.getProperName());
+		return result;
+	}
+
+	public List<Star> createStars(Iterable<StarModel> starModels) {
+		List<Star> result = new ArrayList<Star>();
+		for (StarModel starModel : starModels) {
+			result.add(createStar(starModel));
 		}
 		return result;
 	}
