@@ -2,24 +2,24 @@ package sfms.db;
 
 public class DbCrewAssignment {
 
-	private long m_crewMemberId;
-	private Long m_spaceshipId;
+	private String m_crewMemberKey;
+	private String m_spaceshipKey;
 	private String m_department;
 
-	public DbCrewAssignment(long crewMemberId) {
-		m_crewMemberId = crewMemberId;
+	public DbCrewAssignment(String crewMemberKey) {
+		m_crewMemberKey = crewMemberKey;
 	}
 
-	public long getCrewMemberId() {
-		return m_crewMemberId;
+	public String getCrewMemberKey() {
+		return m_crewMemberKey;
 	}
 
-	public Long getSpaceshipId() {
-		return m_spaceshipId;
+	public String getSpaceshipKey() {
+		return m_spaceshipKey;
 	}
 
-	public void setSpaceshipId(Long spaceshipId) {
-		m_spaceshipId = spaceshipId;
+	public void setSpaceshipKey(String spaceshipKey) {
+		m_spaceshipKey = spaceshipKey;
 	}
 
 	public String getDepartment() {

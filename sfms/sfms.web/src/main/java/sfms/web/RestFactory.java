@@ -14,7 +14,7 @@ public class RestFactory {
 
 	public Spaceship createSpaceship(SpaceshipModel spaceshipModel) {
 		Spaceship result = new Spaceship();
-		result.setId(asLong(spaceshipModel.getId()));
+		result.setKey(spaceshipModel.getId());
 		result.setName(spaceshipModel.getName());
 		return result;
 	}
@@ -45,7 +45,7 @@ public class RestFactory {
 
 	public CrewMember createCrewMember(CrewMemberModel crewMemberModel) {
 		CrewMember result = new CrewMember();
-		result.setId(asLong(crewMemberModel.getId()));
+		result.setKey(crewMemberModel.getId());
 		result.setFirstName(crewMemberModel.getFirstName());
 		result.setLastName(crewMemberModel.getLastName());
 		return result;
@@ -58,11 +58,4 @@ public class RestFactory {
 		}
 		return result;
 	}
-
-	private Long asLong(String value) {
-		if (value == null)
-			return null;
-		return Long.valueOf(value);
-	}
-
 }

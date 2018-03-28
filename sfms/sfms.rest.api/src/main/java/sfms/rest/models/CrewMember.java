@@ -2,19 +2,19 @@ package sfms.rest.models;
 
 public class CrewMember {
 
-	private Long m_id;
+	private String m_key;
 	private String m_firstName;
 	private String m_lastName;
 
 	public CrewMember() {
 	}
 
-	public Long getId() {
-		return m_id;
+	public String getKey() {
+		return m_key;
 	}
 
-	public void setId(Long id) {
-		m_id = id;
+	public void setKey(String key) {
+		m_key = key;
 	}
 
 	public String getFirstName() {

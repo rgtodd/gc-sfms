@@ -2,15 +2,15 @@ package sfms.db;
 
 public class DbSpaceship {
 
-	private long m_id;
+	private String m_key;
 	private String m_name;
 
-	public DbSpaceship(long id) {
-		m_id = id;
+	public DbSpaceship(String key) {
+		m_key = key;
 	}
 
-	public long getId() {
-		return m_id;
+	public String getKey() {
+		return m_key;
 	}
 
 	public String getName() {

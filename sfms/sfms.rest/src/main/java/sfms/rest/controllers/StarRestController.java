@@ -1,6 +1,7 @@
 package sfms.rest.controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.cloud.datastore.Datastore;
@@ -44,8 +46,7 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = datastore
-				.newKeyFactory()
+		Key key = datastore.newKeyFactory()
 				.setKind(StarEntitySchema.Kind)
 				.newKey(Long.parseLong(id));
 
@@ -58,7 +59,12 @@ public class StarRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Star> search() throws Exception {
+	public SearchResult<Star> search(
+			@RequestParam("bookmark") Optional<String> bookmark,
+			@RequestParam("pageIndex") Optional<Long> pageIndex,
+			@RequestParam("pageSize") Optional<Long> pageSize,
+			@RequestParam("filter") Optional<String> filter,
+			@RequestParam("sort") Optional<String> sort) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");

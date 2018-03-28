@@ -8,9 +8,9 @@ public class Database {
 
 	public final static Database INSTANCE = new Database();
 
-	private ConcurrentMap<Long, DbSpaceship> m_spaceships = new ConcurrentHashMap<Long, DbSpaceship>();
-	private ConcurrentMap<Long, DbCrewMember> m_crewMembers = new ConcurrentHashMap<Long, DbCrewMember>();
-	private ConcurrentMap<Long, DbCrewAssignment> m_crewAssignments = new ConcurrentHashMap<Long, DbCrewAssignment>();
+	private ConcurrentMap<String, DbSpaceship> m_spaceships = new ConcurrentHashMap<String, DbSpaceship>();
+	private ConcurrentMap<String, DbCrewMember> m_crewMembers = new ConcurrentHashMap<String, DbCrewMember>();
+	private ConcurrentMap<String, DbCrewAssignment> m_crewAssignments = new ConcurrentHashMap<String, DbCrewAssignment>();
 
 	private AtomicLong m_id = new AtomicLong();
 
@@ -19,19 +19,19 @@ public class Database {
 		generator.populate(this);
 	}
 
-	public ConcurrentMap<Long, DbSpaceship> getSpaceships() {
+	public ConcurrentMap<String, DbSpaceship> getSpaceships() {
 		return m_spaceships;
 	}
 
-	public ConcurrentMap<Long, DbCrewMember> getCrewMembers() {
+	public ConcurrentMap<String, DbCrewMember> getCrewMembers() {
 		return m_crewMembers;
 	}
 
-	public ConcurrentMap<Long, DbCrewAssignment> getCrewAssignments() {
+	public ConcurrentMap<String, DbCrewAssignment> getCrewAssignments() {
 		return m_crewAssignments;
 	}
 
-	public long getNextId() {
-		return m_id.getAndIncrement();
+	public String getNextId() {
+		return String.valueOf(m_id.getAndIncrement());
 	}
 }

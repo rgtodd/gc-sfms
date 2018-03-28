@@ -14,6 +14,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.util.StringUtils;
+
 public class AppEngineHeaderFilter implements Filter {
 
 	private final Logger logger = Logger.getLogger(AppEngineHeaderFilter.class.getName());
@@ -28,7 +30,7 @@ public class AppEngineHeaderFilter implements Filter {
 			throws IOException, ServletException {
 
 		String expectedAuthorizationToken = Secret.getRestAuthorizationToken();
-		if (expectedAuthorizationToken != null && !expectedAuthorizationToken.isEmpty()) {
+		if (!StringUtils.isEmpty(expectedAuthorizationToken)) {
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
 			String actualAuthorizationToken = httpRequest.getHeader(RestUtility.REST_AUTHORIZATION_TOKEN_HEADER_KEY);
 			if (actualAuthorizationToken == null || !actualAuthorizationToken.equals(expectedAuthorizationToken)) {

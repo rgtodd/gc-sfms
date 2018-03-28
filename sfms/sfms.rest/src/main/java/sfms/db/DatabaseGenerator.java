@@ -139,22 +139,22 @@ public class DatabaseGenerator {
 
 		for (int idx = 0; idx < CREWMEMBER_COUNT; ++idx) {
 			DbCrewMember crewMember = createCrewMember(database);
-			database.getCrewMembers().put(crewMember.getId(), crewMember);
+			database.getCrewMembers().put(crewMember.getKey(), crewMember);
 		}
 
-		List<Long> spaceshipIds = new ArrayList<Long>();
+		List<String> spaceshipIds = new ArrayList<String>();
 		for (int idx = 0; idx < SPACESHIP_COUNT; ++idx) {
 			DbSpaceship spaceship = createSpaceship(database);
-			spaceshipIds.add(spaceship.getId());
-			database.getSpaceships().put(spaceship.getId(), spaceship);
+			spaceshipIds.add(spaceship.getKey());
+			database.getSpaceships().put(spaceship.getKey(), spaceship);
 		}
 
 		for (DbCrewMember crewMember : database.getCrewMembers().values()) {
-			long spaceshipId = spaceshipIds.get(RANDOM.nextInt(spaceshipIds.size()));
-			DbCrewAssignment crewAssignment = new DbCrewAssignment(crewMember.getId());
+			String spaceshipId = spaceshipIds.get(RANDOM.nextInt(spaceshipIds.size()));
+			DbCrewAssignment crewAssignment = new DbCrewAssignment(crewMember.getKey());
 			crewAssignment.setDepartment(getRandomDepartment());
-			crewAssignment.setSpaceshipId(spaceshipId);
-			database.getCrewAssignments().put(crewAssignment.getCrewMemberId(), crewAssignment);
+			crewAssignment.setSpaceshipKey(spaceshipId);
+			database.getCrewAssignments().put(crewAssignment.getCrewMemberKey(), crewAssignment);
 		}
 
 	}

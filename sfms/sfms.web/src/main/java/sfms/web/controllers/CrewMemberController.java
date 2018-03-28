@@ -26,11 +26,11 @@ import sfms.web.models.CrewMemberModel;
 @Controller
 public class CrewMemberController extends SfmsController {
 
-	@GetMapping({ "/crewMember/{id}" })
-	public String get(@PathVariable Long id, ModelMap modelMap) {
+	@GetMapping({ "/crewMember/{key}" })
+	public String get(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + id.toString()),
+		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key),
 				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
 				});
 
@@ -76,8 +76,8 @@ public class CrewMemberController extends SfmsController {
 		CrewMember crewMember = factory.createCrewMember(crewMemberModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CreateResult<Long>> restResponse = restTemplate.exchange(getRestUrl("crewMember"),
-				HttpMethod.PUT, createHttpEntity(crewMember), new ParameterizedTypeReference<CreateResult<Long>>() {
+		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(getRestUrl("crewMember"),
+				HttpMethod.PUT, createHttpEntity(crewMember), new ParameterizedTypeReference<CreateResult<String>>() {
 				}
 
 		);
@@ -85,11 +85,11 @@ public class CrewMemberController extends SfmsController {
 		return "redirect:/crewMember/" + restResponse.getBody().getKey().toString();
 	}
 
-	@GetMapping({ "/crewMember_edit/{id}" })
-	public String edit(@PathVariable Long id, ModelMap modelMap) {
+	@GetMapping({ "/crewMember_edit/{key}" })
+	public String edit(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + id.toString()),
+		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key),
 				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
 				});
 
@@ -108,9 +108,9 @@ public class CrewMemberController extends SfmsController {
 		CrewMember crewMember = factory.createCrewMember(crewMemberModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<UpdateResult<Long>> restResponse = restTemplate.exchange(
-				getRestUrl("crewMember/" + crewMember.getId().toString()), HttpMethod.PUT, createHttpEntity(crewMember),
-				new ParameterizedTypeReference<UpdateResult<Long>>() {
+		ResponseEntity<UpdateResult<String>> restResponse = restTemplate.exchange(
+				getRestUrl("crewMember/" + crewMember.getKey()), HttpMethod.PUT, createHttpEntity(crewMember),
+				new ParameterizedTypeReference<UpdateResult<String>>() {
 				}
 
 		);
@@ -118,11 +118,11 @@ public class CrewMemberController extends SfmsController {
 		return "redirect:/crewMember/" + restResponse.getBody().getKey().toString();
 	}
 
-	@GetMapping({ "/crewMember_delete/{id}" })
-	public String delete(@PathVariable Long id, ModelMap modelMap) {
+	@GetMapping({ "/crewMember_delete/{key}" })
+	public String delete(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + id.toString()),
+		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key),
 				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
 				});
 
@@ -142,9 +142,9 @@ public class CrewMemberController extends SfmsController {
 
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
-		ResponseEntity<DeleteResult<Long>> restResponse = restTemplate.exchange(
-				getRestUrl("crewMember/" + crewMember.getId().toString()), HttpMethod.DELETE,
-				createHttpEntity(crewMember), new ParameterizedTypeReference<DeleteResult<Long>>() {
+		ResponseEntity<DeleteResult<String>> restResponse = restTemplate.exchange(
+				getRestUrl("crewMember/" + crewMember.getKey()), HttpMethod.DELETE,
+				createHttpEntity(crewMember), new ParameterizedTypeReference<DeleteResult<String>>() {
 				}
 
 		);

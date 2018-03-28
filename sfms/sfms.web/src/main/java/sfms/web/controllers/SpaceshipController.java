@@ -107,7 +107,7 @@ public class SpaceshipController extends SfmsController {
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<UpdateResult<Long>> restResponse = restTemplate.exchange(
-				getRestUrl("spaceship/" + spaceship.getId().toString()), HttpMethod.PUT, createHttpEntity(spaceship),
+				getRestUrl("spaceship/" + spaceship.getKey().toString()), HttpMethod.PUT, createHttpEntity(spaceship),
 				new ParameterizedTypeReference<UpdateResult<Long>>() {
 				}
 
@@ -141,7 +141,7 @@ public class SpaceshipController extends SfmsController {
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
 		ResponseEntity<DeleteResult<Long>> restResponse = restTemplate.exchange(
-				getRestUrl("spaceship/" + spaceship.getId().toString()), HttpMethod.DELETE, createHttpEntity(spaceship),
+				getRestUrl("spaceship/" + spaceship.getKey().toString()), HttpMethod.DELETE, createHttpEntity(spaceship),
 				new ParameterizedTypeReference<DeleteResult<Long>>() {
 				}
 

@@ -1,7 +1,7 @@
 package sfms.rest.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,18 +10,25 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import sfms.db.Database;
-import sfms.db.DbCrewMember;
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreOptions;
+import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.IncompleteKey;
+import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
+
 import sfms.rest.CreateResult;
-import sfms.rest.DbFactory;
 import sfms.rest.DeleteResult;
 import sfms.rest.RestFactory;
 import sfms.rest.SearchResult;
 import sfms.rest.Throttle;
 import sfms.rest.UpdateResult;
 import sfms.rest.models.CrewMember;
+import sfms.rest.schemas.CrewMemberEntitySchema;
 
 @RestController
 @RequestMapping("/crewMember")
@@ -31,35 +38,48 @@ public class CrewMemberRestController {
 	private Throttle m_throttle;
 
 	@GetMapping(value = "/{id}")
-	public CrewMember get(@PathVariable Long id) throws Exception {
+	public CrewMember get(@PathVariable String id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
-		DbCrewMember dbCrewMember = Database.INSTANCE.getCrewMembers().get(id);
-		if (dbCrewMember == null) {
-			throw new Exception("Entity not found.");
-		}
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+		Key key = datastore.newKeyFactory()
+				.setKind(CrewMemberEntitySchema.Kind)
+				.newKey(Long.parseLong(id));
+
+		Entity entity = datastore.get(key);
 
 		RestFactory factory = new RestFactory();
-		CrewMember result = factory.createCrewMember(dbCrewMember);
+		CrewMember result = factory.createCrewMember(entity);
 
 		return result;
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<CrewMember> search() throws Exception {
+	public SearchResult<CrewMember> search(
+			@RequestParam("bookmark") Optional<String> bookmark,
+			@RequestParam("pageIndex") Optional<Long> pageIndex,
+			@RequestParam("pageSize") Optional<Long> pageSize,
+			@RequestParam("filter") Optional<String> filter,
+			@RequestParam("sort") Optional<String> sort) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+		Query<Entity> query = Query.newEntityQueryBuilder()
+				.setKind(CrewMemberEntitySchema.Kind)
+				.build();
+
+		QueryResults<Entity> entities = datastore.run(query);
+
 		RestFactory factory = new RestFactory();
-		List<CrewMember> crewMembers = new ArrayList<CrewMember>();
-		for (DbCrewMember dbCrewMember : Database.INSTANCE.getCrewMembers().values()) {
-			crewMembers.add(factory.createCrewMember(dbCrewMember));
-		}
+		List<CrewMember> crewMembers = factory.createCrewMembers(entities);
 
 		SearchResult<CrewMember> result = new SearchResult<CrewMember>();
 		result.setEntities(crewMembers);
@@ -68,53 +88,74 @@ public class CrewMemberRestController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<Long> update(@PathVariable long id, @RequestBody CrewMember crewMember) throws Exception {
+	public UpdateResult<String> update(@PathVariable String id, @RequestBody CrewMember crewMember) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
-		crewMember.setId(id);
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		DbFactory factory = new DbFactory();
-		DbCrewMember dbCrewMember = factory.createCrewMember(crewMember);
-		Database.INSTANCE.getCrewMembers().put(dbCrewMember.getId(), dbCrewMember);
+		Key key = datastore.newKeyFactory()
+				.setKind(CrewMemberEntitySchema.Kind)
+				.newKey(Long.parseLong(id));
 
-		UpdateResult<Long> result = new UpdateResult<Long>();
-		result.setKey(dbCrewMember.getId());
+		Entity entity = Entity.newBuilder(key)
+				.set(CrewMemberEntitySchema.FirstName, crewMember.getFirstName())
+				.set(CrewMemberEntitySchema.LastName, crewMember.getLastName())
+				.build();
+
+		datastore.update(entity);
+
+		UpdateResult<String> result = new UpdateResult<String>();
+		result.setKey(id);
 
 		return result;
 	}
 
 	@PutMapping(value = "")
-	public CreateResult<Long> create(@RequestBody CrewMember crewMember) throws Exception {
+	public CreateResult<String> create(@RequestBody CrewMember crewMember) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
-		crewMember.setId(Database.INSTANCE.getNextId());
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		DbFactory factory = new DbFactory();
-		DbCrewMember dbCrewMember = factory.createCrewMember(crewMember);
-		Database.INSTANCE.getCrewMembers().put(dbCrewMember.getId(), dbCrewMember);
+		IncompleteKey incompleteKey = datastore.newKeyFactory()
+				.setKind(CrewMemberEntitySchema.Kind)
+				.newKey();
+		Key key = datastore.allocateId(incompleteKey);
 
-		CreateResult<Long> result = new CreateResult<Long>();
-		result.setKey(dbCrewMember.getId());
+		Entity entity = Entity.newBuilder(key)
+				.set(CrewMemberEntitySchema.FirstName, crewMember.getFirstName())
+				.set(CrewMemberEntitySchema.LastName, crewMember.getLastName())
+				.build();
+
+		datastore.put(entity);
+
+		CreateResult<String> result = new CreateResult<String>();
+		result.setKey(key.getId().toString());
 
 		return result;
 	}
 
 	@DeleteMapping(value = "/{id}")
-	public DeleteResult<Long> delete(@PathVariable long id) throws Exception {
+	public DeleteResult<String> delete(@PathVariable String id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
-		Database.INSTANCE.getCrewMembers().remove(id);
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		DeleteResult<Long> result = new DeleteResult<Long>();
+		Key key = datastore.newKeyFactory()
+				.setKind(CrewMemberEntitySchema.Kind)
+				.newKey(Long.parseLong(id));
+
+		datastore.delete(key);
+
+		DeleteResult<String> result = new DeleteResult<String>();
 		result.setKey(id);
 
 		return result;

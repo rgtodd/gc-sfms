@@ -2,15 +2,15 @@ package sfms.rest.models;
 
 public class Spaceship {
 
-	private Long m_id;
+	private String m_key;
 	private String m_name;
 
-	public Long getId() {
-		return m_id;
+	public String getKey() {
+		return m_key;
 	}
 
-	public void setId(Long id) {
-		m_id = id;
+	public void setKey(String key) {
+		m_key = key;
 	}
 
 	public String getName() {
@@ -23,6 +23,6 @@ public class Spaceship {
 
 	@Override
 	public String toString() {
-		return "Id = " + getId() + ", Name = " + getName();
+		return "Id = " + getKey() + ", Name = " + getName();
 	}
 }

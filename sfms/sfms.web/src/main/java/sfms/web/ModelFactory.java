@@ -19,7 +19,7 @@ public class ModelFactory {
 
 	public SpaceshipModel createSpaceship(Spaceship spaceship) {
 		SpaceshipModel result = new SpaceshipModel();
-		result.setId(asString(spaceship.getId()));
+		result.setId(spaceship.getKey());
 		result.setName(spaceship.getName());
 		return result;
 	}
@@ -60,7 +60,7 @@ public class ModelFactory {
 
 	public CrewMemberModel createCrewMember(CrewMember crewMember) {
 		CrewMemberModel result = new CrewMemberModel();
-		result.setId(asString(crewMember.getId()));
+		result.setId(crewMember.getKey());
 		result.setFirstName(crewMember.getFirstName());
 		result.setLastName(crewMember.getLastName());
 		return result;
@@ -73,11 +73,4 @@ public class ModelFactory {
 		}
 		return result;
 	}
-
-	private String asString(Long value) {
-		if (value == null)
-			return null;
-		return value.toString();
-	}
-
 }

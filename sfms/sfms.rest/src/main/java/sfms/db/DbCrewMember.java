@@ -2,16 +2,16 @@ package sfms.db;
 
 public class DbCrewMember {
 
-	public long m_id;
+	public String m_key;
 	public String m_firstName;
 	public String m_lastName;
 
-	public DbCrewMember(long id) {
-		m_id = id;
+	public DbCrewMember(String key) {
+		m_key = key;
 	}
 
-	public long getId() {
-		return m_id;
+	public String getKey() {
+		return m_key;
 	}
 
 	public String getFirstName() {

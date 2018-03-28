@@ -1,7 +1,7 @@
 package sfms.rest.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,18 +10,25 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import sfms.db.Database;
-import sfms.db.DbSpaceship;
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreOptions;
+import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.IncompleteKey;
+import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
+
 import sfms.rest.CreateResult;
-import sfms.rest.DbFactory;
 import sfms.rest.DeleteResult;
 import sfms.rest.RestFactory;
 import sfms.rest.SearchResult;
 import sfms.rest.Throttle;
 import sfms.rest.UpdateResult;
 import sfms.rest.models.Spaceship;
+import sfms.rest.schemas.SpaceshipEntitySchema;
 
 @RestController
 @RequestMapping("/spaceship")
@@ -31,35 +38,48 @@ public class SpaceshipRestController {
 	private Throttle m_throttle;
 
 	@GetMapping(value = "/{id}")
-	public Spaceship get(@PathVariable Long id) throws Exception {
+	public Spaceship get(@PathVariable String id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
-		DbSpaceship dbSpaceship = Database.INSTANCE.getSpaceships().get(id);
-		if (dbSpaceship == null) {
-			throw new Exception("Entity not found.");
-		}
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+		Key key = datastore.newKeyFactory()
+				.setKind(SpaceshipEntitySchema.Kind)
+				.newKey(Long.parseLong(id));
+
+		Entity entity = datastore.get(key);
 
 		RestFactory factory = new RestFactory();
-		Spaceship result = factory.createSpaceship(dbSpaceship);
+		Spaceship result = factory.createSpaceship(entity);
 
 		return result;
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Spaceship> search() throws Exception {
+	public SearchResult<Spaceship> search(
+			@RequestParam("bookmark") Optional<String> bookmark,
+			@RequestParam("pageIndex") Optional<Long> pageIndex,
+			@RequestParam("pageSize") Optional<Long> pageSize,
+			@RequestParam("filter") Optional<String> filter,
+			@RequestParam("sort") Optional<String> sort) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+		Query<Entity> query = Query.newEntityQueryBuilder()
+				.setKind(SpaceshipEntitySchema.Kind)
+				.build();
+
+		QueryResults<Entity> entities = datastore.run(query);
+
 		RestFactory factory = new RestFactory();
-		List<Spaceship> spaceships = new ArrayList<Spaceship>();
-		for (DbSpaceship dbSpaceship : Database.INSTANCE.getSpaceships().values()) {
-			spaceships.add(factory.createSpaceship(dbSpaceship));
-		}
+		List<Spaceship> spaceships = factory.createSpaceships(entities);
 
 		SearchResult<Spaceship> result = new SearchResult<Spaceship>();
 		result.setEntities(spaceships);
@@ -68,53 +88,72 @@ public class SpaceshipRestController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<Long> update(@PathVariable long id, @RequestBody Spaceship spaceship) throws Exception {
+	public UpdateResult<String> update(@PathVariable String id, @RequestBody Spaceship spaceship) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
-		spaceship.setId(id);
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		DbFactory factory = new DbFactory();
-		DbSpaceship dbSpaceship = factory.createSpaceship(spaceship);
-		Database.INSTANCE.getSpaceships().put(dbSpaceship.getId(), dbSpaceship);
+		Key key = datastore.newKeyFactory()
+				.setKind(SpaceshipEntitySchema.Kind)
+				.newKey(Long.parseLong(id));
 
-		UpdateResult<Long> result = new UpdateResult<Long>();
-		result.setKey(dbSpaceship.getId());
+		Entity entity = Entity.newBuilder(key)
+				.set(SpaceshipEntitySchema.Name, spaceship.getName())
+				.build();
+
+		datastore.update(entity);
+
+		UpdateResult<String> result = new UpdateResult<String>();
+		result.setKey(id);
 
 		return result;
 	}
 
 	@PutMapping(value = "")
-	public CreateResult<Long> create(@RequestBody Spaceship spaceship) throws Exception {
+	public CreateResult<String> create(@RequestBody Spaceship spaceship) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
-		spaceship.setId(Database.INSTANCE.getNextId());
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		DbFactory factory = new DbFactory();
-		DbSpaceship dbSpaceship = factory.createSpaceship(spaceship);
-		Database.INSTANCE.getSpaceships().put(dbSpaceship.getId(), dbSpaceship);
+		IncompleteKey incompleteKey = datastore.newKeyFactory()
+				.setKind(SpaceshipEntitySchema.Kind)
+				.newKey();
+		Key key = datastore.allocateId(incompleteKey);
 
-		CreateResult<Long> result = new CreateResult<Long>();
-		result.setKey(dbSpaceship.getId());
+		Entity entity = Entity.newBuilder(key)
+				.set(SpaceshipEntitySchema.Name, spaceship.getName())
+				.build();
+
+		datastore.put(entity);
+
+		CreateResult<String> result = new CreateResult<String>();
+		result.setKey(key.getId().toString());
 
 		return result;
 	}
 
 	@DeleteMapping(value = "/{id}")
-	public DeleteResult<Long> delete(@PathVariable long id) throws Exception {
+	public DeleteResult<String> delete(@PathVariable String id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
-		Database.INSTANCE.getSpaceships().remove(id);
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		DeleteResult<Long> result = new DeleteResult<Long>();
+		Key key = datastore.newKeyFactory()
+				.setKind(SpaceshipEntitySchema.Kind)
+				.newKey(Long.parseLong(id));
+
+		datastore.delete(key);
+
+		DeleteResult<String> result = new DeleteResult<String>();
 		result.setKey(id);
 
 		return result;

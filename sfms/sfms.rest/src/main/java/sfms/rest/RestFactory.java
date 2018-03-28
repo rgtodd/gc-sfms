@@ -11,6 +11,8 @@ import sfms.db.DbSpaceship;
 import sfms.rest.models.CrewMember;
 import sfms.rest.models.Spaceship;
 import sfms.rest.models.Star;
+import sfms.rest.schemas.CrewMemberEntitySchema;
+import sfms.rest.schemas.SpaceshipEntitySchema;
 import sfms.rest.schemas.StarEntitySchema;
 
 public class RestFactory {
@@ -32,10 +34,26 @@ public class RestFactory {
 		return result;
 	}
 
+	public Spaceship createSpaceship(Entity entity) {
+		Spaceship result = new Spaceship();
+		result.setKey(entity.getKey().getId().toString());
+		result.setName(entity.getString(SpaceshipEntitySchema.Name));
+		return result;
+	}
+
 	public Spaceship createSpaceship(DbSpaceship dbSpaceship) {
 		Spaceship result = new Spaceship();
-		result.setId(dbSpaceship.getId());
+		result.setKey(dbSpaceship.getKey());
 		result.setName(dbSpaceship.getName());
+		return result;
+	}
+
+	public List<Spaceship> createSpaceships(Iterator<Entity> entities) {
+		List<Spaceship> result = new ArrayList<Spaceship>();
+		while (entities.hasNext()) {
+			Entity entity = entities.next();
+			result.add(createSpaceship(entity));
+		}
 		return result;
 	}
 
@@ -47,11 +65,28 @@ public class RestFactory {
 		return result;
 	}
 
+	public CrewMember createCrewMember(Entity entity) {
+		CrewMember result = new CrewMember();
+		result.setKey(entity.getKey().getId().toString());
+		result.setFirstName(entity.getString(CrewMemberEntitySchema.FirstName));
+		result.setLastName(entity.getString(CrewMemberEntitySchema.LastName));
+		return result;
+	}
+
 	public CrewMember createCrewMember(DbCrewMember dbCrewMember) {
 		CrewMember result = new CrewMember();
-		result.setId(dbCrewMember.getId());
+		result.setKey(dbCrewMember.getKey());
 		result.setFirstName(dbCrewMember.getFirstName());
 		result.setLastName(dbCrewMember.getLastName());
+		return result;
+	}
+
+	public List<CrewMember> createCrewMembers(Iterator<Entity> entities) {
+		List<CrewMember> result = new ArrayList<CrewMember>();
+		while (entities.hasNext()) {
+			Entity entity = entities.next();
+			result.add(createCrewMember(entity));
+		}
 		return result;
 	}
 
@@ -62,5 +97,4 @@ public class RestFactory {
 		}
 		return result;
 	}
-
 }
