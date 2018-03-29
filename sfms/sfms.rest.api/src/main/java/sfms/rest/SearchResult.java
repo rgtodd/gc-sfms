@@ -10,6 +10,7 @@ public class SearchResult<TEntity> {
 	private Long m_pageIndex;
 	private String m_sort;
 	private String m_filter;
+	private Boolean m_endOfResults;
 	private List<TEntity> m_entities;
 
 	public String getStartingBookmark() {
@@ -66,6 +67,14 @@ public class SearchResult<TEntity> {
 
 	public void setEntities(List<TEntity> entities) {
 		m_entities = entities;
+	}
+
+	public Boolean getEndOfResults() {
+		return m_endOfResults;
+	}
+
+	public void setEndOfResults(Boolean endOfResults) {
+		m_endOfResults = endOfResults;
 	}
 
 }

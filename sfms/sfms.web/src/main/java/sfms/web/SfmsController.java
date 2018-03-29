@@ -4,6 +4,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import sfms.rest.RestUtility;
 import sfms.rest.Secret;
@@ -21,6 +23,12 @@ public class SfmsController {
 	protected RestTemplate createRestTempate() {
 		RestTemplate restTemplate = new RestTemplate();
 		return restTemplate;
+	}
+
+	protected UriBuilder getUriBuilder() {
+		String host = SfmsProperties.INSTANCE.getProperty(SfmsProperties.APPLICATION, SfmsProperties.SFMS_REST_HOST);
+		UriBuilder result = UriComponentsBuilder.fromUriString(host);
+		return result;
 	}
 
 	protected String getRestUrl(String url) {

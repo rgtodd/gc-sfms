@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.cloud.datastore.Cursor;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
@@ -33,6 +35,8 @@ import sfms.rest.schemas.CrewMemberEntitySchema;
 @RestController
 @RequestMapping("/crewMember")
 public class CrewMemberRestController {
+
+	private static final int DEFAULT_PAGE_SIZE = 10;
 
 	@Autowired
 	private Throttle m_throttle;
@@ -62,7 +66,7 @@ public class CrewMemberRestController {
 	public SearchResult<CrewMember> search(
 			@RequestParam("bookmark") Optional<String> bookmark,
 			@RequestParam("pageIndex") Optional<Long> pageIndex,
-			@RequestParam("pageSize") Optional<Long> pageSize,
+			@RequestParam("pageSize") Optional<Integer> pageSize,
 			@RequestParam("filter") Optional<String> filter,
 			@RequestParam("sort") Optional<String> sort) throws Exception {
 
@@ -70,11 +74,18 @@ public class CrewMemberRestController {
 			throw new Exception("Function is throttled.");
 		}
 
+		int limit = pageSize.orElse(DEFAULT_PAGE_SIZE);
+
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> query = Query.newEntityQueryBuilder()
-				.setKind(CrewMemberEntitySchema.Kind)
-				.build();
+		Builder queryBuilder = Query.newEntityQueryBuilder();
+		queryBuilder.setKind(CrewMemberEntitySchema.Kind);
+		queryBuilder.setLimit(limit);
+		if (bookmark.isPresent()) {
+			queryBuilder.setStartCursor(Cursor.fromUrlSafe(bookmark.get()));
+		}
+
+		Query<Entity> query = queryBuilder.build();
 
 		QueryResults<Entity> entities = datastore.run(query);
 
@@ -83,6 +94,8 @@ public class CrewMemberRestController {
 
 		SearchResult<CrewMember> result = new SearchResult<CrewMember>();
 		result.setEntities(crewMembers);
+		result.setEndingBookmark(entities.getCursorAfter().toUrlSafe());
+		result.setEndOfResults(crewMembers.size() < limit);
 
 		return result;
 	}
