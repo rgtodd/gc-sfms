@@ -17,8 +17,8 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<sfms.rest.host>http://localhost:8100</sfms.rest.host>
-				<!-- <sfms.rest.host>https://rest-dot-rgt-ssms.appspot.com</sfms.rest.host> -->
+				<!-- <sfms.rest.host>http://localhost:8100</sfms.rest.host> -->
+				<sfms.rest.host>https://rest-dot-rgt-ssms.appspot.com</sfms.rest.host>
 			</properties>
 		</profile>
 		<profile>

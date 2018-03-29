@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+<head>
+<head>
+<title>Generate Spaceships</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div layout:fragment="content">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/debug}">Debug</a></li>
+				<li class="breadcrumb-item active" aria-current="page">Generate
+					Spaceships</li>
+			</ol>
+		</nav>
+		<p>Specify information and click Generate when complete.</p>
+		<form th:action="@{/debug_generateSpaceshipsPost}"
+			th:object="${options}" method="post">
+			<div class="form-group row">
+				<label for="txtRecordCount" class="col-sm-2 col-form-label">Record
+					Count</label>
+				<div class="col-sm-10">
+					<input type="number" class="form-control" id="txtRecordCount"
+						th:field="*{recordCount}" placeholder="Enter Record Count"
+						required min="1" max="1000" maxlength="4">
+				</div>
+			</div>
+			<p>
+				<button type="submit" class="btn btn-primary">Generate</button>
+			</p>
+		</form>
+	</div>
+</body>
+</html>
