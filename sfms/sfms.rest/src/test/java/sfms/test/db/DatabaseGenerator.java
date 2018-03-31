@@ -1,4 +1,4 @@
-package sfms.db;
+package sfms.test.db;
 
 import java.util.ArrayList;
 import java.util.List;

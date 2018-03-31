@@ -21,6 +21,8 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 
+import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbStarField;
 import sfms.rest.CreateResult;
 import sfms.rest.DeleteResult;
 import sfms.rest.RestFactory;
@@ -28,7 +30,6 @@ import sfms.rest.SearchResult;
 import sfms.rest.Throttle;
 import sfms.rest.UpdateResult;
 import sfms.rest.models.Star;
-import sfms.rest.schemas.StarEntitySchema;
 
 @RestController
 @RequestMapping("/star")
@@ -47,7 +48,7 @@ public class StarRestController {
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 		Key key = datastore.newKeyFactory()
-				.setKind(StarEntitySchema.Kind)
+				.setKind(DbEntity.Star.getKind())
 				.newKey(Long.parseLong(id));
 
 		Entity entity = datastore.get(key);
@@ -73,7 +74,7 @@ public class StarRestController {
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 		Query<Entity> query = Query.newEntityQueryBuilder()
-				.setKind(StarEntitySchema.Kind)
+				.setKind(DbEntity.Star.getKind())
 				.build();
 
 		QueryResults<Entity> entities = datastore.run(query);
@@ -98,12 +99,12 @@ public class StarRestController {
 
 		Key key = datastore
 				.newKeyFactory()
-				.setKind(StarEntitySchema.Kind)
+				.setKind(DbEntity.Star.getKind())
 				.newKey(Long.parseLong(id));
 
 		Entity entity = Entity.newBuilder(key)
-				.set(StarEntitySchema.StarId, star.getStarId())
-				.set(StarEntitySchema.ProperName, star.getProperName())
+				.set(DbStarField.StarId.getName(), star.getStarId())
+				.set(DbStarField.ProperName.getName(), star.getProperName())
 				.build();
 
 		datastore.update(entity);
@@ -125,13 +126,13 @@ public class StarRestController {
 
 		IncompleteKey incompleteKey = datastore
 				.newKeyFactory()
-				.setKind(StarEntitySchema.Kind)
+				.setKind(DbEntity.Star.getKind())
 				.newKey();
 		Key key = datastore.allocateId(incompleteKey);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(StarEntitySchema.StarId, star.getStarId())
-				.set(StarEntitySchema.ProperName, star.getProperName())
+				.set(DbStarField.StarId.getName(), star.getStarId())
+				.set(DbStarField.ProperName.getName(), star.getProperName())
 				.build();
 
 		datastore.put(entity);
@@ -153,7 +154,7 @@ public class StarRestController {
 
 		Key key = datastore
 				.newKeyFactory()
-				.setKind(StarEntitySchema.Kind)
+				.setKind(DbEntity.Star.getKind())
 				.newKey(Long.parseLong(id));
 
 		datastore.delete(key);

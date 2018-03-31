@@ -21,6 +21,8 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 
+import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbSpaceshipField;
 import sfms.rest.CreateResult;
 import sfms.rest.DeleteResult;
 import sfms.rest.RestFactory;
@@ -28,7 +30,6 @@ import sfms.rest.SearchResult;
 import sfms.rest.Throttle;
 import sfms.rest.UpdateResult;
 import sfms.rest.models.Spaceship;
-import sfms.rest.schemas.SpaceshipEntitySchema;
 
 @RestController
 @RequestMapping("/spaceship")
@@ -47,7 +48,7 @@ public class SpaceshipRestController {
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 		Key key = datastore.newKeyFactory()
-				.setKind(SpaceshipEntitySchema.Kind)
+				.setKind(DbEntity.Spaceship.getKind())
 				.newKey(Long.parseLong(id));
 
 		Entity entity = datastore.get(key);
@@ -73,7 +74,7 @@ public class SpaceshipRestController {
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 		Query<Entity> query = Query.newEntityQueryBuilder()
-				.setKind(SpaceshipEntitySchema.Kind)
+				.setKind(DbEntity.Spaceship.getKind())
 				.build();
 
 		QueryResults<Entity> entities = datastore.run(query);
@@ -97,11 +98,11 @@ public class SpaceshipRestController {
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 		Key key = datastore.newKeyFactory()
-				.setKind(SpaceshipEntitySchema.Kind)
+				.setKind(DbEntity.Spaceship.getKind())
 				.newKey(Long.parseLong(id));
 
 		Entity entity = Entity.newBuilder(key)
-				.set(SpaceshipEntitySchema.Name, spaceship.getName())
+				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
 				.build();
 
 		datastore.update(entity);
@@ -122,12 +123,12 @@ public class SpaceshipRestController {
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 		IncompleteKey incompleteKey = datastore.newKeyFactory()
-				.setKind(SpaceshipEntitySchema.Kind)
+				.setKind(DbEntity.Spaceship.getKind())
 				.newKey();
 		Key key = datastore.allocateId(incompleteKey);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(SpaceshipEntitySchema.Name, spaceship.getName())
+				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
 				.build();
 
 		datastore.put(entity);
@@ -148,7 +149,7 @@ public class SpaceshipRestController {
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 		Key key = datastore.newKeyFactory()
-				.setKind(SpaceshipEntitySchema.Kind)
+				.setKind(DbEntity.Spaceship.getKind())
 				.newKey(Long.parseLong(id));
 
 		datastore.delete(key);

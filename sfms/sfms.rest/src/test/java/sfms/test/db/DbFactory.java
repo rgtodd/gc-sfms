@@ -1,7 +1,5 @@
-package sfms.rest;
+package sfms.test.db;
 
-import sfms.db.DbCrewMember;
-import sfms.db.DbSpaceship;
 import sfms.rest.models.CrewMember;
 import sfms.rest.models.Spaceship;
 

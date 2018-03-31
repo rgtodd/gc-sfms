@@ -21,13 +21,18 @@ import org.springframework.web.util.UriBuilder;
 
 import sfms.rest.CreateResult;
 import sfms.rest.DeleteResult;
+import sfms.rest.RestParameters;
 import sfms.rest.SearchResult;
+import sfms.rest.SortCriteria;
 import sfms.rest.UpdateResult;
 import sfms.rest.models.CrewMember;
+import sfms.rest.schemas.CrewMemberField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
+import sfms.web.model.schemas.CrewMemberModelSchema;
 import sfms.web.models.CrewMemberModel;
+import sfms.web.models.CrewMemberSortingModel;
 import sfms.web.models.PagingModel;
 
 @Controller
@@ -55,12 +60,61 @@ public class CrewMemberController extends SfmsController {
 	public String getList(
 			@RequestParam("pageNumber") Optional<Integer> pageNumber,
 			@RequestParam("bookmark") Optional<String> bookmark,
+			@RequestParam("sort") Optional<String> sort,
+			@RequestParam("direction") Optional<String> direction,
 			ModelMap modelMap) {
+
+		String effectiveSort;
+		if (sort.isPresent()) {
+			switch (sort.get()) {
+			case CrewMemberModelSchema.FIRST_NAME:
+			case CrewMemberModelSchema.LAST_NAME:
+				effectiveSort = sort.get();
+				break;
+			default:
+				effectiveSort = CrewMemberModelSchema.LAST_NAME;
+				break;
+			}
+		} else {
+			effectiveSort = CrewMemberModelSchema.LAST_NAME;
+		}
+
+		String effectiveDirection;
+		if (direction.isPresent()) {
+			switch (direction.get()) {
+			case CrewMemberSortingModel.ASCENDING:
+			case CrewMemberSortingModel.DESCENDING:
+				effectiveDirection = direction.get();
+				break;
+			default:
+				effectiveDirection = CrewMemberSortingModel.ASCENDING;
+			}
+		} else {
+			effectiveDirection = CrewMemberSortingModel.ASCENDING;
+		}
+
+		CrewMemberField sortColumn = null;
+		switch (effectiveSort) {
+		case CrewMemberModelSchema.FIRST_NAME:
+			sortColumn = CrewMemberField.FirstName;
+			break;
+		case CrewMemberModelSchema.LAST_NAME:
+			sortColumn = CrewMemberField.LastName;
+			break;
+		}
+
+		SortCriteria sortCriteria;
+		if (effectiveDirection.equals(CrewMemberSortingModel.ASCENDING)) {
+			sortCriteria = SortCriteria.ascending(sortColumn.getName());
+		} else {
+			sortCriteria = SortCriteria.descending(sortColumn.getName());
+		}
 
 		UriBuilder uriBuilder = getUriBuilder().pathSegment("crewMember");
 		if (bookmark.isPresent()) {
-			uriBuilder = uriBuilder.queryParam("bookmark", bookmark.get());
+			uriBuilder.queryParam(RestParameters.BOOKMARK, bookmark.get());
 		}
+		uriBuilder.queryParam(RestParameters.SORT, sortCriteria.toString());
 
 		URI uri = uriBuilder.build();
 		logger.log(Level.INFO, "uri = {0}", uri);
@@ -85,6 +139,11 @@ public class CrewMemberController extends SfmsController {
 		pagingModel.setCurrentPageNumber(pageNumber.orElse(1));
 		pagingModel.setNextPageNumber(pageNumber.orElse(1) + 1);
 		modelMap.addAttribute("paging", pagingModel);
+
+		CrewMemberSortingModel sortingModel = new CrewMemberSortingModel();
+		sortingModel.setSort(effectiveSort);
+		sortingModel.setDirection(effectiveDirection);
+		modelMap.addAttribute("sorting", sortingModel);
 
 		return "crewMemberList";
 	}

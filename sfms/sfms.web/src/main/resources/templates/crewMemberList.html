@@ -25,8 +25,16 @@
 				<tr>
 					<th></th>
 					<th>ID</th>
-					<th>First Name</th>
-					<th>Last Name</th>
+					<th><a class="nav-link"
+						th:href="@{|/crewMember?sort=FirstName&direction=${sorting.firstNameLinkDirection}|}">First
+							Name <i class="material-icons"
+							th:if="${sorting.firstNameHasIcon}" th:text="${sorting.iconName}">arrow_drop_up</i>
+					</a></th>
+					<th><a class="nav-link"
+						th:href="@{|/crewMember?sort=LastName&direction=${sorting.lastNameLinkDirection}|}">Last
+							Name <i class="material-icons" th:if="${sorting.lastNameHasIcon}"
+							th:text="${sorting.iconName}">arrow_drop_up</i>
+					</a></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -41,7 +49,7 @@
 		</table>
 		<p th:unless="${paging.endOfResults}">
 			<a class="btn btn-primary"
-				th:href="@{|/crewMember?pageNumber=${paging.nextPageNumber}&bookmark=${paging.nextBookmark}|}">Next</a>
+				th:href="@{|/crewMember?sort=${sorting.sort}&direction=${sorting.direction}&pageNumber=${paging.nextPageNumber}&bookmark=${paging.nextBookmark}|}">Next</a>
 		</p>
 	</div>
 </body>

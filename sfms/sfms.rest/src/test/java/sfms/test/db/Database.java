@@ -1,4 +1,4 @@
-package sfms.db;
+package sfms.test.db;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

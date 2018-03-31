@@ -1,4 +1,4 @@
-package sfms.db;
+package sfms.test.db;
 
 public class DbCrewMember {
 
