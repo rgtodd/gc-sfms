@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+<head>
+<head>
+<title>File Upload</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div layout:fragment="content">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/debug}">Debug</a></li>
+				<li class="breadcrumb-item active" aria-current="page">File
+					Upload</li>
+			</ol>
+		</nav>
+		<p>Specify information and click Generate when complete.</p>
+		<form th:action="@{/debug_uploadPost}" method="post"
+			enctype="multipart/form-data">
+			<div class="form-group row">
+				<label for="ctrlFile" class="col-sm-2 col-form-label">File</label>
+				<div class="col-sm-10 custom-file">
+					<input type="file" class="custom-file-input" id="ctrlFile"
+						name="ctrlFile"> <label class="custom-file-label"
+						for="ctrlFile">Choose file</label>
+				</div>
+			</div>
+			<p>
+				<button type="submit" class="btn btn-primary">Upload</button>
+			</p>
+		</form>
+	</div>
+	<div layout:fragment="scripts">
+		<script type="text/javascript">
+			$('.custom-file-input').on(
+					'change',
+					function() {
+						let fileName = $(this).val();
+						$(this).next('.custom-file-label').addClass("selected")
+								.html(fileName);
+					});
+		</script>
+	</div>
+</body>
+</html>

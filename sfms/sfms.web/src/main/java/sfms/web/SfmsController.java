@@ -7,8 +7,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import sfms.rest.RestUtility;
-import sfms.rest.Secret;
+import sfms.rest.api.RestUtility;
+import sfms.rest.api.Secret;
 
 public class SfmsController {
 

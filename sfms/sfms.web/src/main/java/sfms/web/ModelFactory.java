@@ -3,9 +3,9 @@ package sfms.web;
 import java.util.ArrayList;
 import java.util.List;
 
-import sfms.rest.models.CrewMember;
-import sfms.rest.models.Spaceship;
-import sfms.rest.models.Star;
+import sfms.rest.api.models.CrewMember;
+import sfms.rest.api.models.Spaceship;
+import sfms.rest.api.models.Star;
 import sfms.web.models.CrewMemberModel;
 import sfms.web.models.SpaceshipModel;
 import sfms.web.models.StarModel;

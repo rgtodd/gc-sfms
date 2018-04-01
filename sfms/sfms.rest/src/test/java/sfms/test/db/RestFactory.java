@@ -3,8 +3,8 @@ package sfms.test.db;
 import java.util.ArrayList;
 import java.util.List;
 
-import sfms.rest.models.CrewMember;
-import sfms.rest.models.Spaceship;
+import sfms.rest.api.models.CrewMember;
+import sfms.rest.api.models.Spaceship;
 
 public class RestFactory {
 

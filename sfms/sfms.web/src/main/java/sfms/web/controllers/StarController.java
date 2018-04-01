@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 
-import sfms.rest.CreateResult;
-import sfms.rest.DeleteResult;
-import sfms.rest.SearchResult;
-import sfms.rest.UpdateResult;
-import sfms.rest.models.Star;
+import sfms.rest.api.CreateResult;
+import sfms.rest.api.DeleteResult;
+import sfms.rest.api.SearchResult;
+import sfms.rest.api.UpdateResult;
+import sfms.rest.api.models.Star;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;

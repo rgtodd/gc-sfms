@@ -6,12 +6,12 @@ import java.util.List;
 
 import com.google.cloud.datastore.Entity;
 
-import sfms.db.schemas.DbCrewMemberField;
-import sfms.db.schemas.DbSpaceshipField;
-import sfms.db.schemas.DbStarField;
-import sfms.rest.models.CrewMember;
-import sfms.rest.models.Spaceship;
-import sfms.rest.models.Star;
+import sfms.rest.api.models.CrewMember;
+import sfms.rest.api.models.Spaceship;
+import sfms.rest.api.models.Star;
+import sfms.rest.db.schemas.DbCrewMemberField;
+import sfms.rest.db.schemas.DbSpaceshipField;
+import sfms.rest.db.schemas.DbStarField;
 
 public class RestFactory {
 

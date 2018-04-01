@@ -26,18 +26,18 @@ import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.OrderBy;
 
-import sfms.db.schemas.DbCrewMemberField;
-import sfms.db.schemas.DbEntity;
-import sfms.rest.CreateResult;
-import sfms.rest.DeleteResult;
-import sfms.rest.RestParameters;
 import sfms.rest.RestFactory;
-import sfms.rest.SearchResult;
-import sfms.rest.SortCriteria;
 import sfms.rest.Throttle;
-import sfms.rest.UpdateResult;
-import sfms.rest.models.CrewMember;
-import sfms.rest.schemas.CrewMemberField;
+import sfms.rest.api.CreateResult;
+import sfms.rest.api.DeleteResult;
+import sfms.rest.api.RestParameters;
+import sfms.rest.api.SearchResult;
+import sfms.rest.api.SortCriteria;
+import sfms.rest.api.UpdateResult;
+import sfms.rest.api.models.CrewMember;
+import sfms.rest.api.schemas.CrewMemberField;
+import sfms.rest.db.schemas.DbCrewMemberField;
+import sfms.rest.db.schemas.DbEntity;
 
 @RestController
 @RequestMapping("/crewMember")

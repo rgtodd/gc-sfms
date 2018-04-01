@@ -21,15 +21,15 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 
-import sfms.db.schemas.DbEntity;
-import sfms.db.schemas.DbStarField;
-import sfms.rest.CreateResult;
-import sfms.rest.DeleteResult;
 import sfms.rest.RestFactory;
-import sfms.rest.SearchResult;
 import sfms.rest.Throttle;
-import sfms.rest.UpdateResult;
-import sfms.rest.models.Star;
+import sfms.rest.api.CreateResult;
+import sfms.rest.api.DeleteResult;
+import sfms.rest.api.SearchResult;
+import sfms.rest.api.UpdateResult;
+import sfms.rest.api.models.Star;
+import sfms.rest.db.schemas.DbEntity;
+import sfms.rest.db.schemas.DbStarField;
 
 @RestController
 @RequestMapping("/star")

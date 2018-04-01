@@ -1,7 +1,7 @@
 package sfms.test.db;
 
-import sfms.rest.models.CrewMember;
-import sfms.rest.models.Spaceship;
+import sfms.rest.api.models.CrewMember;
+import sfms.rest.api.models.Spaceship;
 
 public class DbFactory {
 
