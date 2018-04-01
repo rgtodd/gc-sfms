@@ -22,12 +22,11 @@
 		<form th:action="@{/star_createPost}" th:object="${star}"
 			method="post">
 			<div class="form-group row">
-				<label for="txtStarId" class="col-sm-2 col-form-label">Star
-					ID</label>
+				<label for="txtKey" class="col-sm-2 col-form-label">Star ID</label>
 				<div class="col-sm-10">
-					<input type="text" class="form-control" id="txtStarId"
-						th:field="*{starId}" placeholder="Enter Star ID" required
-						maxlength="100">
+					<input type="number" class="form-control" id="txtKey"
+						th:field="*{key}" placeholder="Enter Star ID" required min="1"
+						max="999999" maxlength="6">
 				</div>
 			</div>
 			<div class="form-group row">

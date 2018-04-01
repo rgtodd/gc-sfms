@@ -23,15 +23,15 @@
 			<thead>
 				<tr>
 					<th></th>
-					<th>ID</th>
+					<th>Key</th>
 					<th>Name</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr th:each="spaceship: ${spaceships}">
 					<td><a class="btn btn-primary"
-						th:href="@{|/spaceship/${spaceship.id}|}">View</a></td>
-					<td th:text="${spaceship.id}">123</td>
+						th:href="@{|/spaceship/${spaceship.key}|}">View</a></td>
+					<td th:text="${spaceship.key}">123</td>
 					<td th:text="${spaceship.name}">USS Demo</td>
 				</tr>
 			</tbody>

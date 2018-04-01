@@ -15,7 +15,7 @@
 				<li class="breadcrumb-item"><a th:href="@{/crewMember}">List
 						Crew Members</a></li>
 				<li class="breadcrumb-item"><a
-					th:href="@{|/crewMember/${crewMember.id}|}">View Crew Member</a></li>
+					th:href="@{|/crewMember/${crewMember.key}|}">View Crew Member</a></li>
 				<li class="breadcrumb-item active" aria-current="page">Delete
 					Crew Member</li>
 			</ol>
@@ -24,10 +24,10 @@
 		<form th:action="@{/crewMember_deletePost}" th:object="${crewMember}"
 			method="post">
 			<div class="form-group row">
-				<label for="txtId" class="col-sm-2 col-form-label">ID</label>
+				<label for="txtKey" class="col-sm-2 col-form-label">Key</label>
 				<div class="col-sm-10">
 					<input type="text" readonly class="form-control-plaintext"
-						id="txtId" th:field="*{id}">
+						id="txtKey" th:field="*{key}">
 				</div>
 			</div>
 			<div class="form-group row">

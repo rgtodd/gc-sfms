@@ -109,9 +109,7 @@ public class StarController extends SfmsController {
 		ResponseEntity<UpdateResult<Long>> restResponse = restTemplate.exchange(
 				getRestUrl("star/" + star.getKey()), HttpMethod.PUT, createHttpEntity(star),
 				new ParameterizedTypeReference<UpdateResult<Long>>() {
-				}
-
-		);
+				});
 
 		return "redirect:/star/" + restResponse.getBody().getKey().toString();
 	}
@@ -143,9 +141,7 @@ public class StarController extends SfmsController {
 		ResponseEntity<DeleteResult<Long>> restResponse = restTemplate.exchange(
 				getRestUrl("star/" + star.getKey()), HttpMethod.DELETE, createHttpEntity(star),
 				new ParameterizedTypeReference<DeleteResult<Long>>() {
-				}
-
-		);
+				});
 
 		return "redirect:/star";
 	}

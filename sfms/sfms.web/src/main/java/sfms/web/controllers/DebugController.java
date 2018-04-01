@@ -153,6 +153,20 @@ public class DebugController extends SfmsController {
 			e.printStackTrace();
 		}
 
+		// uploadPostExecuteService(uploadedFileName);
+		uploadPostSubmitTask();
+
+		return "redirect:/debug";
+	}
+
+	@SuppressWarnings("unused")
+	private void uploadPostExecuteService(String uploadedFileName) {
+		RestTemplate restTemplate = createRestTempate();
+		restTemplate.exchange(getRestUrl("task/processStarFile?filename=" + uploadedFileName),
+				HttpMethod.GET, createHttpEntity(), Object.class);
+	}
+
+	private void uploadPostSubmitTask() {
 		TaskOptions taskOptions = TaskOptions.Builder
 				.withUrl("/task/processStarFile")
 				.header(RestUtility.REST_AUTHORIZATION_TOKEN_HEADER_KEY, Secret.getRestAuthorizationToken())
@@ -161,7 +175,5 @@ public class DebugController extends SfmsController {
 
 		Queue queue = QueueFactory.getQueue("rest-tasks");
 		queue.add(taskOptions);
-
-		return "redirect:/debug";
 	}
 }

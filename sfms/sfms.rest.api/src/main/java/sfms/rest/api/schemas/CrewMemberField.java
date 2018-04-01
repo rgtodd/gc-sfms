@@ -2,7 +2,8 @@ package sfms.rest.api.schemas;
 
 public enum CrewMemberField {
 
-	FirstName("FirstName"), LastName("LastName");
+	FirstName("FirstName"),
+	LastName("LastName");
 
 	private String m_name;
 

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
@@ -39,7 +38,7 @@ public class StarRestController {
 	private Throttle m_throttle;
 
 	@GetMapping(value = "/{id}")
-	public Star get(@PathVariable String id) throws Exception {
+	public Star get(@PathVariable long id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -49,7 +48,7 @@ public class StarRestController {
 
 		Key key = datastore.newKeyFactory()
 				.setKind(DbEntity.Star.getKind())
-				.newKey(Long.parseLong(id));
+				.newKey(id);
 
 		Entity entity = datastore.get(key);
 
@@ -89,7 +88,7 @@ public class StarRestController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<String> update(@PathVariable String id, @RequestBody Star star) throws Exception {
+	public UpdateResult<Long> update(@PathVariable long id, @RequestBody Star star) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -100,51 +99,22 @@ public class StarRestController {
 		Key key = datastore
 				.newKeyFactory()
 				.setKind(DbEntity.Star.getKind())
-				.newKey(Long.parseLong(id));
+				.newKey(id);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.StarId.getName(), star.getStarId())
 				.set(DbStarField.ProperName.getName(), star.getProperName())
 				.build();
 
 		datastore.update(entity);
 
-		UpdateResult<String> result = new UpdateResult<String>();
+		UpdateResult<Long> result = new UpdateResult<Long>();
 		result.setKey(id);
 
 		return result;
 	}
 
 	@PutMapping(value = "")
-	public CreateResult<String> create(@RequestBody Star star) throws Exception {
-
-		if (!m_throttle.increment()) {
-			throw new Exception("Function is throttled.");
-		}
-
-		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-
-		IncompleteKey incompleteKey = datastore
-				.newKeyFactory()
-				.setKind(DbEntity.Star.getKind())
-				.newKey();
-		Key key = datastore.allocateId(incompleteKey);
-
-		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.StarId.getName(), star.getStarId())
-				.set(DbStarField.ProperName.getName(), star.getProperName())
-				.build();
-
-		datastore.put(entity);
-
-		CreateResult<String> result = new CreateResult<String>();
-		result.setKey(key.getId().toString());
-
-		return result;
-	}
-
-	@DeleteMapping(value = "/{id}")
-	public DeleteResult<String> delete(@PathVariable String id) throws Exception {
+	public CreateResult<Long> create(@RequestBody Star star) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -155,11 +125,37 @@ public class StarRestController {
 		Key key = datastore
 				.newKeyFactory()
 				.setKind(DbEntity.Star.getKind())
-				.newKey(Long.parseLong(id));
+				.newKey(Long.parseLong(star.getKey()));
+
+		Entity entity = Entity.newBuilder(key)
+				.set(DbStarField.ProperName.getName(), star.getProperName())
+				.build();
+
+		datastore.put(entity);
+
+		CreateResult<Long> result = new CreateResult<Long>();
+		result.setKey(key.getId());
+
+		return result;
+	}
+
+	@DeleteMapping(value = "/{id}")
+	public DeleteResult<Long> delete(@PathVariable long id) throws Exception {
+
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
+
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+		Key key = datastore
+				.newKeyFactory()
+				.setKind(DbEntity.Star.getKind())
+				.newKey(id);
 
 		datastore.delete(key);
 
-		DeleteResult<String> result = new DeleteResult<String>();
+		DeleteResult<Long> result = new DeleteResult<Long>();
 		result.setKey(id);
 
 		return result;

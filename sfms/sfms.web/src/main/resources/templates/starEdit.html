@@ -23,19 +23,10 @@
 		<p>Update information and click Save when complete.</p>
 		<form th:action="@{/star_editPost}" th:object="${star}" method="post">
 			<div class="form-group row">
-				<label for="txtKey" class="col-sm-2 col-form-label">Key</label>
+				<label for="txtKey" class="col-sm-2 col-form-label">Star ID</label>
 				<div class="col-sm-10">
-					<input type="text" readonly class="form-control-plaintext"
-						id="txtKey" th:field="${star.key}">
-				</div>
-			</div>
-			<div class="form-group row">
-				<label for="txtStarId" class="col-sm-2 col-form-label">Star
-					ID</label>
-				<div class="col-sm-10">
-					<input type="text" class="form-control" id="txtStarId"
-						th:field="*{starId}" placeholder="Enter Star ID" required
-						maxlength="100">
+					<input type="number" readonly class="form-control-plaintext"
+						id="txtKey" th:field="*{key}">
 				</div>
 			</div>
 			<div class="form-group row">

@@ -2,16 +2,15 @@ package sfms.rest.api.models;
 
 public class Star {
 
-	private String m_key;
-	private String m_starId; // StarID-id
+	private String m_key; // StarID-id *KEY*
 	private String m_hipparcosId; // hip
 	private String m_henryDraperId; // HD-hd
 	private String m_harvardRevisedId; // HR-hr
 	private String m_glieseId; // Gliese-gl
 	private String m_bayerFlamsteedId; // BayerFlamsteed-bf
+	private String m_properName; // ProperName-proper
 	private double m_rightAscension; // RA-ra
 	private double m_declination; // Dec-dec
-	private String m_properName; // ProperName-proper
 	private double m_distance; // Distance-dist
 	private double m_properMotionRightAscension; // pmra
 	private double m_properMotionDeclination; // pmdec
@@ -19,7 +18,7 @@ public class Star {
 	private double m_magnitude; // Mag-mag
 	private double m_absoluteMagnitude; // AbsMag-absmag
 	private String m_spectrum; // Spectrum-spect
-	private double m_colorIndex; // ColorIndex-ci
+	private Double m_colorIndex; // ColorIndex-ci
 	private double m_x; // x
 	private double m_y; // y
 	private double m_z; // z
@@ -38,8 +37,8 @@ public class Star {
 	private String m_multipleStarId; // base
 	private double m_luminosity; // lum
 	private String m_variableStarDesignation; // var
-	private double m_variableMinimum; // var_min
-	private double m_variableMaximum; // var max
+	private Double m_variableMinimum; // var_min
+	private Double m_variableMaximum; // var max
 
 	public String getKey() {
 		return m_key;
@@ -47,14 +46,6 @@ public class Star {
 
 	public void setKey(String key) {
 		m_key = key;
-	}
-
-	public String getStarId() {
-		return m_starId;
-	}
-
-	public void setStarId(String starId) {
-		m_starId = starId;
 	}
 
 	public String getHipparcosId() {
@@ -177,11 +168,11 @@ public class Star {
 		m_spectrum = spectrum;
 	}
 
-	public double getColorIndex() {
+	public Double getColorIndex() {
 		return m_colorIndex;
 	}
 
-	public void setColorIndex(double colorIndex) {
+	public void setColorIndex(Double colorIndex) {
 		m_colorIndex = colorIndex;
 	}
 
@@ -329,19 +320,19 @@ public class Star {
 		m_variableStarDesignation = variableStarDesignation;
 	}
 
-	public double getVariableMinimum() {
+	public Double getVariableMinimum() {
 		return m_variableMinimum;
 	}
 
-	public void setVariableMinimum(double variableMinimum) {
+	public void setVariableMinimum(Double variableMinimum) {
 		m_variableMinimum = variableMinimum;
 	}
 
-	public double getVariableMaximum() {
+	public Double getVariableMaximum() {
 		return m_variableMaximum;
 	}
 
-	public void setVariableMaximum(double variableMaximum) {
+	public void setVariableMaximum(Double variableMaximum) {
 		m_variableMaximum = variableMaximum;
 	}
 }

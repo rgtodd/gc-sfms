@@ -24,7 +24,7 @@
 			<thead>
 				<tr>
 					<th></th>
-					<th>ID</th>
+					<th>Key</th>
 					<th><a class="nav-link"
 						th:href="@{|/crewMember?sort=FirstName&direction=${sorting.firstNameLinkDirection}|}">First
 							Name <i class="material-icons"
@@ -40,8 +40,8 @@
 			<tbody>
 				<tr th:each="crewMember: ${crewMembers}">
 					<td><a class="btn btn-primary"
-						th:href="@{|/crewMember/${crewMember.id}|}">View</a></td>
-					<td th:text="${crewMember.id}">123</td>
+						th:href="@{|/crewMember/${crewMember.key}|}">View</a></td>
+					<td th:text="${crewMember.key}">123</td>
 					<td th:text="${crewMember.firstName}">USS Demo</td>
 					<td th:text="${crewMember.lastName}">USS Demo</td>
 				</tr>

@@ -2,19 +2,11 @@ package sfms.web.models;
 
 public class CrewMemberModel {
 
-	private String m_id;
+	private String m_key;
 	private String m_firstName;
 	private String m_lastName;
 
 	public CrewMemberModel() {
-	}
-
-	public String getId() {
-		return m_id;
-	}
-
-	public void setId(String id) {
-		m_id = id;
 	}
 
 	public String getFirstName() {
@@ -35,6 +27,14 @@ public class CrewMemberModel {
 
 	@Override
 	public String toString() {
-		return "Id = " + getId() + ", First Name = " + getFirstName() + ", Last Name = " + getLastName();
+		return "Key = " + getKey() + ", First Name = " + getFirstName() + ", Last Name = " + getLastName();
+	}
+
+	public String getKey() {
+		return m_key;
+	}
+
+	public void setKey(String key) {
+		m_key = key;
 	}
 }
