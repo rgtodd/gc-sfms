@@ -38,7 +38,7 @@ public class StarRestController {
 	private Throttle m_throttle;
 
 	@GetMapping(value = "/{id}")
-	public Star get(@PathVariable long id) throws Exception {
+	public Star getLookup(@PathVariable long id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -59,7 +59,7 @@ public class StarRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Star> search(
+	public SearchResult<Star> getSearch(
 			@RequestParam("bookmark") Optional<String> bookmark,
 			@RequestParam("pageIndex") Optional<Long> pageIndex,
 			@RequestParam("pageSize") Optional<Long> pageSize,
@@ -88,7 +88,7 @@ public class StarRestController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<Long> update(@PathVariable long id, @RequestBody Star star) throws Exception {
+	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Star star) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -99,7 +99,7 @@ public class StarRestController {
 		Key key = datastore
 				.newKeyFactory()
 				.setKind(DbEntity.Star.getKind())
-				.newKey(id);
+				.newKey(Long.parseLong(id));
 
 		Entity entity = Entity.newBuilder(key)
 				.set(DbStarField.ProperName.getName(), star.getProperName())
@@ -107,14 +107,14 @@ public class StarRestController {
 
 		datastore.update(entity);
 
-		UpdateResult<Long> result = new UpdateResult<Long>();
+		UpdateResult<String> result = new UpdateResult<String>();
 		result.setKey(id);
 
 		return result;
 	}
 
 	@PutMapping(value = "")
-	public CreateResult<Long> create(@RequestBody Star star) throws Exception {
+	public CreateResult<String> putCreate(@RequestBody Star star) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -122,8 +122,7 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = datastore
-				.newKeyFactory()
+		Key key = datastore.newKeyFactory()
 				.setKind(DbEntity.Star.getKind())
 				.newKey(Long.parseLong(star.getKey()));
 
@@ -133,14 +132,14 @@ public class StarRestController {
 
 		datastore.put(entity);
 
-		CreateResult<Long> result = new CreateResult<Long>();
-		result.setKey(key.getId());
+		CreateResult<String> result = new CreateResult<String>();
+		result.setKey(key.getId().toString());
 
 		return result;
 	}
 
 	@DeleteMapping(value = "/{id}")
-	public DeleteResult<Long> delete(@PathVariable long id) throws Exception {
+	public DeleteResult<String> delete(@PathVariable String id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -148,14 +147,13 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = datastore
-				.newKeyFactory()
+		Key key = datastore.newKeyFactory()
 				.setKind(DbEntity.Star.getKind())
-				.newKey(id);
+				.newKey(Long.parseLong(id));
 
 		datastore.delete(key);
 
-		DeleteResult<Long> result = new DeleteResult<Long>();
+		DeleteResult<String> result = new DeleteResult<String>();
 		result.setKey(id);
 
 		return result;

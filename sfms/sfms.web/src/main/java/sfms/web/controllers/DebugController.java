@@ -81,9 +81,11 @@ public class DebugController extends SfmsController {
 			spaceship.setName(name);
 
 			@SuppressWarnings("unused")
-			ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(getRestUrl("spaceship"),
-					HttpMethod.PUT,
-					createHttpEntity(spaceship), new ParameterizedTypeReference<CreateResult<String>>() {
+			ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
+					getRestUrl("spaceship"),
+					HttpMethod.POST,
+					createHttpEntity(spaceship),
+					new ParameterizedTypeReference<CreateResult<String>>() {
 					});
 		}
 
@@ -111,9 +113,11 @@ public class DebugController extends SfmsController {
 			crewMember.setLastName(ValueGenerator.getRandomLastName());
 
 			@SuppressWarnings("unused")
-			ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(getRestUrl("crewMember"),
-					HttpMethod.PUT,
-					createHttpEntity(crewMember), new ParameterizedTypeReference<CreateResult<String>>() {
+			ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
+					getRestUrl("crewMember"),
+					HttpMethod.POST,
+					createHttpEntity(crewMember),
+					new ParameterizedTypeReference<CreateResult<String>>() {
 					});
 		}
 

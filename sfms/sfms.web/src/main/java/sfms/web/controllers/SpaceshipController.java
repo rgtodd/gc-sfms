@@ -76,9 +76,11 @@ public class SpaceshipController extends SfmsController {
 		Spaceship spaceship = factory.createSpaceship(spaceshipModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(getRestUrl("spaceship"),
-				HttpMethod.PUT,
-				createHttpEntity(spaceship), new ParameterizedTypeReference<CreateResult<String>>() {
+		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
+				getRestUrl("spaceship"),
+				HttpMethod.POST,
+				createHttpEntity(spaceship),
+				new ParameterizedTypeReference<CreateResult<String>>() {
 				});
 
 		return "redirect:/spaceship/" + restResponse.getBody().getKey().toString();
@@ -108,11 +110,11 @@ public class SpaceshipController extends SfmsController {
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<UpdateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("spaceship/" + spaceship.getKey().toString()), HttpMethod.PUT, createHttpEntity(spaceship),
+				getRestUrl("spaceship/" + spaceship.getKey().toString()),
+				HttpMethod.PUT,
+				createHttpEntity(spaceship),
 				new ParameterizedTypeReference<UpdateResult<String>>() {
-				}
-
-		);
+				});
 
 		return "redirect:/spaceship/" + restResponse.getBody().getKey().toString();
 	}
@@ -142,12 +144,11 @@ public class SpaceshipController extends SfmsController {
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
 		ResponseEntity<DeleteResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("spaceship/" + spaceship.getKey().toString()), HttpMethod.DELETE,
+				getRestUrl("spaceship/" + spaceship.getKey().toString()),
+				HttpMethod.DELETE,
 				createHttpEntity(spaceship),
 				new ParameterizedTypeReference<DeleteResult<String>>() {
-				}
-
-		);
+				});
 
 		return "redirect:/spaceship";
 	}

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,7 +58,7 @@ public class CrewMemberRestController {
 	private Throttle m_throttle;
 
 	@GetMapping(value = "/{id}")
-	public CrewMember get(@PathVariable String id) throws Exception {
+	public CrewMember getLookup(@PathVariable String id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -78,7 +79,7 @@ public class CrewMemberRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<CrewMember> search(
+	public SearchResult<CrewMember> getSearch(
 			@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
@@ -130,7 +131,8 @@ public class CrewMemberRestController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<String> update(@PathVariable String id, @RequestBody CrewMember crewMember) throws Exception {
+	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody CrewMember crewMember)
+			throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -155,8 +157,8 @@ public class CrewMemberRestController {
 		return result;
 	}
 
-	@PutMapping(value = "")
-	public CreateResult<String> create(@RequestBody CrewMember crewMember) throws Exception {
+	@PostMapping(value = "")
+	public CreateResult<String> postCreate(@RequestBody CrewMember crewMember) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");

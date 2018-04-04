@@ -76,11 +76,14 @@ public class StarController extends SfmsController {
 		Star star = factory.createStar(starModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CreateResult<Long>> restResponse = restTemplate.exchange(getRestUrl("star"), HttpMethod.PUT,
-				createHttpEntity(star), new ParameterizedTypeReference<CreateResult<Long>>() {
+		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
+				getRestUrl("star"),
+				HttpMethod.PUT,
+				createHttpEntity(star),
+				new ParameterizedTypeReference<CreateResult<String>>() {
 				});
 
-		return "redirect:/star/" + restResponse.getBody().getKey().toString();
+		return "redirect:/star/" + restResponse.getBody().getKey();
 	}
 
 	@GetMapping({ "/star_edit/{id}" })
@@ -106,12 +109,14 @@ public class StarController extends SfmsController {
 		Star star = factory.createStar(starModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<UpdateResult<Long>> restResponse = restTemplate.exchange(
-				getRestUrl("star/" + star.getKey()), HttpMethod.PUT, createHttpEntity(star),
-				new ParameterizedTypeReference<UpdateResult<Long>>() {
+		ResponseEntity<UpdateResult<String>> restResponse = restTemplate.exchange(
+				getRestUrl("star/" + star.getKey()),
+				HttpMethod.PUT,
+				createHttpEntity(star),
+				new ParameterizedTypeReference<UpdateResult<String>>() {
 				});
 
-		return "redirect:/star/" + restResponse.getBody().getKey().toString();
+		return "redirect:/star/" + restResponse.getBody().getKey();
 	}
 
 	@GetMapping({ "/star_delete/{id}" })
@@ -138,9 +143,11 @@ public class StarController extends SfmsController {
 
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
-		ResponseEntity<DeleteResult<Long>> restResponse = restTemplate.exchange(
-				getRestUrl("star/" + star.getKey()), HttpMethod.DELETE, createHttpEntity(star),
-				new ParameterizedTypeReference<DeleteResult<Long>>() {
+		ResponseEntity<DeleteResult<String>> restResponse = restTemplate.exchange(
+				getRestUrl("star/" + star.getKey()),
+				HttpMethod.DELETE,
+				createHttpEntity(star),
+				new ParameterizedTypeReference<DeleteResult<String>>() {
 				});
 
 		return "redirect:/star";

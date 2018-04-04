@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +40,7 @@ public class SpaceshipRestController {
 	private Throttle m_throttle;
 
 	@GetMapping(value = "/{id}")
-	public Spaceship get(@PathVariable String id) throws Exception {
+	public Spaceship getLookup(@PathVariable String id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -60,7 +61,7 @@ public class SpaceshipRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Spaceship> search(
+	public SearchResult<Spaceship> getSearch(
 			@RequestParam("bookmark") Optional<String> bookmark,
 			@RequestParam("pageIndex") Optional<Long> pageIndex,
 			@RequestParam("pageSize") Optional<Long> pageSize,
@@ -89,7 +90,7 @@ public class SpaceshipRestController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<String> update(@PathVariable String id, @RequestBody Spaceship spaceship) throws Exception {
+	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Spaceship spaceship) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -113,8 +114,8 @@ public class SpaceshipRestController {
 		return result;
 	}
 
-	@PutMapping(value = "")
-	public CreateResult<String> create(@RequestBody Spaceship spaceship) throws Exception {
+	@PostMapping(value = "")
+	public CreateResult<String> postCreate(@RequestBody Spaceship spaceship) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");

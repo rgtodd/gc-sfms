@@ -166,11 +166,12 @@ public class CrewMemberController extends SfmsController {
 		CrewMember crewMember = factory.createCrewMember(crewMemberModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(getRestUrl("crewMember"),
-				HttpMethod.PUT, createHttpEntity(crewMember), new ParameterizedTypeReference<CreateResult<String>>() {
-				}
-
-		);
+		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
+				getRestUrl("crewMember"),
+				HttpMethod.POST,
+				createHttpEntity(crewMember),
+				new ParameterizedTypeReference<CreateResult<String>>() {
+				});
 
 		return "redirect:/crewMember/" + restResponse.getBody().getKey().toString();
 	}
@@ -199,11 +200,11 @@ public class CrewMemberController extends SfmsController {
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<UpdateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("crewMember/" + crewMember.getKey()), HttpMethod.PUT, createHttpEntity(crewMember),
+				getRestUrl("crewMember/" + crewMember.getKey()),
+				HttpMethod.PUT,
+				createHttpEntity(crewMember),
 				new ParameterizedTypeReference<UpdateResult<String>>() {
-				}
-
-		);
+				});
 
 		return "redirect:/crewMember/" + restResponse.getBody().getKey().toString();
 	}
@@ -233,11 +234,11 @@ public class CrewMemberController extends SfmsController {
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
 		ResponseEntity<DeleteResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("crewMember/" + crewMember.getKey()), HttpMethod.DELETE,
-				createHttpEntity(crewMember), new ParameterizedTypeReference<DeleteResult<String>>() {
-				}
-
-		);
+				getRestUrl("crewMember/" + crewMember.getKey()),
+				HttpMethod.DELETE,
+				createHttpEntity(crewMember),
+				new ParameterizedTypeReference<DeleteResult<String>>() {
+				});
 
 		return "redirect:/crewMember";
 	}
