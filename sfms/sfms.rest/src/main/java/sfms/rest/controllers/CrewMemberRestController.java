@@ -104,9 +104,9 @@ public class CrewMemberRestController {
 				DbCrewMemberField dbField = s_dbFieldMap.get(restField);
 				if (dbField != null) {
 					if (sortCriteria.getDescending(idx)) {
-						queryBuilder.addOrderBy(OrderBy.desc(dbField.getName()));
+						queryBuilder.addOrderBy(OrderBy.desc(dbField.getId()));
 					} else {
-						queryBuilder.addOrderBy(OrderBy.asc(dbField.getName()));
+						queryBuilder.addOrderBy(OrderBy.asc(dbField.getId()));
 					}
 				}
 			}
@@ -145,8 +145,8 @@ public class CrewMemberRestController {
 				.newKey(Long.parseLong(id));
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbCrewMemberField.FirstName.getName(), crewMember.getFirstName())
-				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName())
+				.set(DbCrewMemberField.FirstName.getId(), crewMember.getFirstName())
+				.set(DbCrewMemberField.LastName.getId(), crewMember.getLastName())
 				.build();
 
 		datastore.update(entity);
@@ -172,8 +172,8 @@ public class CrewMemberRestController {
 		Key key = datastore.allocateId(incompleteKey);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbCrewMemberField.FirstName.getName(), crewMember.getFirstName())
-				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName())
+				.set(DbCrewMemberField.FirstName.getId(), crewMember.getFirstName())
+				.set(DbCrewMemberField.LastName.getId(), crewMember.getLastName())
 				.build();
 
 		datastore.put(entity);

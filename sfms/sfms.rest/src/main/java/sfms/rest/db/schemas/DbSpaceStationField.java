@@ -2,23 +2,23 @@ package sfms.rest.db.schemas;
 
 import sfms.rest.db.DbFieldSchema;
 
-public enum DbCrewMemberField implements DbFieldSchema {
+public enum DbSpaceStationField implements DbFieldSchema {
 
-	FirstName("fn", "First Name", "First name of crew member."),
-	LastName("ln", "Last Name", "Last name of crew member.");
+	Name("n", "Name", "Name of space station."),
+	Star("star", "Star", "Key of Star entity locating the space station.");
 
 	private String m_id;
 	private String m_name;
 	private String m_description;
 
-	private DbCrewMemberField(String id, String name, String description) {
+	private DbSpaceStationField(String id, String name, String description) {
 		m_id = id;
 		m_name = name;
 		m_description = description;
 	}
 
-	public static DbCrewMemberField parse(String id) {
-		for (DbCrewMemberField property : DbCrewMemberField.values()) {
+	public static DbSpaceStationField parse(String id) {
+		for (DbSpaceStationField property : DbSpaceStationField.values()) {
 			if (property.getId().equals(id)) {
 				return property;
 			}

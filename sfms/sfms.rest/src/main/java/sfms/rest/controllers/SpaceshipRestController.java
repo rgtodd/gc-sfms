@@ -103,7 +103,7 @@ public class SpaceshipRestController {
 				.newKey(Long.parseLong(id));
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
+				.set(DbSpaceshipField.Name.getId(), spaceship.getName())
 				.build();
 
 		datastore.update(entity);
@@ -129,7 +129,7 @@ public class SpaceshipRestController {
 		Key key = datastore.allocateId(incompleteKey);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
+				.set(DbSpaceshipField.Name.getId(), spaceship.getName())
 				.build();
 
 		datastore.put(entity);

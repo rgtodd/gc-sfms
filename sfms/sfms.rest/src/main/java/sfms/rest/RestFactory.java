@@ -71,7 +71,7 @@ public class RestFactory {
 	public Spaceship createSpaceship(Entity entity) {
 		Spaceship result = new Spaceship();
 		result.setKey(entity.getKey().getId().toString());
-		result.setName(entity.getString(DbSpaceshipField.Name.getName()));
+		result.setName(entity.getString(DbSpaceshipField.Name.getId()));
 		return result;
 	}
 
@@ -87,8 +87,8 @@ public class RestFactory {
 	public CrewMember createCrewMember(Entity entity) {
 		CrewMember result = new CrewMember();
 		result.setKey(entity.getKey().getId().toString());
-		result.setFirstName(entity.getString(DbCrewMemberField.FirstName.getName()));
-		result.setLastName(entity.getString(DbCrewMemberField.LastName.getName()));
+		result.setFirstName(entity.getString(DbCrewMemberField.FirstName.getId()));
+		result.setLastName(entity.getString(DbCrewMemberField.LastName.getId()));
 		return result;
 	}
 
@@ -102,7 +102,7 @@ public class RestFactory {
 	}
 
 	private String getString(Entity entity, DbStarField field) {
-		String name = field.getName();
+		String name = field.getId();
 		if (!entity.contains(name)) {
 			return null;
 		}
@@ -113,7 +113,7 @@ public class RestFactory {
 	}
 
 	private Double getOptionalDouble(Entity entity, DbStarField field) {
-		String name = field.getName();
+		String name = field.getId();
 		if (!entity.contains(name)) {
 			return null;
 		}
@@ -124,7 +124,7 @@ public class RestFactory {
 	}
 
 	private double getDouble(Entity entity, DbStarField field) {
-		String name = field.getName();
+		String name = field.getId();
 		if (!entity.contains(name)) {
 			return 0;
 		}

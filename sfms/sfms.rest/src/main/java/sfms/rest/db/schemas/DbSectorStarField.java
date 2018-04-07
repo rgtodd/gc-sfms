@@ -2,23 +2,22 @@ package sfms.rest.db.schemas;
 
 import sfms.rest.db.DbFieldSchema;
 
-public enum DbCrewMemberField implements DbFieldSchema {
+public enum DbSectorStarField implements DbFieldSchema {
 
-	FirstName("fn", "First Name", "First name of crew member."),
-	LastName("ln", "Last Name", "Last name of crew member.");
+	MinimumX("starkey", "Star Key", "Key of Star entity contained in this sector.");
 
 	private String m_id;
 	private String m_name;
 	private String m_description;
 
-	private DbCrewMemberField(String id, String name, String description) {
+	private DbSectorStarField(String id, String name, String description) {
 		m_id = id;
 		m_name = name;
 		m_description = description;
 	}
 
-	public static DbCrewMemberField parse(String id) {
-		for (DbCrewMemberField property : DbCrewMemberField.values()) {
+	public static DbSectorStarField parse(String id) {
+		for (DbSectorStarField property : DbSectorStarField.values()) {
 			if (property.getId().equals(id)) {
 				return property;
 			}

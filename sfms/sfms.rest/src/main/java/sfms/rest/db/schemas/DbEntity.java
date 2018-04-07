@@ -2,12 +2,21 @@ package sfms.rest.db.schemas;
 
 public enum DbEntity {
 
-	CrewMember("crew"), Spaceship("ship"), Star("star");
+	Cluster("cluster", DbClusterField.class),
+	ClusterSector("clustersector", DbClusterSectorField.class),
+	CrewMember("crew", DbCrewMemberField.class),
+	Sector("sector", DbSectorField.class),
+	SectorStar("sector-star", DbSectorStarField.class),
+	Spaceship("ship", DbSpaceshipField.class),
+	SpaceStation("spacestation", DbSpaceStationField.class),
+	Star("star", DbStarField.class);
 
 	private String m_kind;
+	private Class<?> m_fieldSchema;
 
-	private DbEntity(String kind) {
+	private DbEntity(String kind, Class<?> fieldSchema) {
 		m_kind = kind;
+		m_fieldSchema = fieldSchema;
 	}
 
 	public static DbEntity parse(String kind) {
@@ -22,5 +31,9 @@ public enum DbEntity {
 
 	public String getKind() {
 		return m_kind;
+	}
+
+	public Class<?> getFieldSchema() {
+		return m_fieldSchema;
 	}
 }

@@ -102,7 +102,7 @@ public class StarRestController {
 				.newKey(Long.parseLong(id));
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ProperName.getName(), star.getProperName())
+				.set(DbStarField.ProperName.getId(), star.getProperName())
 				.build();
 
 		datastore.update(entity);
@@ -127,7 +127,7 @@ public class StarRestController {
 				.newKey(Long.parseLong(star.getKey()));
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ProperName.getName(), star.getProperName())
+				.set(DbStarField.ProperName.getId(), star.getProperName())
 				.build();
 
 		datastore.put(entity);
