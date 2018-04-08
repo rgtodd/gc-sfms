@@ -40,6 +40,8 @@ public class ModelFactory {
 	public StarModel createStar(Star star) {
 		StarModel result = new StarModel();
 		result.setKey(star.getKey());
+		result.setClusterKey(star.getClusterKey());
+		result.setSectorKey(star.getSectorKey());
 		result.setHipparcosId(star.getHipparcosId());
 		result.setHenryDraperId(star.getHenryDraperId());
 		result.setHarvardRevisedId(star.getHarvardRevisedId());

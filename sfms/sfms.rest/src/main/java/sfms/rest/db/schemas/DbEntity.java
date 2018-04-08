@@ -4,6 +4,7 @@ public enum DbEntity {
 
 	Cluster("Cluster", DbClusterField.class),
 	ClusterSector("ClusterSector", DbClusterSectorField.class),
+	ClusterStar("ClusterStar", DbClusterStarField.class),
 	CrewMember("Crew", DbCrewMemberField.class),
 	Sector("Sector", DbSectorField.class),
 	SectorStar("SectorStar", DbSectorStarField.class),

@@ -10,6 +10,9 @@ public class SfmsProperties {
 
 	public static final String APPLICATION = "application.properties";
 	public static final String SFMS_REST_HOST = "sfms.rest.host";
+	public static final String SERVER_TYPE = "server.type";
+	public static final String SERVER_TYPE_DEVELOPMENT = "development";
+	public static final String SERVER_TYPE_PRODUCTION = "production";
 
 	public static final SfmsProperties INSTANCE = new SfmsProperties();
 

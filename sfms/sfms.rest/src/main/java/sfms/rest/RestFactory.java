@@ -18,6 +18,8 @@ public class RestFactory {
 	public Star createStar(Entity entity) {
 		Star result = new Star();
 		result.setKey(entity.getKey().getId().toString());
+		result.setClusterKey(getKey(entity, DbStarField.ClusterKey));
+		result.setSectorKey(getKey(entity, DbStarField.SectorKey));
 		result.setHipparcosId(getString(entity, DbStarField.HipparcosId));
 		result.setHenryDraperId(getString(entity, DbStarField.HenryDraperId));
 		result.setHarvardRevisedId(getString(entity, DbStarField.HarvardRevisedId));
@@ -99,6 +101,17 @@ public class RestFactory {
 			result.add(createCrewMember(entity));
 		}
 		return result;
+	}
+
+	private String getKey(Entity entity, DbStarField field) {
+		String name = field.getId();
+		if (!entity.contains(name)) {
+			return null;
+		}
+		if (entity.isNull(name)) {
+			return null;
+		}
+		return entity.getKey(name).toUrlSafe();
 	}
 
 	private String getString(Entity entity, DbStarField field) {

@@ -4,7 +4,7 @@
 	layout:decorate="~{layout}">
 <head>
 <head>
-<title>Generate Crew Members</title>
+<title>Generate Spaceships</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
@@ -12,13 +12,13 @@
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
-				<li class="breadcrumb-item"><a th:href="@{/debug}">Debug</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/utility}">Utility</a></li>
 				<li class="breadcrumb-item active" aria-current="page">Generate
-					Crew Members</li>
+					Spaceships</li>
 			</ol>
 		</nav>
 		<p>Specify information and click Generate when complete.</p>
-		<form th:action="@{/debug_generateCrewMembersPost}"
+		<form th:action="@{/utility/generateSpaceshipsPost}"
 			th:object="${options}" method="post">
 			<div class="form-group row">
 				<label for="txtRecordCount" class="col-sm-2 col-form-label">Record

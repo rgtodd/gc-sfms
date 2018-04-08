@@ -12,6 +12,7 @@
 	<packaging>war</packaging>
 	<properties>
 		<sfms.rest.host>https://rest-dot-rgt-ssms.appspot.com</sfms.rest.host>
+		<server.type>production</server.type>
 	</properties>
 	<dependencies>
 		<dependency>

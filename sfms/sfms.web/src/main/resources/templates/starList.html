@@ -26,6 +26,8 @@
 					<th>Star ID</th>
 					<th>Proper Name</th>
 					<th>Coordinates</th>
+					<th>Cluster Key</th>
+					<th>Sector Key</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -35,6 +37,8 @@
 					<td th:text="${star.key}">123</td>
 					<td th:text="${star.properName}">Proper Name</td>
 					<td th:text="${star.x + ' , ' + star.y + ' , ' + star.z}">X,Y,Z</td>
+					<td th:text="${star.clusterKey}">Cluster Key</td>
+					<td th:text="${star.sectorKey}">Sector Key</td>
 				</tr>
 			</tbody>
 		</table>

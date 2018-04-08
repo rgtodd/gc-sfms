@@ -18,6 +18,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,22 +33,20 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 
-import sfms.rest.api.CreateResult;
 import sfms.rest.api.RestUtility;
 import sfms.rest.api.Secret;
-import sfms.rest.api.models.CrewMember;
-import sfms.rest.api.models.Spaceship;
-import sfms.rest.api.test.ValueGenerator;
 import sfms.web.SfmsController;
+import sfms.web.SfmsProperties;
 import sfms.web.models.DebugEntryModel;
 import sfms.web.models.DebugGenerateOptionsModel;
 
 @Controller
-public class DebugController extends SfmsController {
+@RequestMapping({ "/utility" })
+public class UtilityController extends SfmsController {
 
-	private final Logger logger = Logger.getLogger(DebugController.class.getName());
+	private final Logger logger = Logger.getLogger(UtilityController.class.getName());
 
-	@GetMapping({ "/debug" })
+	@GetMapping({ "" })
 	public String debug(ModelMap modelMap) {
 
 		List<DebugEntryModel> debugEntries = new ArrayList<DebugEntryModel>();
@@ -59,43 +58,40 @@ public class DebugController extends SfmsController {
 
 		modelMap.addAttribute("debugEntries", debugEntries);
 
-		return "debug";
+		return "utility";
 	}
 
-	@GetMapping({ "/debug_generateSpaceships" })
+	@GetMapping({ "/generateSpaceships" })
 	public String generateSpaceships(ModelMap modelMap) {
 
 		DebugGenerateOptionsModel options = new DebugGenerateOptionsModel();
 
 		modelMap.addAttribute("options", options);
 
-		return "debugGenerateSpaceships";
+		return "utilityGenerateSpaceships";
 	}
 
-	@PostMapping({ "/debug_generateSpaceshipsPost" })
+	@PostMapping({ "/generateSpaceshipsPost" })
 	public String generateSpaceshipsPost(@ModelAttribute DebugGenerateOptionsModel options) {
 
+		String url = getRestUrl("utility/generateSpaceships?count=" + options.getRecordCount().toString());
+
+		logger.info("Calling " + url);
+
 		RestTemplate restTemplate = createRestTempate();
+		ResponseEntity<String> response = restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				createHttpEntity(),
+				new ParameterizedTypeReference<String>() {
+				});
 
-		for (int idx = 0; idx < options.getRecordCount(); ++idx) {
-			String name = "USS " + ValueGenerator.getRandomAdjective() + " " + ValueGenerator.getRandomNoun();
+		logger.info("Response = " + response);
 
-			Spaceship spaceship = new Spaceship();
-			spaceship.setName(name);
-
-			@SuppressWarnings("unused")
-			ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
-					getRestUrl("spaceship"),
-					HttpMethod.POST,
-					createHttpEntity(spaceship),
-					new ParameterizedTypeReference<CreateResult<String>>() {
-					});
-		}
-
-		return "redirect:/debug";
+		return "redirect:/utility";
 	}
 
-	@GetMapping({ "/debug_generateStarClusters" })
+	@GetMapping({ "/generateStarClusters" })
 	public String generateStarClusters() {
 
 		String url = getRestUrl("utility/generateClusters");
@@ -112,47 +108,45 @@ public class DebugController extends SfmsController {
 
 		logger.info("Response = " + response);
 
-		return "redirect:/debug";
+		return "redirect:/utility";
 	}
 
-	@GetMapping({ "/debug_generateCrewMembers" })
+	@GetMapping({ "/generateCrewMembers" })
 	public String generateCrewMembers(ModelMap modelMap) {
 
 		DebugGenerateOptionsModel options = new DebugGenerateOptionsModel();
 
 		modelMap.addAttribute("options", options);
 
-		return "debugGenerateCrewMembers";
+		return "utilityGenerateCrewMembers";
 	}
 
-	@PostMapping({ "/debug_generateCrewMembersPost" })
+	@PostMapping({ "/generateCrewMembersPost" })
 	public String generateCrewMembersPost(@ModelAttribute DebugGenerateOptionsModel options) {
 
+		String url = getRestUrl("utility/generateCrewMembers?count=" + options.getRecordCount().toString());
+
+		logger.info("Calling " + url);
+
 		RestTemplate restTemplate = createRestTempate();
+		ResponseEntity<String> response = restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				createHttpEntity(),
+				new ParameterizedTypeReference<String>() {
+				});
 
-		for (int idx = 0; idx < options.getRecordCount(); ++idx) {
-			CrewMember crewMember = new CrewMember();
-			crewMember.setFirstName(ValueGenerator.getRandomFirstName());
-			crewMember.setLastName(ValueGenerator.getRandomLastName());
+		logger.info("Response = " + response);
 
-			@SuppressWarnings("unused")
-			ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
-					getRestUrl("crewMember"),
-					HttpMethod.POST,
-					createHttpEntity(crewMember),
-					new ParameterizedTypeReference<CreateResult<String>>() {
-					});
-		}
-
-		return "redirect:/debug";
+		return "redirect:/utility";
 	}
 
-	@GetMapping({ "/debug_upload" })
+	@GetMapping({ "/upload" })
 	public String upload() {
-		return "debugUpload";
+		return "utilityUpload";
 	}
 
-	@PostMapping({ "/debug_uploadPost" })
+	@PostMapping({ "/uploadPost" })
 	public String uploadPost(@RequestParam("ctrlFile") MultipartFile file) {
 
 		ZonedDateTime utcNow = ZonedDateTime.now(ZoneOffset.UTC);
@@ -180,13 +174,16 @@ public class DebugController extends SfmsController {
 			e.printStackTrace();
 		}
 
-		// uploadPostExecuteService(uploadedFileName);
-		uploadPostSubmitTask();
+		if (SfmsProperties.INSTANCE.getProperty(SfmsProperties.APPLICATION, SfmsProperties.SERVER_TYPE)
+				.equals(SfmsProperties.SERVER_TYPE_PRODUCTION)) {
+			uploadPostSubmitTask();
+		} else {
+			uploadPostExecuteService(uploadedFileName);
+		}
 
-		return "redirect:/debug";
+		return "redirect:/utility";
 	}
 
-	@SuppressWarnings("unused")
 	private void uploadPostExecuteService(String uploadedFileName) {
 		RestTemplate restTemplate = createRestTempate();
 		restTemplate.exchange(getRestUrl("task/processStarFile?filename=" + uploadedFileName),

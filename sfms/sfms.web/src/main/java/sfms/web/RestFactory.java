@@ -30,6 +30,8 @@ public class RestFactory {
 	public Star createStar(StarModel starModel) {
 		Star result = new Star();
 		result.setKey(starModel.getKey());
+		result.setClusterKey(starModel.getClusterKey());
+		result.setSectorKey(starModel.getSectorKey());
 		result.setHipparcosId(starModel.getHipparcosId());
 		result.setHenryDraperId(starModel.getHenryDraperId());
 		result.setHarvardRevisedId(starModel.getHarvardRevisedId());

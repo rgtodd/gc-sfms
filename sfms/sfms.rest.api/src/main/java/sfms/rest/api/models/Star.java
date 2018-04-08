@@ -3,6 +3,8 @@ package sfms.rest.api.models;
 public class Star {
 
 	private String m_key; // StarID-id *KEY*
+	private String m_clusterKey;
+	private String m_sectorKey;
 	private String m_hipparcosId; // hip
 	private String m_henryDraperId; // HD-hd
 	private String m_harvardRevisedId; // HR-hr
@@ -46,6 +48,22 @@ public class Star {
 
 	public void setKey(String key) {
 		m_key = key;
+	}
+
+	public String getClusterKey() {
+		return m_clusterKey;
+	}
+
+	public void setClusterKey(String clusterKey) {
+		m_clusterKey = clusterKey;
+	}
+
+	public String getSectorKey() {
+		return m_sectorKey;
+	}
+
+	public void setSectorKey(String sectorKey) {
+		m_sectorKey = sectorKey;
 	}
 
 	public String getHipparcosId() {

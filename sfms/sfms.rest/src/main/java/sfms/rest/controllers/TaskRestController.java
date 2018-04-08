@@ -167,6 +167,8 @@ public class TaskRestController {
 				.newKey(starId);
 
 		Entity entity = Entity.newBuilder(key)
+				.set(DbStarField.ClusterKey.getId(), NullValue.of())
+				.set(DbStarField.SectorKey.getId(), NullValue.of())
 				.set(DbStarField.HipparcosId.getId(), asValue(hipparcosId))
 				.set(DbStarField.HenryDraperId.getId(), asValue(henryDraperId))
 				.set(DbStarField.HarvardRevisedId.getId(), asValue(harvardRevisedId))

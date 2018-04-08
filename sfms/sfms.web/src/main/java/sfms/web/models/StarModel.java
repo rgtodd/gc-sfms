@@ -3,6 +3,8 @@ package sfms.web.models;
 public class StarModel {
 
 	private String m_key; // KEY
+	private String m_clusterKey;
+	private String m_sectorKey;
 	private String m_hipparcosId; // hip
 	private String m_henryDraperId; // HD-hd
 	private String m_harvardRevisedId; // HR-hr
@@ -39,6 +41,22 @@ public class StarModel {
 	private String m_variableStarDesignation; // var
 	private Double m_variableMinimum; // var_min
 	private Double m_variableMaximum; // var max
+
+	public String getClusterKey() {
+		return m_clusterKey;
+	}
+
+	public void setClusterKey(String clusterKey) {
+		m_clusterKey = clusterKey;
+	}
+
+	public String getSectorKey() {
+		return m_sectorKey;
+	}
+
+	public void setSectorKey(String sectorKey) {
+		m_sectorKey = sectorKey;
+	}
 
 	public String getHipparcosId() {
 		return m_hipparcosId;

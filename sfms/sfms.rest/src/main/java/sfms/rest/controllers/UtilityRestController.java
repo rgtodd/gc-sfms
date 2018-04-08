@@ -5,8 +5,11 @@ import java.util.logging.Logger;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import sfms.rest.db.business.CrewMemberGenerator;
+import sfms.rest.db.business.SpaceshipGenerator;
 import sfms.rest.db.business.StarClusterGenerator;
 
 @RestController
@@ -24,6 +27,40 @@ public class UtilityRestController {
 			generator.generate();
 
 			logger.info("End - generateClusters.");
+
+			return "Complete.";
+		} catch (Exception ex) {
+			logger.log(Level.SEVERE, "generateClusters exception occurred.", ex);
+			return ex.getMessage();
+		}
+	}
+
+	@GetMapping(value = "/generateCrewMembers")
+	public String generateCrewMembers(@RequestParam("count") int count) {
+		try {
+			logger.info("Start - generateCrewMembers.");
+
+			CrewMemberGenerator generator = new CrewMemberGenerator();
+			generator.generate(count);
+
+			logger.info("End - generateCrewMembers.");
+
+			return "Complete.";
+		} catch (Exception ex) {
+			logger.log(Level.SEVERE, "generateClusters exception occurred.", ex);
+			return ex.getMessage();
+		}
+	}
+
+	@GetMapping(value = "/generateSpaceships")
+	public String generateSpaceships(@RequestParam("count") int count) {
+		try {
+			logger.info("Start - generateSpaceships.");
+
+			SpaceshipGenerator generator = new SpaceshipGenerator();
+			generator.generate(count);
+
+			logger.info("End - generateSpaceships.");
 
 			return "Complete.";
 		} catch (Exception ex) {

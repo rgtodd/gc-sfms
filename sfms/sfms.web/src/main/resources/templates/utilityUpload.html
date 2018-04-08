@@ -12,13 +12,13 @@
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
-				<li class="breadcrumb-item"><a th:href="@{/debug}">Debug</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/utility}">Utility</a></li>
 				<li class="breadcrumb-item active" aria-current="page">File
 					Upload</li>
 			</ol>
 		</nav>
 		<p>Specify information and click Generate when complete.</p>
-		<form th:action="@{/debug_uploadPost}" method="post"
+		<form th:action="@{/utility/uploadPost}" method="post"
 			enctype="multipart/form-data">
 			<div class="form-group row">
 				<label for="ctrlFile" class="col-sm-2 col-form-label">File</label>
