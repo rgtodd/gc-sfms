@@ -2,14 +2,14 @@ package sfms.rest.db.schemas;
 
 public enum DbEntity {
 
-	Cluster("cluster", DbClusterField.class),
-	ClusterSector("clustersector", DbClusterSectorField.class),
-	CrewMember("crew", DbCrewMemberField.class),
-	Sector("sector", DbSectorField.class),
-	SectorStar("sector-star", DbSectorStarField.class),
-	Spaceship("ship", DbSpaceshipField.class),
-	SpaceStation("spacestation", DbSpaceStationField.class),
-	Star("star", DbStarField.class);
+	Cluster("Cluster", DbClusterField.class),
+	ClusterSector("ClusterSector", DbClusterSectorField.class),
+	CrewMember("Crew", DbCrewMemberField.class),
+	Sector("Sector", DbSectorField.class),
+	SectorStar("SectorStar", DbSectorStarField.class),
+	Spaceship("Ship", DbSpaceshipField.class),
+	SpaceStation("SpaceStation", DbSpaceStationField.class),
+	Star("Star", DbStarField.class);
 
 	private String m_kind;
 	private Class<?> m_fieldSchema;

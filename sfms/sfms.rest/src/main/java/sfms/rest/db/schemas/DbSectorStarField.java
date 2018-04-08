@@ -4,7 +4,8 @@ import sfms.rest.db.DbFieldSchema;
 
 public enum DbSectorStarField implements DbFieldSchema {
 
-	MinimumX("starkey", "Star Key", "Key of Star entity contained in this sector.");
+	SectorKey("sct_k", "Sector Key", "Key of parent Sector entity."),
+	StarKey("str_k", "Star Key", "Key of Star entity contained in this sector.");
 
 	private String m_id;
 	private String m_name;

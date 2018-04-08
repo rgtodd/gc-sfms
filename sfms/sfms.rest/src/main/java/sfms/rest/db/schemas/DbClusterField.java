@@ -4,12 +4,12 @@ import sfms.rest.db.DbFieldSchema;
 
 public enum DbClusterField implements DbFieldSchema {
 
-	MinimumX("minx", "Minimum X", "Minimum X coordinate (inclusive) of cluster."),
-	MinimumY("miny", "Minimum Y", "Minimum Y coordinate (inclusive) of cluster."),
-	MinimumZ("minz", "Minimum Z", "Minimum Z coordinate (inclusive) of cluster."),
-	MaximumX("maxx", "Maximum X", "Maximum X coordinate (exclusive) of cluster."),
-	MaximumY("maxy", "Maximum Y", "Maximum Y coordinate (exclusive) of cluster."),
-	MaximumZ("maxz", "Maximum Z", "Maximum Z coordinate (exclusive) of cluster.");
+	MinimumX("min_x", "Minimum X", "Minimum X coordinate (inclusive) of cluster."),
+	MinimumY("min_y", "Minimum Y", "Minimum Y coordinate (inclusive) of cluster."),
+	MinimumZ("min_z", "Minimum Z", "Minimum Z coordinate (inclusive) of cluster."),
+	MaximumX("max_x", "Maximum X", "Maximum X coordinate (exclusive) of cluster."),
+	MaximumY("max_y", "Maximum Y", "Maximum Y coordinate (exclusive) of cluster."),
+	MaximumZ("max_z", "Maximum Z", "Maximum Z coordinate (exclusive) of cluster.");
 
 	private String m_id;
 	private String m_name;

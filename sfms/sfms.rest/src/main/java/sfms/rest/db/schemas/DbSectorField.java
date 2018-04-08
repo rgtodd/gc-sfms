@@ -4,12 +4,12 @@ import sfms.rest.db.DbFieldSchema;
 
 public enum DbSectorField implements DbFieldSchema {
 
-	MinimumX("minx", "Minimum X", "Minimum X coordinate (inclusive) of sector."),
-	MinimumY("miny", "Minimum Y", "Minimum Y coordinate (inclusive) of sector."),
-	MinimumZ("minz", "Minimum Z", "Minimum Z coordinate (inclusive) of sector."),
-	MaximumX("maxx", "Maximum X", "Maximum X coordinate (exclusive) of sector."),
-	MaximumY("maxy", "Maximum Y", "Maximum Y coordinate (exclusive) of sector."),
-	MaximumZ("maxz", "Maximum Z", "Maximum Z coordinate (exclusive) of sector.");
+	MinimumX("min_x", "Minimum X", "Minimum X coordinate (inclusive) of sector."),
+	MinimumY("min_y", "Minimum Y", "Minimum Y coordinate (inclusive) of sector."),
+	MinimumZ("min_z", "Minimum Z", "Minimum Z coordinate (inclusive) of sector."),
+	MaximumX("max_x", "Maximum X", "Maximum X coordinate (exclusive) of sector."),
+	MaximumY("max_y", "Maximum Y", "Maximum Y coordinate (exclusive) of sector."),
+	MaximumZ("max_z", "Maximum Z", "Maximum Z coordinate (exclusive) of sector.");
 
 	private String m_id;
 	private String m_name;

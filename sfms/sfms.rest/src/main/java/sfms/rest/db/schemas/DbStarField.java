@@ -4,7 +4,7 @@ import sfms.rest.db.DbFieldSchema;
 
 public enum DbStarField implements DbFieldSchema {
 
-	ClusterKey("ckey", "Cluster Key", "Key of Cluster entity containing this star and its nearest neighbors."),
+	ClusterKey("cls_k", "Cluster Key", "Key of Cluster entity containing this star and its nearest neighbors."),
 	HipparcosId("hip", "Hipparcos ID", "ID of star in Hipparcos Catalog."),
 	HenryDraperId("hd", "Henry Draper ID", "ID of star in Henry Draper Catalog."),
 	HarvardRevisedId("hr", "Harvard Revised ID", "ID of star in Harvard Revised Catalog."),

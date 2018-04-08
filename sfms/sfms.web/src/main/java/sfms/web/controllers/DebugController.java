@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -43,6 +44,8 @@ import sfms.web.models.DebugGenerateOptionsModel;
 
 @Controller
 public class DebugController extends SfmsController {
+
+	private final Logger logger = Logger.getLogger(DebugController.class.getName());
 
 	@GetMapping({ "/debug" })
 	public String debug(ModelMap modelMap) {
@@ -88,6 +91,26 @@ public class DebugController extends SfmsController {
 					new ParameterizedTypeReference<CreateResult<String>>() {
 					});
 		}
+
+		return "redirect:/debug";
+	}
+
+	@GetMapping({ "/debug_generateStarClusters" })
+	public String generateStarClusters() {
+
+		String url = getRestUrl("utility/generateClusters");
+
+		logger.info("Calling " + url);
+
+		RestTemplate restTemplate = createRestTempate();
+		ResponseEntity<String> response = restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				createHttpEntity(),
+				new ParameterizedTypeReference<String>() {
+				});
+
+		logger.info("Response = " + response);
 
 		return "redirect:/debug";
 	}

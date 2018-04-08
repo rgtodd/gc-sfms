@@ -8,7 +8,7 @@ public enum DbSpaceshipField implements DbFieldSchema {
 	X("x", "X", "X coordinate of spaceship."),
 	Y("y", "Y", "Y coordinate of spaceship."),
 	Z("z", "Z", "Z coordinate of spaceship."),
-	Star("star", "Star", "Key of Star entity locating the spaceship.");
+	StarKey("str_k", "Star Key", "Key of Star entity locating the spaceship.");
 
 	private String m_id;
 	private String m_name;

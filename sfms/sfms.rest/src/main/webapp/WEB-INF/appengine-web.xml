@@ -3,5 +3,6 @@
 	<threadsafe>true</threadsafe>
 	<sessions-enabled>false</sessions-enabled>
 	<runtime>java8</runtime>
+	<application>rgt-ssms</application>
 	<module>rest</module>
 </appengine-web-app>

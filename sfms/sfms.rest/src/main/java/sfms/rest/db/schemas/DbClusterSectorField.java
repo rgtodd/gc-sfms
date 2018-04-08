@@ -4,7 +4,8 @@ import sfms.rest.db.DbFieldSchema;
 
 public enum DbClusterSectorField implements DbFieldSchema {
 
-	MinimumX("sectorkey", "Sector Key", "Key of Sector entity contained in this cluster.");
+	ClusterKey("cls_k", "Cluster Key", "Key of parent Cluster entity ."),
+	SectorKey("sct_k", "Sector Key", "Key of Sector entity contained in this cluster.");
 
 	private String m_id;
 	private String m_name;

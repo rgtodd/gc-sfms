@@ -5,7 +5,7 @@ import sfms.rest.db.DbFieldSchema;
 public enum DbSpaceStationField implements DbFieldSchema {
 
 	Name("n", "Name", "Name of space station."),
-	Star("star", "Star", "Key of Star entity locating the space station.");
+	StarKey("str_k", "Star Key", "Key of Star entity locating the space station.");
 
 	private String m_id;
 	private String m_name;
