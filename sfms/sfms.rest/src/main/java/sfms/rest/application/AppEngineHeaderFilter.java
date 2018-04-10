@@ -16,8 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.util.StringUtils;
 
+import sfms.common.Secret;
 import sfms.rest.api.RestUtility;
-import sfms.rest.api.Secret;
 
 public class AppEngineHeaderFilter implements Filter {
 

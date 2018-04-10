@@ -7,8 +7,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import sfms.common.Secret;
+import sfms.common.PropertyFile;
 import sfms.rest.api.RestUtility;
-import sfms.rest.api.Secret;
 
 public class SfmsController {
 
@@ -26,13 +27,13 @@ public class SfmsController {
 	}
 
 	protected UriBuilder getUriBuilder() {
-		String host = SfmsProperties.INSTANCE.getProperty(SfmsProperties.APPLICATION, SfmsProperties.SFMS_REST_HOST);
+		String host = PropertyFile.INSTANCE.getServerProperty(PropertyFile.APPLICATION, PropertyFile.SFMS_REST_HOST);
 		UriBuilder result = UriComponentsBuilder.fromUriString(host);
 		return result;
 	}
 
 	protected String getRestUrl(String url) {
-		String host = SfmsProperties.INSTANCE.getProperty(SfmsProperties.APPLICATION, SfmsProperties.SFMS_REST_HOST);
+		String host = PropertyFile.INSTANCE.getServerProperty(PropertyFile.APPLICATION, PropertyFile.SFMS_REST_HOST);
 		return host + "/" + url;
 	}
 

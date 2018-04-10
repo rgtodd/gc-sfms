@@ -2,7 +2,6 @@ package sfms.rest.db.business;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import com.google.cloud.datastore.Datastore;
@@ -11,10 +10,7 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 
-import sfms.rest.RestFactory;
-import sfms.rest.api.models.Star;
 import sfms.rest.db.schemas.DbClusterField;
-import sfms.rest.db.schemas.DbCrewMemberField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSectorField;
 

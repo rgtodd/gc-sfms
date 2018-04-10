@@ -33,10 +33,10 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 
+import sfms.common.Secret;
+import sfms.common.PropertyFile;
 import sfms.rest.api.RestUtility;
-import sfms.rest.api.Secret;
 import sfms.web.SfmsController;
-import sfms.web.SfmsProperties;
 import sfms.web.models.DebugEntryModel;
 import sfms.web.models.DebugGenerateOptionsModel;
 
@@ -174,8 +174,7 @@ public class UtilityController extends SfmsController {
 			e.printStackTrace();
 		}
 
-		if (SfmsProperties.INSTANCE.getProperty(SfmsProperties.APPLICATION, SfmsProperties.SERVER_TYPE)
-				.equals(SfmsProperties.SERVER_TYPE_PRODUCTION)) {
+		if (PropertyFile.INSTANCE.isProduction()) {
 			uploadPostSubmitTask();
 		} else {
 			uploadPostExecuteService(uploadedFileName);

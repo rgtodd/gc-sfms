@@ -1,4 +1,4 @@
-package sfms.rest.api;
+package sfms.common;
 
 import java.io.StringReader;
 import java.util.Properties;

@@ -11,7 +11,6 @@ import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.KeyFactory;
 
 import sfms.rest.api.test.ValueGenerator;
-import sfms.rest.db.schemas.DbCrewMemberField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSpaceshipField;
 
