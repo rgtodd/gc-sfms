@@ -51,6 +51,13 @@ public class Region {
 		return m_key;
 	}
 
+	public Coordinates getMidpoint() {
+		return new Coordinates(
+				m_minimumX + (m_maximumX - m_minimumX) / 2.0,
+				m_minimumY + (m_maximumY - m_minimumY) / 2.0,
+				m_minimumZ + (m_maximumZ - m_minimumZ) / 2.0);
+	}
+
 	public boolean contains(Region subregion) {
 		return getMinimumX() <= subregion.getMinimumX() &&
 				getMinimumY() <= subregion.getMinimumY() &&

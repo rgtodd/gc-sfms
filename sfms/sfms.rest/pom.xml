@@ -13,7 +13,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>rgtodd</groupId>
-			<artifactId>sfms.rest.api</artifactId>
+			<artifactId>sfms.common</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
