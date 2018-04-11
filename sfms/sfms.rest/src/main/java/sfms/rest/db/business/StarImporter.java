@@ -4,12 +4,12 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import com.google.cloud.ReadChannel;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.DoubleValue;
@@ -19,16 +19,17 @@ import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.NullValue;
 import com.google.cloud.datastore.StringValue;
 import com.google.cloud.datastore.Value;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
+import sfms.storage.Storage;
 
 public class StarImporter {
 
 	private final Logger logger = Logger.getLogger(StarImporter.class.getName());
+
+	private static final int LOG_INTERVAL = 500;
+	private static final int RECORD_LIMIT = 25000;
 
 	private static final String FIELD_DELIMITER_REXEX = ",";
 
@@ -88,10 +89,7 @@ public class StarImporter {
 
 		logger.log(Level.INFO, "Processing {0} / {1}.", new Object[] { bucketName, blobName });
 
-		BlobId blobId = BlobId.of(bucketName, blobName);
-
-		Storage storage = StorageOptions.getDefaultInstance().getService();
-		try (ReadChannel readChannel = storage.reader(blobId);
+		try (ReadableByteChannel readChannel = Storage.getManager().getReadableByteChannel(bucketName, blobName);
 				InputStream inputStream = Channels.newInputStream(readChannel);
 				InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
 				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -113,16 +111,23 @@ public class StarImporter {
 		@SuppressWarnings("unused")
 		String heading = iterator.next();
 
-		int count = 0;
-		while (iterator.hasNext() && ++count <= 10) {
-			String line = iterator.next();
-			processStarFileDataLine(line);
+		try (BatchPut batchPut = new BatchPut(m_datastore)) {
+			int count = 0;
+			while (iterator.hasNext() && count < RECORD_LIMIT) {
+				count += 1;
+				if (count % LOG_INTERVAL == 0) {
+					logger.log(Level.INFO, "Processing record # {0}.", count);
+				}
+
+				String line = iterator.next();
+				processStarFileDataLine(batchPut, line);
+			}
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Error during import.", e);
 		}
 	}
 
-	private void processStarFileDataLine(String line) {
-
-		logger.log(Level.INFO, "Processing line: {0}.", line);
+	private void processStarFileDataLine(BatchPut batchPut, String line) {
 
 		String[] fields = line.split(FIELD_DELIMITER_REXEX);
 
@@ -217,7 +222,7 @@ public class StarImporter {
 				.set(DbStarField.VariableMaximum.getId(), asValue(variableMaximum))
 				.build();
 
-		m_datastore.put(entity);
+		batchPut.add(entity);
 	}
 
 	private Value<?> asValue(String value) {
@@ -268,7 +273,7 @@ public class StarImporter {
 	}
 
 	private Double processOptionalDouble(String value) {
-		if (value == null)
+		if (value == null || value.isEmpty())
 			return null;
 		return Double.parseDouble(value);
 	}

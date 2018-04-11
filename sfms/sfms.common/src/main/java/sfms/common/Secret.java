@@ -1,14 +1,15 @@
 package sfms.common;
 
-import java.io.StringReader;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
+import sfms.storage.Storage;
 
 public class Secret {
 
@@ -51,16 +52,14 @@ public class Secret {
 	private Properties loadProperties() {
 		try {
 
-			Storage storage = StorageOptions.getDefaultInstance().getService();
-			BlobId blobId = BlobId.of(SECRET_BUCKET_NAME, SECRET_FILE_NAME);
-			Blob blob = storage.get(blobId);
+			try (ReadableByteChannel readChannel = Storage.getManager().getReadableByteChannel(SECRET_BUCKET_NAME,
+					SECRET_FILE_NAME);
+					InputStream inputStream = Channels.newInputStream(readChannel);
+					InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "US-ASCII");
+					BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {
 
-			byte[] contentBytes = blob.getContent();
-			String content = new String(contentBytes, "US-ASCII");
-
-			try (StringReader reader = new StringReader(content)) {
 				Properties properties = new Properties();
-				properties.load(reader);
+				properties.load(bufferedReader);
 				return properties;
 			}
 

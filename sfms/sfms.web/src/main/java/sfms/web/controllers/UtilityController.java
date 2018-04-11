@@ -3,6 +3,7 @@ package sfms.web.controllers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,15 +28,11 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.taskqueue.TaskOptions.Method;
-import com.google.cloud.WriteChannel;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 
 import sfms.common.Secret;
 import sfms.common.PropertyFile;
 import sfms.rest.api.RestUtility;
+import sfms.storage.Storage;
 import sfms.web.SfmsController;
 import sfms.web.models.DebugEntryModel;
 import sfms.web.models.DebugGenerateOptionsModel;
@@ -155,15 +152,11 @@ public class UtilityController extends SfmsController {
 
 		String bucketName = "rgt-ssms.appspot.com";
 		String blobName = "uploads/" + uploadedFileName;
-		BlobId blobId = BlobId.of(bucketName, blobName);
-
-		BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
-				.setContentType(file.getContentType())
-				.build();
+		String contentType = file.getContentType();
 
 		try (InputStream inputStream = file.getInputStream()) {
-			Storage storage = StorageOptions.getDefaultInstance().getService();
-			try (WriteChannel writeChannel = storage.writer(blobInfo)) {
+			try (WritableByteChannel writeChannel = Storage.getManager().getWritableByteChannel(bucketName, blobName,
+					contentType)) {
 				byte[] buffer = new byte[1024];
 				int limit;
 				while ((limit = inputStream.read(buffer)) >= 0) {

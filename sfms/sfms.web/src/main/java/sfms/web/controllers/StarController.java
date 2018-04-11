@@ -1,6 +1,10 @@
 package sfms.web.controllers;
 
+import java.net.URI;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -11,20 +15,30 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriBuilder;
 
 import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
+import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
+import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Star;
+import sfms.rest.api.schemas.StarField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
+import sfms.web.model.schemas.StarModelSchema;
+import sfms.web.models.PagingModel;
 import sfms.web.models.StarModel;
+import sfms.web.models.StarSortingModel;
 
 @Controller
 public class StarController extends SfmsController {
+
+	private final Logger logger = Logger.getLogger(StarController.class.getName());
 
 	@GetMapping({ "/star/{id}" })
 	public String get(@PathVariable Long id, ModelMap modelMap) {
@@ -43,17 +57,96 @@ public class StarController extends SfmsController {
 	}
 
 	@GetMapping({ "/star" })
-	public String getList(ModelMap modelMap) {
+	public String getList(
+			@RequestParam("pageNumber") Optional<Integer> pageNumber,
+			@RequestParam("bookmark") Optional<String> bookmark,
+			@RequestParam("sort") Optional<String> sort,
+			@RequestParam("direction") Optional<String> direction,
+			ModelMap modelMap) {
 
+		String effectiveSort;
+		if (sort.isPresent()) {
+			switch (sort.get()) {
+			case StarModelSchema.X:
+			case StarModelSchema.Y:
+			case StarModelSchema.Z:
+				effectiveSort = sort.get();
+				break;
+			default:
+				effectiveSort = StarModelSchema.X;
+				break;
+			}
+		} else {
+			effectiveSort = StarModelSchema.X;
+		}
+
+		String effectiveDirection;
+		if (direction.isPresent()) {
+			switch (direction.get()) {
+			case StarSortingModel.ASCENDING:
+			case StarSortingModel.DESCENDING:
+				effectiveDirection = direction.get();
+				break;
+			default:
+				effectiveDirection = StarSortingModel.ASCENDING;
+			}
+		} else {
+			effectiveDirection = StarSortingModel.ASCENDING;
+		}
+
+		StarField sortColumn = null;
+		switch (effectiveSort) {
+		case StarModelSchema.X:
+			sortColumn = StarField.X;
+			break;
+		case StarModelSchema.Y:
+			sortColumn = StarField.Y;
+			break;
+		case StarModelSchema.Z:
+			sortColumn = StarField.Z;
+			break;
+		}
+
+		SortCriteria sortCriteria;
+		if (effectiveDirection.equals(StarSortingModel.ASCENDING)) {
+			sortCriteria = SortCriteria.ascending(sortColumn.getName());
+		} else {
+			sortCriteria = SortCriteria.descending(sortColumn.getName());
+		}
+
+		UriBuilder uriBuilder = getUriBuilder().pathSegment("star");
+		if (bookmark.isPresent()) {
+			uriBuilder.queryParam(RestParameters.BOOKMARK, bookmark.get());
+		}
+		uriBuilder.queryParam(RestParameters.SORT, sortCriteria.toString());
+
+		URI uri = uriBuilder.build();
+		logger.log(Level.INFO, "uri = {0}", uri);
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<SearchResult<Star>> restResponse = restTemplate.exchange(getRestUrl("star"), HttpMethod.GET,
-				createHttpEntity(), new ParameterizedTypeReference<SearchResult<Star>>() {
+		ResponseEntity<SearchResult<Star>> restResponse = restTemplate.exchange(
+				uri,
+				HttpMethod.GET,
+				createHttpEntity(),
+				new ParameterizedTypeReference<SearchResult<Star>>() {
 				});
 
-		ModelFactory factory = new ModelFactory();
-		List<StarModel> starModels = factory.createStars(restResponse.getBody().getEntities());
+		SearchResult<Star> searchResult = restResponse.getBody();
 
+		ModelFactory factory = new ModelFactory();
+		List<StarModel> starModels = factory.createStars(searchResult.getEntities());
 		modelMap.addAttribute("stars", starModels);
+
+		PagingModel pagingModel = new PagingModel();
+		pagingModel.setNextBookmark(searchResult.getEndingBookmark());
+		pagingModel.setEndOfResults(searchResult.getEndOfResults());
+		pagingModel.setCurrentPageNumber(pageNumber.orElse(1));
+		pagingModel.setNextPageNumber(pageNumber.orElse(1) + 1);
+		modelMap.addAttribute("paging", pagingModel);
+
+		StarSortingModel sortingModel = new StarSortingModel();
+		sortingModel.setSort(effectiveSort);
+		sortingModel.setDirection(effectiveDirection);
+		modelMap.addAttribute("sorting", sortingModel);
 
 		return "starList";
 	}

@@ -19,6 +19,7 @@
 		<p>
 			<a class="btn btn-primary" th:href="@{/star_create}">Create</a>
 		</p>
+		<h3 th:text="${'Page ' + paging.currentPageNumber}">Page #</h3>
 		<table class="table">
 			<thead>
 				<tr>
@@ -42,6 +43,10 @@
 				</tr>
 			</tbody>
 		</table>
+		<p th:unless="${paging.endOfResults}">
+			<a class="btn btn-primary"
+				th:href="@{|/star?sort=${sorting.sort}&direction=${sorting.direction}&pageNumber=${paging.nextPageNumber}&bookmark=${paging.nextBookmark}|}">Next</a>
+		</p>
 	</div>
 </body>
 </html>
