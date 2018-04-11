@@ -5,21 +5,50 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.Key;
 
+import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.models.Star;
+import sfms.rest.db.DbFieldSchema;
+import sfms.rest.db.schemas.DbClusterField;
 import sfms.rest.db.schemas.DbCrewMemberField;
+import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSpaceshipField;
 import sfms.rest.db.schemas.DbStarField;
 
 public class RestFactory {
 
+	public Cluster createCluster(Entity entity) {
+
+		Cluster result = new Cluster();
+		result.setKey(DbEntity.Cluster.getRestKeyProvider().apply(entity.getKey()));
+		result.setMinimumX(getLong(entity, DbClusterField.MinimumX));
+		result.setMinimumY(getLong(entity, DbClusterField.MinimumY));
+		result.setMinimumZ(getLong(entity, DbClusterField.MinimumZ));
+		result.setMaximumX(getLong(entity, DbClusterField.MaximumX));
+		result.setMaximumY(getLong(entity, DbClusterField.MaximumY));
+		result.setMaximumZ(getLong(entity, DbClusterField.MaximumZ));
+		return result;
+	}
+
+	public List<Cluster> createClusters(Iterator<Entity> entities) {
+		List<Cluster> result = new ArrayList<Cluster>();
+		while (entities.hasNext()) {
+			Entity entity = entities.next();
+			result.add(createCluster(entity));
+		}
+		return result;
+	}
+
 	public Star createStar(Entity entity) {
 		Star result = new Star();
-		result.setKey(entity.getKey().getId().toString());
-		result.setClusterKey(getKey(entity, DbStarField.ClusterKey));
-		result.setSectorKey(getKey(entity, DbStarField.SectorKey));
+		result.setKey(DbEntity.Star.getRestKeyProvider().apply(entity.getKey()));
+		result.setClusterKey(
+				DbEntity.Cluster.getRestKeyProvider().apply(getKey(entity, DbStarField.ClusterKey)));
+		result.setSectorKey(
+				DbEntity.Sector.getRestKeyProvider().apply(getKey(entity, DbStarField.SectorKey)));
 		result.setHipparcosId(getString(entity, DbStarField.HipparcosId));
 		result.setHenryDraperId(getString(entity, DbStarField.HenryDraperId));
 		result.setHarvardRevisedId(getString(entity, DbStarField.HarvardRevisedId));
@@ -72,7 +101,7 @@ public class RestFactory {
 
 	public Spaceship createSpaceship(Entity entity) {
 		Spaceship result = new Spaceship();
-		result.setKey(entity.getKey().getId().toString());
+		result.setKey(DbEntity.Spaceship.getRestKeyProvider().apply(entity.getKey()));
 		result.setName(entity.getString(DbSpaceshipField.Name.getId()));
 		return result;
 	}
@@ -88,7 +117,7 @@ public class RestFactory {
 
 	public CrewMember createCrewMember(Entity entity) {
 		CrewMember result = new CrewMember();
-		result.setKey(entity.getKey().getId().toString());
+		result.setKey(DbEntity.CrewMember.getRestKeyProvider().apply(entity.getKey()));
 		result.setFirstName(entity.getString(DbCrewMemberField.FirstName.getId()));
 		result.setLastName(entity.getString(DbCrewMemberField.LastName.getId()));
 		return result;
@@ -103,7 +132,7 @@ public class RestFactory {
 		return result;
 	}
 
-	private String getKey(Entity entity, DbStarField field) {
+	private Key getKey(Entity entity, DbFieldSchema field) {
 		String name = field.getId();
 		if (!entity.contains(name)) {
 			return null;
@@ -111,10 +140,10 @@ public class RestFactory {
 		if (entity.isNull(name)) {
 			return null;
 		}
-		return entity.getKey(name).toUrlSafe();
+		return entity.getKey(name);
 	}
 
-	private String getString(Entity entity, DbStarField field) {
+	private String getString(Entity entity, DbFieldSchema field) {
 		String name = field.getId();
 		if (!entity.contains(name)) {
 			return null;
@@ -125,7 +154,7 @@ public class RestFactory {
 		return entity.getString(name);
 	}
 
-	private Double getOptionalDouble(Entity entity, DbStarField field) {
+	private Double getOptionalDouble(Entity entity, DbFieldSchema field) {
 		String name = field.getId();
 		if (!entity.contains(name)) {
 			return null;
@@ -136,7 +165,7 @@ public class RestFactory {
 		return entity.getDouble(name);
 	}
 
-	private double getDouble(Entity entity, DbStarField field) {
+	private double getDouble(Entity entity, DbFieldSchema field) {
 		String name = field.getId();
 		if (!entity.contains(name)) {
 			return 0;
@@ -147,4 +176,26 @@ public class RestFactory {
 		return entity.getDouble(name);
 	}
 
+	@SuppressWarnings("unused")
+	private Long getOptionalLong(Entity entity, DbFieldSchema field) {
+		String name = field.getId();
+		if (!entity.contains(name)) {
+			return null;
+		}
+		if (entity.isNull(name)) {
+			return null;
+		}
+		return entity.getLong(name);
+	}
+
+	private long getLong(Entity entity, DbFieldSchema field) {
+		String name = field.getId();
+		if (!entity.contains(name)) {
+			return 0;
+		}
+		if (entity.isNull(name)) {
+			return 0;
+		}
+		return entity.getLong(name);
+	}
 }

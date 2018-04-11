@@ -8,6 +8,5 @@ public class SfmsSpringBootServletInitializer extends SpringBootServletInitializ
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(SfmsSpringBootApplication.class);
 	}
-	
-	
+
 }

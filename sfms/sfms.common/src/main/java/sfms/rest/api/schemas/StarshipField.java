@@ -1,19 +1,18 @@
 package sfms.rest.api.schemas;
 
-public enum CrewMemberField {
+public enum StarshipField {
 
 	Key("Key"),
-	FirstName("FirstName"),
-	LastName("LastName");
+	Name("Name");
 
 	private String m_name;
 
-	private CrewMemberField(String name) {
+	private StarshipField(String name) {
 		m_name = name;
 	}
 
-	public static CrewMemberField parse(String name) {
-		for (CrewMemberField property : CrewMemberField.values()) {
+	public static StarshipField parse(String name) {
+		for (StarshipField property : StarshipField.values()) {
 			if (property.getName().equals(name)) {
 				return property;
 			}

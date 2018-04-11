@@ -2,6 +2,9 @@ package sfms.rest.api.schemas;
 
 public enum StarField {
 
+	Key("Key"),
+	ClusterKey("ClusterKey"),
+	SectorKey("SectorKey"),
 	HipparcosId("HipparcosId"),
 	HenryDraperId("HenryDraperId"),
 	HarvardRevisedId("HarvardRevisedId"),

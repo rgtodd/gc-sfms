@@ -33,22 +33,25 @@ import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
-import sfms.rest.api.models.Star;
-import sfms.rest.api.schemas.StarField;
+import sfms.rest.api.models.Cluster;
+import sfms.rest.api.schemas.ClusterField;
+import sfms.rest.db.schemas.DbClusterField;
+import sfms.rest.db.schemas.DbClusterKey;
 import sfms.rest.db.schemas.DbEntity;
-import sfms.rest.db.schemas.DbStarField;
-import sfms.rest.db.schemas.DbStarKey;
 
 @RestController
-@RequestMapping("/star")
-public class StarRestController {
+@RequestMapping("/cluster")
+public class ClusterRestController {
 
-	private static final Map<StarField, DbStarField> s_dbFieldMap;
+	private static final Map<ClusterField, DbClusterField> s_dbFieldMap;
 	static {
-		s_dbFieldMap = new HashMap<StarField, DbStarField>();
-		s_dbFieldMap.put(StarField.X, DbStarField.X);
-		s_dbFieldMap.put(StarField.Y, DbStarField.Y);
-		s_dbFieldMap.put(StarField.Z, DbStarField.Z);
+		s_dbFieldMap = new HashMap<ClusterField, DbClusterField>();
+		s_dbFieldMap.put(ClusterField.MinimumX, DbClusterField.MinimumX);
+		s_dbFieldMap.put(ClusterField.MinimumY, DbClusterField.MinimumY);
+		s_dbFieldMap.put(ClusterField.MinimumZ, DbClusterField.MinimumZ);
+		s_dbFieldMap.put(ClusterField.MaximumX, DbClusterField.MaximumX);
+		s_dbFieldMap.put(ClusterField.MaximumY, DbClusterField.MaximumY);
+		s_dbFieldMap.put(ClusterField.MaximumZ, DbClusterField.MaximumZ);
 	}
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
@@ -58,7 +61,7 @@ public class StarRestController {
 	private Throttle m_throttle;
 
 	@GetMapping(value = "/{id}")
-	public Star getLookup(@PathVariable String id) throws Exception {
+	public Cluster getLookup(@PathVariable String id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -66,18 +69,17 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbStarKey.createKey(datastore, id);
-
+		Key key = DbClusterKey.createKey(datastore, id);
 		Entity entity = datastore.get(key);
 
 		RestFactory factory = new RestFactory();
-		Star star = factory.createStar(entity);
+		Cluster result = factory.createCluster(entity);
 
-		return star;
+		return result;
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Star> getSearch(
+	public SearchResult<Cluster> getSearch(
 			@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
@@ -93,13 +95,13 @@ public class StarRestController {
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 		Builder queryBuilder = Query.newEntityQueryBuilder();
-		queryBuilder.setKind(DbEntity.Star.getKind());
+		queryBuilder.setKind(DbEntity.Cluster.getKind());
 		queryBuilder.setLimit(limit);
 		if (sort.isPresent()) {
 			SortCriteria sortCriteria = SortCriteria.parse(sort.get());
 			for (int idx = 0; idx < sortCriteria.size(); ++idx) {
-				StarField restField = StarField.parse(sortCriteria.getColumn(idx));
-				DbStarField dbField = s_dbFieldMap.get(restField);
+				ClusterField restField = ClusterField.parse(sortCriteria.getColumn(idx));
+				DbClusterField dbField = s_dbFieldMap.get(restField);
 				if (dbField != null) {
 					if (sortCriteria.getDescending(idx)) {
 						queryBuilder.addOrderBy(OrderBy.desc(dbField.getId()));
@@ -118,18 +120,19 @@ public class StarRestController {
 		QueryResults<Entity> entities = datastore.run(query);
 
 		RestFactory factory = new RestFactory();
-		List<Star> stars = factory.createStars(entities);
+		List<Cluster> clusters = factory.createClusters(entities);
 
-		SearchResult<Star> result = new SearchResult<Star>();
-		result.setEntities(stars);
+		SearchResult<Cluster> result = new SearchResult<Cluster>();
+		result.setEntities(clusters);
 		result.setEndingBookmark(entities.getCursorAfter().toUrlSafe());
-		result.setEndOfResults(stars.size() < limit);
+		result.setEndOfResults(clusters.size() < limit);
 
 		return result;
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Star star) throws Exception {
+	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Cluster cluster)
+			throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -137,10 +140,15 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbStarKey.createKey(datastore, id);
+		Key key = DbClusterKey.createKey(datastore, id);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ProperName.getId(), star.getProperName())
+				.set(DbClusterField.MinimumX.getId(), cluster.getMinimumX())
+				.set(DbClusterField.MinimumY.getId(), cluster.getMinimumY())
+				.set(DbClusterField.MinimumZ.getId(), cluster.getMinimumZ())
+				.set(DbClusterField.MaximumX.getId(), cluster.getMaximumX())
+				.set(DbClusterField.MaximumY.getId(), cluster.getMaximumY())
+				.set(DbClusterField.MaximumZ.getId(), cluster.getMaximumZ())
 				.build();
 
 		datastore.update(entity);
@@ -152,7 +160,7 @@ public class StarRestController {
 	}
 
 	@PutMapping(value = "")
-	public CreateResult<String> putCreate(@RequestBody Star star) throws Exception {
+	public CreateResult<String> putCreate(@RequestBody Cluster cluster) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -160,16 +168,21 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbStarKey.createKey(datastore, star.getKey());
+		Key key = DbClusterKey.createKey(datastore, cluster.getKey());
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ProperName.getId(), star.getProperName())
+				.set(DbClusterField.MinimumX.getId(), cluster.getMinimumX())
+				.set(DbClusterField.MinimumY.getId(), cluster.getMinimumY())
+				.set(DbClusterField.MinimumZ.getId(), cluster.getMinimumZ())
+				.set(DbClusterField.MaximumX.getId(), cluster.getMaximumX())
+				.set(DbClusterField.MaximumY.getId(), cluster.getMaximumY())
+				.set(DbClusterField.MaximumZ.getId(), cluster.getMaximumZ())
 				.build();
 
 		datastore.put(entity);
 
 		CreateResult<String> result = new CreateResult<String>();
-		result.setKey(star.getKey());
+		result.setKey(key.getId().toString());
 
 		return result;
 	}
@@ -183,7 +196,7 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbStarKey.createKey(datastore, id);
+		Key key = DbClusterKey.createKey(datastore, id);
 
 		datastore.delete(key);
 

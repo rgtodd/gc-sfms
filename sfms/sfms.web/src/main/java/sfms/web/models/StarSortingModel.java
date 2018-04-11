@@ -1,6 +1,5 @@
 package sfms.web.models;
 
-import sfms.web.model.schemas.CrewMemberModelSchema;
 import sfms.web.model.schemas.StarModelSchema;
 
 public class StarSortingModel {

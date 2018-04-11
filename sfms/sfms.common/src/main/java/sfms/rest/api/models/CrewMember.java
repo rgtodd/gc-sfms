@@ -1,5 +1,8 @@
 package sfms.rest.api.models;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CrewMember {
 
 	private String m_key;

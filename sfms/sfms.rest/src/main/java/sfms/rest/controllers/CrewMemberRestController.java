@@ -20,6 +20,7 @@ import com.google.cloud.datastore.Cursor;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
@@ -38,6 +39,7 @@ import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.CrewMember;
 import sfms.rest.api.schemas.CrewMemberField;
 import sfms.rest.db.schemas.DbCrewMemberField;
+import sfms.rest.db.schemas.DbCrewMemberKey;
 import sfms.rest.db.schemas.DbEntity;
 
 @RestController
@@ -66,9 +68,7 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = datastore.newKeyFactory()
-				.setKind(DbEntity.CrewMember.getKind())
-				.newKey(Long.parseLong(id));
+		Key key = DbCrewMemberKey.createKey(datastore, id);
 
 		Entity entity = datastore.get(key);
 
@@ -140,9 +140,7 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = datastore.newKeyFactory()
-				.setKind(DbEntity.CrewMember.getKind())
-				.newKey(Long.parseLong(id));
+		Key key = DbCrewMemberKey.createKey(datastore, id);
 
 		Entity entity = Entity.newBuilder(key)
 				.set(DbCrewMemberField.FirstName.getId(), crewMember.getFirstName())
@@ -169,17 +167,16 @@ public class CrewMemberRestController {
 		IncompleteKey incompleteKey = datastore.newKeyFactory()
 				.setKind(DbEntity.CrewMember.getKind())
 				.newKey();
-		Key key = datastore.allocateId(incompleteKey);
 
-		Entity entity = Entity.newBuilder(key)
+		FullEntity<IncompleteKey> entity = Entity.newBuilder(incompleteKey)
 				.set(DbCrewMemberField.FirstName.getId(), crewMember.getFirstName())
 				.set(DbCrewMemberField.LastName.getId(), crewMember.getLastName())
 				.build();
 
-		datastore.put(entity);
+		Entity createdEntity = datastore.put(entity);
 
 		CreateResult<String> result = new CreateResult<String>();
-		result.setKey(key.getId().toString());
+		result.setKey(DbEntity.CrewMember.getRestKeyProvider().apply(createdEntity.getKey()));
 
 		return result;
 	}
@@ -193,9 +190,7 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = datastore.newKeyFactory()
-				.setKind(DbEntity.CrewMember.getKind())
-				.newKey(Long.parseLong(id));
+		Key key = DbCrewMemberKey.createKey(datastore, id);
 
 		datastore.delete(key);
 

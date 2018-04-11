@@ -22,6 +22,7 @@ import com.google.cloud.datastore.Value;
 
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
+import sfms.rest.db.schemas.DbStarKey;
 import sfms.storage.Storage;
 
 public class StarImporter {
@@ -131,7 +132,7 @@ public class StarImporter {
 
 		String[] fields = line.split(FIELD_DELIMITER_REXEX);
 
-		long starId = getLong(fields, FIELD_StarId) + 1000000;
+		String id = String.valueOf(getLong(fields, FIELD_StarId) + 1000000);
 		String hipparcosId = getString(fields, FIELD_HipparcosId);
 		String henryDraperId = getString(fields, FIELD_HenryDraperId);
 		String harvardRevisedId = getString(fields, FIELD_HarvardRevisedId);
@@ -175,10 +176,7 @@ public class StarImporter {
 		Region sector = m_sectors.findClosestRegion(x, y, z);
 		Key sectorKey = m_sectorKeyFactory.newKey(sector.getKey());
 
-		Key key = m_datastore
-				.newKeyFactory()
-				.setKind(DbEntity.Star.getKind())
-				.newKey(starId);
+		Key key = DbStarKey.createKey(m_datastore, id);
 
 		Entity entity = Entity.newBuilder(key)
 				.set(DbStarField.ClusterKey.getId(), clusterKey)
