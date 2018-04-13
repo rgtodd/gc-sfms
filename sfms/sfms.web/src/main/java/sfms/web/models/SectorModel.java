@@ -2,7 +2,7 @@ package sfms.web.models;
 
 import java.util.List;
 
-public class ClusterModel {
+public class SectorModel {
 
 	private String m_key;
 	private long m_minimumX;
@@ -13,7 +13,7 @@ public class ClusterModel {
 	private long m_maximumZ;
 	private List<StarModel> m_stars;
 
-	public ClusterModel() {
+	public SectorModel() {
 	}
 
 	public String getKey() {

@@ -22,7 +22,6 @@ import com.google.cloud.datastore.Value;
 
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
-import sfms.rest.db.schemas.DbStarKey;
 import sfms.storage.Storage;
 
 public class StarImporter {
@@ -176,7 +175,7 @@ public class StarImporter {
 		Region sector = m_sectors.findClosestRegion(x, y, z);
 		Key sectorKey = m_sectorKeyFactory.newKey(sector.getKey());
 
-		Key key = DbStarKey.createKey(m_datastore, id);
+		Key key = DbEntity.Star.createEntityKey(m_datastore, id);
 
 		Entity entity = Entity.newBuilder(key)
 				.set(DbStarField.ClusterKey.getId(), clusterKey)

@@ -1,7 +1,5 @@
 package sfms.rest.db.schemas;
 
-import java.util.function.Function;
-
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Key;
 
@@ -9,31 +7,27 @@ public enum DbEntity {
 
 	// ID Based Entities
 	//
-	CrewMember("Crew", DbCrewMemberField.class, DbEntity::IdKeyRestProvider, DbEntity::IdRestKeyFactory),
-	Spaceship("Ship", DbSpaceshipField.class, DbEntity::IdKeyRestProvider, DbEntity::IdRestKeyFactory),
-	SpaceStation("SpaceStation", DbSpaceStationField.class, DbEntity::IdKeyRestProvider, DbEntity::IdRestKeyFactory),
+	CrewMember("Crew", DbCrewMemberField.class, true),
+	Spaceship("Ship", DbSpaceshipField.class, true),
+	SpaceStation("SpaceStation", DbSpaceStationField.class, true),
 
 	// Name Based Entities
 	//
-	Cluster("Cluster", DbClusterField.class, DbEntity::NameKeyRestProvider, DbEntity::NameRestKeyFactory),
-	ClusterSector("ClusterSector", DbClusterSectorField.class, DbEntity::NameKeyRestProvider,
-			DbEntity::NameRestKeyFactory),
-	ClusterStar("ClusterStar", DbClusterStarField.class, DbEntity::NameKeyRestProvider, DbEntity::NameRestKeyFactory),
-	Sector("Sector", DbSectorField.class, DbEntity::NameKeyRestProvider, DbEntity::NameRestKeyFactory),
-	SectorStar("SectorStar", DbSectorStarField.class, DbEntity::NameKeyRestProvider, DbEntity::NameRestKeyFactory),
-	Star("Star", DbStarField.class, DbEntity::NameKeyRestProvider, DbEntity::NameRestKeyFactory);
+	Cluster("Cluster", DbClusterField.class, false),
+	ClusterSector("ClusterSector", DbClusterSectorField.class, false),
+	ClusterStar("ClusterStar", DbClusterStarField.class, false),
+	Sector("Sector", DbSectorField.class, false),
+	SectorStar("SectorStar", DbSectorStarField.class, false),
+	Star("Star", DbStarField.class, false);
 
 	private String m_kind;
 	private Class<?> m_fieldSchema;
-	private Function<Key, String> m_restKeyProvider;
-	private TriFunction<Datastore, String, String, Key> m_restKeyFactory;
+	private boolean m_isIdKey;
 
-	private DbEntity(String kind, Class<?> fieldSchema, Function<Key, String> restKeyProvider,
-			TriFunction<Datastore, String, String, Key> restKeyFactory) {
+	private DbEntity(String kind, Class<?> fieldSchema, boolean isIdKey) {
 		m_kind = kind;
 		m_fieldSchema = fieldSchema;
-		m_restKeyProvider = restKeyProvider;
-		m_restKeyFactory = restKeyFactory;
+		m_isIdKey = isIdKey;
 	}
 
 	public static DbEntity parse(String kind) {
@@ -54,31 +48,27 @@ public enum DbEntity {
 		return m_fieldSchema;
 	}
 
-	public Function<Key, String> getRestKeyProvider() {
-		return m_restKeyProvider;
+	public boolean isIdKey() {
+		return m_isIdKey;
 	}
 
-	public TriFunction<Datastore, String, String, Key> getRestKeyFactory() {
-		return m_restKeyFactory;
+	public Key createEntityKey(Datastore datastore, String restKey) {
+		if (restKey == null)
+			return null;
+		if (isIdKey()) {
+			return datastore.newKeyFactory().setKind(getKind()).newKey(Long.parseLong(restKey));
+		} else {
+			return datastore.newKeyFactory().setKind(getKind()).newKey(restKey);
+		}
 	}
 
-	private static String IdKeyRestProvider(Key key) {
+	public String createRestKey(Key key) {
 		if (key == null)
 			return null;
-		return String.valueOf(key.getId());
-	}
-
-	private static String NameKeyRestProvider(Key key) {
-		if (key == null)
-			return null;
-		return key.getName();
-	}
-
-	private static Key IdRestKeyFactory(Datastore datastore, String kind, String id) {
-		return datastore.newKeyFactory().setKind(kind).newKey(Long.parseLong(id));
-	}
-
-	private static Key NameRestKeyFactory(Datastore datastore, String kind, String id) {
-		return datastore.newKeyFactory().setKind(kind).newKey(id);
+		if (isIdKey()) {
+			return key.getId().toString();
+		} else {
+			return key.getName();
+		}
 	}
 }

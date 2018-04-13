@@ -21,6 +21,7 @@ import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.ProjectionEntity;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.OrderBy;
@@ -37,7 +38,6 @@ import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Cluster;
 import sfms.rest.api.schemas.ClusterField;
 import sfms.rest.db.schemas.DbClusterField;
-import sfms.rest.db.schemas.DbClusterKey;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
 
@@ -71,19 +71,21 @@ public class ClusterRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbClusterKey.createKey(datastore, id);
+		Key key = DbEntity.Cluster.createEntityKey(datastore, id);
 		Entity dbCluster = datastore.get(key);
 
-		Query<Entity> query = Query.newEntityQueryBuilder()
+		Query<ProjectionEntity> query = Query.newProjectionEntityQueryBuilder()
 				.setKind(DbEntity.Star.getKind())
+				.addProjection(DbStarField.X.getId())
+				.addProjection(DbStarField.Y.getId())
+				.addProjection(DbStarField.Z.getId())
 				.setFilter(PropertyFilter.eq(DbStarField.ClusterKey.getId(), key))
-				// .setProjection(DbStarField.X.getName())
 				.build();
 
-		QueryResults<Entity> dbStars = datastore.run(query);
+		QueryResults<ProjectionEntity> dbStars = datastore.run(query);
 
 		RestFactory factory = new RestFactory();
-		Cluster result = factory.createCluster(dbCluster, factory.createStars(dbStars));
+		Cluster result = factory.createCluster(dbCluster, factory.createStarsFromProjection(dbStars));
 
 		return result;
 	}
@@ -150,7 +152,7 @@ public class ClusterRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbClusterKey.createKey(datastore, id);
+		Key key = DbEntity.Cluster.createEntityKey(datastore, id);
 
 		Entity entity = Entity.newBuilder(key)
 				.set(DbClusterField.MinimumX.getId(), cluster.getMinimumX())
@@ -178,7 +180,7 @@ public class ClusterRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbClusterKey.createKey(datastore, cluster.getKey());
+		Key key = DbEntity.Cluster.createEntityKey(datastore, cluster.getKey());
 
 		Entity entity = Entity.newBuilder(key)
 				.set(DbClusterField.MinimumX.getId(), cluster.getMinimumX())
@@ -206,7 +208,7 @@ public class ClusterRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbClusterKey.createKey(datastore, id);
+		Key key = DbEntity.Cluster.createEntityKey(datastore, id);
 
 		datastore.delete(key);
 

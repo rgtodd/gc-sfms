@@ -2,7 +2,7 @@ package sfms.web.models;
 
 import sfms.web.model.schemas.ClusterModelSchema;
 
-public class ClusterSortingModel extends SortingModel {
+public class SectorSortingModel extends SortingModel {
 
 	public boolean getMaximumXHasIcon() {
 		return getSort().equals(ClusterModelSchema.MAXIMUM_X);

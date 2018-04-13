@@ -4,7 +4,7 @@
 	layout:decorate="~{layout}">
 <head>
 <head>
-<title>Create Cluster</title>
+<title>Create Sector</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
@@ -12,14 +12,14 @@
 		<nav aria-label="breadcrumb">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
-				<li class="breadcrumb-item"><a th:href="@{/cluster}">List
-						Clusters</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/sector}">List
+						Sectors</a></li>
 				<li class="breadcrumb-item active" aria-current="page">Create
-					Cluster</li>
+					Sector</li>
 			</ol>
 		</nav>
 		<p>Specify information and click Save when complete.</p>
-		<form th:action="@{/cluster/createPost}" th:object="${cluster}"
+		<form th:action="@{/sector/createPost}" th:object="${sector}"
 			method="post">
 			<div class="form-group row">
 				<label for="txtMinimumX" class="col-sm-2 col-form-label">Minimum

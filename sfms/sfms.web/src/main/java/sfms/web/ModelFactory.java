@@ -5,10 +5,12 @@ import java.util.List;
 
 import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
+import sfms.rest.api.models.Sector;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.models.Star;
 import sfms.web.models.ClusterModel;
 import sfms.web.models.CrewMemberModel;
+import sfms.web.models.SectorModel;
 import sfms.web.models.SpaceshipModel;
 import sfms.web.models.StarModel;
 
@@ -23,6 +25,11 @@ public class ModelFactory {
 		ClusterModel result = new ClusterModel();
 		result.setKey(cluster.getKey());
 		result.setMinimumX(cluster.getMinimumX());
+		result.setMinimumY(cluster.getMinimumY());
+		result.setMinimumZ(cluster.getMinimumZ());
+		result.setMaximumX(cluster.getMaximumX());
+		result.setMaximumY(cluster.getMaximumY());
+		result.setMaximumZ(cluster.getMaximumZ());
 		result.setStars(createStars(cluster.getStars()));
 		return result;
 	}
@@ -31,6 +38,53 @@ public class ModelFactory {
 		List<ClusterModel> result = new ArrayList<ClusterModel>();
 		for (Cluster cluster : clusters) {
 			result.add(createCluster(cluster));
+		}
+		return result;
+	}
+
+	public CrewMemberModel createCrewMember() {
+		CrewMemberModel result = new CrewMemberModel();
+		return result;
+	}
+
+	public CrewMemberModel createCrewMember(CrewMember crewMember) {
+		CrewMemberModel result = new CrewMemberModel();
+		result.setKey(crewMember.getKey());
+		result.setFirstName(crewMember.getFirstName());
+		result.setLastName(crewMember.getLastName());
+		return result;
+	}
+
+	public List<CrewMemberModel> createCrewMembers(Iterable<CrewMember> crewMembers) {
+		List<CrewMemberModel> result = new ArrayList<CrewMemberModel>();
+		for (CrewMember crewMember : crewMembers) {
+			result.add(createCrewMember(crewMember));
+		}
+		return result;
+	}
+
+	public SectorModel createSector() {
+		SectorModel result = new SectorModel();
+		return result;
+	}
+
+	public SectorModel createSector(Sector sector) {
+		SectorModel result = new SectorModel();
+		result.setKey(sector.getKey());
+		result.setMinimumX(sector.getMinimumX());
+		result.setMinimumY(sector.getMinimumY());
+		result.setMinimumZ(sector.getMinimumZ());
+		result.setMaximumX(sector.getMaximumX());
+		result.setMaximumY(sector.getMaximumY());
+		result.setMaximumZ(sector.getMaximumZ());
+		result.setStars(createStars(sector.getStars()));
+		return result;
+	}
+
+	public List<SectorModel> createSectors(Iterable<Sector> sectors) {
+		List<SectorModel> result = new ArrayList<SectorModel>();
+		for (Sector sector : sectors) {
+			result.add(createSector(sector));
 		}
 		return result;
 	}
@@ -111,27 +165,6 @@ public class ModelFactory {
 			for (Star star : stars) {
 				result.add(createStar(star));
 			}
-		}
-		return result;
-	}
-
-	public CrewMemberModel createCrewMember() {
-		CrewMemberModel result = new CrewMemberModel();
-		return result;
-	}
-
-	public CrewMemberModel createCrewMember(CrewMember crewMember) {
-		CrewMemberModel result = new CrewMemberModel();
-		result.setKey(crewMember.getKey());
-		result.setFirstName(crewMember.getFirstName());
-		result.setLastName(crewMember.getLastName());
-		return result;
-	}
-
-	public List<CrewMemberModel> createCrewMembers(Iterable<CrewMember> crewMembers) {
-		List<CrewMemberModel> result = new ArrayList<CrewMemberModel>();
-		for (CrewMember crewMember : crewMembers) {
-			result.add(createCrewMember(crewMember));
 		}
 		return result;
 	}

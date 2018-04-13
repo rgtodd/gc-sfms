@@ -40,7 +40,6 @@ import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.CrewMember;
 import sfms.rest.api.schemas.CrewMemberField;
 import sfms.rest.db.schemas.DbCrewMemberField;
-import sfms.rest.db.schemas.DbCrewMemberKey;
 import sfms.rest.db.schemas.DbEntity;
 
 @RestController
@@ -69,7 +68,7 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbCrewMemberKey.createKey(datastore, id);
+		Key key = DbEntity.CrewMember.createEntityKey(datastore, id);
 
 		Entity entity = datastore.get(key);
 
@@ -141,7 +140,7 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbCrewMemberKey.createKey(datastore, id);
+		Key key = DbEntity.CrewMember.createEntityKey(datastore, id);
 
 		Entity entity = Entity.newBuilder(key)
 				.set(DbCrewMemberField.FirstName.getId(), crewMember.getFirstName())
@@ -177,7 +176,7 @@ public class CrewMemberRestController {
 		Entity createdEntity = datastore.put(entity);
 
 		CreateResult<String> result = new CreateResult<String>();
-		result.setKey(DbEntity.CrewMember.getRestKeyProvider().apply(createdEntity.getKey()));
+		result.setKey(DbEntity.CrewMember.createRestKey(createdEntity.getKey()));
 
 		return result;
 	}
@@ -191,7 +190,7 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbCrewMemberKey.createKey(datastore, id);
+		Key key = DbEntity.CrewMember.createEntityKey(datastore, id);
 
 		datastore.delete(key);
 

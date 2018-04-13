@@ -40,7 +40,6 @@ import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.schemas.SpaceshipField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSpaceshipField;
-import sfms.rest.db.schemas.DbSpaceshipKey;
 
 @RestController
 @RequestMapping("/spaceship")
@@ -67,7 +66,7 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbSpaceshipKey.createKey(datastore, id);
+		Key key = DbEntity.Spaceship.createEntityKey(datastore, id);
 
 		Entity entity = datastore.get(key);
 
@@ -138,7 +137,7 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbSpaceshipKey.createKey(datastore, id);
+		Key key = DbEntity.Spaceship.createEntityKey(datastore, id);
 
 		Entity entity = Entity.newBuilder(key)
 				.set(DbSpaceshipField.Name.getId(), spaceship.getName())
@@ -172,7 +171,7 @@ public class SpaceshipRestController {
 		Entity createdEntity = datastore.put(entity);
 
 		CreateResult<String> result = new CreateResult<String>();
-		result.setKey(DbEntity.Spaceship.getRestKeyProvider().apply(createdEntity.getKey()));
+		result.setKey(DbEntity.Spaceship.createRestKey(createdEntity.getKey()));
 
 		return result;
 	}
@@ -186,7 +185,7 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbSpaceshipKey.createKey(datastore, id);
+		Key key = DbEntity.Spaceship.createEntityKey(datastore, id);
 
 		datastore.delete(key);
 

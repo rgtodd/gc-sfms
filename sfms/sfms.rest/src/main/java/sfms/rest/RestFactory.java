@@ -14,12 +14,14 @@ import com.google.cloud.datastore.QueryResults;
 
 import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
+import sfms.rest.api.models.Sector;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.models.Star;
 import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.schemas.DbClusterField;
 import sfms.rest.db.schemas.DbCrewMemberField;
 import sfms.rest.db.schemas.DbEntity;
+import sfms.rest.db.schemas.DbSectorField;
 import sfms.rest.db.schemas.DbSpaceshipField;
 import sfms.rest.db.schemas.DbStarField;
 
@@ -30,7 +32,7 @@ public class RestFactory {
 	public Cluster createCluster(BaseEntity<Key> entity, List<Star> stars) {
 
 		Cluster result = new Cluster();
-		result.setKey(DbEntity.Cluster.getRestKeyProvider().apply(entity.getKey()));
+		result.setKey(DbEntity.Cluster.createRestKey(entity.getKey()));
 		result.setMinimumX(getLong(entity, DbClusterField.MinimumX));
 		result.setMinimumY(getLong(entity, DbClusterField.MinimumY));
 		result.setMinimumZ(getLong(entity, DbClusterField.MinimumZ));
@@ -54,16 +56,43 @@ public class RestFactory {
 		return createClusters(new EntityIterator(entities));
 	}
 
+	public Sector createSector(BaseEntity<Key> entity, List<Star> stars) {
+
+		Sector result = new Sector();
+		result.setKey(DbEntity.Sector.createRestKey(entity.getKey()));
+		result.setMinimumX(getLong(entity, DbSectorField.MinimumX));
+		result.setMinimumY(getLong(entity, DbSectorField.MinimumY));
+		result.setMinimumZ(getLong(entity, DbSectorField.MinimumZ));
+		result.setMaximumX(getLong(entity, DbSectorField.MaximumX));
+		result.setMaximumY(getLong(entity, DbSectorField.MaximumY));
+		result.setMaximumZ(getLong(entity, DbSectorField.MaximumZ));
+		result.setStars(stars);
+		return result;
+	}
+
+	public List<Sector> createSectors(Iterator<BaseEntity<Key>> entities) {
+		List<Sector> result = new ArrayList<Sector>();
+		while (entities.hasNext()) {
+			BaseEntity<Key> entity = entities.next();
+			result.add(createSector(entity, null));
+		}
+		return result;
+	}
+
+	public List<Sector> createSectors(QueryResults<Entity> entities) {
+		return createSectors(new EntityIterator(entities));
+	}
+
 	public Star createStar(BaseEntity<Key> entity) {
 
 		logger.log(Level.INFO, "Creating star {0}", entity.getKey());
 
 		Star result = new Star();
-		result.setKey(DbEntity.Star.getRestKeyProvider().apply(entity.getKey()));
+		result.setKey(DbEntity.Star.createRestKey(entity.getKey()));
 		result.setClusterKey(
-				DbEntity.Cluster.getRestKeyProvider().apply(getKey(entity, DbStarField.ClusterKey)));
+				DbEntity.Cluster.createRestKey(getKey(entity, DbStarField.ClusterKey)));
 		result.setSectorKey(
-				DbEntity.Sector.getRestKeyProvider().apply(getKey(entity, DbStarField.SectorKey)));
+				DbEntity.Sector.createRestKey(getKey(entity, DbStarField.SectorKey)));
 		result.setHipparcosId(getString(entity, DbStarField.HipparcosId));
 		result.setHenryDraperId(getString(entity, DbStarField.HenryDraperId));
 		result.setHarvardRevisedId(getString(entity, DbStarField.HarvardRevisedId));
@@ -124,7 +153,7 @@ public class RestFactory {
 
 	public Spaceship createSpaceship(BaseEntity<Key> entity) {
 		Spaceship result = new Spaceship();
-		result.setKey(DbEntity.Spaceship.getRestKeyProvider().apply(entity.getKey()));
+		result.setKey(DbEntity.Spaceship.createRestKey(entity.getKey()));
 		result.setName(entity.getString(DbSpaceshipField.Name.getId()));
 		return result;
 	}
@@ -144,7 +173,7 @@ public class RestFactory {
 
 	public CrewMember createCrewMember(BaseEntity<Key> entity) {
 		CrewMember result = new CrewMember();
-		result.setKey(DbEntity.CrewMember.getRestKeyProvider().apply(entity.getKey()));
+		result.setKey(DbEntity.CrewMember.createRestKey(entity.getKey()));
 		result.setFirstName(entity.getString(DbCrewMemberField.FirstName.getId()));
 		result.setLastName(entity.getString(DbCrewMemberField.LastName.getId()));
 		return result;

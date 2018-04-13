@@ -28,47 +28,47 @@ import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
-import sfms.rest.api.models.Cluster;
-import sfms.rest.api.schemas.ClusterField;
+import sfms.rest.api.models.Sector;
+import sfms.rest.api.schemas.SectorField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
-import sfms.web.model.schemas.ClusterModelSchema;
-import sfms.web.models.ClusterModel;
-import sfms.web.models.ClusterSortingModel;
+import sfms.web.model.schemas.SectorModelSchema;
+import sfms.web.models.SectorModel;
+import sfms.web.models.SectorSortingModel;
 import sfms.web.models.PagingModel;
 
 @Controller
-@RequestMapping({ "/cluster" })
-public class ClusterController extends SfmsController {
+@RequestMapping({ "/sector" })
+public class SectorController extends SfmsController {
 
-	private final Logger logger = Logger.getLogger(ClusterController.class.getName());
+	private final Logger logger = Logger.getLogger(SectorController.class.getName());
 
-	private static final Map<String, ClusterField> s_dbFieldMap;
+	private static final Map<String, SectorField> s_dbFieldMap;
 	static {
-		s_dbFieldMap = new HashMap<String, ClusterField>();
-		s_dbFieldMap.put(ClusterModelSchema.MINIMUM_X, ClusterField.MinimumX);
-		s_dbFieldMap.put(ClusterModelSchema.MINIMUM_Y, ClusterField.MinimumY);
-		s_dbFieldMap.put(ClusterModelSchema.MINIMUM_Z, ClusterField.MinimumZ);
-		s_dbFieldMap.put(ClusterModelSchema.MAXIMUM_X, ClusterField.MaximumX);
-		s_dbFieldMap.put(ClusterModelSchema.MAXIMUM_Y, ClusterField.MaximumY);
-		s_dbFieldMap.put(ClusterModelSchema.MAXIMUM_Z, ClusterField.MaximumZ);
+		s_dbFieldMap = new HashMap<String, SectorField>();
+		s_dbFieldMap.put(SectorModelSchema.MINIMUM_X, SectorField.MinimumX);
+		s_dbFieldMap.put(SectorModelSchema.MINIMUM_Y, SectorField.MinimumY);
+		s_dbFieldMap.put(SectorModelSchema.MINIMUM_Z, SectorField.MinimumZ);
+		s_dbFieldMap.put(SectorModelSchema.MAXIMUM_X, SectorField.MaximumX);
+		s_dbFieldMap.put(SectorModelSchema.MAXIMUM_Y, SectorField.MaximumY);
+		s_dbFieldMap.put(SectorModelSchema.MAXIMUM_Z, SectorField.MaximumZ);
 	}
 
 	@GetMapping({ "/{key}" })
 	public String get(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
+		ResponseEntity<Sector> restResponse = restTemplate.exchange(getRestUrl("sector/" + key),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Sector>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
-		ClusterModel clusterModel = factory.createCluster(restResponse.getBody());
+		SectorModel sectorModel = factory.createSector(restResponse.getBody());
 
-		modelMap.addAttribute("cluster", clusterModel);
+		modelMap.addAttribute("sector", sectorModel);
 
-		return "clusterDetail";
+		return "sectorDetail";
 	}
 
 	@GetMapping({ "" })
@@ -83,26 +83,26 @@ public class ClusterController extends SfmsController {
 		if (sort.isPresent()) {
 			effectiveSort = sort.get();
 		} else {
-			effectiveSort = ClusterModelSchema.MINIMUM_X;
+			effectiveSort = SectorModelSchema.MINIMUM_X;
 		}
 
 		String effectiveDirection;
 		if (direction.isPresent()) {
 			effectiveDirection = direction.get();
 		} else {
-			effectiveDirection = ClusterSortingModel.ASCENDING;
+			effectiveDirection = SectorSortingModel.ASCENDING;
 		}
 
-		ClusterField sortColumn = s_dbFieldMap.get(effectiveSort);
+		SectorField sortColumn = s_dbFieldMap.get(effectiveSort);
 
 		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(ClusterSortingModel.ASCENDING)) {
+		if (effectiveDirection.equals(SectorSortingModel.ASCENDING)) {
 			sortCriteria = SortCriteria.ascending(sortColumn.getName());
 		} else {
 			sortCriteria = SortCriteria.descending(sortColumn.getName());
 		}
 
-		UriBuilder uriBuilder = getUriBuilder().pathSegment("cluster");
+		UriBuilder uriBuilder = getUriBuilder().pathSegment("sector");
 		if (bookmark.isPresent()) {
 			uriBuilder.queryParam(RestParameters.BOOKMARK, bookmark.get());
 		}
@@ -112,18 +112,18 @@ public class ClusterController extends SfmsController {
 		logger.log(Level.INFO, "uri = {0}", uri);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<SearchResult<Cluster>> restResponse = restTemplate.exchange(
+		ResponseEntity<SearchResult<Sector>> restResponse = restTemplate.exchange(
 				uri,
 				HttpMethod.GET,
 				createHttpEntity(),
-				new ParameterizedTypeReference<SearchResult<Cluster>>() {
+				new ParameterizedTypeReference<SearchResult<Sector>>() {
 				});
 
-		SearchResult<Cluster> searchResult = restResponse.getBody();
+		SearchResult<Sector> searchResult = restResponse.getBody();
 
 		ModelFactory factory = new ModelFactory();
-		List<ClusterModel> clusterModels = factory.createClusters(searchResult.getEntities());
-		modelMap.addAttribute("clusters", clusterModels);
+		List<SectorModel> sectorModels = factory.createSectors(searchResult.getEntities());
+		modelMap.addAttribute("sectors", sectorModels);
 
 		PagingModel pagingModel = new PagingModel();
 		pagingModel.setNextBookmark(searchResult.getEndingBookmark());
@@ -132,106 +132,106 @@ public class ClusterController extends SfmsController {
 		pagingModel.setNextPageNumber(pageNumber.orElse(1) + 1);
 		modelMap.addAttribute("paging", pagingModel);
 
-		ClusterSortingModel sortingModel = new ClusterSortingModel();
+		SectorSortingModel sortingModel = new SectorSortingModel();
 		sortingModel.setSort(effectiveSort);
 		sortingModel.setDirection(effectiveDirection);
 		modelMap.addAttribute("sorting", sortingModel);
 
-		return "clusterList";
+		return "sectorList";
 	}
 
 	@GetMapping({ "/create" })
 	public String create(ModelMap modelMap) {
 
 		ModelFactory factory = new ModelFactory();
-		ClusterModel clusterModel = factory.createCluster();
+		SectorModel sectorModel = factory.createSector();
 
-		modelMap.addAttribute("cluster", clusterModel);
+		modelMap.addAttribute("sector", sectorModel);
 
-		return "clusterCreate";
+		return "sectorCreate";
 	}
 
 	@PostMapping({ "/createPost" })
-	public String createPost(@ModelAttribute ClusterModel clusterModel) {
+	public String createPost(@ModelAttribute SectorModel sectorModel) {
 
 		RestFactory factory = new RestFactory();
-		Cluster cluster = factory.createCluster(clusterModel);
+		Sector sector = factory.createSector(sectorModel);
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("cluster"),
+				getRestUrl("sector"),
 				HttpMethod.POST,
-				createHttpEntity(cluster),
+				createHttpEntity(sector),
 				new ParameterizedTypeReference<CreateResult<String>>() {
 				});
 
-		return "redirect:/cluster/" + restResponse.getBody().getKey().toString();
+		return "redirect:/sector/" + restResponse.getBody().getKey().toString();
 	}
 
 	@GetMapping({ "/edit/{key}" })
 	public String edit(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
+		ResponseEntity<Sector> restResponse = restTemplate.exchange(getRestUrl("sector/" + key),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Sector>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
-		ClusterModel clusterModel = factory.createCluster(restResponse.getBody());
+		SectorModel sectorModel = factory.createSector(restResponse.getBody());
 
-		modelMap.addAttribute("cluster", clusterModel);
+		modelMap.addAttribute("sector", sectorModel);
 
-		return "clusterEdit";
+		return "sectorEdit";
 	}
 
 	@PostMapping({ "/editPost" })
-	public String editPost(@ModelAttribute ClusterModel clusterModel) {
+	public String editPost(@ModelAttribute SectorModel sectorModel) {
 
 		RestFactory factory = new RestFactory();
-		Cluster cluster = factory.createCluster(clusterModel);
+		Sector sector = factory.createSector(sectorModel);
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<UpdateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("cluster/" + cluster.getKey()),
+				getRestUrl("sector/" + sector.getKey()),
 				HttpMethod.PUT,
-				createHttpEntity(cluster),
+				createHttpEntity(sector),
 				new ParameterizedTypeReference<UpdateResult<String>>() {
 				});
 
-		return "redirect:/cluster/" + restResponse.getBody().getKey().toString();
+		return "redirect:/sector/" + restResponse.getBody().getKey().toString();
 	}
 
 	@GetMapping({ "/delete/{key}" })
 	public String delete(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
+		ResponseEntity<Sector> restResponse = restTemplate.exchange(getRestUrl("sector/" + key),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Sector>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
-		ClusterModel clusterModel = factory.createCluster(restResponse.getBody());
+		SectorModel sectorModel = factory.createSector(restResponse.getBody());
 
-		modelMap.addAttribute("cluster", clusterModel);
+		modelMap.addAttribute("sector", sectorModel);
 
-		return "clusterDelete";
+		return "sectorDelete";
 	}
 
 	@PostMapping({ "/deletePost" })
-	public String deletePost(@ModelAttribute ClusterModel clusterModel) {
+	public String deletePost(@ModelAttribute SectorModel sectorModel) {
 
 		RestFactory factory = new RestFactory();
-		Cluster cluster = factory.createCluster(clusterModel);
+		Sector sector = factory.createSector(sectorModel);
 
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
 		ResponseEntity<DeleteResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("cluster/" + cluster.getKey()),
+				getRestUrl("sector/" + sector.getKey()),
 				HttpMethod.DELETE,
-				createHttpEntity(cluster),
+				createHttpEntity(sector),
 				new ParameterizedTypeReference<DeleteResult<String>>() {
 				});
 
-		return "redirect:/cluster";
+		return "redirect:/sector";
 	}
 }

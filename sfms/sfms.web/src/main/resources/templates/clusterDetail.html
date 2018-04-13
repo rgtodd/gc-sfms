@@ -20,9 +20,9 @@
 		</nav>
 		<p>
 			<a class="btn btn-primary"
-				th:href="@{|/cluster_edit/${cluster.key}|}">Edit</a> <a
+				th:href="@{|/cluster/edit/${cluster.key}|}">Edit</a> <a
 				class="btn btn-primary"
-				th:href="@{|/cluster_delete/${cluster.key}|}">Delete</a>
+				th:href="@{|/cluster/delete/${cluster.key}|}">Delete</a>
 		</p>
 		<form th:object="${cluster}">
 			<div class="form-group row">

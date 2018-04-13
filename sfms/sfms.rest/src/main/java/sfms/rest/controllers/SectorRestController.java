@@ -19,12 +19,13 @@ import com.google.cloud.datastore.Cursor;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.EntityQuery;
 import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.ProjectionEntity;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.OrderBy;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
@@ -34,21 +35,25 @@ import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
-import sfms.rest.api.models.Star;
-import sfms.rest.api.schemas.StarField;
+import sfms.rest.api.models.Sector;
+import sfms.rest.api.schemas.SectorField;
+import sfms.rest.db.schemas.DbSectorField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
 
 @RestController
-@RequestMapping("/star")
-public class StarRestController {
+@RequestMapping("/sector")
+public class SectorRestController {
 
-	private static final Map<StarField, DbStarField> s_dbFieldMap;
+	private static final Map<SectorField, DbSectorField> s_dbFieldMap;
 	static {
-		s_dbFieldMap = new HashMap<StarField, DbStarField>();
-		s_dbFieldMap.put(StarField.X, DbStarField.X);
-		s_dbFieldMap.put(StarField.Y, DbStarField.Y);
-		s_dbFieldMap.put(StarField.Z, DbStarField.Z);
+		s_dbFieldMap = new HashMap<SectorField, DbSectorField>();
+		s_dbFieldMap.put(SectorField.MinimumX, DbSectorField.MinimumX);
+		s_dbFieldMap.put(SectorField.MinimumY, DbSectorField.MinimumY);
+		s_dbFieldMap.put(SectorField.MinimumZ, DbSectorField.MinimumZ);
+		s_dbFieldMap.put(SectorField.MaximumX, DbSectorField.MaximumX);
+		s_dbFieldMap.put(SectorField.MaximumY, DbSectorField.MaximumY);
+		s_dbFieldMap.put(SectorField.MaximumZ, DbSectorField.MaximumZ);
 	}
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
@@ -58,7 +63,7 @@ public class StarRestController {
 	private Throttle m_throttle;
 
 	@GetMapping(value = "/{id}")
-	public Star getLookup(@PathVariable String id) throws Exception {
+	public Sector getLookup(@PathVariable String id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -66,18 +71,27 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Star.createEntityKey(datastore, id);
+		Key key = DbEntity.Sector.createEntityKey(datastore, id);
+		Entity dbSector = datastore.get(key);
 
-		Entity entity = datastore.get(key);
+		Query<ProjectionEntity> query = Query.newProjectionEntityQueryBuilder()
+				.setKind(DbEntity.Star.getKind())
+				.addProjection(DbStarField.X.getId())
+				.addProjection(DbStarField.Y.getId())
+				.addProjection(DbStarField.Z.getId())
+				.setFilter(PropertyFilter.eq(DbStarField.SectorKey.getId(), key))
+				.build();
+
+		QueryResults<ProjectionEntity> dbStars = datastore.run(query);
 
 		RestFactory factory = new RestFactory();
-		Star star = factory.createStar(entity);
+		Sector result = factory.createSector(dbSector, factory.createStarsFromProjection(dbStars));
 
-		return star;
+		return result;
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Star> getSearch(
+	public SearchResult<Sector> getSearch(
 			@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
@@ -93,13 +107,13 @@ public class StarRestController {
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 		Builder queryBuilder = Query.newEntityQueryBuilder();
-		queryBuilder.setKind(DbEntity.Star.getKind());
+		queryBuilder.setKind(DbEntity.Sector.getKind());
 		queryBuilder.setLimit(limit);
 		if (sort.isPresent()) {
 			SortCriteria sortCriteria = SortCriteria.parse(sort.get());
 			for (int idx = 0; idx < sortCriteria.size(); ++idx) {
-				StarField restField = StarField.parse(sortCriteria.getColumn(idx));
-				DbStarField dbField = s_dbFieldMap.get(restField);
+				SectorField restField = SectorField.parse(sortCriteria.getColumn(idx));
+				DbSectorField dbField = s_dbFieldMap.get(restField);
 				if (dbField != null) {
 					if (sortCriteria.getDescending(idx)) {
 						queryBuilder.addOrderBy(OrderBy.desc(dbField.getId()));
@@ -113,23 +127,24 @@ public class StarRestController {
 			queryBuilder.setStartCursor(Cursor.fromUrlSafe(bookmark.get()));
 		}
 
-		EntityQuery query = queryBuilder.build();
+		Query<Entity> query = queryBuilder.build();
 
 		QueryResults<Entity> entities = datastore.run(query);
 
 		RestFactory factory = new RestFactory();
-		List<Star> stars = factory.createStars(entities);
+		List<Sector> sectors = factory.createSectors(entities);
 
-		SearchResult<Star> result = new SearchResult<Star>();
-		result.setEntities(stars);
+		SearchResult<Sector> result = new SearchResult<Sector>();
+		result.setEntities(sectors);
 		result.setEndingBookmark(entities.getCursorAfter().toUrlSafe());
-		result.setEndOfResults(stars.size() < limit);
+		result.setEndOfResults(sectors.size() < limit);
 
 		return result;
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Star star) throws Exception {
+	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Sector sector)
+			throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -137,10 +152,15 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Star.createEntityKey(datastore, id);
+		Key key = DbEntity.Sector.createEntityKey(datastore, id);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ProperName.getId(), star.getProperName())
+				.set(DbSectorField.MinimumX.getId(), sector.getMinimumX())
+				.set(DbSectorField.MinimumY.getId(), sector.getMinimumY())
+				.set(DbSectorField.MinimumZ.getId(), sector.getMinimumZ())
+				.set(DbSectorField.MaximumX.getId(), sector.getMaximumX())
+				.set(DbSectorField.MaximumY.getId(), sector.getMaximumY())
+				.set(DbSectorField.MaximumZ.getId(), sector.getMaximumZ())
 				.build();
 
 		datastore.update(entity);
@@ -152,7 +172,7 @@ public class StarRestController {
 	}
 
 	@PutMapping(value = "")
-	public CreateResult<String> putCreate(@RequestBody Star star) throws Exception {
+	public CreateResult<String> putCreate(@RequestBody Sector sector) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -160,16 +180,21 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Star.createEntityKey(datastore, star.getKey());
+		Key key = DbEntity.Sector.createEntityKey(datastore, sector.getKey());
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ProperName.getId(), star.getProperName())
+				.set(DbSectorField.MinimumX.getId(), sector.getMinimumX())
+				.set(DbSectorField.MinimumY.getId(), sector.getMinimumY())
+				.set(DbSectorField.MinimumZ.getId(), sector.getMinimumZ())
+				.set(DbSectorField.MaximumX.getId(), sector.getMaximumX())
+				.set(DbSectorField.MaximumY.getId(), sector.getMaximumY())
+				.set(DbSectorField.MaximumZ.getId(), sector.getMaximumZ())
 				.build();
 
 		datastore.put(entity);
 
 		CreateResult<String> result = new CreateResult<String>();
-		result.setKey(star.getKey());
+		result.setKey(key.getId().toString());
 
 		return result;
 	}
@@ -183,7 +208,7 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Star.createEntityKey(datastore, id);
+		Key key = DbEntity.Sector.createEntityKey(datastore, id);
 
 		datastore.delete(key);
 
