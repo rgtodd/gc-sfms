@@ -19,6 +19,7 @@ import com.google.cloud.datastore.Cursor;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.EntityQuery;
 import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
@@ -113,7 +114,7 @@ public class StarRestController {
 			queryBuilder.setStartCursor(Cursor.fromUrlSafe(bookmark.get()));
 		}
 
-		Query<Entity> query = queryBuilder.build();
+		EntityQuery query = queryBuilder.build();
 
 		QueryResults<Entity> entities = datastore.run(query);
 

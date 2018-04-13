@@ -25,38 +25,38 @@ import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
-import sfms.rest.api.models.CrewMember;
-import sfms.rest.api.schemas.CrewMemberField;
+import sfms.rest.api.models.Cluster;
+import sfms.rest.api.schemas.ClusterField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
-import sfms.web.model.schemas.CrewMemberModelSchema;
-import sfms.web.models.CrewMemberModel;
-import sfms.web.models.CrewMemberSortingModel;
+import sfms.web.model.schemas.ClusterModelSchema;
+import sfms.web.models.ClusterModel;
+import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.PagingModel;
 
 @Controller
-public class CrewMemberController extends SfmsController {
+public class ClusterController extends SfmsController {
 
-	private final Logger logger = Logger.getLogger(CrewMemberController.class.getName());
+	private final Logger logger = Logger.getLogger(ClusterController.class.getName());
 
-	@GetMapping({ "/crewMember/{key}" })
+	@GetMapping({ "/cluster/{key}" })
 	public String get(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
+		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
-		CrewMemberModel crewMemberModel = factory.createCrewMember(restResponse.getBody());
+		ClusterModel clusterModel = factory.createCluster(restResponse.getBody());
 
-		modelMap.addAttribute("crewMember", crewMemberModel);
+		modelMap.addAttribute("cluster", clusterModel);
 
-		return "crewMemberDetail";
+		return "clusterDetail";
 	}
 
-	@GetMapping({ "/crewMember" })
+	@GetMapping({ "/cluster" })
 	public String getList(
 			@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
 			@RequestParam(WebParameters.BOOKMARK) Optional<String> bookmark,
@@ -67,50 +67,46 @@ public class CrewMemberController extends SfmsController {
 		String effectiveSort;
 		if (sort.isPresent()) {
 			switch (sort.get()) {
-			case CrewMemberModelSchema.FIRST_NAME:
-			case CrewMemberModelSchema.LAST_NAME:
+			case ClusterModelSchema.MINIMUM_X:
 				effectiveSort = sort.get();
 				break;
 			default:
-				effectiveSort = CrewMemberModelSchema.LAST_NAME;
+				effectiveSort = ClusterModelSchema.MINIMUM_X;
 				break;
 			}
 		} else {
-			effectiveSort = CrewMemberModelSchema.LAST_NAME;
+			effectiveSort = ClusterModelSchema.MINIMUM_X;
 		}
 
 		String effectiveDirection;
 		if (direction.isPresent()) {
 			switch (direction.get()) {
-			case CrewMemberSortingModel.ASCENDING:
-			case CrewMemberSortingModel.DESCENDING:
+			case ClusterSortingModel.ASCENDING:
+			case ClusterSortingModel.DESCENDING:
 				effectiveDirection = direction.get();
 				break;
 			default:
-				effectiveDirection = CrewMemberSortingModel.ASCENDING;
+				effectiveDirection = ClusterSortingModel.ASCENDING;
 			}
 		} else {
-			effectiveDirection = CrewMemberSortingModel.ASCENDING;
+			effectiveDirection = ClusterSortingModel.ASCENDING;
 		}
 
-		CrewMemberField sortColumn = null;
+		ClusterField sortColumn = null;
 		switch (effectiveSort) {
-		case CrewMemberModelSchema.FIRST_NAME:
-			sortColumn = CrewMemberField.FirstName;
-			break;
-		case CrewMemberModelSchema.LAST_NAME:
-			sortColumn = CrewMemberField.LastName;
+		case ClusterModelSchema.MINIMUM_X:
+			sortColumn = ClusterField.MinimumX;
 			break;
 		}
 
 		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(CrewMemberSortingModel.ASCENDING)) {
+		if (effectiveDirection.equals(ClusterSortingModel.ASCENDING)) {
 			sortCriteria = SortCriteria.ascending(sortColumn.getName());
 		} else {
 			sortCriteria = SortCriteria.descending(sortColumn.getName());
 		}
 
-		UriBuilder uriBuilder = getUriBuilder().pathSegment("crewMember");
+		UriBuilder uriBuilder = getUriBuilder().pathSegment("cluster");
 		if (bookmark.isPresent()) {
 			uriBuilder.queryParam(RestParameters.BOOKMARK, bookmark.get());
 		}
@@ -120,18 +116,18 @@ public class CrewMemberController extends SfmsController {
 		logger.log(Level.INFO, "uri = {0}", uri);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<SearchResult<CrewMember>> restResponse = restTemplate.exchange(
+		ResponseEntity<SearchResult<Cluster>> restResponse = restTemplate.exchange(
 				uri,
 				HttpMethod.GET,
 				createHttpEntity(),
-				new ParameterizedTypeReference<SearchResult<CrewMember>>() {
+				new ParameterizedTypeReference<SearchResult<Cluster>>() {
 				});
 
-		SearchResult<CrewMember> searchResult = restResponse.getBody();
+		SearchResult<Cluster> searchResult = restResponse.getBody();
 
 		ModelFactory factory = new ModelFactory();
-		List<CrewMemberModel> crewMemberModels = factory.createCrewMembers(searchResult.getEntities());
-		modelMap.addAttribute("crewMembers", crewMemberModels);
+		List<ClusterModel> clusterModels = factory.createClusters(searchResult.getEntities());
+		modelMap.addAttribute("clusters", clusterModels);
 
 		PagingModel pagingModel = new PagingModel();
 		pagingModel.setNextBookmark(searchResult.getEndingBookmark());
@@ -140,106 +136,106 @@ public class CrewMemberController extends SfmsController {
 		pagingModel.setNextPageNumber(pageNumber.orElse(1) + 1);
 		modelMap.addAttribute("paging", pagingModel);
 
-		CrewMemberSortingModel sortingModel = new CrewMemberSortingModel();
+		ClusterSortingModel sortingModel = new ClusterSortingModel();
 		sortingModel.setSort(effectiveSort);
 		sortingModel.setDirection(effectiveDirection);
 		modelMap.addAttribute("sorting", sortingModel);
 
-		return "crewMemberList";
+		return "clusterList";
 	}
 
-	@GetMapping({ "/crewMember_create" })
+	@GetMapping({ "/cluster_create" })
 	public String create(ModelMap modelMap) {
 
 		ModelFactory factory = new ModelFactory();
-		CrewMemberModel crewMemberModel = factory.createCrewMember();
+		ClusterModel clusterModel = factory.createCluster();
 
-		modelMap.addAttribute("crewMember", crewMemberModel);
+		modelMap.addAttribute("cluster", clusterModel);
 
-		return "crewMemberCreate";
+		return "clusterCreate";
 	}
 
-	@PostMapping({ "/crewMember_createPost" })
-	public String createPost(@ModelAttribute CrewMemberModel crewMemberModel) {
+	@PostMapping({ "/cluster_createPost" })
+	public String createPost(@ModelAttribute ClusterModel clusterModel) {
 
 		RestFactory factory = new RestFactory();
-		CrewMember crewMember = factory.createCrewMember(crewMemberModel);
+		Cluster cluster = factory.createCluster(clusterModel);
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("crewMember"),
+				getRestUrl("cluster"),
 				HttpMethod.POST,
-				createHttpEntity(crewMember),
+				createHttpEntity(cluster),
 				new ParameterizedTypeReference<CreateResult<String>>() {
 				});
 
-		return "redirect:/crewMember/" + restResponse.getBody().getKey().toString();
+		return "redirect:/cluster/" + restResponse.getBody().getKey().toString();
 	}
 
-	@GetMapping({ "/crewMember_edit/{key}" })
+	@GetMapping({ "/cluster_edit/{key}" })
 	public String edit(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
+		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
-		CrewMemberModel crewMemberModel = factory.createCrewMember(restResponse.getBody());
+		ClusterModel clusterModel = factory.createCluster(restResponse.getBody());
 
-		modelMap.addAttribute("crewMember", crewMemberModel);
+		modelMap.addAttribute("cluster", clusterModel);
 
-		return "crewMemberEdit";
+		return "clusterEdit";
 	}
 
-	@PostMapping({ "/crewMember_editPost" })
-	public String editPost(@ModelAttribute CrewMemberModel crewMemberModel) {
+	@PostMapping({ "/cluster_editPost" })
+	public String editPost(@ModelAttribute ClusterModel clusterModel) {
 
 		RestFactory factory = new RestFactory();
-		CrewMember crewMember = factory.createCrewMember(crewMemberModel);
+		Cluster cluster = factory.createCluster(clusterModel);
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<UpdateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("crewMember/" + crewMember.getKey()),
+				getRestUrl("cluster/" + cluster.getKey()),
 				HttpMethod.PUT,
-				createHttpEntity(crewMember),
+				createHttpEntity(cluster),
 				new ParameterizedTypeReference<UpdateResult<String>>() {
 				});
 
-		return "redirect:/crewMember/" + restResponse.getBody().getKey().toString();
+		return "redirect:/cluster/" + restResponse.getBody().getKey().toString();
 	}
 
-	@GetMapping({ "/crewMember_delete/{key}" })
+	@GetMapping({ "/cluster_delete/{key}" })
 	public String delete(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
+		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key),
+				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
-		CrewMemberModel crewMemberModel = factory.createCrewMember(restResponse.getBody());
+		ClusterModel clusterModel = factory.createCluster(restResponse.getBody());
 
-		modelMap.addAttribute("crewMember", crewMemberModel);
+		modelMap.addAttribute("cluster", clusterModel);
 
-		return "crewMemberDelete";
+		return "clusterDelete";
 	}
 
-	@PostMapping({ "/crewMember_deletePost" })
-	public String deletePost(@ModelAttribute CrewMemberModel crewMemberModel) {
+	@PostMapping({ "/cluster_deletePost" })
+	public String deletePost(@ModelAttribute ClusterModel clusterModel) {
 
 		RestFactory factory = new RestFactory();
-		CrewMember crewMember = factory.createCrewMember(crewMemberModel);
+		Cluster cluster = factory.createCluster(clusterModel);
 
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
 		ResponseEntity<DeleteResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("crewMember/" + crewMember.getKey()),
+				getRestUrl("cluster/" + cluster.getKey()),
 				HttpMethod.DELETE,
-				createHttpEntity(crewMember),
+				createHttpEntity(cluster),
 				new ParameterizedTypeReference<DeleteResult<String>>() {
 				});
 
-		return "redirect:/crewMember";
+		return "redirect:/cluster";
 	}
 }

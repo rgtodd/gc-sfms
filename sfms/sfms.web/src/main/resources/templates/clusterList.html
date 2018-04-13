@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+<head>
+<head>
+<title>Clusters</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div layout:fragment="content">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+				<li class="breadcrumb-item active" aria-current="page">List
+					Clusters</li>
+			</ol>
+		</nav>
+		<p>
+			<a class="btn btn-primary" th:href="@{/cluster_create}">Create</a>
+		</p>
+		<h3 th:text="${'Page ' + paging.currentPageNumber}">Page #</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th></th>
+					<th>Key</th>
+					<th><a class="nav-link"
+						th:href="@{|/cluster?sort=MinimumX&direction=${sorting.minimumXLinkDirection}|}">Minimum
+							X <i class="material-icons" th:if="${sorting.minimumXHasIcon}"
+							th:text="${sorting.iconName}">arrow_drop_up</i>
+					</a></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="cluster: ${clusters}">
+					<td><a class="btn btn-primary"
+						th:href="@{|/cluster/${cluster.key}|}">View</a></td>
+					<td th:text="${cluster.key}">123</td>
+					<td th:text="${cluster.minimumX}">USS Demo</td>
+				</tr>
+			</tbody>
+		</table>
+		<p th:unless="${paging.endOfResults}">
+			<a class="btn btn-primary"
+				th:href="@{|/cluster?sort=${sorting.sort}&direction=${sorting.direction}&pageNumber=${paging.nextPageNumber}&bookmark=${paging.nextBookmark}|}">Next</a>
+		</p>
+	</div>
+</body>
+</html>

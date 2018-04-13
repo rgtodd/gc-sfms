@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout}">
+<head>
+<head>
+<title>Cluster</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<div layout:fragment="content">
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+				<li class="breadcrumb-item"><a th:href="@{/cluster}">List
+						Clusters</a></li>
+				<li class="breadcrumb-item active" aria-current="page">View
+					Cluster</li>
+			</ol>
+		</nav>
+		<p>
+			<a class="btn btn-primary"
+				th:href="@{|/cluster_edit/${cluster.key}|}">Edit</a> <a
+				class="btn btn-primary"
+				th:href="@{|/cluster_delete/${cluster.key}|}">Delete</a>
+		</p>
+		<form th:object="${cluster}">
+			<div class="form-group row">
+				<label for="txtKey" class="col-sm-2 col-form-label">Key</label>
+				<div class="col-sm-10">
+					<input type="text" readonly class="form-control-plaintext"
+						id="txtKey" th:field="*{key}">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="txtMinimumX" class="col-sm-2 col-form-label">Minimum
+					X </label>
+				<div class="col-sm-10">
+					<input type="text" readonly class="form-control-plaintext"
+						id="txtMinimumX" th:field="*{minimumX}">
+				</div>
+			</div>
+		</form>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>X</th>
+					<th>Y</th>
+					<th>Z</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="star: ${cluster.stars}">
+					<td th:text="${star.key}">123</td>
+					<td th:text="${star.x}">USS Demo</td>
+					<td th:text="${star.y}">USS Demo</td>
+					<td th:text="${star.z}">USS Demo</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

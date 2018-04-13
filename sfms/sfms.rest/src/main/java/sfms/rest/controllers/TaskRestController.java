@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import sfms.rest.api.RestParameters;
 import sfms.rest.db.business.StarImporter;
 
 @RestController
@@ -17,7 +18,7 @@ public class TaskRestController {
 	private final Logger logger = Logger.getLogger(TaskRestController.class.getName());
 
 	@GetMapping(value = "/processStarFile")
-	public void processStarFile(@RequestParam("filename") String filename) throws Exception {
+	public void processStarFile(@RequestParam(RestParameters.FILE_NAME) String filename) throws Exception {
 
 		logger.log(Level.INFO, "Processing {0}.", filename);
 

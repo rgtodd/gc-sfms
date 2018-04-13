@@ -3,14 +3,31 @@ package sfms.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.models.Star;
+import sfms.web.models.ClusterModel;
 import sfms.web.models.CrewMemberModel;
 import sfms.web.models.SpaceshipModel;
 import sfms.web.models.StarModel;
 
 public class RestFactory {
+
+	public Cluster createCluster(ClusterModel clusterModel) {
+		Cluster result = new Cluster();
+		result.setKey(clusterModel.getKey());
+		result.setMinimumX(clusterModel.getMinimumX());
+		return result;
+	}
+
+	public List<Cluster> createClusters(Iterable<ClusterModel> clusterModels) {
+		List<Cluster> result = new ArrayList<Cluster>();
+		for (ClusterModel clusterModel : clusterModels) {
+			result.add(createCluster(clusterModel));
+		}
+		return result;
+	}
 
 	public Spaceship createSpaceship(SpaceshipModel spaceshipModel) {
 		Spaceship result = new Spaceship();

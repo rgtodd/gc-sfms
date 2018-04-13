@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import sfms.rest.api.RestParameters;
 import sfms.rest.db.business.CrewMemberGenerator;
 import sfms.rest.db.business.SpaceshipGenerator;
 import sfms.rest.db.business.StarClusterGenerator;
@@ -36,7 +37,7 @@ public class UtilityRestController {
 	}
 
 	@GetMapping(value = "/generateCrewMembers")
-	public String generateCrewMembers(@RequestParam("count") int count) {
+	public String generateCrewMembers(@RequestParam(RestParameters.COUNT) int count) {
 		try {
 			logger.info("Start - generateCrewMembers.");
 
@@ -53,7 +54,7 @@ public class UtilityRestController {
 	}
 
 	@GetMapping(value = "/generateSpaceships")
-	public String generateSpaceships(@RequestParam("count") int count) {
+	public String generateSpaceships(@RequestParam(RestParameters.COUNT) int count) {
 		try {
 			logger.info("Start - generateSpaceships.");
 

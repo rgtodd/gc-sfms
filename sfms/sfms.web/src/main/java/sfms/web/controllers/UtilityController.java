@@ -31,6 +31,7 @@ import com.google.appengine.api.taskqueue.TaskOptions.Method;
 
 import sfms.common.Secret;
 import sfms.common.PropertyFile;
+import sfms.rest.api.RestParameters;
 import sfms.rest.api.RestUtility;
 import sfms.storage.Storage;
 import sfms.web.SfmsController;
@@ -168,7 +169,7 @@ public class UtilityController extends SfmsController {
 		}
 
 		if (PropertyFile.INSTANCE.isProduction()) {
-			uploadPostSubmitTask();
+			uploadPostSubmitTask(uploadedFileName);
 		} else {
 			uploadPostExecuteService(uploadedFileName);
 		}
@@ -176,18 +177,19 @@ public class UtilityController extends SfmsController {
 		return "redirect:/utility";
 	}
 
-	private void uploadPostExecuteService(String uploadedFileName) {
+	private void uploadPostExecuteService(String fileName) {
+
 		RestTemplate restTemplate = createRestTempate();
-		restTemplate.exchange(getRestUrl("task/processStarFile?filename=" + uploadedFileName),
+		restTemplate.exchange(getRestUrl("task/processStarFile?" + RestParameters.FILE_NAME + "=" + fileName),
 				HttpMethod.GET, createHttpEntity(), Object.class);
 	}
 
-	private void uploadPostSubmitTask() {
+	private void uploadPostSubmitTask(String fileName) {
 		TaskOptions taskOptions = TaskOptions.Builder
 				.withUrl("/task/processStarFile")
 				.header(RestUtility.REST_AUTHORIZATION_TOKEN_HEADER_KEY, Secret.getRestAuthorizationToken())
 				.method(Method.GET)
-				.param("filename", "20180331_213222_hygdata_v3.csv");
+				.param(RestParameters.FILE_NAME, fileName);
 
 		Queue queue = QueueFactory.getQueue("rest-tasks");
 		queue.add(taskOptions);

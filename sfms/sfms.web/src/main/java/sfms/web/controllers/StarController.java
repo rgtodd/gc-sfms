@@ -58,10 +58,10 @@ public class StarController extends SfmsController {
 
 	@GetMapping({ "/star" })
 	public String getList(
-			@RequestParam("pageNumber") Optional<Integer> pageNumber,
-			@RequestParam("bookmark") Optional<String> bookmark,
-			@RequestParam("sort") Optional<String> sort,
-			@RequestParam("direction") Optional<String> direction,
+			@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
+			@RequestParam(WebParameters.BOOKMARK) Optional<String> bookmark,
+			@RequestParam(WebParameters.SORT) Optional<String> sort,
+			@RequestParam(WebParameters.DIRECTION) Optional<String> direction,
 			ModelMap modelMap) {
 
 		String effectiveSort;

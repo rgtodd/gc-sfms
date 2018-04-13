@@ -3,9 +3,14 @@ package sfms.rest;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import com.google.cloud.datastore.BaseEntity;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.ProjectionEntity;
+import com.google.cloud.datastore.QueryResults;
 
 import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
@@ -20,7 +25,9 @@ import sfms.rest.db.schemas.DbStarField;
 
 public class RestFactory {
 
-	public Cluster createCluster(Entity entity) {
+	private final Logger logger = Logger.getLogger(RestFactory.class.getName());
+
+	public Cluster createCluster(BaseEntity<Key> entity, List<Star> stars) {
 
 		Cluster result = new Cluster();
 		result.setKey(DbEntity.Cluster.getRestKeyProvider().apply(entity.getKey()));
@@ -30,19 +37,27 @@ public class RestFactory {
 		result.setMaximumX(getLong(entity, DbClusterField.MaximumX));
 		result.setMaximumY(getLong(entity, DbClusterField.MaximumY));
 		result.setMaximumZ(getLong(entity, DbClusterField.MaximumZ));
+		result.setStars(stars);
 		return result;
 	}
 
-	public List<Cluster> createClusters(Iterator<Entity> entities) {
+	public List<Cluster> createClusters(Iterator<BaseEntity<Key>> entities) {
 		List<Cluster> result = new ArrayList<Cluster>();
 		while (entities.hasNext()) {
-			Entity entity = entities.next();
-			result.add(createCluster(entity));
+			BaseEntity<Key> entity = entities.next();
+			result.add(createCluster(entity, null));
 		}
 		return result;
 	}
 
-	public Star createStar(Entity entity) {
+	public List<Cluster> createClusters(QueryResults<Entity> entities) {
+		return createClusters(new EntityIterator(entities));
+	}
+
+	public Star createStar(BaseEntity<Key> entity) {
+
+		logger.log(Level.INFO, "Creating star {0}", entity.getKey());
+
 		Star result = new Star();
 		result.setKey(DbEntity.Star.getRestKeyProvider().apply(entity.getKey()));
 		result.setClusterKey(
@@ -90,32 +105,44 @@ public class RestFactory {
 		return result;
 	}
 
-	public List<Star> createStars(Iterator<Entity> entities) {
+	public List<Star> createStars(Iterator<BaseEntity<Key>> entities) {
 		List<Star> result = new ArrayList<Star>();
 		while (entities.hasNext()) {
-			Entity entity = entities.next();
+			BaseEntity<Key> entity = entities.next();
 			result.add(createStar(entity));
 		}
 		return result;
 	}
 
-	public Spaceship createSpaceship(Entity entity) {
+	public List<Star> createStars(QueryResults<Entity> entities) {
+		return createStars(new EntityIterator(entities));
+	}
+
+	public List<Star> createStarsFromProjection(QueryResults<ProjectionEntity> entities) {
+		return createStars(new ProjectionEntityIterator(entities));
+	}
+
+	public Spaceship createSpaceship(BaseEntity<Key> entity) {
 		Spaceship result = new Spaceship();
 		result.setKey(DbEntity.Spaceship.getRestKeyProvider().apply(entity.getKey()));
 		result.setName(entity.getString(DbSpaceshipField.Name.getId()));
 		return result;
 	}
 
-	public List<Spaceship> createSpaceships(Iterator<Entity> entities) {
+	public List<Spaceship> createSpaceships(Iterator<BaseEntity<Key>> entities) {
 		List<Spaceship> result = new ArrayList<Spaceship>();
 		while (entities.hasNext()) {
-			Entity entity = entities.next();
+			BaseEntity<Key> entity = entities.next();
 			result.add(createSpaceship(entity));
 		}
 		return result;
 	}
 
-	public CrewMember createCrewMember(Entity entity) {
+	public List<Spaceship> createSpaceships(QueryResults<Entity> entities) {
+		return createSpaceships(new EntityIterator(entities));
+	}
+
+	public CrewMember createCrewMember(BaseEntity<Key> entity) {
 		CrewMember result = new CrewMember();
 		result.setKey(DbEntity.CrewMember.getRestKeyProvider().apply(entity.getKey()));
 		result.setFirstName(entity.getString(DbCrewMemberField.FirstName.getId()));
@@ -123,16 +150,20 @@ public class RestFactory {
 		return result;
 	}
 
-	public List<CrewMember> createCrewMembers(Iterator<Entity> entities) {
+	public List<CrewMember> createCrewMembers(Iterator<BaseEntity<Key>> entities) {
 		List<CrewMember> result = new ArrayList<CrewMember>();
 		while (entities.hasNext()) {
-			Entity entity = entities.next();
+			BaseEntity<Key> entity = entities.next();
 			result.add(createCrewMember(entity));
 		}
 		return result;
 	}
 
-	private Key getKey(Entity entity, DbFieldSchema field) {
+	public List<CrewMember> createCrewMembers(QueryResults<Entity> entities) {
+		return createCrewMembers(new EntityIterator(entities));
+	}
+
+	private Key getKey(BaseEntity<Key> entity, DbFieldSchema field) {
 		String name = field.getId();
 		if (!entity.contains(name)) {
 			return null;
@@ -143,7 +174,7 @@ public class RestFactory {
 		return entity.getKey(name);
 	}
 
-	private String getString(Entity entity, DbFieldSchema field) {
+	private String getString(BaseEntity<Key> entity, DbFieldSchema field) {
 		String name = field.getId();
 		if (!entity.contains(name)) {
 			return null;
@@ -154,7 +185,7 @@ public class RestFactory {
 		return entity.getString(name);
 	}
 
-	private Double getOptionalDouble(Entity entity, DbFieldSchema field) {
+	private Double getOptionalDouble(BaseEntity<Key> entity, DbFieldSchema field) {
 		String name = field.getId();
 		if (!entity.contains(name)) {
 			return null;
@@ -165,7 +196,7 @@ public class RestFactory {
 		return entity.getDouble(name);
 	}
 
-	private double getDouble(Entity entity, DbFieldSchema field) {
+	private double getDouble(BaseEntity<Key> entity, DbFieldSchema field) {
 		String name = field.getId();
 		if (!entity.contains(name)) {
 			return 0;
@@ -177,7 +208,7 @@ public class RestFactory {
 	}
 
 	@SuppressWarnings("unused")
-	private Long getOptionalLong(Entity entity, DbFieldSchema field) {
+	private Long getOptionalLong(BaseEntity<Key> entity, DbFieldSchema field) {
 		String name = field.getId();
 		if (!entity.contains(name)) {
 			return null;
@@ -188,7 +219,7 @@ public class RestFactory {
 		return entity.getLong(name);
 	}
 
-	private long getLong(Entity entity, DbFieldSchema field) {
+	private long getLong(BaseEntity<Key> entity, DbFieldSchema field) {
 		String name = field.getId();
 		if (!entity.contains(name)) {
 			return 0;
@@ -198,4 +229,44 @@ public class RestFactory {
 		}
 		return entity.getLong(name);
 	}
+
+	private static class EntityIterator implements Iterator<BaseEntity<Key>> {
+
+		private QueryResults<Entity> m_results;
+
+		public EntityIterator(QueryResults<Entity> results) {
+			m_results = results;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return m_results.hasNext();
+		}
+
+		@Override
+		public BaseEntity<Key> next() {
+			return m_results.next();
+		}
+	}
+
+	private static class ProjectionEntityIterator implements Iterator<BaseEntity<Key>> {
+
+		private QueryResults<ProjectionEntity> m_results;
+
+		public ProjectionEntityIterator(QueryResults<ProjectionEntity> results) {
+			m_results = results;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return m_results.hasNext();
+		}
+
+		@Override
+		public BaseEntity<Key> next() {
+			return m_results.next();
+		}
+
+	}
+
 }

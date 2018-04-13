@@ -24,6 +24,7 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.OrderBy;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
@@ -38,6 +39,7 @@ import sfms.rest.api.schemas.ClusterField;
 import sfms.rest.db.schemas.DbClusterField;
 import sfms.rest.db.schemas.DbClusterKey;
 import sfms.rest.db.schemas.DbEntity;
+import sfms.rest.db.schemas.DbStarField;
 
 @RestController
 @RequestMapping("/cluster")
@@ -70,10 +72,18 @@ public class ClusterRestController {
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 		Key key = DbClusterKey.createKey(datastore, id);
-		Entity entity = datastore.get(key);
+		Entity dbCluster = datastore.get(key);
+
+		Query<Entity> query = Query.newEntityQueryBuilder()
+				.setKind(DbEntity.Star.getKind())
+				.setFilter(PropertyFilter.eq(DbStarField.ClusterKey.getId(), key))
+				// .setProjection(DbStarField.X.getName())
+				.build();
+
+		QueryResults<Entity> dbStars = datastore.run(query);
 
 		RestFactory factory = new RestFactory();
-		Cluster result = factory.createCluster(entity);
+		Cluster result = factory.createCluster(dbCluster, factory.createStars(dbStars));
 
 		return result;
 	}

@@ -3,14 +3,37 @@ package sfms.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.models.Star;
+import sfms.web.models.ClusterModel;
 import sfms.web.models.CrewMemberModel;
 import sfms.web.models.SpaceshipModel;
 import sfms.web.models.StarModel;
 
 public class ModelFactory {
+
+	public ClusterModel createCluster() {
+		ClusterModel result = new ClusterModel();
+		return result;
+	}
+
+	public ClusterModel createCluster(Cluster cluster) {
+		ClusterModel result = new ClusterModel();
+		result.setKey(cluster.getKey());
+		result.setMinimumX(cluster.getMinimumX());
+		result.setStars(createStars(cluster.getStars()));
+		return result;
+	}
+
+	public List<ClusterModel> createClusters(Iterable<Cluster> clusters) {
+		List<ClusterModel> result = new ArrayList<ClusterModel>();
+		for (Cluster cluster : clusters) {
+			result.add(createCluster(cluster));
+		}
+		return result;
+	}
 
 	public SpaceshipModel createSpaceship() {
 		SpaceshipModel result = new SpaceshipModel();
@@ -84,8 +107,10 @@ public class ModelFactory {
 
 	public List<StarModel> createStars(Iterable<Star> stars) {
 		List<StarModel> result = new ArrayList<StarModel>();
-		for (Star star : stars) {
-			result.add(createStar(star));
+		if (stars != null) {
+			for (Star star : stars) {
+				result.add(createStar(star));
+			}
 		}
 		return result;
 	}
