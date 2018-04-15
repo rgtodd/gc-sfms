@@ -8,13 +8,41 @@ var SpaceViewer = (function() {
 	// **
 	// *********************************
 
-	var g_scene;
-	var g_camera;
-	var g_stats;
-	var g_renderer;
-	var g_container;
-	var g_trackball;
-	var g_handler;
+	var MIN_SECTOR_COORDINATE = 0;
+	var MAX_SECTOR_COORDINATE = 9;
+
+	// Core objects
+	//
+	var m_scene;
+	var m_camera;
+	var m_stats;
+	var m_renderer;
+	var m_container;
+	var m_raycaster;
+	var m_trackball;
+	var m_handler;
+
+	// Scene objects
+	//
+	var m_starGroup; // parent Object3D of all star objects.
+	var m_sectorCursor = {
+		object : null,
+		sectorKey : null,
+		coordinates : {
+			x : 0,
+			y : 0,
+			z : 0
+		}
+	};
+	var m_starCursor = {
+		object : null,
+		starKey : null
+	}
+
+	// UI state objects
+	//
+	var m_starIds = new Map();
+	var m_mouse = new THREE.Vector2();
 
 	// **
 	// ** INITIALZATION
@@ -22,100 +50,138 @@ var SpaceViewer = (function() {
 
 	var initialize = function(containerId) {
 
-		// g_scene
+		// m_scene
 		//
 		initCreateScene();
 		initAddDefaultObjectsToScene();
 
-		// g_camera
+		// m_camera
 		//
 		initCreateCamera();
 
-		// g_stats
+		// m_stats
 		//
 		initCreateStats();
 
-		// g_renderer
+		// m_renderer
 		//
 		initCreateRenderer();
 
-		// g_container
+		// m_container
 		//
 		initCreateContainer(containerId);
 
-		// g_trackball
+		// m_raycaster
+		//
+		initCreateRaycaster();
+
+		// m_trackball
 		//
 		initCreateTrackball();
 
-		$(window).on('resize', onWindowResize);
-		render();
+		// Register event handlers.
+		//
+		var w = $(window);
+		w.on('resize', onWindowResize);
+		w.on('keydown', onWindowKeyDown);
+		var d = $(document);
+		m_container.on('mousemove', onDocumentMouseMove);
+
+		// render();
 		animate();
 	};
 
 	var initCreateScene = function() {
 
-		g_scene = new THREE.Scene();
+		m_scene = new THREE.Scene();
 	};
 
 	var initAddDefaultObjectsToScene = function() {
 
 		var gridHelper = new THREE.GridHelper(100, 10);
-		g_scene.add(gridHelper);
+		m_scene.add(gridHelper);
+
+		m_starGroup = new THREE.Group();
+		m_scene.add(m_starGroup);
 
 		var dirX = new THREE.Vector3(1, 0, 0);
 		var dirY = new THREE.Vector3(0, 1, 0);
 		var dirZ = new THREE.Vector3(0, 0, 1);
 		var origin = new THREE.Vector3(0, 0, 0);
 		var length = 90;
-		g_scene.add(new THREE.ArrowHelper(dirX, origin, length, 0xff0000));
-		g_scene.add(new THREE.ArrowHelper(dirY, origin, length, 0x00ff00));
-		g_scene.add(new THREE.ArrowHelper(dirZ, origin, length, 0x0000ff));
+		m_scene.add(new THREE.ArrowHelper(dirX, origin, length, 0xff0000));
+		m_scene.add(new THREE.ArrowHelper(dirY, origin, length, 0x00ff00));
+		m_scene.add(new THREE.ArrowHelper(dirZ, origin, length, 0x0000ff));
+
+		// Sector cursor
+		{
+			var minimum = new THREE.Vector3(0, 0, 0);
+			var maximum = new THREE.Vector3(200, 200, 200);
+			var box = new THREE.Box3(minimum, maximum);
+			m_sectorCursor.object = new THREE.Box3Helper(box, 0xff0000);
+			m_scene.add(m_sectorCursor.object);
+		}
+
+		// Star cursor
+		{
+			var geometry = new THREE.SphereGeometry(1.5, 3, 2);
+			var material = new THREE.MeshBasicMaterial({
+				color : 0xff0000,
+				wireframe : true
+			});
+			m_starCursor.object = new THREE.Mesh(geometry, material);
+			m_scene.add(m_starCursor.object);
+		}
 	};
 
 	var initCreateCamera = function() {
-		g_camera = new THREE.PerspectiveCamera(75, window.innerWidth
+		m_camera = new THREE.PerspectiveCamera(75, window.innerWidth
 				/ window.innerHeight, 1, 3000);
-		g_camera.position.z = 1000;
+		m_camera.position.z = 1000;
 	}
 
 	var initCreateStats = function() {
-		g_stats = new Stats();
+		m_stats = new Stats();
 	}
 
 	var initCreateRenderer = function() {
-		g_renderer = new THREE.WebGLRenderer();
-		g_renderer.setPixelRatio(window.devicePixelRatio);
+		m_renderer = new THREE.WebGLRenderer();
+		m_renderer.setPixelRatio(window.devicePixelRatio);
 	}
 
 	var initCreateContainer = function(containerId) {
-		g_container = $(containerId);
-		g_container.append(g_renderer.domElement);
-		g_container.append(g_stats.dom);
-		g_renderer.setSize(g_container.width(), g_container.height());
-		g_camera.aspect = g_container.width() / g_container.height();
-		g_camera.updateProjectionMatrix();
+		m_container = $(containerId);
+		m_container.append(m_renderer.domElement);
+		m_container.append(m_stats.dom);
+		m_renderer.setSize(m_container.width(), m_container.height());
+		m_camera.aspect = m_container.width() / m_container.height();
+		m_camera.updateProjectionMatrix();
+	}
+
+	var initCreateRaycaster = function() {
+		m_raycaster = new THREE.Raycaster();
+		m_raycaster.linePrecision = 3;
 	}
 
 	var initCreateTrackball = function() {
-		g_trackball = new THREE.TrackballControls(g_camera, g_container[0]);
-		g_trackball.rotateSpeed = 1.0;
-		g_trackball.zoomSpeed = 1.2;
-		g_trackball.panSpeed = 0.8;
-		g_trackball.noZoom = false;
-		g_trackball.noPan = false;
-		g_trackball.staticMoving = true;
-		g_trackball.dynamicDampingFactor = 0.3;
-		g_trackball.keys = [ 65, 83, 68 ];
-		g_trackball.addEventListener('change', render);
+		m_trackball = new THREE.TrackballControls(m_camera, m_container[0]);
+		m_trackball.rotateSpeed = 1.0;
+		m_trackball.zoomSpeed = 1.2;
+		m_trackball.panSpeed = 0.8;
+		m_trackball.noZoom = false;
+		m_trackball.noPan = false;
+		m_trackball.staticMoving = true;
+		m_trackball.dynamicDampingFactor = 0.3;
+		m_trackball.keys = [ 65, 83, 68 ];
+		// m_trackball.addEventListener('change', render);
 	}
 
 	var registerHandler = function(handler) {
 
-		g_handler = handler;
+		m_handler = handler;
 
-		if (g_scene !== undefined) {
+		if (m_scene !== undefined) {
 			loadSectors();
-			loadStars();
 		}
 	};
 
@@ -125,60 +191,58 @@ var SpaceViewer = (function() {
 
 	var loadSectors = function() {
 
-		g_handler.GetSectorsAsync(onLoadSectorsComplete);
+		m_handler.GetSectorsAsync(function(sectors) {
 
-	}
+			var sectorsLength = sectors.length;
+			for (var idx = 0; idx < sectorsLength; ++idx) {
+				var sector = sectors[idx];
 
-	var onLoadSectorsComplete = function(sectors) {
+				var minimum = new THREE.Vector3(sector.minimumX,
+						sector.minimumY, sector.minimumZ);
+				var maximum = new THREE.Vector3(sector.maximumX,
+						sector.maximumY, sector.maximumZ);
+				var box = new THREE.Box3(minimum, maximum);
+				var helper = new THREE.Box3Helper(box, 0x444400);
+				// m_scene.add(helper);
+			}
 
-		var sectorsLength = sectors.length;
-		for (var idx = 0; idx < sectorsLength; ++idx) {
-			var sector = sectors[idx];
-			var minimum = new THREE.Vector3(sector.minimumX, sector.minimumY,
-					sector.minimumZ);
-			var maximum = new THREE.Vector3(sector.maximumX, sector.maximumY,
-					sector.maximumZ);
-			var box = new THREE.Box3(minimum, maximum);
-			var helper = new THREE.Box3Helper(box, 0x444400);
-			g_scene.add(helper);
-		}
+			m_handler.GetSectorByLocationAsync(0, 0, 0, function(sector) {
 
-		render();
-	}
+				m_sectorCursor.sectorKey = sector.key;
 
-	var loadStars = function() {
-		g_handler.GetStarsAsync(onLoadStarsComplete);
-	}
+				m_handler.GetStarsBySectorAsync(sector.key, function(
+						starPoints, starIds) {
+					var loader = new THREE.TextureLoader();
+					loader.load("textures/sfms_star_texture_25.png", function(
+							texture) {
 
-	var onLoadStarsComplete = function(stars) {
+						m_starIds.set(sector.key, starIds);
 
-		var loader = new THREE.TextureLoader();
-		loader.load("textures/sfms_star_texture_25.png", function(texture) {
-			var geometryPath = new THREE.Geometry();
+						var geometry = new THREE.BufferGeometry();
+						geometry
+								.addAttribute('position',
+										new THREE.Float32BufferAttribute(
+												starPoints, 3));
 
-			var geometry = new THREE.BufferGeometry();
-			geometry.addAttribute('position', new THREE.Float32BufferAttribute(
-					stars, 3));
-			geometry.computeBoundingSphere();
+						var material = new THREE.PointsMaterial({
+							size : 3,
+							sizeAttenuation : true,
+							map : texture,
+							alphaTest : 0.5,
+							transparent : false
+						});
+						material.color.setHSL(1.0, 0.3, 0.7);
 
-			var material = new THREE.PointsMaterial({
-				size : 1,
-				sizeAttenuation : true,
-				map : texture,
-				alphaTest : 0.5,
-				transparent : false
+						var star = new THREE.Points(geometry, material);
+						m_starGroup.add(star);
+
+						// var box = new THREE.BoxHelper(points, 0xffff00);
+						// m_scene.add(box);
+
+						// render();
+					});
+				});
 			});
-			material.color.setHSL(1.0, 0.3, 0.7);
-
-			var points = new THREE.Points(geometry, material);
-			g_scene.add(points);
-
-			g_scene.add(new THREE.Line(geometryPath));
-
-			var box = new THREE.BoxHelper(points, 0xffff00);
-			g_scene.add(box);
-
-			render();
 		});
 	}
 
@@ -186,13 +250,132 @@ var SpaceViewer = (function() {
 	// ** EVENT HANDLERS
 	// **
 
+	var onDocumentMouseMove = function(e) {
+
+		if (e.buttons == 0) {
+			onDocumentMouseMoveHover(e);
+		}
+
+	}
+
+	var onDocumentMouseMoveHover = function(e) {
+		var containerPosition = m_container.position();
+		var containerX = e.pageX - containerPosition.left;
+		var containerY = e.pageY - containerPosition.top;
+		m_mouse.x = (containerX / m_container.width()) * 2 - 1;
+		m_mouse.y = -(containerY / m_container.height()) * 2 + 1;
+
+		// console.log(m_mouse);
+
+		m_raycaster.setFromCamera(m_mouse, m_camera);
+
+		var intersects = m_raycaster.intersectObjects(m_starGroup.children,
+				true);
+		if (intersects.length > 0) {
+			// console.log("onDocumentMouseMove", intersects[0].index);
+			var o = intersects[0];
+			var idx = o.index;
+			// console.log(o);
+			var starId = m_starIds.get(m_sectorCursor.sectorKey)[idx];
+			console.log(starId);
+			var x = o.object.geometry.attributes.position.array[idx * 3];
+			var y = o.object.geometry.attributes.position.array[idx * 3 + 1];
+			var z = o.object.geometry.attributes.position.array[idx * 3 + 2];
+			m_starCursor.object.position.set(x, y, z);
+			// render();
+			// intersects[0].object);
+			// if (currentIntersected !== undefined) {
+			// currentIntersected.material.linewidth = 1;
+			// }
+			// currentIntersected = intersects[0].object;
+			// currentIntersected.material.linewidth = 5;
+			// sphereInter.visible = true;
+			// sphereInter.position.copy(intersects[0].point);
+		} else {
+			// if (currentIntersected !== undefined) {
+			// currentIntersected.material.linewidth = 1;
+			// }
+			// currentIntersected = undefined;
+			// sphereInter.visible = false;
+		}
+	}
+
 	var onWindowResize = function(e) {
-		g_camera.aspect = g_container.width() / g_container.height();
-		g_camera.updateProjectionMatrix();
-		g_renderer.setSize(g_container.width(), g_container.height());
-		g_trackball.handleResize();
-		render();
+		m_camera.aspect = m_container.width() / m_container.height();
+		m_camera.updateProjectionMatrix();
+		m_renderer.setSize(m_container.width(), m_container.height());
+		m_trackball.handleResize();
+		// render();
 	};
+
+	var onWindowKeyDown = function(e) {
+		switch (e.which) {
+		case 37: // LEFT
+			moveSectorCursor(m_sectorCursor.coordinates.x - 1,
+					m_sectorCursor.coordinates.y, m_sectorCursor.coordinates.z);
+			break;
+		case 39: // RIGHT
+			moveSectorCursor(m_sectorCursor.coordinates.x + 1,
+					m_sectorCursor.coordinates.y, m_sectorCursor.coordinates.z);
+			break;
+		case 38: // UP
+			if (e.ctrlKey) {
+				moveSectorCursor(m_sectorCursor.coordinates.x,
+						m_sectorCursor.coordinates.y,
+						m_sectorCursor.coordinates.z - 1);
+			} else {
+				moveSectorCursor(m_sectorCursor.coordinates.x,
+						m_sectorCursor.coordinates.y + 1,
+						m_sectorCursor.coordinates.z);
+			}
+			break;
+		case 40: // DOWN
+			if (e.ctrlKey) {
+				moveSectorCursor(m_sectorCursor.coordinates.x,
+						m_sectorCursor.coordinates.y,
+						m_sectorCursor.coordinates.z + 1);
+			} else {
+				moveSectorCursor(m_sectorCursor.coordinates.x,
+						m_sectorCursor.coordinates.y - 1,
+						m_sectorCursor.coordinates.z);
+			}
+			break;
+		}
+	}
+
+	var moveSectorCursor = function(x, y, z) {
+
+		x = clamp(x, MIN_SECTOR_COORDINATE, MAX_SECTOR_COORDINATE);
+		y = clamp(y, MIN_SECTOR_COORDINATE, MAX_SECTOR_COORDINATE);
+		z = clamp(z, MIN_SECTOR_COORDINATE, MAX_SECTOR_COORDINATE);
+
+		if (x === m_sectorCursor.coordinates.x
+				&& y === m_sectorCursor.coordinates.y
+				&& z === m_sectorCursor.coordinates.z) {
+			return;
+		}
+
+		m_sectorCursor.coordinates.x = x;
+		m_sectorCursor.coordinates.y = y;
+		m_sectorCursor.coordinates.z = z;
+
+		m_sectorCursor.object.box.min.set(-1000 + x * 200, -1000 + y * 200,
+				-1000 + z * 200);
+		m_sectorCursor.object.box.max.set(-1000 + x * 200 + 200, -1000 + y
+				* 200 + 200, -1000 + z * 200 + 200);
+
+		// render();
+
+		console.log("moveSectorCursor", m_sectorCursor.object.position);
+	}
+
+	var clamp = function(value, minimum, maximum) {
+		if (value < minimum)
+			return minimum;
+		if (value > maximum)
+			return maximum;
+		return value;
+	}
 
 	// **
 	// ** CORE
@@ -200,12 +383,14 @@ var SpaceViewer = (function() {
 
 	var animate = function() {
 		requestAnimationFrame(animate);
-		g_trackball.update();
+		m_starCursor.object.rotation.y += 0.015;
+		m_trackball.update();
+		render();
 	};
 
 	var render = function() {
-		g_renderer.render(g_scene, g_camera);
-		g_stats.update();
+		m_renderer.render(m_scene, m_camera);
+		m_stats.update();
 	}
 
 	// *********************************
