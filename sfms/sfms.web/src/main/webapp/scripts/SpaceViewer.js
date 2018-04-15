@@ -10,17 +10,17 @@ var SpaceViewer = (function() {
 
 	var g_scene;
 	var g_camera;
-	var g_trackball;
 	var g_stats;
 	var g_renderer;
 	var g_container;
+	var g_trackball;
 	var g_handler;
 
 	// **
 	// ** INITIALZATION
 	// **
 
-	var initialize = function() {
+	var initialize = function(containerId) {
 
 		// g_scene
 		//
@@ -30,10 +30,6 @@ var SpaceViewer = (function() {
 		// g_camera
 		//
 		initCreateCamera();
-
-		// g_trackball
-		//
-		initCreateTrackball();
 
 		// g_stats
 		//
@@ -45,7 +41,11 @@ var SpaceViewer = (function() {
 
 		// g_container
 		//
-		initCreateContainer();
+		initCreateContainer(containerId);
+
+		// g_trackball
+		//
+		initCreateTrackball();
 
 		$(window).on('resize', onWindowResize);
 		render();
@@ -78,8 +78,26 @@ var SpaceViewer = (function() {
 		g_camera.position.z = 1000;
 	}
 
+	var initCreateStats = function() {
+		g_stats = new Stats();
+	}
+
+	var initCreateRenderer = function() {
+		g_renderer = new THREE.WebGLRenderer();
+		g_renderer.setPixelRatio(window.devicePixelRatio);
+	}
+
+	var initCreateContainer = function(containerId) {
+		g_container = $(containerId);
+		g_container.append(g_renderer.domElement);
+		g_container.append(g_stats.dom);
+		g_renderer.setSize(g_container.width(), g_container.height());
+		g_camera.aspect = g_container.width() / g_container.height();
+		g_camera.updateProjectionMatrix();
+	}
+
 	var initCreateTrackball = function() {
-		g_trackball = new THREE.TrackballControls(g_camera);
+		g_trackball = new THREE.TrackballControls(g_camera, g_container[0]);
 		g_trackball.rotateSpeed = 1.0;
 		g_trackball.zoomSpeed = 1.2;
 		g_trackball.panSpeed = 0.8;
@@ -89,22 +107,6 @@ var SpaceViewer = (function() {
 		g_trackball.dynamicDampingFactor = 0.3;
 		g_trackball.keys = [ 65, 83, 68 ];
 		g_trackball.addEventListener('change', render);
-	}
-
-	var initCreateStats = function() {
-		g_stats = new Stats();
-	}
-
-	var initCreateRenderer = function() {
-		g_renderer = new THREE.WebGLRenderer();
-		g_renderer.setPixelRatio(window.devicePixelRatio);
-		g_renderer.setSize(window.innerWidth, window.innerHeight);
-	}
-
-	var initCreateContainer = function() {
-		g_container = $('#container');
-		g_container.append(g_renderer.domElement);
-		g_container.append(g_stats.dom);
 	}
 
 	var registerHandler = function(handler) {
@@ -214,8 +216,8 @@ var SpaceViewer = (function() {
 
 	return {
 
-		Initialize : function() {
-			initialize();
+		Initialize : function(containerId) {
+			initialize(containerId);
 		},
 
 		RegisterHandler : function(handler) {
