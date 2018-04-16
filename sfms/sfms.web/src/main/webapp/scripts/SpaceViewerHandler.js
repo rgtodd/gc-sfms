@@ -88,25 +88,27 @@ var SpaceViewerHandler = (function() {
 		});
 	}
 
-	var getStarsBySectorAsync = function(sectorKey, callback) {
+	var getObjectsBySectorAsync = function(sectorKey, objectType, callback) {
 		getSectorByKeyAsync(
 				sectorKey,
 				function(sector) {
-					var starPoints = [];
-					var starIds = []
+					var objectKeys = [];
+					var objectPoints = [];
+					var idx = 0;
 					for (var x = sector.minimumX; x < sector.maximumX; x += 25) {
 						for (var y = sector.minimumY; y < sector.maximumY; y += 25) {
 							for (var z = sector.minimumZ; z < sector.maximumZ; z += 25) {
-								var starId = sectorKey + "-" + x.toString()
-										+ "," + y.toString() + ","
-										+ z.toString();
-								starPoints.push(x, y, z);
-								starIds.push(starId);
-
+								if (++idx % 7 == objectType) {
+									var starId = sectorKey + "-" + x.toString()
+											+ "," + y.toString() + ","
+											+ z.toString();
+									objectKeys.push(starId);
+									objectPoints.push(x, y, z);
+								}
 							}
 						}
 					}
-					callback(starPoints, starIds);
+					callback(objectKeys, objectPoints);
 				});
 	};
 
@@ -118,68 +120,38 @@ var SpaceViewerHandler = (function() {
 
 	return {
 
-		// Retrieves all sectors.
+		// GetSectors event handler for SpaceViewer.
 		//
-		// callback = function(sectors) where:
-		//
-		// sectors : array of sector
-		//
-		// sector : object of
-		// * key
-		// * minimumX
-		// * maximumX
-		// * minimumY
-		// * maximumY
-		// * minimumZ
-		// * maximumZ
+		// See SpaceViewer::RegisterGetSectorsHandler for more information.
 		//
 		GetSectorsAsync : function(callback) {
 			getSectorsAsync(callback);
 		},
 
-		// Retrieves sector containing the specified location.
+		// GetSectorByLocation event handler for SpaceViewer.
 		//
-		// callback = function(sector) where:
-		//
-		// sector : object of
-		// * key
-		// * minimumX
-		// * maximumX
-		// * minimumY
-		// * maximumY
-		// * minimumZ
-		// * maximumZ
+		// See SpaceViewer::RegisterGetSectorByLocationHandler for more
+		// information.
 		//
 		GetSectorByLocationAsync : function(x, y, z, callback) {
 			getSectorByLocationAsync(x, y, z, callback);
 		},
 
-		// Retrieves the specified sector.
+		// GetSectorByKey event handler for SpaceViewer.
 		//
-		// callback = function(sector) where:
-		//
-		// sector : object of
-		// * key
-		// * minimumX
-		// * maximumX
-		// * minimumY
-		// * maximumY
-		// * minimumZ
-		// * maximumZ
+		// See SpaceViewer::RegisterGetSectorByKeyHandler for more information.
 		//
 		GetSectorByKeyAsync : function(key, callback) {
 			getSectorByKeyAsync(key, callback);
 		},
 
-		// Retrieves stars contained by the specified sector.
+		// GetObjectsBySector event handler for SpaceViewer.
 		//
-		// callback = function(positions) where:
+		// See SpaceViewer::RegisterGetObjectsBySectorHandler for more
+		// information.
 		//
-		// starPoints : array of Number
-		// starIds : array of String
-		//
-		GetStarsBySectorAsync : function(sectorKey, callback) {
-			getStarsBySectorAsync(sectorKey, callback);
+		GetObjectsBySectorAsync : function(sectorKey, objectType, callback) {
+			getObjectsBySectorAsync(sectorKey, objectType, callback);
 		}
 	}
 

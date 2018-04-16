@@ -26,8 +26,15 @@
 		<script type="text/javascript" src="scripts/SpaceViewer.js"></script>
 		<script type="text/javascript" src="scripts/SpaceViewerHandler.js"></script>
 		<script type="text/javascript">
+			SpaceViewer
+					.RegisterGetSectorsHandler(SpaceViewerHandler.GetSectorsAsync);
+			SpaceViewer
+					.RegisterGetSectorByLocationHandler(SpaceViewerHandler.GetSectorByLocationAsync);
+			SpaceViewer
+					.RegisterGetSectorByKeyHandler(SpaceViewerHandler.GetSectorByKeyAsync);
+			SpaceViewer
+					.RegisterGetObjectsBySectorHandler(SpaceViewerHandler.GetObjectsBySectorAsync);
 			SpaceViewer.Initialize("#divSpaceViewer");
-			SpaceViewer.RegisterHandler(SpaceViewerHandler);
 		</script>
 	</div>
 </body>
