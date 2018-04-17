@@ -102,9 +102,9 @@ public class StarRestController {
 				DbStarField dbField = s_dbFieldMap.get(restField);
 				if (dbField != null) {
 					if (sortCriteria.getDescending(idx)) {
-						queryBuilder.addOrderBy(OrderBy.desc(dbField.getId()));
+						queryBuilder.addOrderBy(OrderBy.desc(dbField.getName()));
 					} else {
-						queryBuilder.addOrderBy(OrderBy.asc(dbField.getId()));
+						queryBuilder.addOrderBy(OrderBy.asc(dbField.getName()));
 					}
 				}
 			}
@@ -140,7 +140,7 @@ public class StarRestController {
 		Key key = DbEntity.Star.createEntityKey(datastore, id);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ProperName.getId(), star.getProperName())
+				.set(DbStarField.ProperName.getName(), star.getProperName())
 				.build();
 
 		datastore.update(entity);
@@ -163,7 +163,7 @@ public class StarRestController {
 		Key key = DbEntity.Star.createEntityKey(datastore, star.getKey());
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ProperName.getId(), star.getProperName())
+				.set(DbStarField.ProperName.getName(), star.getProperName())
 				.build();
 
 		datastore.put(entity);

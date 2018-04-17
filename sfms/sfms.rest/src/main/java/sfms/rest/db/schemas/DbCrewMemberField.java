@@ -19,7 +19,7 @@ public enum DbCrewMemberField implements DbFieldSchema {
 
 	public static DbCrewMemberField parse(String id) {
 		for (DbCrewMemberField property : DbCrewMemberField.values()) {
-			if (property.getId().equals(id)) {
+			if (property.getName().equals(id)) {
 				return property;
 			}
 		}
@@ -27,11 +27,11 @@ public enum DbCrewMemberField implements DbFieldSchema {
 		return null;
 	}
 
-	public String getId() {
+	public String getName() {
 		return m_id;
 	}
 
-	public String getName() {
+	public String getTitle() {
 		return m_name;
 	}
 

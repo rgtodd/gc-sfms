@@ -27,8 +27,8 @@ public class CrewMemberGenerator {
 			for (int idx = 0; idx < count; ++idx) {
 				IncompleteKey clusterKey = clusterKeyFactory.newKey();
 				FullEntity<IncompleteKey> cluster = Entity.newBuilder(clusterKey)
-						.set(DbCrewMemberField.FirstName.getId(), ValueGenerator.getRandomFirstName())
-						.set(DbCrewMemberField.LastName.getId(), ValueGenerator.getRandomLastName())
+						.set(DbCrewMemberField.FirstName.getName(), ValueGenerator.getRandomFirstName())
+						.set(DbCrewMemberField.LastName.getName(), ValueGenerator.getRandomLastName())
 						.build();
 				batchPut.add(cluster);
 			}

@@ -102,9 +102,9 @@ public class SpaceshipRestController {
 				DbSpaceshipField dbField = s_dbFieldMap.get(restField);
 				if (dbField != null) {
 					if (sortCriteria.getDescending(idx)) {
-						queryBuilder.addOrderBy(OrderBy.desc(dbField.getId()));
+						queryBuilder.addOrderBy(OrderBy.desc(dbField.getName()));
 					} else {
-						queryBuilder.addOrderBy(OrderBy.asc(dbField.getId()));
+						queryBuilder.addOrderBy(OrderBy.asc(dbField.getName()));
 					}
 				}
 			}
@@ -140,7 +140,7 @@ public class SpaceshipRestController {
 		Key key = DbEntity.Spaceship.createEntityKey(datastore, id);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbSpaceshipField.Name.getId(), spaceship.getName())
+				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
 				.build();
 
 		datastore.update(entity);
@@ -165,7 +165,7 @@ public class SpaceshipRestController {
 				.newKey();
 
 		FullEntity<IncompleteKey> entity = Entity.newBuilder(incompleteKey)
-				.set(DbSpaceshipField.Name.getId(), spaceship.getName())
+				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
 				.build();
 
 		Entity createdEntity = datastore.put(entity);

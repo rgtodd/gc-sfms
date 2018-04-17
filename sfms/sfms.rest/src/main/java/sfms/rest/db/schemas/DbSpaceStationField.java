@@ -19,7 +19,7 @@ public enum DbSpaceStationField implements DbFieldSchema {
 
 	public static DbSpaceStationField parse(String id) {
 		for (DbSpaceStationField property : DbSpaceStationField.values()) {
-			if (property.getId().equals(id)) {
+			if (property.getName().equals(id)) {
 				return property;
 			}
 		}
@@ -27,11 +27,11 @@ public enum DbSpaceStationField implements DbFieldSchema {
 		return null;
 	}
 
-	public String getId() {
+	public String getName() {
 		return m_id;
 	}
 
-	public String getName() {
+	public String getTitle() {
 		return m_name;
 	}
 

@@ -76,10 +76,10 @@ public class SectorRestController {
 
 		Query<ProjectionEntity> query = Query.newProjectionEntityQueryBuilder()
 				.setKind(DbEntity.Star.getKind())
-				.addProjection(DbStarField.X.getId())
-				.addProjection(DbStarField.Y.getId())
-				.addProjection(DbStarField.Z.getId())
-				.setFilter(PropertyFilter.eq(DbStarField.SectorKey.getId(), key))
+				.addProjection(DbStarField.X.getName())
+				.addProjection(DbStarField.Y.getName())
+				.addProjection(DbStarField.Z.getName())
+				.setFilter(PropertyFilter.eq(DbStarField.SectorKey.getName(), key))
 				.build();
 
 		QueryResults<ProjectionEntity> dbStars = datastore.run(query);
@@ -116,9 +116,9 @@ public class SectorRestController {
 				DbSectorField dbField = s_dbFieldMap.get(restField);
 				if (dbField != null) {
 					if (sortCriteria.getDescending(idx)) {
-						queryBuilder.addOrderBy(OrderBy.desc(dbField.getId()));
+						queryBuilder.addOrderBy(OrderBy.desc(dbField.getName()));
 					} else {
-						queryBuilder.addOrderBy(OrderBy.asc(dbField.getId()));
+						queryBuilder.addOrderBy(OrderBy.asc(dbField.getName()));
 					}
 				}
 			}
@@ -155,12 +155,12 @@ public class SectorRestController {
 		Key key = DbEntity.Sector.createEntityKey(datastore, id);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbSectorField.MinimumX.getId(), sector.getMinimumX())
-				.set(DbSectorField.MinimumY.getId(), sector.getMinimumY())
-				.set(DbSectorField.MinimumZ.getId(), sector.getMinimumZ())
-				.set(DbSectorField.MaximumX.getId(), sector.getMaximumX())
-				.set(DbSectorField.MaximumY.getId(), sector.getMaximumY())
-				.set(DbSectorField.MaximumZ.getId(), sector.getMaximumZ())
+				.set(DbSectorField.MinimumX.getName(), sector.getMinimumX())
+				.set(DbSectorField.MinimumY.getName(), sector.getMinimumY())
+				.set(DbSectorField.MinimumZ.getName(), sector.getMinimumZ())
+				.set(DbSectorField.MaximumX.getName(), sector.getMaximumX())
+				.set(DbSectorField.MaximumY.getName(), sector.getMaximumY())
+				.set(DbSectorField.MaximumZ.getName(), sector.getMaximumZ())
 				.build();
 
 		datastore.update(entity);
@@ -183,12 +183,12 @@ public class SectorRestController {
 		Key key = DbEntity.Sector.createEntityKey(datastore, sector.getKey());
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbSectorField.MinimumX.getId(), sector.getMinimumX())
-				.set(DbSectorField.MinimumY.getId(), sector.getMinimumY())
-				.set(DbSectorField.MinimumZ.getId(), sector.getMinimumZ())
-				.set(DbSectorField.MaximumX.getId(), sector.getMaximumX())
-				.set(DbSectorField.MaximumY.getId(), sector.getMaximumY())
-				.set(DbSectorField.MaximumZ.getId(), sector.getMaximumZ())
+				.set(DbSectorField.MinimumX.getName(), sector.getMinimumX())
+				.set(DbSectorField.MinimumY.getName(), sector.getMinimumY())
+				.set(DbSectorField.MinimumZ.getName(), sector.getMinimumZ())
+				.set(DbSectorField.MaximumX.getName(), sector.getMaximumX())
+				.set(DbSectorField.MaximumY.getName(), sector.getMaximumY())
+				.set(DbSectorField.MaximumZ.getName(), sector.getMaximumZ())
 				.build();
 
 		datastore.put(entity);

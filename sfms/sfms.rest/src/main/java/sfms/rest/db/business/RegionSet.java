@@ -22,14 +22,30 @@ public class RegionSet implements Iterable<Region> {
 		m_regions = regions;
 	}
 
-	public static RegionSet create(int minimum, int maximum, int delta) {
+	public static RegionSet create(int minimum, int maximum, int delta, int regionPartition) {
 
 		Set<Region> regions = new HashSet<Region>();
 
+		int regionX = -1;
 		for (int x = minimum; x < maximum; x += delta) {
+			++regionX;
+
+			int regionY = -1;
 			for (int y = minimum; y < maximum; y += delta) {
+				++regionY;
+
+				int regionZ = -1;
 				for (int z = minimum; z < maximum; z += delta) {
-					Region region = new Region(x, y, z, x + delta, y + delta, z + delta);
+					++regionZ;
+
+					String key = Integer.toString(regionX) + "," + Integer.toString(regionY) + ","
+							+ Integer.toString(regionZ);
+					if (regionPartition > 0) {
+						key = key + "-" + Integer.toString(regionPartition);
+					}
+
+					Region region = new Region(key, regionPartition, regionX, regionY, regionZ, x, y, z, x + delta,
+							y + delta, z + delta);
 					regions.add(region);
 				}
 			}
@@ -50,14 +66,23 @@ public class RegionSet implements Iterable<Region> {
 		QueryResults<Entity> entities = datastore.run(query);
 		while (entities.hasNext()) {
 			Entity entity = entities.next();
-			int minimumX = (int) entity.getLong(DbClusterField.MinimumX.getId());
-			int minimumY = (int) entity.getLong(DbClusterField.MinimumY.getId());
-			int minimumZ = (int) entity.getLong(DbClusterField.MinimumZ.getId());
-			int maximumX = (int) entity.getLong(DbClusterField.MaximumX.getId());
-			int maximumY = (int) entity.getLong(DbClusterField.MaximumY.getId());
-			int maximumZ = (int) entity.getLong(DbClusterField.MaximumX.getId());
+			int clusterPartition = (int) entity.getLong(DbClusterField.ClusterPartition.getName());
+			int clusterX = (int) entity.getLong(DbClusterField.ClusterX.getName());
+			int clusterY = (int) entity.getLong(DbClusterField.ClusterY.getName());
+			int clusterZ = (int) entity.getLong(DbClusterField.ClusterZ.getName());
+			int minimumX = (int) entity.getLong(DbClusterField.MinimumX.getName());
+			int minimumY = (int) entity.getLong(DbClusterField.MinimumY.getName());
+			int minimumZ = (int) entity.getLong(DbClusterField.MinimumZ.getName());
+			int maximumX = (int) entity.getLong(DbClusterField.MaximumX.getName());
+			int maximumY = (int) entity.getLong(DbClusterField.MaximumY.getName());
+			int maximumZ = (int) entity.getLong(DbClusterField.MaximumX.getName());
 
-			Region region = new Region(minimumX, minimumY, minimumZ, maximumX, maximumY, maximumZ);
+			Region region = new Region(
+					entity.getKey().getName(),
+					clusterPartition,
+					clusterX, clusterY, clusterZ,
+					minimumX, minimumY, minimumZ,
+					maximumX, maximumY, maximumZ);
 			regions.add(region);
 		}
 
@@ -76,14 +101,22 @@ public class RegionSet implements Iterable<Region> {
 		QueryResults<Entity> entities = datastore.run(query);
 		while (entities.hasNext()) {
 			Entity entity = entities.next();
-			int minimumX = (int) entity.getLong(DbSectorField.MinimumX.getId());
-			int minimumY = (int) entity.getLong(DbSectorField.MinimumY.getId());
-			int minimumZ = (int) entity.getLong(DbSectorField.MinimumZ.getId());
-			int maximumX = (int) entity.getLong(DbSectorField.MaximumX.getId());
-			int maximumY = (int) entity.getLong(DbSectorField.MaximumY.getId());
-			int maximumZ = (int) entity.getLong(DbSectorField.MaximumX.getId());
+			int sectorX = (int) entity.getLong(DbSectorField.SectorX.getName());
+			int sectorY = (int) entity.getLong(DbSectorField.SectorY.getName());
+			int sectorZ = (int) entity.getLong(DbSectorField.SectorZ.getName());
+			int minimumX = (int) entity.getLong(DbSectorField.MinimumX.getName());
+			int minimumY = (int) entity.getLong(DbSectorField.MinimumY.getName());
+			int minimumZ = (int) entity.getLong(DbSectorField.MinimumZ.getName());
+			int maximumX = (int) entity.getLong(DbSectorField.MaximumX.getName());
+			int maximumY = (int) entity.getLong(DbSectorField.MaximumY.getName());
+			int maximumZ = (int) entity.getLong(DbSectorField.MaximumX.getName());
 
-			Region region = new Region(minimumX, minimumY, minimumZ, maximumX, maximumY, maximumZ);
+			Region region = new Region(
+					entity.getKey().getName(),
+					0,
+					sectorX, sectorY, sectorZ,
+					minimumX, minimumY, minimumZ,
+					maximumX, maximumY, maximumZ);
 			regions.add(region);
 		}
 

@@ -4,6 +4,10 @@ import sfms.rest.db.DbFieldSchema;
 
 public enum DbClusterField implements DbFieldSchema {
 
+	ClusterPartition("p", "Partition", "Partition of cluster."),
+	ClusterX("x", "X", "X index of cluster."),
+	ClusterY("y", "Y", "Y index of cluster."),
+	ClusterZ("z", "Z", "Z index of cluster."),
 	MinimumX("min_x", "Minimum X", "Minimum X coordinate (inclusive) of cluster."),
 	MinimumY("min_y", "Minimum Y", "Minimum Y coordinate (inclusive) of cluster."),
 	MinimumZ("min_z", "Minimum Z", "Minimum Z coordinate (inclusive) of cluster."),
@@ -23,7 +27,7 @@ public enum DbClusterField implements DbFieldSchema {
 
 	public static DbClusterField parse(String id) {
 		for (DbClusterField property : DbClusterField.values()) {
-			if (property.getId().equals(id)) {
+			if (property.getName().equals(id)) {
 				return property;
 			}
 		}
@@ -31,11 +35,11 @@ public enum DbClusterField implements DbFieldSchema {
 		return null;
 	}
 
-	public String getId() {
+	public String getName() {
 		return m_id;
 	}
 
-	public String getName() {
+	public String getTitle() {
 		return m_name;
 	}
 

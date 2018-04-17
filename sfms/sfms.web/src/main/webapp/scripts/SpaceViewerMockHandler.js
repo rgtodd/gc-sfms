@@ -1,6 +1,6 @@
 "use strict";
 
-var SpaceViewerHandler = (function() {
+var SpaceViewerMockHandler = (function() {
 
 	// Constants
 	//

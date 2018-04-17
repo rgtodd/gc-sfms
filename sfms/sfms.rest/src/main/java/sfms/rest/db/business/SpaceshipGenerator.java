@@ -29,7 +29,7 @@ public class SpaceshipGenerator {
 
 				IncompleteKey clusterKey = clusterKeyFactory.newKey();
 				FullEntity<IncompleteKey> cluster = Entity.newBuilder(clusterKey)
-						.set(DbSpaceshipField.Name.getId(), name)
+						.set(DbSpaceshipField.Name.getName(), name)
 						.build();
 				batchPut.add(cluster);
 			}

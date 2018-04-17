@@ -16,7 +16,9 @@
 			</ol>
 		</nav>
 		<div class="row">
-			<div id="divSpaceViewer" class="col-sm" style="height: 600px;"></div>
+			<div id="divSpaceViewer" class="col-sm" style="height: 600px;">
+				<canvas id="canvasSpaceViewer" style="width: 100%; height: 100%;"></canvas>
+			</div>
 			<div class="col-sm">
 				<p>
 					Sector: <span id="ctrlSector"></span>
@@ -27,42 +29,77 @@
 				<p>
 					Hover: <span id="ctrlHover"></span>
 				</p>
+				<p id="ctrlDebug"></p>
+				<p>REST</p>
+				<div id="ctrlRestLog" style="height: 400px; overflow: scroll;"></div>
 			</div>
 		</div>
 	</div>
 	<div layout:fragment="scripts">
 		<script type="text/javascript" src="scripts/jquery-3.3.1.min.js"></script>
 		<script type="text/javascript" src="scripts/three.js"></script>
+		<script type="text/javascript"
+			src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
 		<script type="text/javascript" src="scripts/TrackballControls.js"></script>
 		<script type="text/javascript" src="scripts/Detector.js"></script>
 		<script type="text/javascript" src="scripts/stats.min.js"></script>
 		<script type="text/javascript" src="scripts/SpaceViewer.js"></script>
-		<script type="text/javascript" src="scripts/SpaceViewerHandler.js"></script>
+		<script type="text/javascript" src="scripts/SpaceViewerMockHandler.js"></script>
+		<script type="text/javascript" src="scripts/SpaceViewerRestHandler.js"></script>
+		<script type="text/javascript" src="scripts/SpaceViewerRestLogger.js"></script>
 		<script type="text/javascript">
-			SpaceViewer
-					.RegisterGetSectorsHandler(SpaceViewerHandler.GetSectorsAsync);
-			SpaceViewer
-					.RegisterGetSectorByLocationHandler(SpaceViewerHandler.GetSectorByLocationAsync);
-			SpaceViewer
-					.RegisterGetSectorByKeyHandler(SpaceViewerHandler.GetSectorByKeyAsync);
-			SpaceViewer
-					.RegisterGetObjectsBySectorHandler(SpaceViewerHandler.GetObjectsBySectorAsync);
+			$(document)
+					.ready(
+							function() {
+								SpaceViewerRestLogger
+										.RegisterOnRestStartHandler(function(
+												url) {
+											$("#ctrlRestLog").append(
+													"Start: " + url + "<br>");
+										});
 
-			SpaceViewer.RegisterOnSectorClickHandler(function(sectorKey) {
-				$('#ctrlSector').html(sectorKey);
-			});
+								SpaceViewerRestLogger
+										.RegisterOnRestCompleteHandler(function(
+												url) {
+											$("#ctrlRestLog")
+													.append(
+															"Complete: " + url
+																	+ "<br>");
+										});
 
-			SpaceViewer.RegisterOnObjectClickHandler(function(objectType,
-					objectKey) {
-				$('#ctrlObject').html(objectType + ' ' + objectKey);
-			});
+								SpaceViewer
+										.RegisterGetSectorsHandler(SpaceViewerRestHandler.GetSectorsAsync);
+								SpaceViewer
+										.RegisterGetSectorByLocationHandler(SpaceViewerRestHandler.GetSectorByLocationAsync);
+								SpaceViewer
+										.RegisterGetSectorByKeyHandler(SpaceViewerRestHandler.GetSectorByKeyAsync);
+								SpaceViewer
+										.RegisterGetObjectsBySectorHandler(SpaceViewerRestHandler.GetObjectsBySectorAsync);
 
-			SpaceViewer.RegisterOnObjectHoverHandler(function(objectType,
-					objectKey) {
-				$('#ctrlHover').html(objectType + ' ' + objectKey);
-			});
+								SpaceViewer
+										.RegisterOnSectorClickHandler(function(
+												sectorKey) {
+											$('#ctrlSector').html(sectorKey);
+										});
 
-			SpaceViewer.Initialize("#divSpaceViewer");
+								SpaceViewer
+										.RegisterOnObjectClickHandler(function(
+												objectType, objectKey) {
+											$('#ctrlObject').html(
+													objectType + ' '
+															+ objectKey);
+										});
+
+								SpaceViewer
+										.RegisterOnObjectHoverHandler(function(
+												objectType, objectKey) {
+											$('#ctrlHover').html(
+													objectType + ' '
+															+ objectKey);
+										});
+
+								SpaceViewer.Initialize("#divSpaceViewer");
+							});
 		</script>
 	</div>
 </body>

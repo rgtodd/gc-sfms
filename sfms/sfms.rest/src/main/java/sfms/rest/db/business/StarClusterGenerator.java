@@ -60,12 +60,15 @@ public class StarClusterGenerator {
 			for (Region sectorRegion : sectorRegions) {
 				Key sectorKey = sectorKeyFactory.newKey(sectorRegion.getKey());
 				Entity sector = Entity.newBuilder(sectorKey)
-						.set(DbSectorField.MinimumX.getId(), sectorRegion.getMinimumX())
-						.set(DbSectorField.MinimumY.getId(), sectorRegion.getMinimumY())
-						.set(DbSectorField.MinimumZ.getId(), sectorRegion.getMinimumZ())
-						.set(DbSectorField.MaximumX.getId(), sectorRegion.getMaximumX())
-						.set(DbSectorField.MaximumY.getId(), sectorRegion.getMaximumY())
-						.set(DbSectorField.MaximumZ.getId(), sectorRegion.getMaximumZ())
+						.set(DbSectorField.SectorX.getName(), sectorRegion.getRegionX())
+						.set(DbSectorField.SectorY.getName(), sectorRegion.getRegionY())
+						.set(DbSectorField.SectorZ.getName(), sectorRegion.getRegionZ())
+						.set(DbSectorField.MinimumX.getName(), sectorRegion.getMinimumX())
+						.set(DbSectorField.MinimumY.getName(), sectorRegion.getMinimumY())
+						.set(DbSectorField.MinimumZ.getName(), sectorRegion.getMinimumZ())
+						.set(DbSectorField.MaximumX.getName(), sectorRegion.getMaximumX())
+						.set(DbSectorField.MaximumY.getName(), sectorRegion.getMaximumY())
+						.set(DbSectorField.MaximumZ.getName(), sectorRegion.getMaximumZ())
 						.build();
 				batchPut.add(sector);
 			}
@@ -81,12 +84,16 @@ public class StarClusterGenerator {
 			for (Region clusterRegion : clusterRegions) {
 				Key clusterKey = clusterKeyFactory.newKey(clusterRegion.getKey());
 				Entity cluster = Entity.newBuilder(clusterKey)
-						.set(DbClusterField.MinimumX.getId(), clusterRegion.getMinimumX())
-						.set(DbClusterField.MinimumY.getId(), clusterRegion.getMinimumY())
-						.set(DbClusterField.MinimumZ.getId(), clusterRegion.getMinimumZ())
-						.set(DbClusterField.MaximumX.getId(), clusterRegion.getMaximumX())
-						.set(DbClusterField.MaximumY.getId(), clusterRegion.getMaximumY())
-						.set(DbClusterField.MaximumZ.getId(), clusterRegion.getMaximumZ())
+						.set(DbClusterField.ClusterPartition.getName(), clusterRegion.getRegionPartition())
+						.set(DbClusterField.ClusterX.getName(), clusterRegion.getRegionX())
+						.set(DbClusterField.ClusterY.getName(), clusterRegion.getRegionY())
+						.set(DbClusterField.ClusterZ.getName(), clusterRegion.getRegionZ())
+						.set(DbClusterField.MinimumX.getName(), clusterRegion.getMinimumX())
+						.set(DbClusterField.MinimumY.getName(), clusterRegion.getMinimumY())
+						.set(DbClusterField.MinimumZ.getName(), clusterRegion.getMinimumZ())
+						.set(DbClusterField.MaximumX.getName(), clusterRegion.getMaximumX())
+						.set(DbClusterField.MaximumY.getName(), clusterRegion.getMaximumY())
+						.set(DbClusterField.MaximumZ.getName(), clusterRegion.getMaximumZ())
 						.build();
 				batchPut.add(cluster);
 			}
@@ -111,10 +118,10 @@ public class StarClusterGenerator {
 						Key sectorKey = sectorKeyFactory.newKey(sectorRegion.getKey());
 						idx += 1;
 
-						Key clusterSectorKey = clusterSectorKeyFactory.newKey(idx + "-" + clusterRegion.getKey());
+						Key clusterSectorKey = clusterSectorKeyFactory.newKey(clusterRegion.getKey() + "-" + idx);
 						Entity clusterSector = Entity.newBuilder(clusterSectorKey)
-								.set(DbClusterSectorField.ClusterKey.getId(), clusterKey)
-								.set(DbClusterSectorField.SectorKey.getId(), sectorKey)
+								.set(DbClusterSectorField.ClusterKey.getName(), clusterKey)
+								.set(DbClusterSectorField.SectorKey.getName(), sectorKey)
 								.build();
 						batchPut.add(clusterSector);
 					}
@@ -124,12 +131,12 @@ public class StarClusterGenerator {
 	}
 
 	private RegionSet createSectorRegions() {
-		return RegionSet.create(MIN_BOUNDS, MAX_BOUNDS, DELTA);
+		return RegionSet.create(MIN_BOUNDS, MAX_BOUNDS, DELTA, 0);
 	}
 
 	private RegionSet createClusterRegions() {
-		RegionSet result = RegionSet.create(MIN_BOUNDS, MAX_BOUNDS, DELTA * 2);
-		result.addAll(RegionSet.create(MIN_BOUNDS + DELTA, MAX_BOUNDS, DELTA * 2));
+		RegionSet result = RegionSet.create(MIN_BOUNDS, MAX_BOUNDS, DELTA * 2, 0);
+		result.addAll(RegionSet.create(MIN_BOUNDS + DELTA, MAX_BOUNDS, DELTA * 2, 1));
 		return result;
 	}
 

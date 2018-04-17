@@ -2,25 +2,52 @@ package sfms.rest.db.business;
 
 public class Region {
 
+	private String m_key;
+	private int m_regionPartition;
+	private int m_regionX;
+	private int m_regionY;
+	private int m_regionZ;
 	private int m_minimumX;
 	private int m_minimumY;
 	private int m_minimumZ;
 	private int m_maximumX;
 	private int m_maximumY;
 	private int m_maximumZ;
-	private String m_key;
 
-	public Region(int minimumX, int minimumY, int minimumZ, int maximumX, int maximumY, int maximumZ) {
+	public Region(String key, int regionPartition, int regionX, int regionY, int regionZ, int minimumX, int minimumY,
+			int minimumZ, int maximumX, int maximumY,
+			int maximumZ) {
+		m_key = key;
+		m_regionPartition = regionPartition;
+		m_regionX = regionX;
+		m_regionY = regionY;
+		m_regionZ = regionZ;
 		m_minimumX = minimumX;
 		m_minimumY = minimumY;
 		m_minimumZ = minimumZ;
 		m_maximumX = maximumX;
 		m_maximumY = maximumY;
 		m_maximumZ = maximumZ;
+	}
 
-		String key = Integer.toString(m_minimumX) + "," + Integer.toString(m_minimumY) + ","
-				+ Integer.toString(m_minimumZ);
-		m_key = key + "-" + Integer.toString(key.hashCode());
+	public String getKey() {
+		return m_key;
+	}
+
+	public int getRegionPartition() {
+		return m_regionPartition;
+	}
+
+	public int getRegionX() {
+		return m_regionX;
+	}
+
+	public int getRegionY() {
+		return m_regionY;
+	}
+
+	public int getRegionZ() {
+		return m_regionZ;
 	}
 
 	public int getMinimumX() {
@@ -45,10 +72,6 @@ public class Region {
 
 	public int getMaximumZ() {
 		return m_maximumZ;
-	}
-
-	public String getKey() {
-		return m_key;
 	}
 
 	public Coordinates getMidpoint() {

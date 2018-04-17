@@ -4,6 +4,9 @@ import sfms.rest.db.DbFieldSchema;
 
 public enum DbSectorField implements DbFieldSchema {
 
+	SectorX("x", "X", "X index of sector."),
+	SectorY("y", "Y", "Y index of sector."),
+	SectorZ("z", "Z", "Z index of sector."),
 	MinimumX("min_x", "Minimum X", "Minimum X coordinate (inclusive) of sector."),
 	MinimumY("min_y", "Minimum Y", "Minimum Y coordinate (inclusive) of sector."),
 	MinimumZ("min_z", "Minimum Z", "Minimum Z coordinate (inclusive) of sector."),
@@ -23,7 +26,7 @@ public enum DbSectorField implements DbFieldSchema {
 
 	public static DbSectorField parse(String id) {
 		for (DbSectorField property : DbSectorField.values()) {
-			if (property.getId().equals(id)) {
+			if (property.getName().equals(id)) {
 				return property;
 			}
 		}
@@ -31,11 +34,11 @@ public enum DbSectorField implements DbFieldSchema {
 		return null;
 	}
 
-	public String getId() {
+	public String getName() {
 		return m_id;
 	}
 
-	public String getName() {
+	public String getTitle() {
 		return m_name;
 	}
 

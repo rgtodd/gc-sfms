@@ -108,7 +108,7 @@ public class RestFactory {
 		result.setMagnitude(getDouble(entity, DbStarField.Magnitude));
 		result.setAbsoluteMagnitude(getDouble(entity, DbStarField.AbsoluteMagnitude));
 		result.setSpectrum(getString(entity, DbStarField.Spectrum));
-		result.setColorIndex(getOptionalDouble(entity, DbStarField.ColorIndex));
+		result.setColorIndex(getDouble(entity, DbStarField.ColorIndex));
 		result.setX(getDouble(entity, DbStarField.X));
 		result.setY(getDouble(entity, DbStarField.Y));
 		result.setZ(getDouble(entity, DbStarField.Z));
@@ -128,8 +128,8 @@ public class RestFactory {
 		result.setMultipleStarId(getString(entity, DbStarField.MultipleStarId));
 		result.setLuminosity(getDouble(entity, DbStarField.Luminosity));
 		result.setVariableStarDesignation(getString(entity, DbStarField.VariableStarDesignation));
-		result.setVariableMinimum(getOptionalDouble(entity, DbStarField.VariableMinimum));
-		result.setVariableMaximum(getOptionalDouble(entity, DbStarField.VariableMaximum));
+		result.setVariableMinimum(getDouble(entity, DbStarField.VariableMinimum));
+		result.setVariableMaximum(getDouble(entity, DbStarField.VariableMaximum));
 
 		return result;
 	}
@@ -154,7 +154,7 @@ public class RestFactory {
 	public Spaceship createSpaceship(BaseEntity<Key> entity) {
 		Spaceship result = new Spaceship();
 		result.setKey(DbEntity.Spaceship.createRestKey(entity.getKey()));
-		result.setName(entity.getString(DbSpaceshipField.Name.getId()));
+		result.setName(entity.getString(DbSpaceshipField.Name.getName()));
 		return result;
 	}
 
@@ -174,8 +174,8 @@ public class RestFactory {
 	public CrewMember createCrewMember(BaseEntity<Key> entity) {
 		CrewMember result = new CrewMember();
 		result.setKey(DbEntity.CrewMember.createRestKey(entity.getKey()));
-		result.setFirstName(entity.getString(DbCrewMemberField.FirstName.getId()));
-		result.setLastName(entity.getString(DbCrewMemberField.LastName.getId()));
+		result.setFirstName(entity.getString(DbCrewMemberField.FirstName.getName()));
+		result.setLastName(entity.getString(DbCrewMemberField.LastName.getName()));
 		return result;
 	}
 
@@ -193,7 +193,7 @@ public class RestFactory {
 	}
 
 	private Key getKey(BaseEntity<Key> entity, DbFieldSchema field) {
-		String name = field.getId();
+		String name = field.getName();
 		if (!entity.contains(name)) {
 			return null;
 		}
@@ -204,7 +204,7 @@ public class RestFactory {
 	}
 
 	private String getString(BaseEntity<Key> entity, DbFieldSchema field) {
-		String name = field.getId();
+		String name = field.getName();
 		if (!entity.contains(name)) {
 			return null;
 		}
@@ -214,8 +214,20 @@ public class RestFactory {
 		return entity.getString(name);
 	}
 
-	private Double getOptionalDouble(BaseEntity<Key> entity, DbFieldSchema field) {
-		String name = field.getId();
+	// private Double getOptionalDouble(BaseEntity<Key> entity, DbFieldSchema field)
+	// {
+	// String name = field.getId();
+	// if (!entity.contains(name)) {
+	// return null;
+	// }
+	// if (entity.isNull(name)) {
+	// return null;
+	// }
+	// return entity.getDouble(name);
+	// }
+
+	private Double getDouble(BaseEntity<Key> entity, DbFieldSchema field) {
+		String name = field.getName();
 		if (!entity.contains(name)) {
 			return null;
 		}
@@ -225,31 +237,20 @@ public class RestFactory {
 		return entity.getDouble(name);
 	}
 
-	private double getDouble(BaseEntity<Key> entity, DbFieldSchema field) {
-		String name = field.getId();
-		if (!entity.contains(name)) {
-			return 0;
-		}
-		if (entity.isNull(name)) {
-			return 0;
-		}
-		return entity.getDouble(name);
-	}
-
-	@SuppressWarnings("unused")
-	private Long getOptionalLong(BaseEntity<Key> entity, DbFieldSchema field) {
-		String name = field.getId();
-		if (!entity.contains(name)) {
-			return null;
-		}
-		if (entity.isNull(name)) {
-			return null;
-		}
-		return entity.getLong(name);
-	}
+	// @SuppressWarnings("unused")
+	// private Long getOptionalLong(BaseEntity<Key> entity, DbFieldSchema field) {
+	// String name = field.getId();
+	// if (!entity.contains(name)) {
+	// return null;
+	// }
+	// if (entity.isNull(name)) {
+	// return null;
+	// }
+	// return entity.getLong(name);
+	// }
 
 	private long getLong(BaseEntity<Key> entity, DbFieldSchema field) {
-		String name = field.getId();
+		String name = field.getName();
 		if (!entity.contains(name)) {
 			return 0;
 		}

@@ -17,6 +17,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 import sfms.web.conversion.DateFormatter;
+import sfms.web.mock.MockSpaceData;
 
 @Configuration
 @ComponentScan
@@ -114,6 +115,11 @@ public class SfmsWebMvcConfigurer implements WebMvcConfigurer, ApplicationContex
 		ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
 		viewResolver.setTemplateEngine(templateEngine());
 		return viewResolver;
+	}
+
+	@Bean
+	public MockSpaceData mockSpaceData() {
+		return new MockSpaceData();
 	}
 
 }

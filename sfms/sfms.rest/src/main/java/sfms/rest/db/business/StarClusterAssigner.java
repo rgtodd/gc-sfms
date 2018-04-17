@@ -42,9 +42,9 @@ public class StarClusterAssigner {
 
 	private void processEntity(Entity star) {
 
-		int x = (int) star.getLong(DbStarField.X.getId());
-		int y = (int) star.getLong(DbStarField.Y.getId());
-		int z = (int) star.getLong(DbStarField.Z.getId());
+		int x = (int) star.getLong(DbStarField.X.getName());
+		int y = (int) star.getLong(DbStarField.Y.getName());
+		int z = (int) star.getLong(DbStarField.Z.getName());
 
 		Region cluster = m_clusters.findClosestRegion(x, y, z);
 		Key clusterKey = m_clusterKeyFactory.newKey(cluster.getKey());
@@ -53,8 +53,8 @@ public class StarClusterAssigner {
 		Key sectorKey = m_sectorKeyFactory.newKey(sector.getKey());
 
 		Entity updatedStar = Entity.newBuilder(star)
-				.set(DbStarField.ClusterKey.getId(), clusterKey)
-				.set(DbStarField.SectorKey.getId(), sectorKey)
+				.set(DbStarField.ClusterKey.getName(), clusterKey)
+				.set(DbStarField.SectorKey.getName(), sectorKey)
 				.build();
 
 		m_datastore.put(updatedStar);

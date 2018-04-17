@@ -19,7 +19,7 @@ public enum DbSectorStarField implements DbFieldSchema {
 
 	public static DbSectorStarField parse(String id) {
 		for (DbSectorStarField property : DbSectorStarField.values()) {
-			if (property.getId().equals(id)) {
+			if (property.getName().equals(id)) {
 				return property;
 			}
 		}
@@ -27,11 +27,11 @@ public enum DbSectorStarField implements DbFieldSchema {
 		return null;
 	}
 
-	public String getId() {
+	public String getName() {
 		return m_id;
 	}
 
-	public String getName() {
+	public String getTitle() {
 		return m_name;
 	}
 
