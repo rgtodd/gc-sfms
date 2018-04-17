@@ -23,21 +23,24 @@ var SpaceViewerHandler = (function() {
 	var getSectorsAsync = function(callback) {
 		if (m_sectors === null) {
 			m_sectors = [];
-			var idxX = -1;
+			var sx = -1;
 			for (var x = SECTOR_MIN_X; x < SECTOR_MAX_X; x += SECTOR_SIZE) {
-				++idxX;
-				var idxY = -1
+				++sx;
+				var sy = -1
 				for (var y = SECTOR_MIN_Y; y < SECTOR_MAX_Y; y += SECTOR_SIZE) {
-					++idxY;
-					var idxZ = -1
+					++sy;
+					var sz = -1
 					for (var z = SECTOR_MIN_Z; z < SECTOR_MAX_Z; z += SECTOR_SIZE) {
-						++idxZ;
+						++sz;
 
-						var key = idxX.toString() + "," + idxY.toString() + ","
-								+ idxZ.toString();
+						var key = sx.toString() + "," + sy.toString() + ","
+								+ sz.toString();
 
 						var sector = {
 							key : key,
+							sx : sx,
+							sy : sy,
+							sz : sz,
 							minimumX : x,
 							minimumY : y,
 							minimumZ : z,

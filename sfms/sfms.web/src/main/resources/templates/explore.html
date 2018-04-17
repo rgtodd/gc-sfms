@@ -15,7 +15,20 @@
 				<li class="breadcrumb-item active" aria-current="page">Explore</li>
 			</ol>
 		</nav>
-		<div id="divSpaceViewer" style="height: 600px;"></div>
+		<div class="row">
+			<div id="divSpaceViewer" class="col-sm" style="height: 600px;"></div>
+			<div class="col-sm">
+				<p>
+					Sector: <span id="ctrlSector"></span>
+				</p>
+				<p>
+					Object: <span id="ctrlObject"></span>
+				</p>
+				<p>
+					Hover: <span id="ctrlHover"></span>
+				</p>
+			</div>
+		</div>
 	</div>
 	<div layout:fragment="scripts">
 		<script type="text/javascript" src="scripts/jquery-3.3.1.min.js"></script>
@@ -34,6 +47,21 @@
 					.RegisterGetSectorByKeyHandler(SpaceViewerHandler.GetSectorByKeyAsync);
 			SpaceViewer
 					.RegisterGetObjectsBySectorHandler(SpaceViewerHandler.GetObjectsBySectorAsync);
+
+			SpaceViewer.RegisterOnSectorClickHandler(function(sectorKey) {
+				$('#ctrlSector').html(sectorKey);
+			});
+
+			SpaceViewer.RegisterOnObjectClickHandler(function(objectType,
+					objectKey) {
+				$('#ctrlObject').html(objectType + ' ' + objectKey);
+			});
+
+			SpaceViewer.RegisterOnObjectHoverHandler(function(objectType,
+					objectKey) {
+				$('#ctrlHover').html(objectType + ' ' + objectKey);
+			});
+
 			SpaceViewer.Initialize("#divSpaceViewer");
 		</script>
 	</div>

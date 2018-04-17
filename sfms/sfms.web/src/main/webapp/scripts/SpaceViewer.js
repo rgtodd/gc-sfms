@@ -36,9 +36,9 @@ var SpaceViewer = (function() {
 		object : null,
 		sectorKey : null,
 		coordinates : {
-			x : 0,
-			y : 0,
-			z : 0
+			sx : 0,
+			sy : 0,
+			sz : 0
 		}
 	};
 	var m_objectHighlight = {
@@ -58,12 +58,19 @@ var SpaceViewer = (function() {
 	var m_objectKeysByType = new Map();
 	var m_mouse = new THREE.Vector2();
 
-	// Module Events
+	// Module events
 	//
 	var m_getSectorsHandler = null;
 	var m_getSectorByLocationHandler = null;
 	var m_getSectorByKeyHandler = null;
 	var m_getObjectsBySectorHandler = null;
+	var m_onSectorClickHandler = null;
+	var m_onObjectClickHandler = null;
+	var m_onObjectHoverHandler = null;
+
+	// Retrieved data
+	//
+	var m_sectors;
 
 	// **
 	// ** INITIALZATION
@@ -279,33 +286,35 @@ var SpaceViewer = (function() {
 	var onWindowKeyDown = function(e) {
 		switch (e.which) {
 		case 37: // LEFT
-			moveSectorCursor(m_sectorCursor.coordinates.x - 1,
-					m_sectorCursor.coordinates.y, m_sectorCursor.coordinates.z);
+			moveSectorCursor(m_sectorCursor.coordinates.sx - 1,
+					m_sectorCursor.coordinates.sy,
+					m_sectorCursor.coordinates.sz);
 			break;
 		case 39: // RIGHT
-			moveSectorCursor(m_sectorCursor.coordinates.x + 1,
-					m_sectorCursor.coordinates.y, m_sectorCursor.coordinates.z);
+			moveSectorCursor(m_sectorCursor.coordinates.sx + 1,
+					m_sectorCursor.coordinates.sy,
+					m_sectorCursor.coordinates.sz);
 			break;
 		case 38: // UP
 			if (e.ctrlKey) {
-				moveSectorCursor(m_sectorCursor.coordinates.x,
-						m_sectorCursor.coordinates.y,
-						m_sectorCursor.coordinates.z - 1);
+				moveSectorCursor(m_sectorCursor.coordinates.sx,
+						m_sectorCursor.coordinates.sy,
+						m_sectorCursor.coordinates.sz - 1);
 			} else {
-				moveSectorCursor(m_sectorCursor.coordinates.x,
-						m_sectorCursor.coordinates.y + 1,
-						m_sectorCursor.coordinates.z);
+				moveSectorCursor(m_sectorCursor.coordinates.sx,
+						m_sectorCursor.coordinates.sy + 1,
+						m_sectorCursor.coordinates.sz);
 			}
 			break;
 		case 40: // DOWN
 			if (e.ctrlKey) {
-				moveSectorCursor(m_sectorCursor.coordinates.x,
-						m_sectorCursor.coordinates.y,
-						m_sectorCursor.coordinates.z + 1);
+				moveSectorCursor(m_sectorCursor.coordinates.sx,
+						m_sectorCursor.coordinates.sy,
+						m_sectorCursor.coordinates.sz + 1);
 			} else {
-				moveSectorCursor(m_sectorCursor.coordinates.x,
-						m_sectorCursor.coordinates.y - 1,
-						m_sectorCursor.coordinates.z);
+				moveSectorCursor(m_sectorCursor.coordinates.sx,
+						m_sectorCursor.coordinates.sy - 1,
+						m_sectorCursor.coordinates.sz);
 			}
 			break;
 		}
@@ -318,52 +327,57 @@ var SpaceViewer = (function() {
 	var loadSectors = function() {
 
 		raiseGetSectors(function(sectors) {
-
-			var sectorsLength = sectors.length;
-			for (var idx = 0; idx < sectorsLength; ++idx) {
-				var sector = sectors[idx];
-
-				var minimum = new THREE.Vector3(sector.minimumX,
-						sector.minimumY, sector.minimumZ);
-				var maximum = new THREE.Vector3(sector.maximumX,
-						sector.maximumY, sector.maximumZ);
-				var box = new THREE.Box3(minimum, maximum);
-				var helper = new THREE.Box3Helper(box, 0x444400);
-				// m_scene.add(helper);
-			}
-
-			raiseGetSectorByLocation(0, 0, 0, function(sector) {
-
-				m_sectorCursor.sectorKey = sector.key;
-
-				OBJECT_TYPES.forEach(function(objectType) {
-					raiseGetObjectsBySector(sector.key, objectType, function(
-							objectKeys, objectPoints) {
-
-						m_objectKeysByType.set(objectType, objectKeys);
-
-						var geometry = new THREE.BufferGeometry();
-						geometry.addAttribute('position',
-								new THREE.Float32BufferAttribute(objectPoints,
-										3));
-
-						var material = new THREE.PointsMaterial({
-							size : 3,
-							sizeAttenuation : true,
-							map : getTextureForObjectType(objectType),
-							alphaTest : 0.5,
-							transparent : false
-						});
-						material.color.setHSL(1.0, 0.3, 0.7);
-
-						var points = new THREE.Points(geometry, material);
-						points.name = getObjectNameFromType(objectType);
-						m_objectGroup.add(points);
-
-					});
-				});
-			});
+			m_sectors = sectors;
+			moveSectorCursor(5, 5, 5);
 		});
+
+		// raiseGetSectors(function(sectors) {
+		//
+		// var sectorsLength = sectors.length;
+		// for (var idx = 0; idx < sectorsLength; ++idx) {
+		// var sector = sectors[idx];
+		//
+		// var minimum = new THREE.Vector3(sector.minimumX,
+		// sector.minimumY, sector.minimumZ);
+		// var maximum = new THREE.Vector3(sector.maximumX,
+		// sector.maximumY, sector.maximumZ);
+		// var box = new THREE.Box3(minimum, maximum);
+		// var helper = new THREE.Box3Helper(box, 0x444400);
+		// // m_scene.add(helper);
+		// }
+		//
+		// raiseGetSectorByLocation(0, 0, 0, function(sector) {
+		//
+		// m_sectorCursor.sectorKey = sector.key;
+		//
+		// OBJECT_TYPES.forEach(function(objectType) {
+		// raiseGetObjectsBySector(sector.key, objectType, function(
+		// objectKeys, objectPoints) {
+		//
+		// m_objectKeysByType.set(objectType, objectKeys);
+		//
+		// var geometry = new THREE.BufferGeometry();
+		// geometry.addAttribute('position',
+		// new THREE.Float32BufferAttribute(objectPoints,
+		// 3));
+		//
+		// var material = new THREE.PointsMaterial({
+		// size : 3,
+		// sizeAttenuation : true,
+		// map : getTextureForObjectType(objectType),
+		// alphaTest : 0.5,
+		// transparent : false
+		// });
+		// material.color.setHSL(1.0, 0.3, 0.7);
+		//
+		// var points = new THREE.Points(geometry, material);
+		// points.name = getObjectNameFromType(objectType);
+		// m_objectGroup.add(points);
+		//
+		// });
+		// });
+		// });
+		// });
 	}
 
 	var animate = function() {
@@ -423,34 +437,106 @@ var SpaceViewer = (function() {
 		}
 	}
 
+	var registerOnSectorClickHandler = function(handler) {
+		m_onSectorClickHandler = handler;
+	}
+
+	var raiseOnSectorClick = function(sectorKey) {
+		if (m_onSectorClickHandler !== null) {
+			m_onSectorClickHandler(sectorKey);
+		}
+	}
+
+	var registerOnObjectClickHandler = function(handler) {
+		m_onObjectClickHandler = handler;
+	}
+
+	var raiseOnObjectClick = function(objectType, objectKey) {
+		if (m_onObjectClickHandler !== null) {
+			m_onObjectClickHandler(objectType, objectKey);
+		}
+	}
+
+	var registerOnObjectHoverHandler = function(handler) {
+		m_onObjectHoverHandler = handler;
+	}
+
+	var raiseOnObjectHover = function(objectType, objectKey) {
+		if (m_onObjectHoverHandler !== null) {
+			m_onObjectHoverHandler(objectType, objectKey);
+		}
+	}
+
 	// **
 	// ** UI
 	// **
 
-	var moveSectorCursor = function(x, y, z) {
+	var moveSectorCursor = function(sx, sy, sz) {
 
-		x = clamp(x, MIN_SECTOR_COORDINATE, MAX_SECTOR_COORDINATE);
-		y = clamp(y, MIN_SECTOR_COORDINATE, MAX_SECTOR_COORDINATE);
-		z = clamp(z, MIN_SECTOR_COORDINATE, MAX_SECTOR_COORDINATE);
+		sx = clamp(sx, MIN_SECTOR_COORDINATE, MAX_SECTOR_COORDINATE);
+		sy = clamp(sy, MIN_SECTOR_COORDINATE, MAX_SECTOR_COORDINATE);
+		sz = clamp(sz, MIN_SECTOR_COORDINATE, MAX_SECTOR_COORDINATE);
 
-		if (x === m_sectorCursor.coordinates.x
-				&& y === m_sectorCursor.coordinates.y
-				&& z === m_sectorCursor.coordinates.z) {
+		if (sx === m_sectorCursor.coordinates.sx
+				&& sy === m_sectorCursor.coordinates.sy
+				&& sz === m_sectorCursor.coordinates.sz) {
 			return;
 		}
 
-		m_sectorCursor.coordinates.x = x;
-		m_sectorCursor.coordinates.y = y;
-		m_sectorCursor.coordinates.z = z;
+		var sector = m_sectors.find(function(element) {
+			return element.sx === sx && element.sy === sy && element.sz === sz;
+		});
 
-		m_sectorCursor.object.box.min.set(-1000 + x * 200, -1000 + y * 200,
-				-1000 + z * 200);
-		m_sectorCursor.object.box.max.set(-1000 + x * 200 + 200, -1000 + y
-				* 200 + 200, -1000 + z * 200 + 200);
+		if (sector === null || sector === undefined) {
+			return;
+		}
 
-		// render();
+		hideObjectHighlight();
+		hideObjectCursor();
 
-		console.log("moveSectorCursor", m_sectorCursor.object.position);
+		m_sectorCursor.coordinates.sx = sx;
+		m_sectorCursor.coordinates.sy = sy;
+		m_sectorCursor.coordinates.sz = sz;
+
+		m_sectorCursor.object.box.min.set(sector.minimumX, sector.minimumY,
+				sector.minimumZ);
+		m_sectorCursor.object.box.max.set(sector.maximumX, sector.maximumY,
+				sector.maximumZ);
+
+		raiseOnSectorClick(sector.key);
+
+		m_objectGroup.children.forEach(function(element) {
+			element.geometry.dispose();
+			element.material.dispose();
+		});
+		m_objectGroup.children = [];
+		m_objectKeysByType.clear();
+
+		OBJECT_TYPES.forEach(function(objectType) {
+			raiseGetObjectsBySector(sector.key, objectType, function(
+					objectKeys, objectPoints) {
+
+				m_objectKeysByType.set(objectType, objectKeys);
+
+				var geometry = new THREE.BufferGeometry();
+				geometry.addAttribute('position',
+						new THREE.Float32BufferAttribute(objectPoints, 3));
+
+				var material = new THREE.PointsMaterial({
+					size : 3,
+					sizeAttenuation : true,
+					map : getTextureForObjectType(objectType),
+					alphaTest : 0.5,
+					transparent : false
+				});
+				material.color.setHSL(1.0, 0.3, 0.7);
+
+				var points = new THREE.Points(geometry, material);
+				points.name = getObjectNameFromType(objectType);
+				m_objectGroup.add(points);
+
+			});
+		});
 	}
 
 	var moveObjectCursor = function(objectType, objectKey, objectPosition) {
@@ -460,6 +546,8 @@ var SpaceViewer = (function() {
 			m_objectCursor.objectKey = objectKey;
 			m_objectCursor.object.visible = true;
 			m_objectCursor.object.position.copy(objectPosition);
+
+			raiseOnObjectClick(objectType, objectKey);
 		}
 	}
 
@@ -468,6 +556,8 @@ var SpaceViewer = (function() {
 			m_objectCursor.objectType = null;
 			m_objectCursor.objectKey = null;
 			m_objectCursor.object.visible = false;
+
+			raiseOnObjectClick(null, null);
 		}
 	}
 
@@ -482,6 +572,8 @@ var SpaceViewer = (function() {
 			m_objectHighlight.objectKey = objectKey;
 			m_objectHighlight.object.visible = true;
 			m_objectHighlight.object.position.copy(objectPosition);
+
+			raiseOnObjectHover(objectType, objectKey);
 		}
 	}
 
@@ -490,6 +582,8 @@ var SpaceViewer = (function() {
 			m_objectHighlight.objectType = null;
 			m_objectHighlight.objectKey = null;
 			m_objectHighlight.object.visible = false;
+
+			raiseOnObjectHover(null, null);
 		}
 	}
 
@@ -572,6 +666,9 @@ var SpaceViewer = (function() {
 		//
 		// sector = object of:
 		// * key = String
+		// * sx = Number
+		// * sy = Number
+		// * sz = Number
 		// * minimumX = Number
 		// * maximumX = Number
 		// * minimumY = Number
@@ -646,6 +743,18 @@ var SpaceViewer = (function() {
 		//
 		RegisterGetObjectsBySectorHandler : function(handler) {
 			registerGetObjectsBySectorHandler(handler);
+		},
+
+		RegisterOnSectorClickHandler : function(handler) {
+			registerOnSectorClickHandler(handler);
+		},
+
+		RegisterOnObjectClickHandler : function(handler) {
+			registerOnObjectClickHandler(handler);
+		},
+
+		RegisterOnObjectHoverHandler : function(handler) {
+			registerOnObjectHoverHandler(handler);
 		}
 	}
 
