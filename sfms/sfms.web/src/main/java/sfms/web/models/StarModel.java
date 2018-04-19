@@ -11,33 +11,33 @@ public class StarModel {
 	private String m_glieseId; // Gliese-gl
 	private String m_bayerFlamsteedId; // BayerFlamsteed-bf
 	private String m_properName; // ProperName-proper
-	private double m_rightAscension; // RA-ra
-	private double m_declination; // Dec-dec
-	private double m_distance; // Distance-dist
-	private double m_properMotionRightAscension; // pmra
-	private double m_properMotionDeclination; // pmdec
-	private double m_radialVelocity; // rv
-	private double m_magnitude; // Mag-mag
-	private double m_absoluteMagnitude; // AbsMag-absmag
+	private Double m_rightAscension; // RA-ra
+	private Double m_declination; // Dec-dec
+	private Double m_distance; // Distance-dist
+	private Double m_properMotionRightAscension; // pmra
+	private Double m_properMotionDeclination; // pmdec
+	private Double m_radialVelocity; // rv
+	private Double m_magnitude; // Mag-mag
+	private Double m_absoluteMagnitude; // AbsMag-absmag
 	private String m_spectrum; // Spectrum-spect
 	private Double m_colorIndex; // ColorIndex-ci
-	private double m_x; // x
-	private double m_y; // y
-	private double m_z; // z
-	private double m_vx; // vx
-	private double m_vy; // vy
-	private double m_vz; // vz
-	private double m_rightAcensionRadians; // rarad
-	private double m_declinationRadians; // decrad
-	private double m_properMotionRightAscensionRadians; // pmrarad
-	private double m_properMotionDeclinationRadians; // prdecrad
+	private Double m_x; // x
+	private Double m_y; // y
+	private Double m_z; // z
+	private Double m_vx; // vx
+	private Double m_vy; // vy
+	private Double m_vz; // vz
+	private Double m_rightAcensionRadians; // rarad
+	private Double m_declinationRadians; // decrad
+	private Double m_properMotionRightAscensionRadians; // pmrarad
+	private Double m_properMotionDeclinationRadians; // prdecrad
 	private String m_bayerId; // bayer
 	private String m_flamsteed; // flam
 	private String m_constellation; // con
 	private String m_companionStarId; // comp
 	private String m_primaryStarId; // comp_primary
 	private String m_multipleStarId; // base
-	private double m_luminosity; // lum
+	private Double m_luminosity; // lum
 	private String m_variableStarDesignation; // var
 	private Double m_variableMinimum; // var_min
 	private Double m_variableMaximum; // var max
@@ -98,67 +98,67 @@ public class StarModel {
 		m_bayerFlamsteedId = bayerFlamsteedId;
 	}
 
-	public double getRightAscension() {
+	public Double getRightAscension() {
 		return m_rightAscension;
 	}
 
-	public void setRightAscension(double rightAscension) {
+	public void setRightAscension(Double rightAscension) {
 		m_rightAscension = rightAscension;
 	}
 
-	public double getDeclination() {
+	public Double getDeclination() {
 		return m_declination;
 	}
 
-	public void setDeclination(double declination) {
+	public void setDeclination(Double declination) {
 		m_declination = declination;
 	}
 
-	public double getDistance() {
+	public Double getDistance() {
 		return m_distance;
 	}
 
-	public void setDistance(double distance) {
+	public void setDistance(Double distance) {
 		m_distance = distance;
 	}
 
-	public double getProperMotionRightAscension() {
+	public Double getProperMotionRightAscension() {
 		return m_properMotionRightAscension;
 	}
 
-	public void setProperMotionRightAscension(double properMotionRightAscension) {
+	public void setProperMotionRightAscension(Double properMotionRightAscension) {
 		m_properMotionRightAscension = properMotionRightAscension;
 	}
 
-	public double getProperMotionDeclination() {
+	public Double getProperMotionDeclination() {
 		return m_properMotionDeclination;
 	}
 
-	public void setProperMotionDeclination(double properMotionDeclination) {
+	public void setProperMotionDeclination(Double properMotionDeclination) {
 		m_properMotionDeclination = properMotionDeclination;
 	}
 
-	public double getRadialVelocity() {
+	public Double getRadialVelocity() {
 		return m_radialVelocity;
 	}
 
-	public void setRadialVelocity(double radialVelocity) {
+	public void setRadialVelocity(Double radialVelocity) {
 		m_radialVelocity = radialVelocity;
 	}
 
-	public double getMagnitude() {
+	public Double getMagnitude() {
 		return m_magnitude;
 	}
 
-	public void setMagnitude(double magnitude) {
+	public void setMagnitude(Double magnitude) {
 		m_magnitude = magnitude;
 	}
 
-	public double getAbsoluteMagnitude() {
+	public Double getAbsoluteMagnitude() {
 		return m_absoluteMagnitude;
 	}
 
-	public void setAbsoluteMagnitude(double absoluteMagnitude) {
+	public void setAbsoluteMagnitude(Double absoluteMagnitude) {
 		m_absoluteMagnitude = absoluteMagnitude;
 	}
 
@@ -178,83 +178,83 @@ public class StarModel {
 		m_colorIndex = colorIndex;
 	}
 
-	public double getX() {
+	public Double getX() {
 		return m_x;
 	}
 
-	public void setX(double x) {
+	public void setX(Double x) {
 		m_x = x;
 	}
 
-	public double getY() {
+	public Double getY() {
 		return m_y;
 	}
 
-	public void setY(double y) {
+	public void setY(Double y) {
 		m_y = y;
 	}
 
-	public double getZ() {
+	public Double getZ() {
 		return m_z;
 	}
 
-	public void setZ(double z) {
+	public void setZ(Double z) {
 		m_z = z;
 	}
 
-	public double getVx() {
+	public Double getVx() {
 		return m_vx;
 	}
 
-	public void setVx(double vx) {
+	public void setVx(Double vx) {
 		m_vx = vx;
 	}
 
-	public double getVy() {
+	public Double getVy() {
 		return m_vy;
 	}
 
-	public void setVy(double vy) {
+	public void setVy(Double vy) {
 		m_vy = vy;
 	}
 
-	public double getVz() {
+	public Double getVz() {
 		return m_vz;
 	}
 
-	public void setVz(double vz) {
+	public void setVz(Double vz) {
 		m_vz = vz;
 	}
 
-	public double getRightAcensionRadians() {
+	public Double getRightAcensionRadians() {
 		return m_rightAcensionRadians;
 	}
 
-	public void setRightAcensionRadians(double rightAcensionRadians) {
+	public void setRightAcensionRadians(Double rightAcensionRadians) {
 		m_rightAcensionRadians = rightAcensionRadians;
 	}
 
-	public double getDeclinationRadians() {
+	public Double getDeclinationRadians() {
 		return m_declinationRadians;
 	}
 
-	public void setDeclinationRadians(double declinationRadians) {
+	public void setDeclinationRadians(Double declinationRadians) {
 		m_declinationRadians = declinationRadians;
 	}
 
-	public double getProperMotionRightAscensionRadians() {
+	public Double getProperMotionRightAscensionRadians() {
 		return m_properMotionRightAscensionRadians;
 	}
 
-	public void setProperMotionRightAscensionRadians(double properMotionRightAscensionRadians) {
+	public void setProperMotionRightAscensionRadians(Double properMotionRightAscensionRadians) {
 		m_properMotionRightAscensionRadians = properMotionRightAscensionRadians;
 	}
 
-	public double getProperMotionDeclinationRadians() {
+	public Double getProperMotionDeclinationRadians() {
 		return m_properMotionDeclinationRadians;
 	}
 
-	public void setProperMotionDeclinationRadians(double properMotionDeclinationRadians) {
+	public void setProperMotionDeclinationRadians(Double properMotionDeclinationRadians) {
 		m_properMotionDeclinationRadians = properMotionDeclinationRadians;
 	}
 
@@ -306,11 +306,11 @@ public class StarModel {
 		m_multipleStarId = multipleStarId;
 	}
 
-	public double getLuminosity() {
+	public Double getLuminosity() {
 		return m_luminosity;
 	}
 
-	public void setLuminosity(double luminosity) {
+	public void setLuminosity(Double luminosity) {
 		m_luminosity = luminosity;
 	}
 

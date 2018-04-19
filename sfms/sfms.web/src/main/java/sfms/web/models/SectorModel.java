@@ -5,12 +5,12 @@ import java.util.List;
 public class SectorModel {
 
 	private String m_key;
-	private long m_minimumX;
-	private long m_minimumY;
-	private long m_minimumZ;
-	private long m_maximumX;
-	private long m_maximumY;
-	private long m_maximumZ;
+	private Long m_minimumX;
+	private Long m_minimumY;
+	private Long m_minimumZ;
+	private Long m_maximumX;
+	private Long m_maximumY;
+	private Long m_maximumZ;
 	private List<StarModel> m_stars;
 
 	public SectorModel() {
@@ -20,15 +20,15 @@ public class SectorModel {
 		return m_key;
 	}
 
-	public long getMaximumX() {
+	public Long getMaximumX() {
 		return m_maximumX;
 	}
 
-	public long getMaximumY() {
+	public Long getMaximumY() {
 		return m_maximumY;
 	}
 
-	public long getMaximumZ() {
+	public Long getMaximumZ() {
 		return m_maximumZ;
 	}
 
@@ -36,11 +36,11 @@ public class SectorModel {
 		return m_minimumX;
 	}
 
-	public long getMinimumY() {
+	public Long getMinimumY() {
 		return m_minimumY;
 	}
 
-	public long getMinimumZ() {
+	public Long getMinimumZ() {
 		return m_minimumZ;
 	}
 
@@ -52,31 +52,27 @@ public class SectorModel {
 		m_key = key;
 	}
 
-	public void setMaximumX(long maximumX) {
+	public void setMaximumX(Long maximumX) {
 		m_maximumX = maximumX;
 	}
 
-	public void setMaximumY(long maximumY) {
+	public void setMaximumY(Long maximumY) {
 		m_maximumY = maximumY;
 	}
 
-	public void setMaximumZ(long maximumZ) {
+	public void setMaximumZ(Long maximumZ) {
 		m_maximumZ = maximumZ;
-	}
-
-	public void setMinimumX(long minimumX) {
-		m_minimumX = minimumX;
 	}
 
 	public void setMinimumX(Long minimumX) {
 		m_minimumX = minimumX;
 	}
 
-	public void setMinimumY(long minimumY) {
+	public void setMinimumY(Long minimumY) {
 		m_minimumY = minimumY;
 	}
 
-	public void setMinimumZ(long minimumZ) {
+	public void setMinimumZ(Long minimumZ) {
 		m_minimumZ = minimumZ;
 	}
 

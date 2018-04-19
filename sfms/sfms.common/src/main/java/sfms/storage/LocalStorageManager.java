@@ -5,6 +5,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
@@ -32,6 +33,14 @@ public class LocalStorageManager implements StorageManager {
 		return channel;
 	}
 
+	@Override
+	public boolean blobExists(String bucketName, String blobName) {
+
+		Path path = getPath(bucketName, blobName);
+		return Files.exists(path);
+
+	}
+
 	private Path getPath(String bucketName, String blobName) {
 
 		Path path = FileSystems.getDefault().getPath(System.getProperty("user.home"), "Documents", bucketName,
@@ -39,5 +48,4 @@ public class LocalStorageManager implements StorageManager {
 
 		return path;
 	}
-
 }

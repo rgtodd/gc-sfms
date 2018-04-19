@@ -6,4 +6,8 @@
 	<runtime>java8</runtime>
 	<application>rgt-ssms</application>
 	<module>web</module>
+	<system-properties>
+		<property name="java.util.logging.config.file"
+			value="WEB-INF/logging.properties" />
+	</system-properties>
 </appengine-web-app>

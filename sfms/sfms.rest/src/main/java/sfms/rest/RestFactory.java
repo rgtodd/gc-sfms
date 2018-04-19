@@ -3,7 +3,6 @@ package sfms.rest;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.cloud.datastore.BaseEntity;
@@ -27,6 +26,7 @@ import sfms.rest.db.schemas.DbStarField;
 
 public class RestFactory {
 
+	@SuppressWarnings("unused")
 	private final Logger logger = Logger.getLogger(RestFactory.class.getName());
 
 	public Cluster createCluster(BaseEntity<Key> entity, List<Star> stars) {
@@ -85,7 +85,7 @@ public class RestFactory {
 
 	public Star createStar(BaseEntity<Key> entity) {
 
-		logger.log(Level.INFO, "Creating star {0}", entity.getKey());
+		// logger.log(Level.INFO, "Creating star {0}", entity.getKey());
 
 		Star result = new Star();
 		result.setKey(DbEntity.Star.createRestKey(entity.getKey()));

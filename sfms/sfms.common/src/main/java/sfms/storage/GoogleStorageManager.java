@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
@@ -38,5 +39,17 @@ public class GoogleStorageManager implements StorageManager {
 		ReadableByteChannel channel = storage.reader(blobId);
 
 		return channel;
+	}
+
+	@Override
+	public boolean blobExists(String bucketName, String blobName) {
+
+		BlobId blobId = BlobId.of(bucketName, blobName);
+
+		Storage storage = StorageOptions.getDefaultInstance().getService();
+
+		Blob blob = storage.get(blobId);
+
+		return blob != null;
 	}
 }

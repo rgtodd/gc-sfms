@@ -1,9 +1,21 @@
 package sfms.rest.controllers;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +27,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.cloud.datastore.Cursor;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
@@ -37,13 +52,20 @@ import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Sector;
 import sfms.rest.api.schemas.SectorField;
-import sfms.rest.db.schemas.DbSectorField;
 import sfms.rest.db.schemas.DbEntity;
+import sfms.rest.db.schemas.DbSectorField;
 import sfms.rest.db.schemas.DbStarField;
+import sfms.storage.Storage;
+import sfms.storage.StorageManager;
 
 @RestController
 @RequestMapping("/sector")
 public class SectorRestController {
+
+	private final Logger logger = Logger.getLogger(SectorRestController.class.getName());
+
+	private final static String CACHE_BUCKET_NAME = "rgt-ssms.appspot.com";
+	private final static String CACHE_FOLDER_NAME = "cache";
 
 	private static final Map<SectorField, DbSectorField> s_dbFieldMap;
 	static {
@@ -63,31 +85,22 @@ public class SectorRestController {
 	private Throttle m_throttle;
 
 	@GetMapping(value = "/{id}")
-	public Sector getLookup(@PathVariable String id) throws Exception {
+	public void getLookup(@PathVariable String id, HttpServletResponse response) throws Exception {
+
+		logger.info("getLookup: start");
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
-		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+		byte[] buffer = retrievecachedSectorDataFromDb(id);
 
-		Key key = DbEntity.Sector.createEntityKey(datastore, id);
-		Entity dbSector = datastore.get(key);
+		logger.info("getLookup: return");
 
-		Query<ProjectionEntity> query = Query.newProjectionEntityQueryBuilder()
-				.setKind(DbEntity.Star.getKind())
-				.addProjection(DbStarField.X.getName())
-				.addProjection(DbStarField.Y.getName())
-				.addProjection(DbStarField.Z.getName())
-				.setFilter(PropertyFilter.eq(DbStarField.SectorKey.getName(), key))
-				.build();
-
-		QueryResults<ProjectionEntity> dbStars = datastore.run(query);
-
-		RestFactory factory = new RestFactory();
-		Sector result = factory.createSector(dbSector, factory.createStarsFromProjection(dbStars));
-
-		return result;
+		response.setContentType("application/json");
+		try (ServletOutputStream stream = response.getOutputStream()) {
+			stream.write(buffer);
+		}
 	}
 
 	@GetMapping(value = "")
@@ -216,5 +229,75 @@ public class SectorRestController {
 		result.setKey(id);
 
 		return result;
+	}
+
+	private byte[] retrievecachedSectorDataFromDb(String id) throws IOException {
+
+		String blobName = CACHE_FOLDER_NAME + "/Sector-" + id.replace(',', '-');
+
+		StorageManager storageManager = Storage.getManager();
+
+		if (storageManager.blobExists(CACHE_BUCKET_NAME, blobName)) {
+			try (ReadableByteChannel readChannel = Storage.getManager().getReadableByteChannel(CACHE_BUCKET_NAME,
+					blobName);
+					InputStream inputStream = Channels.newInputStream(readChannel);
+					ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+				copy(inputStream, outputStream);
+				return outputStream.toByteArray();
+			}
+		}
+
+		byte[] buffer = retrieveSectorDataFromDb(id);
+
+		try (WritableByteChannel writeChannel = Storage.getManager().getWritableByteChannel(CACHE_BUCKET_NAME,
+				blobName, "application/json")) {
+			writeChannel.write(ByteBuffer.wrap(buffer));
+		}
+
+		return buffer;
+	}
+
+	private byte[] retrieveSectorDataFromDb(String id) throws JsonProcessingException {
+		Sector result = retrieveSectorFromDb(id);
+
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectWriter writer = mapper.writerFor(Sector.class);
+		byte[] buffer = writer.writeValueAsBytes(result);
+
+		return buffer;
+
+	}
+
+	private Sector retrieveSectorFromDb(String id) {
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+		Key key = DbEntity.Sector.createEntityKey(datastore, id);
+		Entity dbSector = datastore.get(key);
+
+		Query<ProjectionEntity> query = Query.newProjectionEntityQueryBuilder()
+				.setKind(DbEntity.Star.getKind())
+				.addProjection(DbStarField.X.getName())
+				.addProjection(DbStarField.Y.getName())
+				.addProjection(DbStarField.Z.getName())
+				.setFilter(PropertyFilter.eq(DbStarField.SectorKey.getName(), key))
+				.build();
+
+		logger.info("getLookup: run query");
+
+		QueryResults<ProjectionEntity> dbStars = datastore.run(query);
+
+		logger.info("getLookup: build results");
+
+		RestFactory factory = new RestFactory();
+		Sector result = factory.createSector(dbSector, factory.createStarsFromProjection(dbStars));
+		return result;
+	}
+
+	private void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
+		byte[] buffer = new byte[1024];
+		int count;
+		while ((count = inputStream.read(buffer)) > 0) {
+			outputStream.write(buffer, 0, count);
+		}
 	}
 }

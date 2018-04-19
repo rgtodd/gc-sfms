@@ -1,3 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <datastore-indexes autoGenerate="true">
+	<datastore-index kind="Star" ancestor="false">
+		<property name="cls_k" direction="asc" />
+		<property name="x" direction="asc" />
+		<property name="y" direction="asc" />
+		<property name="z" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Star" ancestor="false">
+		<property name="sct_k" direction="asc" />
+		<property name="x" direction="asc" />
+		<property name="y" direction="asc" />
+		<property name="z" direction="asc" />
+	</datastore-index>
 </datastore-indexes>

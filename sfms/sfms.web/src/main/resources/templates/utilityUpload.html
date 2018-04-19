@@ -18,14 +18,13 @@
 			</ol>
 		</nav>
 		<p>Specify information and click Generate when complete.</p>
-		<form th:action="@{/utility/uploadPost}" method="post"
+		<form th:action="@{/utilityServlet/uploadPost}" method="post"
 			enctype="multipart/form-data">
 			<div class="form-group row">
 				<label for="ctrlFile" class="col-sm-2 col-form-label">File</label>
 				<div class="col-sm-10 custom-file">
-					<input type="file" class="custom-file-input" id="ctrlFile"
-						name="ctrlFile"> <label class="custom-file-label"
-						for="ctrlFile">Choose file</label>
+					<input type="file" class="custom-file-input" name="ctrlFile">
+					<label class="custom-file-label" for="ctrlFile">Choose file</label>
 				</div>
 			</div>
 			<p>

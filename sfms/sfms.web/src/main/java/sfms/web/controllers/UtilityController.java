@@ -177,6 +177,18 @@ public class UtilityController extends SfmsController {
 		return "redirect:/utility";
 	}
 
+	@GetMapping({ "/uploadComplete" })
+	public String uploadComplete(@RequestParam(WebParameters.FILE_NAME) String fileName) {
+
+		if (PropertyFile.INSTANCE.isProduction()) {
+			uploadPostSubmitTask(fileName);
+		} else {
+			uploadPostExecuteService(fileName);
+		}
+
+		return "redirect:/utility";
+	}
+
 	private void uploadPostExecuteService(String fileName) {
 
 		RestTemplate restTemplate = createRestTempate();
