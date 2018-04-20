@@ -74,7 +74,7 @@
 								SpaceViewer
 										.RegisterGetSectorByKeyHandler(SpaceViewerRestHandler.GetSectorByKeyAsync);
 								SpaceViewer
-										.RegisterGetObjectsBySectorHandler(SpaceViewerRestHandler.GetObjectsBySectorAsync);
+										.RegisterGetMapItemsBySectorHandler(SpaceViewerRestHandler.GetMapItemsBySectorAsync);
 
 								SpaceViewer
 										.RegisterOnSectorClickHandler(function(
@@ -83,19 +83,19 @@
 										});
 
 								SpaceViewer
-										.RegisterOnObjectClickHandler(function(
-												objectType, objectKey) {
+										.RegisterOnMapItemClickHandler(function(
+												mapItemType, mapItemKey) {
 											$('#ctrlObject').html(
-													objectType + ' '
-															+ objectKey);
+													mapItemType + ' '
+															+ mapItemKey);
 										});
 
 								SpaceViewer
-										.RegisterOnObjectHoverHandler(function(
-												objectType, objectKey) {
+										.RegisterOnMapItemHoverHandler(function(
+												mapItemType, mapItemKey) {
 											$('#ctrlHover').html(
-													objectType + ' '
-															+ objectKey);
+													mapItemType + ' '
+															+ mapItemKey);
 										});
 
 								SpaceViewer.Initialize("#divSpaceViewer");

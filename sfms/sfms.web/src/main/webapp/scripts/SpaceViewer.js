@@ -14,12 +14,12 @@ var SpaceViewer = (function() {
 	var MIN_SECTOR_COORDINATE = 0;
 	var MAX_SECTOR_COORDINATE = 9;
 
-	var OBJECT_TYPE_STAR = 0;
-	var OBJECT_TYPE_SHIP = 1;
-	var OBJECT_TYPES = [ OBJECT_TYPE_STAR, OBJECT_TYPE_SHIP ];
+	var MAP_ITEM_TYPE_STAR = 0;
+	var MAP_ITEM_TYPE_SHIP = 1;
+	var MAP_ITEM_TYPES = [ MAP_ITEM_TYPE_STAR, MAP_ITEM_TYPE_SHIP ];
 
-	var OBJECT_NAME_STAR = "STAR";
-	var OBJECT_NAME_SHIP = "SHIP";
+	var MAP_ITEM_NAME_STAR = "STAR";
+	var MAP_ITEM_NAME_SHIP = "SHIP";
 
 	var RAYCASTER_THRESHOLD = 1;
 
@@ -52,22 +52,22 @@ var SpaceViewer = (function() {
 			sz : 0
 		}
 	};
-	var m_objectHighlight = {
+	var m_mapItemHighlight = {
 		object : null,
-		objectType : null,
-		objectKey : null
+		mapItemType : null,
+		mapItemKey : null
 	}
-	var m_objectCursor = {
+	var m_mapItemCursor = {
 		object : null,
-		objectType : null,
-		objectKey : null
+		mapItemType : null,
+		mapItemKey : null
 	}
 	var m_objectGroup; // parent Object3D of all selectable objects.
 
 	// UI state objects
 	//
 	var m_workQueue = [];
-	var m_objectKeysByBufferName = new Map();
+	var m_mapItemKeysByBufferName = new Map();
 	var m_mouse = new THREE.Vector2();
 
 	// Module events
@@ -75,10 +75,10 @@ var SpaceViewer = (function() {
 	var m_getSectorsHandler = null;
 	var m_getSectorByLocationHandler = null;
 	var m_getSectorByKeyHandler = null;
-	var m_getObjectsBySectorHandler = null;
+	var m_getMapItemsBySectorHandler = null;
 	var m_onSectorClickHandler = null;
-	var m_onObjectClickHandler = null;
-	var m_onObjectHoverHandler = null;
+	var m_onMapItemClickHandler = null;
+	var m_onMapItemHoverHandler = null;
 
 	// Retrieved data
 	//
@@ -147,28 +147,28 @@ var SpaceViewer = (function() {
 			m_scene.add(m_sectorCursor.object);
 		}
 
-		// Object cursor
+		// Map item cursor
 		{
 			var geometry = new THREE.SphereGeometry(0.75, 4, 4);
 			var material = new THREE.MeshBasicMaterial({
 				color : 0xff0000,
 				wireframe : true
 			});
-			m_objectCursor.object = new THREE.Mesh(geometry, material);
-			m_objectCursor.object.visible = false;
-			m_scene.add(m_objectCursor.object);
+			m_mapItemCursor.object = new THREE.Mesh(geometry, material);
+			m_mapItemCursor.object.visible = false;
+			m_scene.add(m_mapItemCursor.object);
 		}
 
-		// Object highlight
+		// Map item highlight
 		{
 			var geometry = new THREE.SphereGeometry(0.75, 4, 4);
 			var material = new THREE.MeshBasicMaterial({
 				color : 0x00ff00,
 				wireframe : true
 			});
-			m_objectHighlight.object = new THREE.Mesh(geometry, material);
-			m_objectHighlight.object.visible = false;
-			m_scene.add(m_objectHighlight.object);
+			m_mapItemHighlight.object = new THREE.Mesh(geometry, material);
+			m_mapItemHighlight.object.visible = false;
+			m_scene.add(m_mapItemHighlight.object);
 		}
 
 		// Boundaries
@@ -296,13 +296,13 @@ var SpaceViewer = (function() {
 
 	var onDocumentMouseClick = function(e) {
 
-		if (m_objectHighlight.objectType === null) {
-			hideObjectCursor();
+		if (m_mapItemHighlight.mapItemType === null) {
+			hideMapItemCursor();
 		} else {
-			moveObjectCursor(m_objectHighlight.objectType,
-					m_objectHighlight.objectKey,
-					m_objectHighlight.object.position);
-			hideObjectHighlight();
+			moveMapItemCursor(m_mapItemHighlight.mapItemType,
+					m_mapItemHighlight.mapItemKey,
+					m_mapItemHighlight.object.position);
+			hideMapItemHighlight();
 		}
 
 	}
@@ -336,26 +336,26 @@ var SpaceViewer = (function() {
 			var index = intersection.index;
 			var buffer = intersection.object;
 			var parsedBufferName = parseBufferName(buffer.name);
-			var objectKeys = m_objectKeysByBufferName.get(buffer.name);
-			var objectKey = objectKeys[index];
+			var mapItemKeys = m_mapItemKeysByBufferName.get(buffer.name);
+			var mapItemKey = mapItemKeys[index];
 
-			if (m_objectCursor.objectType !== parsedBufferName.objectType
-					|| m_objectCursor.objectKey !== objectKey) {
+			if (m_mapItemCursor.mapItemType !== parsedBufferName.mapItemType
+					|| m_mapItemCursor.mapItemKey !== mapItemKey) {
 
 				var x = buffer.geometry.attributes.position.array[index * 3];
 				var y = buffer.geometry.attributes.position.array[index * 3 + 1];
 				var z = buffer.geometry.attributes.position.array[index * 3 + 2];
-				var objectPosition = new THREE.Vector3(x, y, z);
+				var mapItemPosition = new THREE.Vector3(x, y, z);
 
-				moveObjectHighlight(parsedBufferName.objectType, objectKey,
-						objectPosition);
+				moveMapItemHighlight(parsedBufferName.mapItemType, mapItemKey,
+						mapItemPosition);
 			} else {
 				// Object is already selected. Don't highlight it.
 				//
-				hideObjectHighlight();
+				hideMapItemHighlight();
 			}
 		} else {
-			hideObjectHighlight();
+			hideMapItemHighlight();
 		}
 	}
 
@@ -422,8 +422,8 @@ var SpaceViewer = (function() {
 	var animate = function() {
 		requestAnimationFrame(animate);
 		TWEEN.update();
-		animateObjectHighlight();
-		animateObjectCursor();
+		animateMapItemHighlight();
+		animateMapItemCursor();
 		m_trackball.update();
 		render();
 	};
@@ -471,13 +471,13 @@ var SpaceViewer = (function() {
 		}
 	}
 
-	var registerGetObjectsBySectorHandler = function(handler) {
-		m_getObjectsBySectorHandler = handler;
+	var registerGetMapItemsBySectorHandler = function(handler) {
+		m_getMapItemsBySectorHandler = handler;
 	}
 
-	var raiseGetObjectsBySector = function(sectorKey, objectType, callback) {
-		if (m_getObjectsBySectorHandler !== null) {
-			m_getObjectsBySectorHandler(sectorKey, objectType, callback);
+	var raiseGetMapItemsBySector = function(sectorKey, mapItemType, callback) {
+		if (m_getMapItemsBySectorHandler !== null) {
+			m_getMapItemsBySectorHandler(sectorKey, mapItemType, callback);
 		}
 	}
 
@@ -491,23 +491,23 @@ var SpaceViewer = (function() {
 		}
 	}
 
-	var registerOnObjectClickHandler = function(handler) {
-		m_onObjectClickHandler = handler;
+	var registerOnMapItemClickHandler = function(handler) {
+		m_onMapItemClickHandler = handler;
 	}
 
-	var raiseOnObjectClick = function(objectType, objectKey) {
-		if (m_onObjectClickHandler !== null) {
-			m_onObjectClickHandler(objectType, objectKey);
+	var raiseOnMapItemClick = function(mapItemType, mapItemKey) {
+		if (m_onMapItemClickHandler !== null) {
+			m_onMapItemClickHandler(mapItemType, mapItemKey);
 		}
 	}
 
-	var registerOnObjectHoverHandler = function(handler) {
-		m_onObjectHoverHandler = handler;
+	var registerOnMapItemHoverHandler = function(handler) {
+		m_onMapItemHoverHandler = handler;
 	}
 
-	var raiseOnObjectHover = function(objectType, objectKey) {
-		if (m_onObjectHoverHandler !== null) {
-			m_onObjectHoverHandler(objectType, objectKey);
+	var raiseOnMapItemHover = function(mapItemType, mapItemKey) {
+		if (m_onMapItemHoverHandler !== null) {
+			m_onMapItemHoverHandler(mapItemType, mapItemKey);
 		}
 	}
 
@@ -535,8 +535,8 @@ var SpaceViewer = (function() {
 			return;
 		}
 
-		hideObjectHighlight();
-		hideObjectCursor();
+		hideMapItemHighlight();
+		hideMapItemCursor();
 
 		m_sectorCursor.coordinates.sx = sx;
 		m_sectorCursor.coordinates.sy = sy;
@@ -557,16 +557,16 @@ var SpaceViewer = (function() {
 		// m_objectGroup.children = [];
 		// m_objectKeysByType.clear();
 
-		// OBJECT_TYPES.forEach(function(objectType) {
+		// MAP_ITEM_TYPES.forEach(function(mapItemType) {
 		//
-		// var bufferName = createBufferName(sector.key, objectType);
-		// if (!m_objectKeysByBufferName.has(bufferName)) {
-		// m_objectKeysByBufferName.set(bufferName, "TEMP");
+		// var bufferName = createBufferName(sector.key, mapItemType);
+		// if (!m_mapItemKeysByBufferName.has(bufferName)) {
+		// m_mapItemKeysByBufferName.set(bufferName, "TEMP");
 		//
-		// raiseGetObjectsBySector(sector.key, objectType, function(
-		// objectKeys, objectPoints) {
-		// m_objectKeysByBufferName.set(bufferName, objectKeys);
-		// var buffer = createBuffer(objectType, objectPoints);
+		// raiseGetMapItemsBySector(sector.key, mapItemType, function(
+		// mapItemKeys, mapItemPoints) {
+		// m_mapItemKeysByBufferName.set(bufferName, mapItemKeys);
+		// var buffer = createBuffer(mapItemType, mapItemPoints);
 		// buffer.name = bufferName;
 		// m_objectGroup.add(buffer);
 		// });
@@ -574,16 +574,16 @@ var SpaceViewer = (function() {
 		// });
 	}
 
-	var createBuffer = function(objectType, objectPoints) {
+	var createBuffer = function(mapItemType, mapItemPoints) {
 
 		var geometry = new THREE.BufferGeometry();
 		geometry.addAttribute('position', new THREE.Float32BufferAttribute(
-				objectPoints, 3));
+				mapItemPoints, 3));
 
 		var material = new THREE.PointsMaterial({
 			size : 1,
 			sizeAttenuation : true,
-			map : getTextureForObjectType(objectType),
+			map : getTextureForMapItemType(mapItemType),
 			alphaTest : 0.5,
 			transparent : false
 		});
@@ -595,58 +595,59 @@ var SpaceViewer = (function() {
 
 	}
 
-	var moveObjectCursor = function(objectType, objectKey, objectPosition) {
-		if (m_objectCursor.objectType !== objectType
-				|| m_objectCursor.objectKey !== objectKey) {
-			m_objectCursor.objectType = objectType;
-			m_objectCursor.objectKey = objectKey;
-			m_objectCursor.object.visible = true;
-			m_objectCursor.object.position.copy(objectPosition);
+	var moveMapItemCursor = function(mapItemType, mapItemKey, mapItemPosition) {
+		if (m_mapItemCursor.mapItemType !== mapItemType
+				|| m_mapItemCursor.mapItemKey !== mapItemKey) {
+			m_mapItemCursor.mapItemType = mapItemType;
+			m_mapItemCursor.mapItemKey = mapItemKey;
+			m_mapItemCursor.object.visible = true;
+			m_mapItemCursor.object.position.copy(mapItemPosition);
 
-			lookAtObject(objectPosition);
+			lookAtMapItem(mapItemPosition);
 
-			raiseOnObjectClick(objectType, objectKey);
+			raiseOnMapItemClick(mapItemType, mapItemKey);
 		}
 	}
 
-	var hideObjectCursor = function() {
-		if (m_objectCursor.objectType !== null) {
-			m_objectCursor.objectType = null;
-			m_objectCursor.objectKey = null;
-			m_objectCursor.object.visible = false;
+	var hideMapItemCursor = function() {
+		if (m_mapItemCursor.mapItemType !== null) {
+			m_mapItemCursor.mapItemType = null;
+			m_mapItemCursor.mapItemKey = null;
+			m_mapItemCursor.object.visible = false;
 
-			raiseOnObjectClick(null, null);
+			raiseOnMapItemClick(null, null);
 		}
 	}
 
-	var animateObjectCursor = function() {
-		m_objectCursor.object.rotation.y += 0.015;
+	var animateMapItemCursor = function() {
+		m_mapItemCursor.object.rotation.y += 0.015;
 	}
 
-	var moveObjectHighlight = function(objectType, objectKey, objectPosition) {
-		if (m_objectHighlight.objectType !== objectType
-				|| m_objectHighlight.objectKey !== objectKey) {
-			m_objectHighlight.objectType = objectType;
-			m_objectHighlight.objectKey = objectKey;
-			m_objectHighlight.object.visible = true;
-			m_objectHighlight.object.position.copy(objectPosition);
+	var moveMapItemHighlight = function(mapItemType, mapItemKey,
+			mapItemPosition) {
+		if (m_mapItemHighlight.mapItemType !== mapItemType
+				|| m_mapItemHighlight.mapItemKey !== mapItemKey) {
+			m_mapItemHighlight.mapItemType = mapItemType;
+			m_mapItemHighlight.mapItemKey = mapItemKey;
+			m_mapItemHighlight.object.visible = true;
+			m_mapItemHighlight.object.position.copy(mapItemPosition);
 
-			raiseOnObjectHover(objectType, objectKey);
+			raiseOnMapItemHover(mapItemType, mapItemKey);
 		}
 	}
 
-	var hideObjectHighlight = function() {
-		if (m_objectHighlight.objectType !== null) {
-			m_objectHighlight.objectType = null;
-			m_objectHighlight.objectKey = null;
-			m_objectHighlight.object.visible = false;
+	var hideMapItemHighlight = function() {
+		if (m_mapItemHighlight.mapItemType !== null) {
+			m_mapItemHighlight.mapItemType = null;
+			m_mapItemHighlight.mapItemKey = null;
+			m_mapItemHighlight.object.visible = false;
 
-			raiseOnObjectHover(null, null);
+			raiseOnMapItemHover(null, null);
 		}
 	}
 
-	var animateObjectHighlight = function() {
-		m_objectHighlight.object.rotation.y += 0.015;
+	var animateMapItemHighlight = function() {
+		m_mapItemHighlight.object.rotation.y += 0.015;
 	}
 
 	var lookAtSector = function(sector) {
@@ -685,7 +686,7 @@ var SpaceViewer = (function() {
 				}).start();
 	}
 
-	var lookAtObject = function(objectPosition) {
+	var lookAtMapItem = function(mapItemPosition) {
 		if (m_cameraTween !== null) {
 			m_cameraTween.stop();
 			m_cameraTween = null;
@@ -697,9 +698,9 @@ var SpaceViewer = (function() {
 			z : m_trackball.target.z
 		};
 		m_cameraTween = new TWEEN.Tween(tweenState).to({
-			x : objectPosition.x,
-			y : objectPosition.y,
-			z : objectPosition.z
+			x : mapItemPosition.x,
+			y : mapItemPosition.y,
+			z : mapItemPosition.z
 		}, 1000).easing(TWEEN.Easing.Quadratic.Out).onUpdate(function() {
 			m_trackball.target.set(tweenState.x, tweenState.y, tweenState.z);
 		}).start();
@@ -710,11 +711,11 @@ var SpaceViewer = (function() {
 	// **
 
 	var populateWorkQueue = function() {
-		OBJECT_TYPES.forEach(function(objectType) {
+		MAP_ITEM_TYPES.forEach(function(mapItemType) {
 			m_sectors.forEach(function(sector) {
 				m_workQueue.push({
 					sectorKey : sector.key,
-					objectType : objectType
+					mapItemType : mapItemType
 				});
 			});
 		});
@@ -728,17 +729,17 @@ var SpaceViewer = (function() {
 			return;
 		}
 
-		var bufferName = createBufferName(entry.sectorKey, entry.objectType);
-		if (!m_objectKeysByBufferName.has(bufferName)) {
-			m_objectKeysByBufferName.set(bufferName, "TEMP");
+		var bufferName = createBufferName(entry.sectorKey, entry.mapItemType);
+		if (!m_mapItemKeysByBufferName.has(bufferName)) {
+			m_mapItemKeysByBufferName.set(bufferName, "TEMP");
 
-			raiseGetObjectsBySector(entry.sectorKey, entry.objectType,
-					function(objectKeys, objectPoints) {
-						if (objectKeys.length > 0) {
-							m_objectKeysByBufferName
-									.set(bufferName, objectKeys);
-							var buffer = createBuffer(entry.objectType,
-									objectPoints);
+			raiseGetMapItemsBySector(entry.sectorKey, entry.mapItemType,
+					function(mapItemKeys, mapItemPoints) {
+						if (mapItemKeys.length > 0) {
+							m_mapItemKeysByBufferName.set(bufferName,
+									mapItemKeys);
+							var buffer = createBuffer(entry.mapItemType,
+									mapItemPoints);
 							buffer.name = bufferName;
 							m_objectGroup.add(buffer);
 						}
@@ -762,48 +763,48 @@ var SpaceViewer = (function() {
 		return value;
 	}
 
-	var getTextureForObjectType = function(objectType) {
-		switch (objectType) {
-		case OBJECT_TYPE_STAR:
+	var getTextureForMapItemType = function(mapItemType) {
+		switch (mapItemType) {
+		case MAP_ITEM_TYPE_STAR:
 			return m_starTexture;
-		case OBJECT_TYPE_SHIP:
+		case MAP_ITEM_TYPE_SHIP:
 			return m_shipTexture;
 		default:
-			throw "Unknown objectType" + objectType;
+			throw "Unknown mapItemType" + mapItemType;
 		}
 	}
 
-	var getObjectNameFromType = function(objectType) {
-		switch (objectType) {
-		case OBJECT_TYPE_STAR:
-			return OBJECT_NAME_STAR;
-		case OBJECT_TYPE_SHIP:
-			return OBJECT_NAME_SHIP;
+	var getMapItemNameFromType = function(mapItemType) {
+		switch (mapItemType) {
+		case MAP_ITEM_TYPE_STAR:
+			return MAP_ITEM_NAME_STAR;
+		case MAP_ITEM_TYPE_SHIP:
+			return MAP_ITEM_NAME_SHIP;
 		default:
-			throw "Unknown objectType " + objectType;
+			throw "Unknown mapItemType " + mapItemType;
 		}
 	}
 
-	var getObjectTypeFromName = function(objectName) {
-		switch (objectName) {
-		case OBJECT_NAME_STAR:
-			return OBJECT_TYPE_STAR;
-		case OBJECT_NAME_SHIP:
-			return OBJECT_TYPE_SHIP;
+	var getMapItemTypeFromName = function(mapItemName) {
+		switch (mapItemName) {
+		case MAP_ITEM_NAME_STAR:
+			return MAP_ITEM_TYPE_STAR;
+		case MAP_ITEM_NAME_SHIP:
+			return MAP_ITEM_TYPE_SHIP;
 		default:
-			throw "Unknown objectName " + objectName;
+			throw "Unknown mapItemName " + mapItemName;
 		}
 	}
 
-	var createBufferName = function(sectorKey, objectType) {
-		return sectorKey + "|" + getObjectNameFromType(objectType);
+	var createBufferName = function(sectorKey, mapItemType) {
+		return sectorKey + "|" + getMapItemNameFromType(mapItemType);
 	}
 
 	var parseBufferName = function(bufferName) {
 		var indexDelimiter = bufferName.indexOf("|");
 		return {
 			sectorKey : bufferName.substring(0, indexDelimiter),
-			objectType : getObjectTypeFromName(bufferName
+			mapItemType : getMapItemTypeFromName(bufferName
 					.substring(indexDelimiter + 1))
 		}
 	}
@@ -898,23 +899,23 @@ var SpaceViewer = (function() {
 		// RegisterGetObjectsBySectorHandler - raised to retrieve objects within
 		// the specified sector.
 		//
-		// handler = function(sectorKey, objectType, callback) where:
+		// handler = function(sectorKey, mapItemType, callback) where:
 		//
 		// sectorKey = String.
 		//
-		// objectType = Number where:
+		// mapItemType = Number where:
 		// * 1 = Star
 		// * 2 = Ship
 		//
-		// callback = function(objectKeys, objectPoints) where:
+		// callback = function(mapItemKeys, mapItemPoints) where:
 		//
-		// objectKeys = array of String.
+		// mapItemKeys = array of String.
 		//
-		// objectPoints = array of Number. Specifies location of objects in
+		// mapItemPoints = array of Number. Specifies location of objects in
 		// sector in a denormalized format (i.e. X1, Y1, Z1, X2, Y2, Z2, ...)
 		//
-		RegisterGetObjectsBySectorHandler : function(handler) {
-			registerGetObjectsBySectorHandler(handler);
+		RegisterGetMapItemsBySectorHandler : function(handler) {
+			registerGetMapItemsBySectorHandler(handler);
 		},
 
 		// RegisterOnSectorClickHandler - raised when the user selects a new
@@ -931,31 +932,31 @@ var SpaceViewer = (function() {
 		// RegisterOnObjectClickHandler - raised when the user selects a new
 		// object.
 		//
-		// handler = function(objectType, objectKey) where:
+		// handler = function(mapItemType, mapItemKey) where:
 		//
-		// objectType = Number where:
+		// mapItemType = Number where:
 		// * 1 = Star
 		// * 2 = Ship
 		//
-		// objectKey = String.
+		// mapItemKey = String.
 		//
-		RegisterOnObjectClickHandler : function(handler) {
-			registerOnObjectClickHandler(handler);
+		RegisterOnMapItemClickHandler : function(handler) {
+			registerOnMapItemClickHandler(handler);
 		},
 
 		// RegisterOnObjectHoverHandler - raised when the user hovers over an
 		// object.
 		//
-		// handler = function(objectType, objectKey) where:
+		// handler = function(mapItemType, mapItemKey) where:
 		//
-		// objectType = Number where:
+		// mapItemType = Number where:
 		// * 1 = Star
 		// * 2 = Ship
 		//
-		// objectKey = String.
+		// mapItemKey = String.
 		//
-		RegisterOnObjectHoverHandler : function(handler) {
-			registerOnObjectHoverHandler(handler);
+		RegisterOnMapItemHoverHandler : function(handler) {
+			registerOnMapItemHoverHandler(handler);
 		}
 	}
 

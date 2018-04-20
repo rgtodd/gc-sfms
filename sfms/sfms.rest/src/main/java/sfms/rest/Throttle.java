@@ -7,7 +7,7 @@ import java.time.temporal.ChronoUnit;
 public class Throttle {
 
 	public static final int MAX_OPERATIONS_PER_HOUR = 20000;
-	public static final int MAX_OPERATIONS_PER_MINUTE = 1000;
+	public static final int MAX_OPERATIONS_PER_MINUTE = 5000;
 
 	private ZonedDateTime m_hourDateTime = null;
 	private ZonedDateTime m_minuteDateTime = null;

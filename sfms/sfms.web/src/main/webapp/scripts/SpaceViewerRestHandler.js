@@ -62,10 +62,10 @@ var SpaceViewerRestHandler = (function() {
 		});
 	}
 
-	var getObjectsBySectorAsync = function(sectorKey, objectType, callback) {
+	var getMapItemsBySectorAsync = function(sectorKey, mapItemType, callback) {
 
-		var url = "/ajax/getObjectsBySector?sectorKey=" + sectorKey
-				+ "&objectType=" + objectType;
+		var url = "/ajax/getMapItemsBySector?sectorKey=" + sectorKey
+				+ "&mapItemType=" + mapItemType;
 
 		SpaceViewerRestLogger.RaiseOnRestStart(url);
 		$.ajax({
@@ -73,7 +73,7 @@ var SpaceViewerRestHandler = (function() {
 			url : url
 		}).then(function(response) {
 			SpaceViewerRestLogger.RaiseOnRestComplete(url);
-			callback(response.objectKeys, response.objectPoints);
+			callback(response.mapItemKeys, response.mapItemPoints);
 		});
 	};
 
@@ -115,8 +115,8 @@ var SpaceViewerRestHandler = (function() {
 		// See SpaceViewer::RegisterGetObjectsBySectorHandler for more
 		// information.
 		//
-		GetObjectsBySectorAsync : function(sectorKey, objectType, callback) {
-			getObjectsBySectorAsync(sectorKey, objectType, callback);
+		GetMapItemsBySectorAsync : function(sectorKey, mapItemType, callback) {
+			getMapItemsBySectorAsync(sectorKey, mapItemType, callback);
 		}
 	}
 

@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import sfms.rest.api.models.ObjectTypes;
+import sfms.rest.api.models.MapItemTypes;
 import sfms.rest.api.models.Sector;
 import sfms.rest.api.models.Star;
 import sfms.web.SfmsController;
 import sfms.web.mock.MockSpaceData;
-import sfms.web.models.ajax.GetObjectsResponse;
+import sfms.web.models.ajax.GetMapItemsResponse;
 import sfms.web.models.ajax.GetSectorResponse;
 import sfms.web.models.ajax.GetSectorsResponse;
 import sfms.web.models.ajax.SectorModel;
@@ -74,15 +74,15 @@ public class AjaxController extends SfmsController {
 		return response;
 	}
 
-	@GetMapping({ "/getObjectsBySector" })
-	public GetObjectsResponse getObjectsBySector(
+	@GetMapping({ "/getMapItemsBySector" })
+	public GetMapItemsResponse getMapItemsBySector(
 			@RequestParam("sectorKey") String sectorKey,
-			@RequestParam("objectType") Integer objectType) {
+			@RequestParam("mapItemType") Integer mapItemType) {
 
-		return getObjectsBySectorRest(sectorKey, objectType);
+		return getMapItemsBySectorRest(sectorKey, mapItemType);
 	}
 
-	private GetObjectsResponse getObjectsBySectorRest(String sectorKey, Integer objectType) {
+	private GetMapItemsResponse getMapItemsBySectorRest(String sectorKey, Integer mapItemType) {
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<Sector> restResponse = restTemplate.exchange(getRestUrl("sector/" + sectorKey),
@@ -90,39 +90,39 @@ public class AjaxController extends SfmsController {
 				});
 		Sector sector = restResponse.getBody();
 
-		List<String> objectKeys = new ArrayList<String>();
-		List<Double> objectPoints = new ArrayList<Double>();
-		switch (objectType) {
-		case ObjectTypes.STAR:
+		List<String> mapItemKeys = new ArrayList<String>();
+		List<Double> mapItemPoints = new ArrayList<Double>();
+		switch (mapItemType) {
+		case MapItemTypes.STAR:
 			for (Star star : sector.getStars()) {
-				objectKeys.add(star.getKey());
-				objectPoints.add(star.getX());
-				objectPoints.add(star.getY());
-				objectPoints.add(star.getZ());
+				mapItemKeys.add(star.getKey());
+				mapItemPoints.add(star.getX());
+				mapItemPoints.add(star.getY());
+				mapItemPoints.add(star.getZ());
 			}
 			break;
-		case ObjectTypes.SHIP:
+		case MapItemTypes.SHIP:
 			// TBD
 			break;
 		default:
 			break;
 		}
 
-		GetObjectsResponse response = new GetObjectsResponse();
-		response.setObjectKeys(objectKeys);
-		response.setObjectPoints(objectPoints);
+		GetMapItemsResponse response = new GetMapItemsResponse();
+		response.setMapItemKeys(mapItemKeys);
+		response.setMapItemPoints(mapItemPoints);
 
 		return response;
 	}
 
 	@SuppressWarnings("unused")
-	private GetObjectsResponse getObjectsBySectorMock(String sectorKey, Integer objectType) {
+	private GetMapItemsResponse getMapItemsBySectorMock(String sectorKey, Integer mapItemType) {
 		List<MockSpaceData.Point> allPoints;
-		switch (objectType) {
-		case ObjectTypes.STAR:
+		switch (mapItemType) {
+		case MapItemTypes.STAR:
 			allPoints = m_mockSpaceData.getStars();
 			break;
-		case ObjectTypes.SHIP:
+		case MapItemTypes.SHIP:
 			allPoints = m_mockSpaceData.getShips();
 			break;
 		default:
@@ -142,18 +142,18 @@ public class AjaxController extends SfmsController {
 						&& sector.getMinimumZ() <= p.z && p.z < sector.getMaximumZ())
 				.collect(Collectors.toList());
 
-		List<String> objectKeys = new ArrayList<String>();
-		List<Double> objectPoints = new ArrayList<Double>();
+		List<String> mapItemKeys = new ArrayList<String>();
+		List<Double> mapItemPoints = new ArrayList<Double>();
 		for (MockSpaceData.Point point : points) {
-			objectKeys.add(point.key);
-			objectPoints.add(point.x);
-			objectPoints.add(point.y);
-			objectPoints.add(point.z);
+			mapItemKeys.add(point.key);
+			mapItemPoints.add(point.x);
+			mapItemPoints.add(point.y);
+			mapItemPoints.add(point.z);
 		}
 
-		GetObjectsResponse response = new GetObjectsResponse();
-		response.setObjectKeys(objectKeys);
-		response.setObjectPoints(objectPoints);
+		GetMapItemsResponse response = new GetMapItemsResponse();
+		response.setMapItemKeys(mapItemKeys);
+		response.setMapItemPoints(mapItemPoints);
 
 		return response;
 	}
