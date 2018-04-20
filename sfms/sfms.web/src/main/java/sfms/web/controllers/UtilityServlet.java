@@ -20,6 +20,7 @@ import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
+import sfms.common.Constants;
 import sfms.storage.Storage;
 
 @WebServlet(name = "utilityServlet", description = "Handles file upload requests", urlPatterns = "/utilityServlet/*")
@@ -53,8 +54,8 @@ public class UtilityServlet extends HttpServlet {
 					String uploadedFileName = utcNow.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + "_"
 							+ fileName;
 
-					String bucketName = "rgt-ssms.appspot.com";
-					String blobName = "uploads/" + uploadedFileName;
+					String bucketName = Constants.CLOUD_STORAGE_BUCKET;
+					String blobName = Constants.CLOUD_STOARGE_UPLOAD_FOLDER + "/" + uploadedFileName;
 					String contentType = item.getContentType();
 
 					logger.info("Saving to " + blobName);

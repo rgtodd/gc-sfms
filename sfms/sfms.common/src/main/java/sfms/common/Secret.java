@@ -15,7 +15,7 @@ public class Secret {
 
 	private final Logger logger = Logger.getLogger(Secret.class.getName());
 
-	private final static String SECRET_BUCKET_NAME = "rgt-ssms.appspot.com";
+	private final static String SECRET_BUCKET_NAME = Constants.CLOUD_STORAGE_BUCKET;
 	private final static String SECRET_FILE_NAME = "SECRET";
 	private final static String REST_AUTHORIZATION_TOKEN_PROPERTY = "rest.authorization.token";
 

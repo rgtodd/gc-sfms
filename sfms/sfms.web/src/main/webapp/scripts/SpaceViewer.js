@@ -21,6 +21,8 @@ var SpaceViewer = (function() {
 	var OBJECT_NAME_STAR = "STAR";
 	var OBJECT_NAME_SHIP = "SHIP";
 
+	var RAYCASTER_THRESHOLD = 1;
+
 	// Core objects
 	//
 	var m_scene;
@@ -64,6 +66,7 @@ var SpaceViewer = (function() {
 
 	// UI state objects
 	//
+	var m_workQueue = [];
 	var m_objectKeysByBufferName = new Map();
 	var m_mouse = new THREE.Vector2();
 
@@ -146,7 +149,7 @@ var SpaceViewer = (function() {
 
 		// Object cursor
 		{
-			var geometry = new THREE.SphereGeometry(1.5, 3, 2);
+			var geometry = new THREE.SphereGeometry(0.75, 4, 4);
 			var material = new THREE.MeshBasicMaterial({
 				color : 0xff0000,
 				wireframe : true
@@ -158,7 +161,7 @@ var SpaceViewer = (function() {
 
 		// Object highlight
 		{
-			var geometry = new THREE.SphereGeometry(1.5, 3, 2);
+			var geometry = new THREE.SphereGeometry(0.75, 4, 4);
 			var material = new THREE.MeshBasicMaterial({
 				color : 0x00ff00,
 				wireframe : true
@@ -265,7 +268,7 @@ var SpaceViewer = (function() {
 
 	var initCreateRaycaster = function() {
 		m_raycaster = new THREE.Raycaster();
-		m_raycaster.params.Points.threshold = 3;
+		m_raycaster.params.Points.threshold = RAYCASTER_THRESHOLD;
 	}
 
 	var initCreateTrackball = function() {
@@ -410,6 +413,9 @@ var SpaceViewer = (function() {
 		raiseGetSectors(function(sectors) {
 			m_sectors = sectors;
 			moveSectorCursor(5, 5, 5);
+
+			populateWorkQueue();
+			processWorkQueue();
 		});
 	}
 
@@ -551,22 +557,21 @@ var SpaceViewer = (function() {
 		// m_objectGroup.children = [];
 		// m_objectKeysByType.clear();
 
-		OBJECT_TYPES.forEach(function(objectType) {
-
-			var bufferName = createBufferName(sector.key, objectType);
-			if (!m_objectKeysByBufferName.has(bufferName)) {
-			
-				m_objectKeysByBufferName.set(bufferName, "TEMP");
-				
-				raiseGetObjectsBySector(sector.key, objectType, function(
-						objectKeys, objectPoints) {
-					m_objectKeysByBufferName.set(bufferName, objectKeys);
-					var buffer = createBuffer(objectType, objectPoints);
-					buffer.name = bufferName;
-					m_objectGroup.add(buffer);
-				});
-			}
-		});
+		// OBJECT_TYPES.forEach(function(objectType) {
+		//
+		// var bufferName = createBufferName(sector.key, objectType);
+		// if (!m_objectKeysByBufferName.has(bufferName)) {
+		// m_objectKeysByBufferName.set(bufferName, "TEMP");
+		//
+		// raiseGetObjectsBySector(sector.key, objectType, function(
+		// objectKeys, objectPoints) {
+		// m_objectKeysByBufferName.set(bufferName, objectKeys);
+		// var buffer = createBuffer(objectType, objectPoints);
+		// buffer.name = bufferName;
+		// m_objectGroup.add(buffer);
+		// });
+		// }
+		// });
 	}
 
 	var createBuffer = function(objectType, objectPoints) {
@@ -698,6 +703,51 @@ var SpaceViewer = (function() {
 		}, 1000).easing(TWEEN.Easing.Quadratic.Out).onUpdate(function() {
 			m_trackball.target.set(tweenState.x, tweenState.y, tweenState.z);
 		}).start();
+	}
+
+	// **
+	// ** WORK QUEUE
+	// **
+
+	var populateWorkQueue = function() {
+		OBJECT_TYPES.forEach(function(objectType) {
+			m_sectors.forEach(function(sector) {
+				m_workQueue.push({
+					sectorKey : sector.key,
+					objectType : objectType
+				});
+			});
+		});
+	}
+
+	var processWorkQueue = function() {
+
+		var entry = m_workQueue.pop();
+		console.log(entry);
+		if (entry === undefined) {
+			return;
+		}
+
+		var bufferName = createBufferName(entry.sectorKey, entry.objectType);
+		if (!m_objectKeysByBufferName.has(bufferName)) {
+			m_objectKeysByBufferName.set(bufferName, "TEMP");
+
+			raiseGetObjectsBySector(entry.sectorKey, entry.objectType,
+					function(objectKeys, objectPoints) {
+						if (objectKeys.length > 0) {
+							m_objectKeysByBufferName
+									.set(bufferName, objectKeys);
+							var buffer = createBuffer(entry.objectType,
+									objectPoints);
+							buffer.name = bufferName;
+							m_objectGroup.add(buffer);
+						}
+
+						processWorkQueue();
+
+					});
+		}
+
 	}
 
 	// **

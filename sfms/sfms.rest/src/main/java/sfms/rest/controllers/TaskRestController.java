@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import sfms.common.Constants;
 import sfms.rest.api.RestParameters;
 import sfms.rest.db.business.StarImporter;
 
@@ -18,15 +19,18 @@ public class TaskRestController {
 	private final Logger logger = Logger.getLogger(TaskRestController.class.getName());
 
 	@GetMapping(value = "/processStarFile")
-	public void processStarFile(@RequestParam(RestParameters.FILE_NAME) String filename) throws Exception {
+	public void processStarFile(
+			@RequestParam(RestParameters.FILE_NAME) String filename,
+			@RequestParam(RestParameters.START) Integer start,
+			@RequestParam(RestParameters.COUNT) Integer count) throws Exception {
 
 		logger.log(Level.INFO, "Processing {0}.", filename);
 
-		String bucketName = "rgt-ssms.appspot.com";
-		String blobName = "uploads/" + filename;
+		String bucketName = Constants.CLOUD_STORAGE_BUCKET;
+		String blobName = Constants.CLOUD_STOARGE_UPLOAD_FOLDER + "/" + filename;
 
 		StarImporter importer = new StarImporter();
 		importer.initialize();
-		importer.process(bucketName, blobName);
+		importer.process(bucketName, blobName, start, count);
 	}
 }

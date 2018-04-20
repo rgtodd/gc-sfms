@@ -41,10 +41,10 @@ public class StarController extends SfmsController {
 	private final Logger logger = Logger.getLogger(StarController.class.getName());
 
 	@GetMapping({ "/star/{id}" })
-	public String get(@PathVariable Long id, ModelMap modelMap) {
+	public String get(@PathVariable String id, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + id.toString()), HttpMethod.GET,
+		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + id), HttpMethod.GET,
 				createHttpEntity(), new ParameterizedTypeReference<Star>() {
 				});
 
@@ -180,10 +180,10 @@ public class StarController extends SfmsController {
 	}
 
 	@GetMapping({ "/star_edit/{id}" })
-	public String edit(@PathVariable Long id, ModelMap modelMap) {
+	public String edit(@PathVariable String id, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + id.toString()), HttpMethod.GET,
+		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + id), HttpMethod.GET,
 				createHttpEntity(), new ParameterizedTypeReference<Star>() {
 				});
 
@@ -213,10 +213,10 @@ public class StarController extends SfmsController {
 	}
 
 	@GetMapping({ "/star_delete/{id}" })
-	public String delete(@PathVariable Long id, ModelMap modelMap) {
+	public String delete(@PathVariable String id, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + id.toString()), HttpMethod.GET,
+		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + id), HttpMethod.GET,
 				createHttpEntity(), new ParameterizedTypeReference<Star>() {
 				});
 

@@ -12,16 +12,12 @@ import java.util.stream.Stream;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
-import com.google.cloud.datastore.DoubleValue;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
-import com.google.cloud.datastore.KeyValue;
-import com.google.cloud.datastore.NullValue;
-import com.google.cloud.datastore.StringValue;
-import com.google.cloud.datastore.Value;
 
-import sfms.common.PropertyFile;
+import sfms.rest.db.CsvValue;
+import sfms.rest.db.DbValue;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
 import sfms.storage.Storage;
@@ -31,8 +27,8 @@ public class StarImporter {
 	private final Logger logger = Logger.getLogger(StarImporter.class.getName());
 
 	private static final int LOG_INTERVAL = 500;
-	private static final int PROD_RECORD_LIMIT = 250000;
-	private static final int DEV_RECORD_LIMIT = 25000;
+	// private static final int PROD_RECORD_LIMIT = 250000;
+	// private static final int DEV_RECORD_LIMIT = 25000;
 
 	private static final String FIELD_DELIMITER_REXEX = ",";
 
@@ -88,9 +84,10 @@ public class StarImporter {
 		m_sectors = RegionSet.loadSectors();
 	}
 
-	public void process(String bucketName, String blobName) throws Exception {
+	public void process(String bucketName, String blobName, int startIndex, int recordLimit) throws Exception {
 
-		logger.log(Level.INFO, "Processing {0} / {1}.", new Object[] { bucketName, blobName });
+		logger.log(Level.INFO, "Processing {0} / {1} / {2} / {3}.",
+				new Object[] { bucketName, blobName, startIndex, recordLimit });
 
 		try (ReadableByteChannel readChannel = Storage.getManager().getReadableByteChannel(bucketName, blobName);
 				InputStream inputStream = Channels.newInputStream(readChannel);
@@ -98,11 +95,11 @@ public class StarImporter {
 				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 				Stream<String> lineStream = bufferedReader.lines()) {
 
-			processStarFileData(lineStream);
+			processStarFileData(lineStream, startIndex, recordLimit);
 		}
 	}
 
-	private void processStarFileData(Stream<String> lineStream) {
+	private void processStarFileData(Stream<String> lineStream, int startIndex, int recordLimit) {
 
 		Iterator<String> iterator = lineStream.iterator();
 
@@ -114,12 +111,22 @@ public class StarImporter {
 		@SuppressWarnings("unused")
 		String heading = iterator.next();
 
-		int recordLimit;
-		if (PropertyFile.INSTANCE.isProduction()) {
-			recordLimit = PROD_RECORD_LIMIT;
-		} else {
-			recordLimit = DEV_RECORD_LIMIT;
+		// Skip over records until we reach startIndex.
+		//
+		for (int idx = 0; idx < startIndex; ++idx) {
+			if (!iterator.hasNext()) {
+				return;
+			}
+			iterator.next();
 		}
+
+		//
+		// int recordLimit;
+		// if (PropertyFile.INSTANCE.isProduction()) {
+		// recordLimit = PROD_RECORD_LIMIT;
+		// } else {
+		// recordLimit = DEV_RECORD_LIMIT;
+		// }
 
 		try (BatchPut batchPut = new BatchPut(m_datastore)) {
 			int count = 0;
@@ -141,43 +148,43 @@ public class StarImporter {
 
 		String[] fields = line.split(FIELD_DELIMITER_REXEX);
 
-		Long id = getLong(fields, FIELD_StarId);
-		String hipparcosId = getString(fields, FIELD_HipparcosId);
-		String henryDraperId = getString(fields, FIELD_HenryDraperId);
-		String harvardRevisedId = getString(fields, FIELD_HarvardRevisedId);
-		String glieseId = getString(fields, FIELD_GlieseId);
-		String bayerFlamsteedId = getString(fields, FIELD_BayerFlamsteedId);
-		String properName = getString(fields, FIELD_ProperName);
-		double rightAscension = getDouble(fields, FIELD_RightAscension);
-		double declination = getDouble(fields, FIELD_Declination);
-		double distance = getDouble(fields, FIELD_Distance);
-		double properMotionRightAscension = getDouble(fields, FIELD_ProperMotionRightAscension);
-		double properMotionDeclination = getDouble(fields, FIELD_ProperMotionDeclination);
-		double radialVelocity = getDouble(fields, FIELD_RadialVelocity);
-		double magnitude = getDouble(fields, FIELD_Magnitude);
-		double absoluteMagnitude = getDouble(fields, FIELD_AbsoluteMagnitude);
-		String spectrum = getString(fields, FIELD_Spectrum);
-		Double colorIndex = getOptionalDouble(fields, FIELD_ColorIndex);
-		double x = getDouble(fields, FIELD_X);
-		double y = getDouble(fields, FIELD_Y);
-		double z = getDouble(fields, FIELD_Z);
-		double vx = getDouble(fields, FIELD_VX);
-		double vy = getDouble(fields, FIELD_VY);
-		double vz = getDouble(fields, FIELD_VZ);
-		double rightAcensionRadians = getDouble(fields, FIELD_RightAcensionRadians);
-		double declinationRadians = getDouble(fields, FIELD_DeclinationRadians);
-		double properMotionRightAscensionRadians = getDouble(fields, FIELD_ProperMotionRightAscensionRadians);
-		double properMotionDeclinationRadians = getDouble(fields, FIELD_ProperMotionDeclinationRadians);
-		String bayerId = getString(fields, FIELD_BayerId);
-		String flamsteed = getString(fields, FIELD_Flamsteed);
-		String constellation = getString(fields, FIELD_Constellation);
-		String companionStarId = getString(fields, FIELD_CompanionStarId);
-		String primaryStarId = getString(fields, FIELD_PrimaryStarId);
-		String multipleStarId = getString(fields, FIELD_MultipleStarId);
-		double luminosity = getDouble(fields, FIELD_Luminosity);
-		String variableStarDesignation = getString(fields, FIELD_VariableStarDesignation);
-		Double variableMinimum = getOptionalDouble(fields, FIELD_VariableMinimum);
-		Double variableMaximum = getOptionalDouble(fields, FIELD_VariableMaximum);
+		Long id = CsvValue.getLong(fields, FIELD_StarId);
+		String hipparcosId = CsvValue.getString(fields, FIELD_HipparcosId, "0");
+		String henryDraperId = CsvValue.getString(fields, FIELD_HenryDraperId);
+		String harvardRevisedId = CsvValue.getString(fields, FIELD_HarvardRevisedId);
+		String glieseId = CsvValue.getString(fields, FIELD_GlieseId);
+		String bayerFlamsteedId = CsvValue.getString(fields, FIELD_BayerFlamsteedId);
+		String properName = CsvValue.getString(fields, FIELD_ProperName);
+		double rightAscension = CsvValue.getDouble(fields, FIELD_RightAscension);
+		double declination = CsvValue.getDouble(fields, FIELD_Declination);
+		double distance = CsvValue.getDouble(fields, FIELD_Distance);
+		double properMotionRightAscension = CsvValue.getDouble(fields, FIELD_ProperMotionRightAscension);
+		double properMotionDeclination = CsvValue.getDouble(fields, FIELD_ProperMotionDeclination);
+		double radialVelocity = CsvValue.getDouble(fields, FIELD_RadialVelocity);
+		double magnitude = CsvValue.getDouble(fields, FIELD_Magnitude);
+		double absoluteMagnitude = CsvValue.getDouble(fields, FIELD_AbsoluteMagnitude);
+		String spectrum = CsvValue.getString(fields, FIELD_Spectrum);
+		Double colorIndex = CsvValue.getOptionalDouble(fields, FIELD_ColorIndex);
+		double x = CsvValue.getDouble(fields, FIELD_X);
+		double y = CsvValue.getDouble(fields, FIELD_Y);
+		double z = CsvValue.getDouble(fields, FIELD_Z);
+		double vx = CsvValue.getDouble(fields, FIELD_VX);
+		double vy = CsvValue.getDouble(fields, FIELD_VY);
+		double vz = CsvValue.getDouble(fields, FIELD_VZ);
+		double rightAcensionRadians = CsvValue.getDouble(fields, FIELD_RightAcensionRadians);
+		double declinationRadians = CsvValue.getDouble(fields, FIELD_DeclinationRadians);
+		double properMotionRightAscensionRadians = CsvValue.getDouble(fields, FIELD_ProperMotionRightAscensionRadians);
+		double properMotionDeclinationRadians = CsvValue.getDouble(fields, FIELD_ProperMotionDeclinationRadians);
+		String bayerId = CsvValue.getString(fields, FIELD_BayerId);
+		String flamsteed = CsvValue.getString(fields, FIELD_Flamsteed);
+		String constellation = CsvValue.getString(fields, FIELD_Constellation);
+		String companionStarId = CsvValue.getString(fields, FIELD_CompanionStarId);
+		String primaryStarId = CsvValue.getString(fields, FIELD_PrimaryStarId);
+		String multipleStarId = CsvValue.getString(fields, FIELD_MultipleStarId);
+		double luminosity = CsvValue.getDouble(fields, FIELD_Luminosity);
+		String variableStarDesignation = CsvValue.getString(fields, FIELD_VariableStarDesignation);
+		Double variableMinimum = CsvValue.getOptionalDouble(fields, FIELD_VariableMinimum);
+		Double variableMaximum = CsvValue.getOptionalDouble(fields, FIELD_VariableMaximum);
 
 		int idHash = hash32shift(id.hashCode());
 		String hashedId = String.valueOf(idHash) + "-" + String.valueOf(id);
@@ -191,51 +198,55 @@ public class StarImporter {
 		Key key = DbEntity.Star.createEntityKey(m_datastore, hashedId);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ClusterKey.getName(), asValue(clusterKey))
-				.set(DbStarField.SectorKey.getName(), asValue(sectorKey))
-				.set(DbStarField.HipparcosId.getName(), asValue(hipparcosId))
-				.set(DbStarField.HenryDraperId.getName(), asValue(henryDraperId))
-				.set(DbStarField.HarvardRevisedId.getName(), asValue(harvardRevisedId))
-				.set(DbStarField.GlieseId.getName(), asValue(glieseId))
-				.set(DbStarField.BayerFlamsteedId.getName(), asValue(bayerFlamsteedId))
-				.set(DbStarField.ProperName.getName(), asValue(properName))
-				.set(DbStarField.RightAscension.getName(), asValue(rightAscension))
-				.set(DbStarField.Declination.getName(), asValue(declination))
-				.set(DbStarField.Distance.getName(), asValue(distance))
-				.set(DbStarField.ProperMotionRightAscension.getName(), asValue(properMotionRightAscension))
-				.set(DbStarField.ProperMotionDeclination.getName(), asValue(properMotionDeclination))
-				.set(DbStarField.RadialVelocity.getName(), asValue(radialVelocity))
-				.set(DbStarField.Magnitude.getName(), asValue(magnitude))
-				.set(DbStarField.AbsoluteMagnitude.getName(), asValue(absoluteMagnitude))
-				.set(DbStarField.Spectrum.getName(), asValue(spectrum))
-				.set(DbStarField.ColorIndex.getName(), asValue(colorIndex))
-				.set(DbStarField.X.getName(), asValue(x))
-				.set(DbStarField.Y.getName(), asValue(y))
-				.set(DbStarField.Z.getName(), asValue(z))
-				.set(DbStarField.VX.getName(), asValue(vx))
-				.set(DbStarField.VY.getName(), asValue(vy))
-				.set(DbStarField.VZ.getName(), asValue(vz))
-				.set(DbStarField.RightAcensionRadians.getName(), asValue(rightAcensionRadians))
-				.set(DbStarField.DeclinationRadians.getName(), asValue(declinationRadians))
+				// Indexed columns
+				.set(DbStarField.ClusterKey.getName(), DbValue.asValue(clusterKey))
+				.set(DbStarField.SectorKey.getName(), DbValue.asValue(sectorKey))
+				.set(DbStarField.X.getName(), DbValue.asValue(x))
+				.set(DbStarField.Y.getName(), DbValue.asValue(y))
+				.set(DbStarField.Z.getName(), DbValue.asValue(z))
+				.set(DbStarField.HipparcosId.getName(), DbValue.asValue(hipparcosId))
+				// Unindexed columns
+				.set(DbStarField.HenryDraperId.getName(), DbValue.asUnindexedValue(henryDraperId))
+				.set(DbStarField.HarvardRevisedId.getName(), DbValue.asUnindexedValue(harvardRevisedId))
+				.set(DbStarField.GlieseId.getName(), DbValue.asUnindexedValue(glieseId))
+				.set(DbStarField.BayerFlamsteedId.getName(), DbValue.asUnindexedValue(bayerFlamsteedId))
+				.set(DbStarField.ProperName.getName(), DbValue.asUnindexedValue(properName))
+				.set(DbStarField.RightAscension.getName(), DbValue.asUnindexedValue(rightAscension))
+				.set(DbStarField.Declination.getName(), DbValue.asUnindexedValue(declination))
+				.set(DbStarField.Distance.getName(), DbValue.asUnindexedValue(distance))
+				.set(DbStarField.ProperMotionRightAscension.getName(),
+						DbValue.asUnindexedValue(properMotionRightAscension))
+				.set(DbStarField.ProperMotionDeclination.getName(), DbValue.asUnindexedValue(properMotionDeclination))
+				.set(DbStarField.RadialVelocity.getName(), DbValue.asUnindexedValue(radialVelocity))
+				.set(DbStarField.Magnitude.getName(), DbValue.asUnindexedValue(magnitude))
+				.set(DbStarField.AbsoluteMagnitude.getName(), DbValue.asUnindexedValue(absoluteMagnitude))
+				.set(DbStarField.Spectrum.getName(), DbValue.asUnindexedValue(spectrum))
+				.set(DbStarField.ColorIndex.getName(), DbValue.asUnindexedValue(colorIndex))
+				.set(DbStarField.VX.getName(), DbValue.asUnindexedValue(vx))
+				.set(DbStarField.VY.getName(), DbValue.asUnindexedValue(vy))
+				.set(DbStarField.VZ.getName(), DbValue.asUnindexedValue(vz))
+				.set(DbStarField.RightAcensionRadians.getName(), DbValue.asUnindexedValue(rightAcensionRadians))
+				.set(DbStarField.DeclinationRadians.getName(), DbValue.asUnindexedValue(declinationRadians))
 				.set(DbStarField.ProperMotionRightAscensionRadians.getName(),
-						asValue(properMotionRightAscensionRadians))
-				.set(DbStarField.ProperMotionDeclinationRadians.getName(), asValue(properMotionDeclinationRadians))
-				.set(DbStarField.BayerId.getName(), asValue(bayerId))
-				.set(DbStarField.Flamsteed.getName(), asValue(flamsteed))
-				.set(DbStarField.Constellation.getName(), asValue(constellation))
-				.set(DbStarField.CompanionStarId.getName(), asValue(companionStarId))
-				.set(DbStarField.PrimaryStarId.getName(), asValue(primaryStarId))
-				.set(DbStarField.MultipleStarId.getName(), asValue(multipleStarId))
-				.set(DbStarField.Luminosity.getName(), asValue(luminosity))
-				.set(DbStarField.VariableStarDesignation.getName(), asValue(variableStarDesignation))
-				.set(DbStarField.VariableMinimum.getName(), asValue(variableMinimum))
-				.set(DbStarField.VariableMaximum.getName(), asValue(variableMaximum))
+						DbValue.asUnindexedValue(properMotionRightAscensionRadians))
+				.set(DbStarField.ProperMotionDeclinationRadians.getName(),
+						DbValue.asUnindexedValue(properMotionDeclinationRadians))
+				.set(DbStarField.BayerId.getName(), DbValue.asUnindexedValue(bayerId))
+				.set(DbStarField.Flamsteed.getName(), DbValue.asUnindexedValue(flamsteed))
+				.set(DbStarField.Constellation.getName(), DbValue.asUnindexedValue(constellation))
+				.set(DbStarField.CompanionStarId.getName(), DbValue.asUnindexedValue(companionStarId))
+				.set(DbStarField.PrimaryStarId.getName(), DbValue.asUnindexedValue(primaryStarId))
+				.set(DbStarField.MultipleStarId.getName(), DbValue.asUnindexedValue(multipleStarId))
+				.set(DbStarField.Luminosity.getName(), DbValue.asUnindexedValue(luminosity))
+				.set(DbStarField.VariableStarDesignation.getName(), DbValue.asUnindexedValue(variableStarDesignation))
+				.set(DbStarField.VariableMinimum.getName(), DbValue.asUnindexedValue(variableMinimum))
+				.set(DbStarField.VariableMaximum.getName(), DbValue.asUnindexedValue(variableMaximum))
 				.build();
 
 		batchPut.add(entity);
 	}
 
-	public int hash32shift(int key) {
+	private int hash32shift(int key) {
 		key = ~key + (key << 15); // key = (key << 15) - key - 1;
 		key = key ^ (key >>> 12);
 		key = key + (key << 2);
@@ -245,62 +256,4 @@ public class StarImporter {
 		return key;
 	}
 
-	private Value<?> asValue(String value) {
-		if (value == null)
-			return NullValue.of();
-		return StringValue.of(value);
-	}
-
-	private Value<?> asValue(Double value) {
-		if (value == null)
-			return NullValue.of();
-		return DoubleValue.of(value);
-	}
-
-	private Value<?> asValue(Key value) {
-		if (value == null)
-			return NullValue.of();
-		return KeyValue.of(value);
-	}
-
-	private String getString(String[] values, int index) {
-		return processString(getValue(values, index));
-	}
-
-	private double getDouble(String[] values, int index) {
-		return processDouble(getValue(values, index));
-	}
-
-	private long getLong(String[] values, int index) {
-		return processLong(getValue(values, index));
-	}
-
-	private Double getOptionalDouble(String[] values, int index) {
-		return processOptionalDouble(getValue(values, index));
-	}
-
-	private String getValue(String[] values, int index) {
-		if (index < values.length) {
-			return values[index];
-		}
-		return null;
-	}
-
-	private String processString(String value) {
-		return value;
-	}
-
-	private double processDouble(String value) {
-		return Double.parseDouble(value);
-	}
-
-	private long processLong(String value) {
-		return Long.parseLong(value);
-	}
-
-	private Double processOptionalDouble(String value) {
-		if (value == null || value.isEmpty())
-			return null;
-		return Double.parseDouble(value);
-	}
 }

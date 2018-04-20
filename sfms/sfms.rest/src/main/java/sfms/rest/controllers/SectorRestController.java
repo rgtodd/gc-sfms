@@ -90,7 +90,7 @@ public class SectorRestController {
 		}
 
 		try (ReadableByteChannel readChannel = retrieveCachedSectorDataFromDb(id);
-				InputStream inputStream = Channels.newInputStream(readChannel);) {
+				InputStream inputStream = Channels.newInputStream(readChannel)) {
 			response.setContentType("application/json");
 			try (OutputStream outputStream = response.getOutputStream()) {
 				IOUtils.copy(inputStream, outputStream);
