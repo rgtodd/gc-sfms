@@ -16,10 +16,12 @@ import com.google.cloud.datastore.DoubleValue;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
+import com.google.cloud.datastore.KeyValue;
 import com.google.cloud.datastore.NullValue;
 import com.google.cloud.datastore.StringValue;
 import com.google.cloud.datastore.Value;
 
+import sfms.common.PropertyFile;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
 import sfms.storage.Storage;
@@ -29,7 +31,8 @@ public class StarImporter {
 	private final Logger logger = Logger.getLogger(StarImporter.class.getName());
 
 	private static final int LOG_INTERVAL = 500;
-	private static final int RECORD_LIMIT = 25000;
+	private static final int PROD_RECORD_LIMIT = 250000;
+	private static final int DEV_RECORD_LIMIT = 25000;
 
 	private static final String FIELD_DELIMITER_REXEX = ",";
 
@@ -111,9 +114,16 @@ public class StarImporter {
 		@SuppressWarnings("unused")
 		String heading = iterator.next();
 
+		int recordLimit;
+		if (PropertyFile.INSTANCE.isProduction()) {
+			recordLimit = PROD_RECORD_LIMIT;
+		} else {
+			recordLimit = DEV_RECORD_LIMIT;
+		}
+
 		try (BatchPut batchPut = new BatchPut(m_datastore)) {
 			int count = 0;
-			while (iterator.hasNext() && count < RECORD_LIMIT) {
+			while (iterator.hasNext() && count < recordLimit) {
 				count += 1;
 				if (count % LOG_INTERVAL == 0) {
 					logger.log(Level.INFO, "Processing record # {0}.", count);
@@ -127,11 +137,11 @@ public class StarImporter {
 		}
 	}
 
-	private void processStarFileDataLine(BatchPut batchPut, String line) {
+	private void processStarFileDataLine(BatchPut batchPut, String line) throws Exception {
 
 		String[] fields = line.split(FIELD_DELIMITER_REXEX);
 
-		String id = String.valueOf(getLong(fields, FIELD_StarId) + 1000000);
+		Long id = getLong(fields, FIELD_StarId);
 		String hipparcosId = getString(fields, FIELD_HipparcosId);
 		String henryDraperId = getString(fields, FIELD_HenryDraperId);
 		String harvardRevisedId = getString(fields, FIELD_HarvardRevisedId);
@@ -169,17 +179,20 @@ public class StarImporter {
 		Double variableMinimum = getOptionalDouble(fields, FIELD_VariableMinimum);
 		Double variableMaximum = getOptionalDouble(fields, FIELD_VariableMaximum);
 
+		int idHash = hash32shift(id.hashCode());
+		String hashedId = String.valueOf(idHash) + "-" + String.valueOf(id);
+
 		Region cluster = m_clusters.findClosestRegion(x, y, z);
-		Key clusterKey = m_clusterKeyFactory.newKey(cluster.getKey());
+		Key clusterKey = cluster != null ? m_clusterKeyFactory.newKey(cluster.getKey()) : null;
 
-		Region sector = m_sectors.findClosestRegion(x, y, z);
-		Key sectorKey = m_sectorKeyFactory.newKey(sector.getKey());
+		Region sector = m_sectors.findContainingRegion(x, y, z);
+		Key sectorKey = sector != null ? m_sectorKeyFactory.newKey(sector.getKey()) : null;
 
-		Key key = DbEntity.Star.createEntityKey(m_datastore, id);
+		Key key = DbEntity.Star.createEntityKey(m_datastore, hashedId);
 
 		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ClusterKey.getName(), clusterKey)
-				.set(DbStarField.SectorKey.getName(), sectorKey)
+				.set(DbStarField.ClusterKey.getName(), asValue(clusterKey))
+				.set(DbStarField.SectorKey.getName(), asValue(sectorKey))
 				.set(DbStarField.HipparcosId.getName(), asValue(hipparcosId))
 				.set(DbStarField.HenryDraperId.getName(), asValue(henryDraperId))
 				.set(DbStarField.HarvardRevisedId.getName(), asValue(harvardRevisedId))
@@ -222,6 +235,16 @@ public class StarImporter {
 		batchPut.add(entity);
 	}
 
+	public int hash32shift(int key) {
+		key = ~key + (key << 15); // key = (key << 15) - key - 1;
+		key = key ^ (key >>> 12);
+		key = key + (key << 2);
+		key = key ^ (key >>> 4);
+		key = key * 2057; // key = (key + (key << 3)) + (key << 11);
+		key = key ^ (key >>> 16);
+		return key;
+	}
+
 	private Value<?> asValue(String value) {
 		if (value == null)
 			return NullValue.of();
@@ -232,6 +255,12 @@ public class StarImporter {
 		if (value == null)
 			return NullValue.of();
 		return DoubleValue.of(value);
+	}
+
+	private Value<?> asValue(Key value) {
+		if (value == null)
+			return NullValue.of();
+		return KeyValue.of(value);
 	}
 
 	private String getString(String[] values, int index) {

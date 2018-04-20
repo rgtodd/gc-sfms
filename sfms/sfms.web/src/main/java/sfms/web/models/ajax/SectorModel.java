@@ -1,6 +1,6 @@
 package sfms.web.models.ajax;
 
-public class Sector {
+public class SectorModel {
 
 	private String m_key;
 	private Integer m_sx;

@@ -59,15 +59,14 @@ public class UtilityServlet extends HttpServlet {
 
 					logger.info("Saving to " + blobName);
 
-					try (InputStream inputStream = item.openStream()) {
-						try (WritableByteChannel writeChannel = Storage.getManager().getWritableByteChannel(bucketName,
-								blobName,
-								contentType)) {
-							byte[] buffer = new byte[1024];
-							int limit;
-							while ((limit = inputStream.read(buffer)) >= 0) {
-								writeChannel.write(ByteBuffer.wrap(buffer, 0, limit));
-							}
+					try (InputStream inputStream = item.openStream();
+							WritableByteChannel writeChannel = Storage.getManager().getWritableByteChannel(bucketName,
+									blobName,
+									contentType)) {
+						byte[] buffer = new byte[1024];
+						int limit;
+						while ((limit = inputStream.read(buffer)) >= 0) {
+							writeChannel.write(ByteBuffer.wrap(buffer, 0, limit));
 						}
 					}
 

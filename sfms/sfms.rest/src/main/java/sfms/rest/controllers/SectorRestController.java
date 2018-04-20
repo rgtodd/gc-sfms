@@ -1,20 +1,15 @@
 package sfms.rest.controllers;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.api.client.util.IOUtils;
 import com.google.cloud.datastore.Cursor;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
@@ -57,15 +52,14 @@ import sfms.rest.db.schemas.DbSectorField;
 import sfms.rest.db.schemas.DbStarField;
 import sfms.storage.Storage;
 import sfms.storage.StorageManager;
+import sfms.storage.StorageManagerUtility;
+import sfms.storage.StorageManagerUtility.ObjectFactory;
 
 @RestController
 @RequestMapping("/sector")
 public class SectorRestController {
 
 	private final Logger logger = Logger.getLogger(SectorRestController.class.getName());
-
-	private final static String CACHE_BUCKET_NAME = "rgt-ssms.appspot.com";
-	private final static String CACHE_FOLDER_NAME = "cache";
 
 	private static final Map<SectorField, DbSectorField> s_dbFieldMap;
 	static {
@@ -85,7 +79,9 @@ public class SectorRestController {
 	private Throttle m_throttle;
 
 	@GetMapping(value = "/{id}")
-	public void getLookup(@PathVariable String id, HttpServletResponse response) throws Exception {
+	public void getLookup(
+			@PathVariable String id,
+			HttpServletResponse response) throws Exception {
 
 		logger.info("getLookup: start");
 
@@ -93,13 +89,12 @@ public class SectorRestController {
 			throw new Exception("Function is throttled.");
 		}
 
-		byte[] buffer = retrievecachedSectorDataFromDb(id);
-
-		logger.info("getLookup: return");
-
-		response.setContentType("application/json");
-		try (ServletOutputStream stream = response.getOutputStream()) {
-			stream.write(buffer);
+		try (ReadableByteChannel readChannel = retrieveCachedSectorDataFromDb(id);
+				InputStream inputStream = Channels.newInputStream(readChannel);) {
+			response.setContentType("application/json");
+			try (OutputStream outputStream = response.getOutputStream()) {
+				IOUtils.copy(inputStream, outputStream);
+			}
 		}
 	}
 
@@ -156,8 +151,9 @@ public class SectorRestController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Sector sector)
-			throws Exception {
+	public UpdateResult<String> putUpdate(
+			@PathVariable String id,
+			@RequestBody Sector sector) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -231,41 +227,22 @@ public class SectorRestController {
 		return result;
 	}
 
-	private byte[] retrievecachedSectorDataFromDb(String id) throws IOException {
-
-		String blobName = CACHE_FOLDER_NAME + "/Sector-" + id.replace(',', '-');
+	private ReadableByteChannel retrieveCachedSectorDataFromDb(String id) throws Exception {
 
 		StorageManager storageManager = Storage.getManager();
+		return StorageManagerUtility.getCachedObject(storageManager, "Sector-" + id, "application/json",
+				new ObjectFactory() {
+					@Override
+					public byte[] createObject() throws Exception {
+						Sector result = retrieveSectorFromDb(id);
 
-		if (storageManager.blobExists(CACHE_BUCKET_NAME, blobName)) {
-			try (ReadableByteChannel readChannel = Storage.getManager().getReadableByteChannel(CACHE_BUCKET_NAME,
-					blobName);
-					InputStream inputStream = Channels.newInputStream(readChannel);
-					ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-				copy(inputStream, outputStream);
-				return outputStream.toByteArray();
-			}
-		}
+						ObjectMapper mapper = new ObjectMapper();
+						ObjectWriter writer = mapper.writerFor(Sector.class);
+						byte[] buffer = writer.writeValueAsBytes(result);
 
-		byte[] buffer = retrieveSectorDataFromDb(id);
-
-		try (WritableByteChannel writeChannel = Storage.getManager().getWritableByteChannel(CACHE_BUCKET_NAME,
-				blobName, "application/json")) {
-			writeChannel.write(ByteBuffer.wrap(buffer));
-		}
-
-		return buffer;
-	}
-
-	private byte[] retrieveSectorDataFromDb(String id) throws JsonProcessingException {
-		Sector result = retrieveSectorFromDb(id);
-
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectWriter writer = mapper.writerFor(Sector.class);
-		byte[] buffer = writer.writeValueAsBytes(result);
-
-		return buffer;
-
+						return buffer;
+					}
+				});
 	}
 
 	private Sector retrieveSectorFromDb(String id) {
@@ -291,13 +268,5 @@ public class SectorRestController {
 		RestFactory factory = new RestFactory();
 		Sector result = factory.createSector(dbSector, factory.createStarsFromProjection(dbStars));
 		return result;
-	}
-
-	private void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
-		byte[] buffer = new byte[1024];
-		int count;
-		while ((count = inputStream.read(buffer)) > 0) {
-			outputStream.write(buffer, 0, count);
-		}
 	}
 }

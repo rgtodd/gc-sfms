@@ -4,13 +4,13 @@ import java.util.List;
 
 public class GetSectorsResponse {
 
-	public List<Sector> m_sectors;
+	public List<SectorModel> m_sectors;
 
-	public List<Sector> getSectors() {
+	public List<SectorModel> getSectors() {
 		return m_sectors;
 	}
 
-	public void setSectors(List<Sector> sectors) {
+	public void setSectors(List<SectorModel> sectors) {
 		m_sectors = sectors;
 	}
 }

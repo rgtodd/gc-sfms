@@ -64,7 +64,7 @@ var SpaceViewer = (function() {
 
 	// UI state objects
 	//
-	var m_objectKeysByType = new Map();
+	var m_objectKeysByBufferName = new Map();
 	var m_mouse = new THREE.Vector2();
 
 	// Module events
@@ -331,20 +331,21 @@ var SpaceViewer = (function() {
 		if (intersections.length > 0) {
 			var intersection = intersections[0];
 			var index = intersection.index;
-			var object = intersection.object;
+			var buffer = intersection.object;
+			var parsedBufferName = parseBufferName(buffer.name);
+			var objectKeys = m_objectKeysByBufferName.get(buffer.name);
+			var objectKey = objectKeys[index];
 
-			var objectType = getObjectTypeFromName(object.name);
-			var objectKey = m_objectKeysByType.get(objectType)[index];
-
-			if (m_objectCursor.objectType !== objectType
+			if (m_objectCursor.objectType !== parsedBufferName.objectType
 					|| m_objectCursor.objectKey !== objectKey) {
 
-				var x = object.geometry.attributes.position.array[index * 3];
-				var y = object.geometry.attributes.position.array[index * 3 + 1];
-				var z = object.geometry.attributes.position.array[index * 3 + 2];
+				var x = buffer.geometry.attributes.position.array[index * 3];
+				var y = buffer.geometry.attributes.position.array[index * 3 + 1];
+				var z = buffer.geometry.attributes.position.array[index * 3 + 2];
 				var objectPosition = new THREE.Vector3(x, y, z);
 
-				moveObjectHighlight(objectType, objectKey, objectPosition);
+				moveObjectHighlight(parsedBufferName.objectType, objectKey,
+						objectPosition);
 			} else {
 				// Object is already selected. Don't highlight it.
 				//
@@ -543,38 +544,50 @@ var SpaceViewer = (function() {
 
 		raiseOnSectorClick(sector.key);
 
-		m_objectGroup.children.forEach(function(element) {
-			element.geometry.dispose();
-			element.material.dispose();
-		});
-		m_objectGroup.children = [];
-		m_objectKeysByType.clear();
+		// m_objectGroup.children.forEach(function(element) {
+		// element.geometry.dispose();
+		// element.material.dispose();
+		// });
+		// m_objectGroup.children = [];
+		// m_objectKeysByType.clear();
 
 		OBJECT_TYPES.forEach(function(objectType) {
-			raiseGetObjectsBySector(sector.key, objectType, function(
-					objectKeys, objectPoints) {
 
-				m_objectKeysByType.set(objectType, objectKeys);
-
-				var geometry = new THREE.BufferGeometry();
-				geometry.addAttribute('position',
-						new THREE.Float32BufferAttribute(objectPoints, 3));
-
-				var material = new THREE.PointsMaterial({
-					size : 3,
-					sizeAttenuation : true,
-					map : getTextureForObjectType(objectType),
-					alphaTest : 0.5,
-					transparent : false
+			var bufferName = createBufferName(sector.key, objectType);
+			if (!m_objectKeysByBufferName.has(bufferName)) {
+			
+				m_objectKeysByBufferName.set(bufferName, "TEMP");
+				
+				raiseGetObjectsBySector(sector.key, objectType, function(
+						objectKeys, objectPoints) {
+					m_objectKeysByBufferName.set(bufferName, objectKeys);
+					var buffer = createBuffer(objectType, objectPoints);
+					buffer.name = bufferName;
+					m_objectGroup.add(buffer);
 				});
-				material.color.setHSL(1.0, 0.3, 0.7);
-
-				var points = new THREE.Points(geometry, material);
-				points.name = getObjectNameFromType(objectType);
-				m_objectGroup.add(points);
-
-			});
+			}
 		});
+	}
+
+	var createBuffer = function(objectType, objectPoints) {
+
+		var geometry = new THREE.BufferGeometry();
+		geometry.addAttribute('position', new THREE.Float32BufferAttribute(
+				objectPoints, 3));
+
+		var material = new THREE.PointsMaterial({
+			size : 1,
+			sizeAttenuation : true,
+			map : getTextureForObjectType(objectType),
+			alphaTest : 0.5,
+			transparent : false
+		});
+		material.color.setHSL(1.0, 0.3, 0.7);
+
+		var points = new THREE.Points(geometry, material);
+
+		return points;
+
 	}
 
 	var moveObjectCursor = function(objectType, objectKey, objectPosition) {
@@ -729,6 +742,19 @@ var SpaceViewer = (function() {
 			return OBJECT_TYPE_SHIP;
 		default:
 			throw "Unknown objectName " + objectName;
+		}
+	}
+
+	var createBufferName = function(sectorKey, objectType) {
+		return sectorKey + "|" + getObjectNameFromType(objectType);
+	}
+
+	var parseBufferName = function(bufferName) {
+		var indexDelimiter = bufferName.indexOf("|");
+		return {
+			sectorKey : bufferName.substring(0, indexDelimiter),
+			objectType : getObjectTypeFromName(bufferName
+					.substring(indexDelimiter + 1))
 		}
 	}
 

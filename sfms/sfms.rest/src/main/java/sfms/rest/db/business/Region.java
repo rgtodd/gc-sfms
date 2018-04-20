@@ -14,9 +14,10 @@ public class Region {
 	private int m_maximumY;
 	private int m_maximumZ;
 
-	public Region(String key, int regionPartition, int regionX, int regionY, int regionZ, int minimumX, int minimumY,
-			int minimumZ, int maximumX, int maximumY,
-			int maximumZ) {
+	public Region(String key, int regionPartition,
+			int regionX, int regionY, int regionZ,
+			int minimumX, int minimumY, int minimumZ,
+			int maximumX, int maximumY, int maximumZ) {
 		m_key = key;
 		m_regionPartition = regionPartition;
 		m_regionX = regionX;
@@ -76,9 +77,9 @@ public class Region {
 
 	public Coordinates getMidpoint() {
 		return new Coordinates(
-				m_minimumX + (m_maximumX - m_minimumX) / 2.0,
-				m_minimumY + (m_maximumY - m_minimumY) / 2.0,
-				m_minimumZ + (m_maximumZ - m_minimumZ) / 2.0);
+				(m_minimumX + m_maximumX) / 2.0,
+				(m_minimumY + m_maximumY) / 2.0,
+				(m_minimumZ + m_maximumZ) / 2.0);
 	}
 
 	public boolean contains(Region subregion) {
@@ -133,4 +134,11 @@ public class Region {
 				+ ", m_minimumZ=" + m_minimumZ + ", m_maximumX=" + m_maximumX + ", m_maximumY=" + m_maximumY
 				+ ", m_maximumZ=" + m_maximumZ + "]";
 	}
+
+	public boolean contains(Coordinates coordinates) {
+		return m_minimumX <= coordinates.getX() && coordinates.getX() < m_maximumX
+				&& m_minimumY <= coordinates.getY() && coordinates.getY() < m_maximumY
+				&& m_minimumZ <= coordinates.getZ() && coordinates.getZ() < m_maximumZ;
+	}
+
 }

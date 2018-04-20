@@ -5,20 +5,20 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import sfms.web.models.ajax.Sector;
+import sfms.web.models.ajax.SectorModel;
 
 public class MockSpaceData {
 
 	private static final Random s_random = new Random();
 	private static final AtomicInteger s_counter = new AtomicInteger();
 
-	private List<Sector> m_sectors;
+	private List<SectorModel> m_sectors;
 	private List<Point> m_stars;
 	private List<Point> m_ships;
 
-	public List<Sector> getSectors() {
+	public List<SectorModel> getSectors() {
 		if (m_sectors == null) {
-			List<Sector> sectors = new ArrayList<Sector>();
+			List<SectorModel> sectors = new ArrayList<SectorModel>();
 			for (int sx = 0; sx < 10; ++sx) {
 				for (int sy = 0; sy < 10; ++sy) {
 					for (int sz = 0; sz < 10; ++sz) {
@@ -30,7 +30,7 @@ public class MockSpaceData {
 						int maximumY = minimumY + 200;
 						int maximumZ = minimumZ + 200;
 
-						Sector sector = new Sector();
+						SectorModel sector = new SectorModel();
 						sector.setKey(key);
 						sector.setSx(sx);
 						sector.setSy(sy);

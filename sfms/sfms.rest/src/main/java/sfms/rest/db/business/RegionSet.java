@@ -109,7 +109,7 @@ public class RegionSet implements Iterable<Region> {
 			int minimumZ = (int) entity.getLong(DbSectorField.MinimumZ.getName());
 			int maximumX = (int) entity.getLong(DbSectorField.MaximumX.getName());
 			int maximumY = (int) entity.getLong(DbSectorField.MaximumY.getName());
-			int maximumZ = (int) entity.getLong(DbSectorField.MaximumX.getName());
+			int maximumZ = (int) entity.getLong(DbSectorField.MaximumZ.getName());
 
 			Region region = new Region(
 					entity.getKey().getName(),
@@ -127,16 +127,30 @@ public class RegionSet implements Iterable<Region> {
 		m_regions.addAll(regionSet.m_regions);
 	}
 
+	public Region findContainingRegion(double x, double y, double z) {
+		Coordinates coordinates = new Coordinates(x, y, z);
+
+		for (Region region : this) {
+			if (region.contains(coordinates)) {
+				return region;
+			}
+		}
+
+		return null;
+	}
+
 	public Region findClosestRegion(double x, double y, double z) {
 		Coordinates coordinates = new Coordinates(x, y, z);
 
 		Region currentRegion = null;
 		double currentDistance = 0;
 		for (Region region : this) {
-			double distance = coordinates.getDistanceTo(region.getMidpoint());
-			if (currentRegion == null || distance < currentDistance) {
-				currentRegion = region;
-				currentDistance = distance;
+			if (region.contains(coordinates)) {
+				double distance = coordinates.getDistanceTo(region.getMidpoint());
+				if (currentRegion == null || distance < currentDistance) {
+					currentRegion = region;
+					currentDistance = distance;
+				}
 			}
 		}
 
