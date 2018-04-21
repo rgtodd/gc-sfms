@@ -734,18 +734,20 @@ var SpaceViewer = (function() {
 			m_mapItemKeysByBufferName.set(bufferName, "TEMP");
 
 			raiseGetMapItemsBySector(entry.sectorKey, entry.mapItemType,
-					function(mapItemKeys, mapItemPoints) {
-						if (mapItemKeys.length > 0) {
-							m_mapItemKeysByBufferName.set(bufferName,
-									mapItemKeys);
-							var buffer = createBuffer(entry.mapItemType,
-									mapItemPoints);
-							buffer.name = bufferName;
-							m_objectGroup.add(buffer);
-						}
+					function(mapItemSets) {
+						mapItemSets.forEach(function(mapItemSet) {
 
-						processWorkQueue();
+							if (mapItemSet.mapItemKeys.length > 0) {
+								m_mapItemKeysByBufferName.set(bufferName,
+										mapItemSet.mapItemKeys);
+								var buffer = createBuffer(entry.mapItemType,
+										mapItemSet.mapItemPoints);
+								buffer.name = bufferName;
+								m_objectGroup.add(buffer);
+							}
 
+							processWorkQueue();
+						});
 					});
 		}
 
@@ -909,10 +911,14 @@ var SpaceViewer = (function() {
 		//
 		// callback = function(mapItemKeys, mapItemPoints) where:
 		//
-		// mapItemKeys = array of String.
+		// mapItemSets = array of mapItemSet
 		//
-		// mapItemPoints = array of Number. Specifies location of objects in
-		// sector in a denormalized format (i.e. X1, Y1, Z1, X2, Y2, Z2, ...)
+		// mapItemSet = object of:
+		// * sectorKey = String
+		// * mapItemType = Number
+		// * mapItemKeys = array of String.
+		// * mapItemPoints = array of Number. Specifies location of map items in
+		// denormalized format (i.e. X1, Y1, Z1, X2, Y2, Z2, ...)
 		//
 		RegisterGetMapItemsBySectorHandler : function(handler) {
 			registerGetMapItemsBySectorHandler(handler);

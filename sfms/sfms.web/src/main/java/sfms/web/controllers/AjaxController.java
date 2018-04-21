@@ -22,6 +22,7 @@ import sfms.web.mock.MockSpaceData;
 import sfms.web.models.ajax.GetMapItemsResponse;
 import sfms.web.models.ajax.GetSectorResponse;
 import sfms.web.models.ajax.GetSectorsResponse;
+import sfms.web.models.ajax.MapItemSetModel;
 import sfms.web.models.ajax.SectorModel;
 
 @RestController
@@ -108,9 +109,17 @@ public class AjaxController extends SfmsController {
 			break;
 		}
 
+		MapItemSetModel mapItemSet = new MapItemSetModel();
+		mapItemSet.setSectorKey(sectorKey);
+		mapItemSet.setMapItemType(mapItemType);
+		mapItemSet.setMapItemKeys(mapItemKeys);
+		mapItemSet.setMapItemPoints(mapItemPoints);
+
+		List<MapItemSetModel> mapItemSets = new ArrayList<MapItemSetModel>();
+		mapItemSets.add(mapItemSet);
+
 		GetMapItemsResponse response = new GetMapItemsResponse();
-		response.setMapItemKeys(mapItemKeys);
-		response.setMapItemPoints(mapItemPoints);
+		response.setMapItemSets(mapItemSets);
 
 		return response;
 	}
@@ -151,9 +160,17 @@ public class AjaxController extends SfmsController {
 			mapItemPoints.add(point.z);
 		}
 
+		MapItemSetModel mapItemSet = new MapItemSetModel();
+		mapItemSet.setSectorKey(sectorKey);
+		mapItemSet.setMapItemType(mapItemType);
+		mapItemSet.setMapItemKeys(mapItemKeys);
+		mapItemSet.setMapItemPoints(mapItemPoints);
+
+		List<MapItemSetModel> mapItemSets = new ArrayList<MapItemSetModel>();
+		mapItemSets.add(mapItemSet);
+
 		GetMapItemsResponse response = new GetMapItemsResponse();
-		response.setMapItemKeys(mapItemKeys);
-		response.setMapItemPoints(mapItemPoints);
+		response.setMapItemSets(mapItemSets);
 
 		return response;
 	}

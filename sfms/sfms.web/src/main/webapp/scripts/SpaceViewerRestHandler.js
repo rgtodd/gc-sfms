@@ -73,7 +73,7 @@ var SpaceViewerRestHandler = (function() {
 			url : url
 		}).then(function(response) {
 			SpaceViewerRestLogger.RaiseOnRestComplete(url);
-			callback(response.mapItemKeys, response.mapItemPoints);
+			callback(response.mapItemSets);
 		});
 	};
 
