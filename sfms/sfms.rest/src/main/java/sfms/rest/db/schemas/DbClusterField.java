@@ -1,5 +1,7 @@
 package sfms.rest.db.schemas;
 
+import com.google.cloud.datastore.Value;
+
 import sfms.rest.db.DbFieldSchema;
 
 public enum DbClusterField implements DbFieldSchema {
@@ -15,19 +17,19 @@ public enum DbClusterField implements DbFieldSchema {
 	MaximumY("max_y", "Maximum Y", "Maximum Y coordinate (exclusive) of cluster."),
 	MaximumZ("max_z", "Maximum Z", "Maximum Z coordinate (exclusive) of cluster.");
 
-	private String m_id;
 	private String m_name;
+	private String m_title;
 	private String m_description;
 
-	private DbClusterField(String id, String name, String description) {
-		m_id = id;
+	private DbClusterField(String name, String title, String description) {
 		m_name = name;
+		m_title = title;
 		m_description = description;
 	}
 
-	public static DbClusterField parse(String id) {
+	public static DbClusterField parseName(String name) {
 		for (DbClusterField property : DbClusterField.values()) {
-			if (property.getName().equals(id)) {
+			if (property.getName().equals(name)) {
 				return property;
 			}
 		}
@@ -35,15 +37,23 @@ public enum DbClusterField implements DbFieldSchema {
 		return null;
 	}
 
+	@Override
 	public String getName() {
-		return m_id;
-	}
-
-	public String getTitle() {
 		return m_name;
 	}
 
+	@Override
+	public String getTitle() {
+		return m_title;
+	}
+
+	@Override
 	public String getDescription() {
 		return m_description;
+	}
+
+	@Override
+	public Value<?> parseValue(String text) {
+		return null;
 	}
 }

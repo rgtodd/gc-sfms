@@ -1,5 +1,7 @@
 package sfms.rest.db.schemas;
 
+import com.google.cloud.datastore.Value;
+
 import sfms.rest.db.DbFieldSchema;
 
 public enum DbSectorStarField implements DbFieldSchema {
@@ -7,19 +9,19 @@ public enum DbSectorStarField implements DbFieldSchema {
 	SectorKey("sct_k", "Sector Key", "Key of parent Sector entity."),
 	StarKey("str_k", "Star Key", "Key of Star entity contained in this sector.");
 
-	private String m_id;
 	private String m_name;
+	private String m_title;
 	private String m_description;
 
-	private DbSectorStarField(String id, String name, String description) {
-		m_id = id;
+	private DbSectorStarField(String name, String title, String description) {
 		m_name = name;
+		m_title = title;
 		m_description = description;
 	}
 
-	public static DbSectorStarField parse(String id) {
+	public static DbSectorStarField parseName(String name) {
 		for (DbSectorStarField property : DbSectorStarField.values()) {
-			if (property.getName().equals(id)) {
+			if (property.getName().equals(name)) {
 				return property;
 			}
 		}
@@ -27,15 +29,23 @@ public enum DbSectorStarField implements DbFieldSchema {
 		return null;
 	}
 
+	@Override
 	public String getName() {
-		return m_id;
-	}
-
-	public String getTitle() {
 		return m_name;
 	}
 
+	@Override
+	public String getTitle() {
+		return m_title;
+	}
+
+	@Override
 	public String getDescription() {
 		return m_description;
+	}
+
+	@Override
+	public Value<?> parseValue(String text) {
+		return null;
 	}
 }

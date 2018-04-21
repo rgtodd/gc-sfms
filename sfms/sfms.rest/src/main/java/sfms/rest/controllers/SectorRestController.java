@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,13 +35,17 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.ProjectionEntity;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
+import com.google.cloud.datastore.StructuredQuery.Filter;
 import com.google.cloud.datastore.StructuredQuery.OrderBy;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.datastore.Value;
 
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
 import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
+import sfms.rest.api.FilterCriteria;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.SortCriteria;
@@ -118,18 +123,10 @@ public class SectorRestController {
 		queryBuilder.setKind(DbEntity.Sector.getKind());
 		queryBuilder.setLimit(limit);
 		if (sort.isPresent()) {
-			SortCriteria sortCriteria = SortCriteria.parse(sort.get());
-			for (int idx = 0; idx < sortCriteria.size(); ++idx) {
-				SectorField restField = SectorField.parse(sortCriteria.getColumn(idx));
-				DbSectorField dbField = s_dbFieldMap.get(restField);
-				if (dbField != null) {
-					if (sortCriteria.getDescending(idx)) {
-						queryBuilder.addOrderBy(OrderBy.desc(dbField.getName()));
-					} else {
-						queryBuilder.addOrderBy(OrderBy.asc(dbField.getName()));
-					}
-				}
-			}
+			addSortCriteria(queryBuilder, sort.get());
+		}
+		if (filter.isPresent()) {
+			setQueryFilter(queryBuilder, filter.get());
 		}
 		if (bookmark.isPresent()) {
 			queryBuilder.setStartCursor(Cursor.fromUrlSafe(bookmark.get()));
@@ -225,6 +222,73 @@ public class SectorRestController {
 		result.setKey(id);
 
 		return result;
+	}
+
+	private void addSortCriteria(Builder queryBuilder, String sort) {
+		SortCriteria sortCriteria = SortCriteria.parse(sort);
+		for (int idx = 0; idx < sortCriteria.size(); ++idx) {
+
+			SectorField restField = SectorField.parse(sortCriteria.getColumn(idx));
+			DbSectorField dbField = s_dbFieldMap.get(restField);
+			if (dbField != null) {
+
+				if (sortCriteria.isDescending(idx)) {
+					queryBuilder.addOrderBy(OrderBy.desc(dbField.getName()));
+				} else {
+					queryBuilder.addOrderBy(OrderBy.asc(dbField.getName()));
+				}
+			}
+		}
+	}
+
+	private void setQueryFilter(Builder queryBuilder, String filter) {
+
+		FilterCriteria filterCriteria = FilterCriteria.parse(filter);
+		Filter queryFilter;
+		if (filterCriteria.size() == 1) {
+			queryFilter = createColumnFilter(filterCriteria, 0);
+		} else {
+			Filter firstSubfilter = createColumnFilter(filterCriteria, 0);
+			List<Filter> remainingSubfilters = new ArrayList<Filter>();
+			for (int idx = 1; idx < filterCriteria.size(); ++idx) {
+				remainingSubfilters.add(createColumnFilter(filterCriteria, idx));
+			}
+			queryFilter = CompositeFilter.and(firstSubfilter, remainingSubfilters.toArray(new Filter[0]));
+		}
+
+		queryBuilder.setFilter(queryFilter);
+	}
+
+	private Filter createColumnFilter(FilterCriteria filterCriteria, int idx) {
+		String column = filterCriteria.getColumn(idx);
+		String operator = filterCriteria.getOperator(idx);
+		String valueString = filterCriteria.getValue(idx);
+
+		SectorField restField = SectorField.parse(column);
+		DbSectorField dbField = s_dbFieldMap.get(restField);
+		Value<?> value = dbField.parseValue(valueString);
+
+		Filter currentFilter;
+		switch (operator) {
+		case FilterCriteria.EQ:
+			currentFilter = PropertyFilter.eq(dbField.getName(), value);
+			break;
+		case FilterCriteria.LT:
+			currentFilter = PropertyFilter.lt(dbField.getName(), value);
+			break;
+		case FilterCriteria.LE:
+			currentFilter = PropertyFilter.le(dbField.getName(), value);
+			break;
+		case FilterCriteria.GT:
+			currentFilter = PropertyFilter.gt(dbField.getName(), value);
+			break;
+		case FilterCriteria.GE:
+			currentFilter = PropertyFilter.ge(dbField.getName(), value);
+			break;
+		default:
+			currentFilter = null;
+		}
+		return currentFilter;
 	}
 
 	private ReadableByteChannel retrieveCachedSectorDataFromDb(String id) throws Exception {

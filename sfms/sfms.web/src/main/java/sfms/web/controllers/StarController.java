@@ -31,6 +31,7 @@ import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
 import sfms.web.model.schemas.StarModelSchema;
+import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.PagingModel;
 import sfms.web.models.StarModel;
 import sfms.web.models.StarSortingModel;
@@ -108,10 +109,10 @@ public class StarController extends SfmsController {
 		}
 
 		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(StarSortingModel.ASCENDING)) {
-			sortCriteria = SortCriteria.ascending(sortColumn.getName());
+		if (effectiveDirection.equals(ClusterSortingModel.ASCENDING)) {
+			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
 		} else {
-			sortCriteria = SortCriteria.descending(sortColumn.getName());
+			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();
 		}
 
 		UriBuilder uriBuilder = getUriBuilder().pathSegment("star");

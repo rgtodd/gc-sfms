@@ -36,6 +36,7 @@ import sfms.web.SfmsController;
 import sfms.web.model.schemas.SectorModelSchema;
 import sfms.web.models.SectorModel;
 import sfms.web.models.SectorSortingModel;
+import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.PagingModel;
 
 @Controller
@@ -96,10 +97,10 @@ public class SectorController extends SfmsController {
 		SectorField sortColumn = s_dbFieldMap.get(effectiveSort);
 
 		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(SectorSortingModel.ASCENDING)) {
-			sortCriteria = SortCriteria.ascending(sortColumn.getName());
+		if (effectiveDirection.equals(ClusterSortingModel.ASCENDING)) {
+			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
 		} else {
-			sortCriteria = SortCriteria.descending(sortColumn.getName());
+			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();
 		}
 
 		UriBuilder uriBuilder = getUriBuilder().pathSegment("sector");

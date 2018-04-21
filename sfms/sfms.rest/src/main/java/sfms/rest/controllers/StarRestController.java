@@ -101,7 +101,7 @@ public class StarRestController {
 				StarField restField = StarField.parse(sortCriteria.getColumn(idx));
 				DbStarField dbField = s_dbFieldMap.get(restField);
 				if (dbField != null) {
-					if (sortCriteria.getDescending(idx)) {
+					if (sortCriteria.isDescending(idx)) {
 						queryBuilder.addOrderBy(OrderBy.desc(dbField.getName()));
 					} else {
 						queryBuilder.addOrderBy(OrderBy.asc(dbField.getName()));

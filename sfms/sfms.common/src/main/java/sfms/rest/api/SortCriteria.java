@@ -5,26 +5,20 @@ import java.util.List;
 
 public class SortCriteria {
 
+	public static final String ASCENDING = "asc";
+	public static final String DESCENDING = "des";
+
 	private static final char SPACE = ' ';
 	private static final String EMPTY_STRING = "";
 	private static final String DELIMITER = ",";
 	private static final String DELIMITER_REGEX = DELIMITER;
-	private static final String DESCENDING = "descending";
 
 	private List<String> m_columns;
-	private List<Boolean> m_directions;
+	private List<String> m_directions;
 
-	private SortCriteria(List<String> columns, List<Boolean> directions) {
+	private SortCriteria(List<String> columns, List<String> directions) {
 		m_columns = columns;
 		m_directions = directions;
-	}
-
-	public static SortCriteria ascending(String column) {
-		return SortCriteria.parse(column);
-	}
-
-	public static SortCriteria descending(String column) {
-		return SortCriteria.parse(column + SPACE + DESCENDING);
 	}
 
 	public static SortCriteria parse(String text) {
@@ -34,7 +28,7 @@ public class SortCriteria {
 		String[] fields = text.split(DELIMITER_REGEX);
 
 		List<String> columns = new ArrayList<String>(fields.length);
-		List<Boolean> directions = new ArrayList<Boolean>(fields.length);
+		List<String> directions = new ArrayList<String>(fields.length);
 
 		for (int idx = 0; idx < fields.length; ++idx) {
 			String field = fields[idx];
@@ -42,13 +36,13 @@ public class SortCriteria {
 			int idxSpace = field.indexOf(SPACE);
 			if (idxSpace == -1) {
 				columns.add(field);
-				directions.add(false);
+				directions.add(ASCENDING);
 			} else {
 				String column = field.substring(0, idxSpace);
 				String descending = field.substring(idxSpace + 1);
 
 				columns.add(column);
-				directions.add(DESCENDING.startsWith(descending.toLowerCase()));
+				directions.add(descending);
 			}
 		}
 
@@ -67,12 +61,20 @@ public class SortCriteria {
 		return m_columns.get(index);
 	}
 
-	public boolean getDescending(int index) {
+	public String getDirection(int index) {
 		return m_directions.get(index);
 	}
 
+	public boolean isAscending(int index) {
+		return m_directions.get(index).equals(ASCENDING);
+	}
+
+	public boolean isDescending(int index) {
+		return m_directions.get(index).equals(DESCENDING);
+	}
+
 	public String toString() {
-		if (m_columns == null) {
+		if (m_columns == null || m_columns.isEmpty()) {
 			return EMPTY_STRING;
 		} else {
 			StringBuilder sb = new StringBuilder();
@@ -83,13 +85,42 @@ public class SortCriteria {
 				prefix = DELIMITER;
 
 				sb.append(getColumn(idx));
-				if (getDescending(idx)) {
-					sb.append(" ");
-					sb.append(DESCENDING);
-				}
+				sb.append(SPACE);
+				sb.append(getDirection(idx));
 			}
 
 			return sb.toString();
+		}
+	}
+
+	public static Builder newBuilder() {
+		return new Builder();
+	}
+
+	public static class Builder {
+
+		private static List<String> m_columns = new ArrayList<String>();
+		private static List<String> m_directions = new ArrayList<String>();
+
+		private Builder() {
+		}
+
+		public Builder ascending(String column) {
+			m_columns.add(column);
+			m_directions.add(ASCENDING);
+
+			return this;
+		}
+
+		public Builder descending(String column) {
+			m_columns.add(column);
+			m_directions.add(DESCENDING);
+
+			return this;
+		}
+
+		public SortCriteria build() {
+			return new SortCriteria(m_columns, m_directions);
 		}
 	}
 }

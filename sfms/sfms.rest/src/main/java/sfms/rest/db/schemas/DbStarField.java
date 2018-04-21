@@ -1,5 +1,7 @@
 package sfms.rest.db.schemas;
 
+import com.google.cloud.datastore.Value;
+
 import sfms.rest.db.DbFieldSchema;
 
 public enum DbStarField implements DbFieldSchema {
@@ -52,19 +54,19 @@ public enum DbStarField implements DbFieldSchema {
 	VariableMaximum("varmax", "Variable Maximum",
 			"Maximum magnitude adjusted to match scale of apparent visual magnitude.");
 
-	private String m_id;
 	private String m_name;
+	private String m_title;
 	private String m_description;
 
-	private DbStarField(String id, String name, String description) {
-		m_id = id;
+	private DbStarField(String name, String title, String description) {
 		m_name = name;
+		m_title = title;
 		m_description = description;
 	}
 
-	public static DbStarField parse(String id) {
+	public static DbStarField parseName(String name) {
 		for (DbStarField property : DbStarField.values()) {
-			if (property.getName().equals(id)) {
+			if (property.getName().equals(name)) {
 				return property;
 			}
 		}
@@ -72,15 +74,23 @@ public enum DbStarField implements DbFieldSchema {
 		return null;
 	}
 
+	@Override
 	public String getName() {
-		return m_id;
-	}
-
-	public String getTitle() {
 		return m_name;
 	}
 
+	@Override
+	public String getTitle() {
+		return m_title;
+	}
+
+	@Override
 	public String getDescription() {
 		return m_description;
+	}
+
+	@Override
+	public Value<?> parseValue(String text) {
+		return null;
 	}
 }

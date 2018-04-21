@@ -31,6 +31,7 @@ import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
 import sfms.web.model.schemas.CrewMemberModelSchema;
+import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.CrewMemberModel;
 import sfms.web.models.CrewMemberSortingModel;
 import sfms.web.models.PagingModel;
@@ -104,10 +105,10 @@ public class CrewMemberController extends SfmsController {
 		}
 
 		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(CrewMemberSortingModel.ASCENDING)) {
-			sortCriteria = SortCriteria.ascending(sortColumn.getName());
+		if (effectiveDirection.equals(ClusterSortingModel.ASCENDING)) {
+			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
 		} else {
-			sortCriteria = SortCriteria.descending(sortColumn.getName());
+			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();
 		}
 
 		UriBuilder uriBuilder = getUriBuilder().pathSegment("crewMember");

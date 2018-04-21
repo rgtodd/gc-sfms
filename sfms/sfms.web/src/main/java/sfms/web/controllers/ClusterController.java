@@ -97,9 +97,9 @@ public class ClusterController extends SfmsController {
 
 		SortCriteria sortCriteria;
 		if (effectiveDirection.equals(ClusterSortingModel.ASCENDING)) {
-			sortCriteria = SortCriteria.ascending(sortColumn.getName());
+			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
 		} else {
-			sortCriteria = SortCriteria.descending(sortColumn.getName());
+			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();
 		}
 
 		UriBuilder uriBuilder = getUriBuilder().pathSegment("cluster");
