@@ -1,4 +1,4 @@
-package sfms.web.model.schemas;
+package sfms.web.schemas;
 
 public class CrewMemberModelSchema {
 

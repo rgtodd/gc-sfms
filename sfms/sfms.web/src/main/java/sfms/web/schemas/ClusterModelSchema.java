@@ -1,6 +1,6 @@
-package sfms.web.model.schemas;
+package sfms.web.schemas;
 
-public class SectorModelSchema {
+public class ClusterModelSchema {
 
 	public static final String MINIMUM_X = "MinimumX";
 	public static final String MINIMUM_Y = "MinimumY";

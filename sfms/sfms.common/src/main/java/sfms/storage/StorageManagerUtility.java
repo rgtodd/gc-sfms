@@ -13,6 +13,10 @@ import java.util.stream.Stream;
 
 import sfms.common.Constants;
 
+/**
+ * Convenience functions associated with {@link StorageManager}.
+ *
+ */
 public class StorageManagerUtility {
 
 	private final static String CACHE_BUCKET_NAME = Constants.CLOUD_STORAGE_BUCKET;
@@ -42,12 +46,6 @@ public class StorageManagerUtility {
 		return readChannel;
 	}
 
-	public interface ObjectFactory {
-
-		public byte[] createObject() throws Exception;
-
-	}
-
 	public static int getLineCount(String bucketName, String blobName) throws IOException {
 
 		try (ReadableByteChannel readChannel = Storage.getManager().getReadableByteChannel(bucketName, blobName)) {
@@ -71,6 +69,12 @@ public class StorageManagerUtility {
 
 			return count;
 		}
+	}
+
+	public interface ObjectFactory {
+
+		public byte[] createObject() throws Exception;
+
 	}
 
 }

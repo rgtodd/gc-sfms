@@ -1,6 +1,6 @@
 package sfms.web.models;
 
-import sfms.web.model.schemas.ClusterModelSchema;
+import sfms.web.schemas.ClusterModelSchema;
 
 public class SectorSortingModel extends SortingModel {
 

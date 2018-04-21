@@ -10,6 +10,10 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 
+/**
+ * A storage manager for the Google Cloud Storage service.
+ *
+ */
 public class GoogleStorageManager implements StorageManager {
 
 	@Override

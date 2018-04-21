@@ -9,6 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+/**
+ * A storage manager for a local file system.
+ *
+ */
 public class LocalStorageManager implements StorageManager {
 
 	@Override

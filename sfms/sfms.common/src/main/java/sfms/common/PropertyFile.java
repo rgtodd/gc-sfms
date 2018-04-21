@@ -6,6 +6,12 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Access property data used by the application.
+ * 
+ * @see java.util.Properties
+ * 
+ */
 public class PropertyFile {
 
 	// Standard property files.

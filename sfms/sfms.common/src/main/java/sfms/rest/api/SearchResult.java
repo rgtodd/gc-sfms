@@ -2,6 +2,12 @@ package sfms.rest.api;
 
 import java.util.List;
 
+/**
+ * Defines the response returned by REST service search methods.
+ *
+ * @param <TEntity>
+ *            the type of the entities returned by the service.
+ */
 public class SearchResult<TEntity> {
 
 	private String m_startingBookmark;

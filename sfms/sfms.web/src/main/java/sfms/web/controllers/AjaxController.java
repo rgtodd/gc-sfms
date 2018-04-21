@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import sfms.rest.api.models.MapItemTypes;
 import sfms.rest.api.models.Sector;
 import sfms.rest.api.models.Star;
 import sfms.web.SfmsController;
 import sfms.web.mock.MockSpaceData;
+import sfms.web.models.MapItemTypes;
 import sfms.web.models.ajax.GetMapItemsResponse;
 import sfms.web.models.ajax.GetSectorResponse;
 import sfms.web.models.ajax.GetSectorsResponse;

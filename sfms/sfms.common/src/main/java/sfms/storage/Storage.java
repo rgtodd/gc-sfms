@@ -2,6 +2,10 @@ package sfms.storage;
 
 import sfms.common.PropertyFile;
 
+/**
+ * Exposes the appropriate {@link StorageManager} for the application.
+ *
+ */
 public class Storage {
 
 	private Storage() {

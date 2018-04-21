@@ -1,5 +1,10 @@
 package sfms.rest.api.schemas;
 
+/**
+ * Defines data fields used by the Cluster REST service. These fields can appear
+ * in sorting and filtering criteria.
+ *
+ */
 public enum ClusterField {
 
 	Name("Key"),

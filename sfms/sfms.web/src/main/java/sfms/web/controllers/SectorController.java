@@ -33,9 +33,9 @@ import sfms.rest.api.schemas.SectorField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
-import sfms.web.model.schemas.SectorModelSchema;
 import sfms.web.models.SectorModel;
 import sfms.web.models.SectorSortingModel;
+import sfms.web.schemas.SectorModelSchema;
 import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.PagingModel;
 

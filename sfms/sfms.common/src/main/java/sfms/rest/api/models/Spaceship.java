@@ -2,6 +2,10 @@ package sfms.rest.api.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * Defines a Spaceship entity exposed by the Spaceship REST service.
+ *
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Spaceship {
 

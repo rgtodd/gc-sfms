@@ -2,6 +2,10 @@ package sfms.rest.api.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * Defines a Star entity exposed by the Star REST service.
+ *
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Star {
 

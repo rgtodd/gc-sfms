@@ -4,6 +4,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * Defines a Sector entity exposed by the Sector REST service.
+ *
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Sector {
 

@@ -1,6 +1,6 @@
 package sfms.web.models;
 
-import sfms.web.model.schemas.CrewMemberModelSchema;
+import sfms.web.schemas.CrewMemberModelSchema;
 
 public class CrewMemberSortingModel extends SortingModel {
 

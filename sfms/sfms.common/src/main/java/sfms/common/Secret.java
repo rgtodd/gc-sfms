@@ -11,6 +11,15 @@ import java.util.logging.Logger;
 
 import sfms.storage.Storage;
 
+/**
+ * Provides support to access application secrets.
+ * 
+ * Secrets are contained in a file in Google cloud storage. The file is in the
+ * standard properties format.
+ * 
+ * @see java.util.Properties
+ *
+ */
 public class Secret {
 
 	private final Logger logger = Logger.getLogger(Secret.class.getName());

@@ -2,6 +2,10 @@ package sfms.rest.api.models;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * Defines a Crew Member entity exposed by the Crew Member REST service.
+ *
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CrewMember {
 

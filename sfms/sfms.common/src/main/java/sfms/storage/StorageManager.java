@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
+/**
+ * An agent used to access files.
+ *
+ */
 public interface StorageManager {
 
 	public boolean blobExists(String bucketName, String blobName);

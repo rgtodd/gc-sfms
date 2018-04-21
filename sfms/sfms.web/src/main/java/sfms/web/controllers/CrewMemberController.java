@@ -30,11 +30,11 @@ import sfms.rest.api.schemas.CrewMemberField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
-import sfms.web.model.schemas.CrewMemberModelSchema;
 import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.CrewMemberModel;
 import sfms.web.models.CrewMemberSortingModel;
 import sfms.web.models.PagingModel;
+import sfms.web.schemas.CrewMemberModelSchema;
 
 @Controller
 public class CrewMemberController extends SfmsController {

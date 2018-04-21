@@ -3,6 +3,18 @@ package sfms.rest.api;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Defines the sort criteria used by REST service search methods.
+ * 
+ * REST service callers can use {@link #newBuilder()} to construct a new
+ * SortCriteria object. Once the object has been created, call
+ * {@link #toString()} to create the value to be passed to the service. The
+ * resulting value should be URL encoded.
+ * 
+ * REST services can reconstruct the SortCriteria object using the
+ * {@link #parse(String)} function.
+ *
+ */
 public class SortCriteria {
 
 	public static final String ASCENDING = "asc";

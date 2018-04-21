@@ -1,4 +1,4 @@
-package sfms.rest.api.models;
+package sfms.web.models;
 
 public class MapItemTypes {
 

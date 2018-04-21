@@ -1,6 +1,6 @@
 package sfms.web.models;
 
-import sfms.web.model.schemas.StarModelSchema;
+import sfms.web.schemas.StarModelSchema;
 
 public class StarSortingModel extends SortingModel {
 

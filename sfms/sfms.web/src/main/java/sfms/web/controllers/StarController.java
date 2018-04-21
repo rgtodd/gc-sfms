@@ -30,11 +30,11 @@ import sfms.rest.api.schemas.StarField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
-import sfms.web.model.schemas.StarModelSchema;
 import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.PagingModel;
 import sfms.web.models.StarModel;
 import sfms.web.models.StarSortingModel;
+import sfms.web.schemas.StarModelSchema;
 
 @Controller
 public class StarController extends SfmsController {

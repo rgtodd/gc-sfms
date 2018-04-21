@@ -8,8 +8,8 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import sfms.common.Secret;
+import sfms.common.Constants;
 import sfms.common.PropertyFile;
-import sfms.rest.api.RestUtility;
 
 public class SfmsController {
 
@@ -39,7 +39,7 @@ public class SfmsController {
 
 	private MultiValueMap<String, String> createRequestHeaders() {
 		MultiValueMap<String, String> result = new LinkedMultiValueMap<String, String>();
-		result.add(RestUtility.REST_AUTHORIZATION_TOKEN_HEADER_KEY, Secret.getRestAuthorizationToken());
+		result.add(Constants.REST_AUTHORIZATION_TOKEN_HEADER_KEY, Secret.getRestAuthorizationToken());
 
 		return result;
 	}

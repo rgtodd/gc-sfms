@@ -3,6 +3,18 @@ package sfms.rest.api;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Defines the filter criteria used by REST service search methods.
+ * 
+ * REST service callers can use {@link #newBuilder()} to construct a new
+ * FilterCriteria object. Once the object has been created, call
+ * {@link #toString()} to create the value to be passed to the service. The
+ * resulting value should be URL encoded.
+ * 
+ * REST services can reconstruct the FilterCriteria object using the
+ * {@link #parse(String)} function.
+ *
+ */
 public class FilterCriteria {
 
 	public static final String EQ = "eq";

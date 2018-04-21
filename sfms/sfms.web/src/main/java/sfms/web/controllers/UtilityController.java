@@ -26,7 +26,6 @@ import sfms.common.Constants;
 import sfms.common.PropertyFile;
 import sfms.common.Secret;
 import sfms.rest.api.RestParameters;
-import sfms.rest.api.RestUtility;
 import sfms.storage.StorageManagerUtility;
 import sfms.web.SfmsController;
 import sfms.web.models.DebugEntryModel;
@@ -186,7 +185,7 @@ public class UtilityController extends SfmsController {
 	private void uploadPostSubmitTask(String fileName, int start, int recordCount) {
 		TaskOptions taskOptions = TaskOptions.Builder
 				.withUrl("/task/processStarFile")
-				.header(RestUtility.REST_AUTHORIZATION_TOKEN_HEADER_KEY, Secret.getRestAuthorizationToken())
+				.header(Constants.REST_AUTHORIZATION_TOKEN_HEADER_KEY, Secret.getRestAuthorizationToken())
 				.method(Method.GET)
 				.param(RestParameters.FILE_NAME, fileName)
 				.param(RestParameters.START, String.valueOf(start))
