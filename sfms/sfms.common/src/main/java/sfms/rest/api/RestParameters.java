@@ -8,6 +8,7 @@ public class RestParameters {
 
 	public static final String BOOKMARK = "bookmark";
 	public static final String COUNT = "count";
+	public static final String DETAIL = "detail";
 	public static final String FILE_NAME = "fileName";
 	public static final String FILTER = "filter";
 	public static final String PAGE_INDEX = "pageIndex";

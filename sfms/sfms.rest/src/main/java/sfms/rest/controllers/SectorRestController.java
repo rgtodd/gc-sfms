@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.api.client.util.IOUtils;
+import com.google.cloud.datastore.BaseEntity;
 import com.google.cloud.datastore.Cursor;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
@@ -51,6 +52,7 @@ import sfms.rest.api.SearchResult;
 import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Sector;
+import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.SectorField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSectorField;
@@ -79,6 +81,7 @@ public class SectorRestController {
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
 	private static final int MAX_PAGE_SIZE = 100;
+	private static final String DETAIL_STAR = "star";
 
 	@Autowired
 	private Throttle m_throttle;
@@ -109,7 +112,8 @@ public class SectorRestController {
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
 			@RequestParam(RestParameters.FILTER) Optional<String> filter,
-			@RequestParam(RestParameters.SORT) Optional<String> sort) throws Exception {
+			@RequestParam(RestParameters.SORT) Optional<String> sort,
+			@RequestParam(RestParameters.DETAIL) Optional<String> detail) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -119,29 +123,97 @@ public class SectorRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Builder queryBuilder = Query.newEntityQueryBuilder();
-		queryBuilder.setKind(DbEntity.Sector.getKind());
-		queryBuilder.setLimit(limit);
+		Builder sectorQueryBuilder = Query.newEntityQueryBuilder();
+		sectorQueryBuilder.setKind(DbEntity.Sector.getKind());
+		sectorQueryBuilder.setLimit(limit);
 		if (sort.isPresent()) {
-			addSortCriteria(queryBuilder, sort.get());
+			addSortCriteria(sectorQueryBuilder, sort.get());
 		}
 		if (filter.isPresent()) {
-			setQueryFilter(queryBuilder, filter.get());
+			setQueryFilter(sectorQueryBuilder, filter.get());
 		}
 		if (bookmark.isPresent()) {
-			queryBuilder.setStartCursor(Cursor.fromUrlSafe(bookmark.get()));
+			sectorQueryBuilder.setStartCursor(Cursor.fromUrlSafe(bookmark.get()));
 		}
+		Query<Entity> sectorQuery = sectorQueryBuilder.build();
 
-		Query<Entity> query = queryBuilder.build();
-
-		QueryResults<Entity> entities = datastore.run(query);
+		QueryResults<Entity> dbSectors = datastore.run(sectorQuery);
 
 		RestFactory factory = new RestFactory();
-		List<Sector> sectors = factory.createSectors(entities);
+		List<Sector> sectors;
+		if (detail.isPresent() && detail.get().equals(DETAIL_STAR)) {
+
+			Long minimumX = null;
+			Long maximumX = null;
+			Long minimumY = null;
+			Long maximumY = null;
+			Long minimumZ = null;
+			Long maximumZ = null;
+			Map<String, Sector> sectorsByKey = new HashMap<String, Sector>();
+			while (dbSectors.hasNext()) {
+				BaseEntity<Key> dbSector = dbSectors.next();
+				Sector sector = factory.createSector(dbSector, new ArrayList<Star>());
+				if (minimumX == null || sector.getMinimumX() < minimumX) {
+					minimumX = sector.getMinimumX();
+				}
+				if (maximumX == null || sector.getMaximumX() > maximumX) {
+					maximumX = sector.getMaximumX();
+				}
+				if (minimumY == null || sector.getMinimumY() < minimumY) {
+					minimumY = sector.getMinimumY();
+				}
+				if (maximumY == null || sector.getMaximumY() > maximumY) {
+					maximumY = sector.getMaximumY();
+				}
+				if (minimumZ == null || sector.getMinimumZ() < minimumZ) {
+					minimumZ = sector.getMinimumZ();
+				}
+				if (maximumZ == null || sector.getMaximumZ() > maximumZ) {
+					maximumZ = sector.getMaximumZ();
+				}
+				sectorsByKey.put(sector.getKey(), sector);
+			}
+
+			if (!sectorsByKey.isEmpty()) {
+
+				Query<ProjectionEntity> starQuery = Query.newProjectionEntityQueryBuilder()
+						.setKind(DbEntity.Star.getKind())
+						.setFilter(
+								CompositeFilter.and(
+										PropertyFilter.ge(DbStarField.X.getName(), (double) minimumX),
+										PropertyFilter.lt(DbStarField.X.getName(), (double) maximumX)))
+						.addProjection(DbStarField.SectorKey.getName())
+						.addProjection(DbStarField.X.getName())
+						.addProjection(DbStarField.Y.getName())
+						.addProjection(DbStarField.Z.getName()).build();
+
+				QueryResults<ProjectionEntity> dbStars = datastore.run(starQuery);
+
+				while (dbStars.hasNext()) {
+					BaseEntity<Key> dbStar = dbStars.next();
+					double y = dbStar.getDouble(DbStarField.Y.getName());
+					double z = dbStar.getDouble(DbStarField.Z.getName());
+					if (y >= minimumY && y < maximumY && z >= minimumZ && z < maximumZ) {
+						Star star = factory.createStar(dbStar);
+						String starSectorKey = star.getSectorKey();
+						if (starSectorKey != null) {
+							Sector sector = sectorsByKey.get(starSectorKey);
+							if (sector != null) {
+								sector.getStars().add(star);
+							}
+						}
+					}
+				}
+			}
+
+			sectors = new ArrayList<Sector>(sectorsByKey.values());
+		} else {
+			sectors = factory.createSectors(dbSectors);
+		}
 
 		SearchResult<Sector> result = new SearchResult<Sector>();
 		result.setEntities(sectors);
-		result.setEndingBookmark(entities.getCursorAfter().toUrlSafe());
+		result.setEndingBookmark(dbSectors.getCursorAfter().toUrlSafe());
 		result.setEndOfResults(sectors.size() < limit);
 
 		return result;
