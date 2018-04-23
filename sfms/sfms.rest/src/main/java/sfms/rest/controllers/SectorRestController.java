@@ -42,6 +42,7 @@ import com.google.cloud.datastore.StructuredQuery.OrderBy;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Value;
 
+import sfms.common.Constants;
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
 import sfms.rest.api.CreateResult;
@@ -58,7 +59,6 @@ import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSectorField;
 import sfms.rest.db.schemas.DbStarField;
 import sfms.storage.Storage;
-import sfms.storage.StorageManager;
 import sfms.storage.StorageManagerUtility;
 import sfms.storage.StorageManagerUtility.ObjectFactory;
 
@@ -79,17 +79,15 @@ public class SectorRestController {
 		s_dbFieldMap.put(SectorField.MaximumZ, DbSectorField.MaximumZ);
 	}
 
-	private static final int DEFAULT_PAGE_SIZE = 10;
-	private static final int MAX_PAGE_SIZE = 100;
+	private static final int DEFAULT_PAGE_SIZE = 1000;
+	private static final int MAX_PAGE_SIZE = 1000;
 	private static final String DETAIL_STAR = "star";
 
 	@Autowired
 	private Throttle m_throttle;
 
-	@GetMapping(value = "/{id}")
-	public void getLookup(
-			@PathVariable String id,
-			HttpServletResponse response) throws Exception {
+	@GetMapping(value = "/get/{id}")
+	public Sector getLookup(@PathVariable String id) throws Exception {
 
 		logger.info("getLookup: start");
 
@@ -97,9 +95,42 @@ public class SectorRestController {
 			throw new Exception("Function is throttled.");
 		}
 
-		try (ReadableByteChannel readChannel = retrieveCachedSectorDataFromDb(id);
+		return retrieveSectorFromDb(id);
+	}
+
+	@GetMapping(value = "/{id}")
+	public void getLookupCached(
+			@PathVariable String id,
+			HttpServletResponse response) throws Exception {
+
+		logger.info("getLookupCached: start");
+
+		if (!m_throttle.increment()) {
+			throw new Exception("Function is throttled.");
+		}
+
+		ObjectFactory objectFactory = new ObjectFactory() {
+			@Override
+			public byte[] createObject() throws Exception {
+				Sector result = retrieveSectorFromDb(id);
+
+				ObjectMapper mapper = new ObjectMapper();
+				ObjectWriter writer = mapper.writerFor(Sector.class);
+				byte[] buffer = writer.writeValueAsBytes(result);
+
+				return buffer;
+			}
+		};
+
+		String objectName = "Sector-" + id;
+
+		try (ReadableByteChannel readChannel = StorageManagerUtility.getCachedObject(
+				Storage.getManager(),
+				objectName,
+				Constants.CONTENT_TYPE_JSON,
+				objectFactory);
 				InputStream inputStream = Channels.newInputStream(readChannel)) {
-			response.setContentType("application/json");
+			response.setContentType(Constants.CONTENT_TYPE_JSON);
 			try (OutputStream outputStream = response.getOutputStream()) {
 				IOUtils.copy(inputStream, outputStream);
 			}
@@ -361,24 +392,6 @@ public class SectorRestController {
 			currentFilter = null;
 		}
 		return currentFilter;
-	}
-
-	private ReadableByteChannel retrieveCachedSectorDataFromDb(String id) throws Exception {
-
-		StorageManager storageManager = Storage.getManager();
-		return StorageManagerUtility.getCachedObject(storageManager, "Sector-" + id, "application/json",
-				new ObjectFactory() {
-					@Override
-					public byte[] createObject() throws Exception {
-						Sector result = retrieveSectorFromDb(id);
-
-						ObjectMapper mapper = new ObjectMapper();
-						ObjectWriter writer = mapper.writerFor(Sector.class);
-						byte[] buffer = writer.writeValueAsBytes(result);
-
-						return buffer;
-					}
-				});
 	}
 
 	private Sector retrieveSectorFromDb(String id) {

@@ -21,7 +21,7 @@ public class PropertyFile {
 	public static final String SERVER_TYPE = "server.type";
 	private static final String SERVER_TYPE_DEVELOPMENT = "development";
 	private static final String SERVER_TYPE_PRODUCTION = "production";
-	private static final String SERVER_TYPE_DEFAULT = SERVER_TYPE_PRODUCTION;
+	private static final String SERVER_TYPE_DEFAULT = SERVER_TYPE_DEVELOPMENT;
 
 	public static final String SFMS_REST_HOST = "sfms.rest.host";
 

@@ -76,6 +76,7 @@ var SpaceViewer = (function() {
 	var m_getSectorByLocationHandler = null;
 	var m_getSectorByKeyHandler = null;
 	var m_getMapItemsBySectorHandler = null;
+	var m_getMapItemsByRankHandler = null;
 	var m_onSectorClickHandler = null;
 	var m_onMapItemClickHandler = null;
 	var m_onMapItemHoverHandler = null;
@@ -481,6 +482,16 @@ var SpaceViewer = (function() {
 		}
 	}
 
+	var registerGetMapItemsByRankHandler = function(handler) {
+		m_getMapItemsByRankHandler = handler;
+	}
+
+	var raiseGetMapItemsByRank = function(rank, callback) {
+		if (m_getMapItemsByRankHandler !== null) {
+			m_getMapItemsByRankHandler(rank, callback);
+		}
+	}
+
 	var registerOnSectorClickHandler = function(handler) {
 		m_onSectorClickHandler = handler;
 	}
@@ -711,14 +722,11 @@ var SpaceViewer = (function() {
 	// **
 
 	var populateWorkQueue = function() {
-		MAP_ITEM_TYPES.forEach(function(mapItemType) {
-			m_sectors.forEach(function(sector) {
-				m_workQueue.push({
-					sectorKey : sector.key,
-					mapItemType : mapItemType
-				});
+		for (var rank = 0; rank < 10; ++rank) {
+			m_workQueue.push({
+				rank : rank
 			});
-		});
+		}
 	}
 
 	var processWorkQueue = function() {
@@ -729,27 +737,50 @@ var SpaceViewer = (function() {
 			return;
 		}
 
-		var bufferName = createBufferName(entry.sectorKey, entry.mapItemType);
-		if (!m_mapItemKeysByBufferName.has(bufferName)) {
-			m_mapItemKeysByBufferName.set(bufferName, "TEMP");
+		raiseGetMapItemsByRank(entry.rank, function(mapItemSets) {
+			mapItemSets.forEach(function(mapItemSet) {
 
-			raiseGetMapItemsBySector(entry.sectorKey, entry.mapItemType,
-					function(mapItemSets) {
-						mapItemSets.forEach(function(mapItemSet) {
+				var bufferName = createBufferName(mapItemSet.sectorKey,
+						mapItemSet.mapItemType);
 
-							if (mapItemSet.mapItemKeys.length > 0) {
-								m_mapItemKeysByBufferName.set(bufferName,
-										mapItemSet.mapItemKeys);
-								var buffer = createBuffer(entry.mapItemType,
-										mapItemSet.mapItemPoints);
-								buffer.name = bufferName;
-								m_objectGroup.add(buffer);
-							}
+				if (!m_mapItemKeysByBufferName.has(bufferName)) {
+					if (mapItemSet.mapItemKeys.length > 0) {
 
-							processWorkQueue();
-						});
-					});
-		}
+						m_mapItemKeysByBufferName.set(bufferName,
+								mapItemSet.mapItemKeys);
+						var buffer = createBuffer(mapItemSet.mapItemType,
+								mapItemSet.mapItemPoints);
+						buffer.name = bufferName;
+						m_objectGroup.add(buffer);
+					}
+				}
+			});
+
+			processWorkQueue();
+		});
+
+		// var bufferName = createBufferName(entry.sectorKey,
+		// entry.mapItemType);
+		// if (!m_mapItemKeysByBufferName.has(bufferName)) {
+		// m_mapItemKeysByBufferName.set(bufferName, "TEMP");
+		//
+		// raiseGetMapItemsBySector(entry.sectorKey, entry.mapItemType,
+		// function(mapItemSets) {
+		// mapItemSets.forEach(function(mapItemSet) {
+		//
+		// if (mapItemSet.mapItemKeys.length > 0) {
+		// m_mapItemKeysByBufferName.set(bufferName,
+		// mapItemSet.mapItemKeys);
+		// var buffer = createBuffer(entry.mapItemType,
+		// mapItemSet.mapItemPoints);
+		// buffer.name = bufferName;
+		// m_objectGroup.add(buffer);
+		// }
+		//
+		// processWorkQueue();
+		// });
+		// });
+		// }
 
 	}
 
@@ -922,6 +953,28 @@ var SpaceViewer = (function() {
 		//
 		RegisterGetMapItemsBySectorHandler : function(handler) {
 			registerGetMapItemsBySectorHandler(handler);
+		},
+
+		// RegisterGetObjectsByRankHandler - raised to retrieve objects within
+		// the specified rank.
+		//
+		// handler = function(rank, callback) where:
+		//
+		// rank = Number.
+		//
+		// callback = function(mapItemKeys, mapItemPoints) where:
+		//
+		// mapItemSets = array of mapItemSet
+		//
+		// mapItemSet = object of:
+		// * sectorKey = String
+		// * mapItemType = Number
+		// * mapItemKeys = array of String.
+		// * mapItemPoints = array of Number. Specifies location of map items in
+		// denormalized format (i.e. X1, Y1, Z1, X2, Y2, Z2, ...)
+		//
+		RegisterGetMapItemsByRankHandler : function(handler) {
+			registerGetMapItemsByRankHandler(handler);
 		},
 
 		// RegisterOnSectorClickHandler - raised when the user selects a new

@@ -77,6 +77,20 @@ var SpaceViewerRestHandler = (function() {
 		});
 	};
 
+	var getMapItemsByRankAsync = function(rank, callback) {
+
+		var url = "/ajax/getMapItemsByRank?rank=" + rank;
+
+		SpaceViewerRestLogger.RaiseOnRestStart(url);
+		$.ajax({
+			type : 'GET',
+			url : url
+		}).then(function(response) {
+			SpaceViewerRestLogger.RaiseOnRestComplete(url);
+			callback(response.mapItemSets);
+		});
+	};
+
 	// *********************************
 	// **
 	// ** PUBLIC
@@ -117,6 +131,15 @@ var SpaceViewerRestHandler = (function() {
 		//
 		GetMapItemsBySectorAsync : function(sectorKey, mapItemType, callback) {
 			getMapItemsBySectorAsync(sectorKey, mapItemType, callback);
+		},
+
+		// GetObjectsBySector event handler for SpaceViewer.
+		//
+		// See SpaceViewer::RegisterGetObjectsBySectorHandler for more
+		// information.
+		//
+		GetMapItemsByRankAsync : function(rank, callback) {
+			getMapItemsByRankAsync(rank, callback);
 		}
 	}
 

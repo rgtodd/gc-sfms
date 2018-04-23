@@ -1,8 +1,15 @@
 package sfms.web.controllers;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -13,9 +20,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.api.client.util.IOUtils;
+
+import sfms.common.Constants;
+import sfms.rest.api.FilterCriteria;
+import sfms.rest.api.RestParameters;
+import sfms.rest.api.SearchResult;
 import sfms.rest.api.models.Sector;
 import sfms.rest.api.models.Star;
+import sfms.rest.api.schemas.SectorField;
+import sfms.storage.Storage;
+import sfms.storage.StorageManagerUtility;
+import sfms.storage.StorageManagerUtility.ObjectFactory;
 import sfms.web.SfmsController;
 import sfms.web.mock.MockSpaceData;
 import sfms.web.models.MapItemTypes;
@@ -28,6 +48,8 @@ import sfms.web.models.ajax.SectorModel;
 @RestController
 @RequestMapping({ "/ajax" })
 public class AjaxController extends SfmsController {
+
+	private final Logger logger = Logger.getLogger(AjaxController.class.getName());
 
 	@Autowired
 	private MockSpaceData m_mockSpaceData;
@@ -81,6 +103,111 @@ public class AjaxController extends SfmsController {
 			@RequestParam("mapItemType") Integer mapItemType) {
 
 		return getMapItemsBySectorRest(sectorKey, mapItemType);
+	}
+
+	@GetMapping({ "/getMapItemsByRank/get" })
+	public GetMapItemsResponse getMapItemsByRank(
+			@RequestParam("rank") Long rank) {
+
+		GetMapItemsResponse response = getMapItemsByRankRest(rank);
+
+		return response;
+	}
+
+	@GetMapping({ "/getMapItemsByRank" })
+	public void getMapItemsByRankCached(
+			@RequestParam("rank") Long rank,
+			HttpServletResponse response) throws Exception {
+
+		ObjectFactory objectFactory = new ObjectFactory() {
+			@Override
+			public byte[] createObject() throws Exception {
+				GetMapItemsResponse serviceResponse = getMapItemsByRankRest(rank);
+
+				ObjectMapper mapper = new ObjectMapper();
+				ObjectWriter writer = mapper.writerFor(GetMapItemsResponse.class);
+				byte[] buffer = writer.writeValueAsBytes(serviceResponse);
+
+				return buffer;
+			}
+		};
+
+		String objectName = "getMapItemsByRank-" + String.valueOf(rank);
+
+		try (ReadableByteChannel readChannel = StorageManagerUtility.getCachedObject(
+				Storage.getManager(),
+				objectName,
+				Constants.CONTENT_TYPE_JSON,
+				objectFactory);
+				InputStream inputStream = Channels.newInputStream(readChannel)) {
+			response.setContentType(Constants.CONTENT_TYPE_JSON);
+			try (OutputStream outputStream = response.getOutputStream()) {
+				IOUtils.copy(inputStream, outputStream);
+			}
+		}
+	}
+
+	private GetMapItemsResponse getMapItemsByRankRest(Long rank) {
+		Long minimumX = -1000 + rank * 200;
+		Long maximumX = minimumX + 200;
+
+		FilterCriteria filterCriteria = FilterCriteria.newBuilder()
+				.add(SectorField.MinimumX.getName(), FilterCriteria.GE, minimumX.toString())
+				.add(SectorField.MinimumX.getName(), FilterCriteria.LT, maximumX.toString())
+				.build();
+
+		String uri = UriComponentsBuilder.newInstance()
+				.path("sector")
+				.queryParam(RestParameters.FILTER, filterCriteria.toString())
+				.queryParam(RestParameters.DETAIL, "star")
+				.build()
+				.toUriString();
+
+		logger.info("Calling " + uri);
+
+		RestTemplate restTemplate = createRestTempate();
+		ResponseEntity<SearchResult<Sector>> restResponse = restTemplate.exchange(
+				getRestUrl(uri),
+				HttpMethod.GET,
+				createHttpEntity(),
+				new ParameterizedTypeReference<SearchResult<Sector>>() {
+				});
+		SearchResult<Sector> searchResults = restResponse.getBody();
+
+		List<MapItemSetModel> mapItemSets = new ArrayList<MapItemSetModel>();
+		for (Sector sector : searchResults.getEntities()) {
+
+			// Add sector stars.
+			//
+			{
+				List<String> mapItemKeys = new ArrayList<String>();
+				List<Double> mapItemPoints = new ArrayList<Double>();
+				for (Star star : sector.getStars()) {
+					mapItemKeys.add(star.getKey());
+					mapItemPoints.add(star.getX());
+					mapItemPoints.add(star.getY());
+					mapItemPoints.add(star.getZ());
+				}
+
+				MapItemSetModel mapItemSet = new MapItemSetModel();
+				mapItemSet.setSectorKey(sector.getKey());
+				mapItemSet.setMapItemType(MapItemTypes.STAR);
+				mapItemSet.setMapItemKeys(mapItemKeys);
+				mapItemSet.setMapItemPoints(mapItemPoints);
+
+				mapItemSets.add(mapItemSet);
+			}
+
+			// Add sector ships.
+			//
+			{
+				// TODO
+			}
+		}
+
+		GetMapItemsResponse response = new GetMapItemsResponse();
+		response.setMapItemSets(mapItemSets);
+		return response;
 	}
 
 	private GetMapItemsResponse getMapItemsBySectorRest(String sectorKey, Integer mapItemType) {

@@ -109,9 +109,9 @@ public class FilterCriteria {
 
 	public static class Builder {
 
-		private static List<String> m_columns = new ArrayList<String>();
-		private static List<String> m_operators = new ArrayList<String>();
-		private static List<String> m_values = new ArrayList<String>();
+		private List<String> m_columns = new ArrayList<String>();
+		private List<String> m_operators = new ArrayList<String>();
+		private List<String> m_values = new ArrayList<String>();
 
 		private Builder() {
 		}

@@ -9,6 +9,7 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
 
+import sfms.common.Constants;
 import sfms.rest.db.schemas.DbClusterField;
 import sfms.rest.db.schemas.DbClusterSectorField;
 import sfms.rest.db.schemas.DbEntity;
@@ -17,10 +18,6 @@ import sfms.rest.db.schemas.DbSectorField;
 public class StarClusterGenerator {
 
 	private final Logger logger = Logger.getLogger(StarClusterGenerator.class.getName());
-
-	private static final int MIN_BOUNDS = -1000;
-	private static final int MAX_BOUNDS = 1000;
-	private static final int DELTA = 200;
 
 	public void generate() {
 		logger.info("Creating sector regions.");
@@ -131,12 +128,17 @@ public class StarClusterGenerator {
 	}
 
 	private RegionSet createSectorRegions() {
-		return RegionSet.create(MIN_BOUNDS, MAX_BOUNDS, DELTA, 0);
+		return RegionSet.create(Constants.SECTOR_MINIMUM_BOUNDS, Constants.SECTOR_MAXIMUM_BOUNDS,
+				Constants.SECTOR_BOUNDS_DELTA, 0);
 	}
 
 	private RegionSet createClusterRegions() {
-		RegionSet result = RegionSet.create(MIN_BOUNDS, MAX_BOUNDS, DELTA * 2, 0);
-		result.addAll(RegionSet.create(MIN_BOUNDS + DELTA, MAX_BOUNDS, DELTA * 2, 1));
+		RegionSet result = RegionSet.create(Constants.SECTOR_MINIMUM_BOUNDS, Constants.SECTOR_MAXIMUM_BOUNDS,
+				Constants.SECTOR_BOUNDS_DELTA * 2,
+				0);
+		result.addAll(RegionSet.create(Constants.SECTOR_MINIMUM_BOUNDS + Constants.SECTOR_BOUNDS_DELTA,
+				Constants.SECTOR_MAXIMUM_BOUNDS,
+				Constants.SECTOR_BOUNDS_DELTA * 2, 1));
 		return result;
 	}
 
