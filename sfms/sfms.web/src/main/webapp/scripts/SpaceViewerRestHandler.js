@@ -20,7 +20,7 @@ var SpaceViewerRestHandler = (function() {
 	// **
 	// *********************************
 
-	var getSectorsAsync = function(callback) {
+	var getSectors = function(callback) {
 
 		var url = "/ajax/getSectors";
 
@@ -34,7 +34,7 @@ var SpaceViewerRestHandler = (function() {
 		});
 	};
 
-	var getSectorByLocationAsync = function(x, y, z, callback) {
+	var getSectorByLocation = function(x, y, z, callback) {
 
 		var url = "/ajax/getSectorByLocation?x=" + x + "&y=" + y + "&z=" + z;
 
@@ -48,7 +48,7 @@ var SpaceViewerRestHandler = (function() {
 		});
 	}
 
-	var getSectorByKeyAsync = function(key, callback) {
+	var getSectorByKey = function(key, callback) {
 
 		var url = "/ajax/getSectorByKey?key=" + key;
 
@@ -62,7 +62,7 @@ var SpaceViewerRestHandler = (function() {
 		});
 	}
 
-	var getMapItemsBySectorAsync = function(sectorKey, mapItemType, callback) {
+	var getMapItemsBySector = function(sectorKey, mapItemType, callback) {
 
 		var url = "/ajax/getMapItemsBySector?sectorKey=" + sectorKey
 				+ "&mapItemType=" + mapItemType;
@@ -77,7 +77,7 @@ var SpaceViewerRestHandler = (function() {
 		});
 	};
 
-	var getMapItemsByRankAsync = function(rank, callback) {
+	var getMapItemsByRank = function(rank, callback) {
 
 		var url = "/ajax/getMapItemsByRank?rank=" + rank;
 
@@ -88,6 +88,21 @@ var SpaceViewerRestHandler = (function() {
 		}).then(function(response) {
 			SpaceViewerRestLogger.RaiseOnRestComplete(url);
 			callback(response.mapItemSets);
+		});
+	};
+
+	var getMapItem = function(mapItemType, mapItemKey, callback) {
+
+		var url = "/ajax/getMapItem?mapItemType=" + mapItemType
+				+ "&mapItemKey=" + mapItemKey;
+
+		SpaceViewerRestLogger.RaiseOnRestStart(url);
+		$.ajax({
+			type : 'GET',
+			url : url
+		}).then(function(response) {
+			SpaceViewerRestLogger.RaiseOnRestComplete(url);
+			callback(response);
 		});
 	};
 
@@ -103,8 +118,8 @@ var SpaceViewerRestHandler = (function() {
 		//
 		// See SpaceViewer::RegisterGetSectorsHandler for more information.
 		//
-		GetSectorsAsync : function(callback) {
-			getSectorsAsync(callback);
+		GetSectors : function(callback) {
+			getSectors(callback);
 		},
 
 		// GetSectorByLocation event handler for SpaceViewer.
@@ -112,16 +127,16 @@ var SpaceViewerRestHandler = (function() {
 		// See SpaceViewer::RegisterGetSectorByLocationHandler for more
 		// information.
 		//
-		GetSectorByLocationAsync : function(x, y, z, callback) {
-			getSectorByLocationAsync(x, y, z, callback);
+		GetSectorByLocation : function(x, y, z, callback) {
+			getSectorByLocation(x, y, z, callback);
 		},
 
 		// GetSectorByKey event handler for SpaceViewer.
 		//
 		// See SpaceViewer::RegisterGetSectorByKeyHandler for more information.
 		//
-		GetSectorByKeyAsync : function(key, callback) {
-			getSectorByKeyAsync(key, callback);
+		GetSectorByKey : function(key, callback) {
+			getSectorByKey(key, callback);
 		},
 
 		// GetObjectsBySector event handler for SpaceViewer.
@@ -129,8 +144,8 @@ var SpaceViewerRestHandler = (function() {
 		// See SpaceViewer::RegisterGetObjectsBySectorHandler for more
 		// information.
 		//
-		GetMapItemsBySectorAsync : function(sectorKey, mapItemType, callback) {
-			getMapItemsBySectorAsync(sectorKey, mapItemType, callback);
+		GetMapItemsBySector : function(sectorKey, mapItemType, callback) {
+			getMapItemsBySector(sectorKey, mapItemType, callback);
 		},
 
 		// GetObjectsBySector event handler for SpaceViewer.
@@ -138,8 +153,17 @@ var SpaceViewerRestHandler = (function() {
 		// See SpaceViewer::RegisterGetObjectsBySectorHandler for more
 		// information.
 		//
-		GetMapItemsByRankAsync : function(rank, callback) {
-			getMapItemsByRankAsync(rank, callback);
+		GetMapItemsByRank : function(rank, callback) {
+			getMapItemsByRank(rank, callback);
+		},
+
+		// GetMapItems event handler for SpaceViewer.
+		//
+		// See SpaceViewer::RegisterGetMapItemHandler for more
+		// information.
+		//
+		GetMapItem : function(mapItemType, mapItemKey, callback) {
+			getMapItem(mapItemType, mapItemKey, callback);
 		}
 	}
 

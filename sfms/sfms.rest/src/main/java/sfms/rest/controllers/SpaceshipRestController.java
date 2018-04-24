@@ -164,7 +164,7 @@ public class SpaceshipRestController {
 				.setKind(DbEntity.Spaceship.getKind())
 				.newKey();
 
-		FullEntity<IncompleteKey> entity = Entity.newBuilder(incompleteKey)
+		FullEntity<IncompleteKey> entity = FullEntity.newBuilder(incompleteKey)
 				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
 				.build();
 

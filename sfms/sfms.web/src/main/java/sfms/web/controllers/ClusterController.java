@@ -36,6 +36,7 @@ import sfms.web.SfmsController;
 import sfms.web.models.ClusterModel;
 import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.PagingModel;
+import sfms.web.models.SortingModel;
 import sfms.web.schemas.ClusterModelSchema;
 
 @Controller
@@ -90,13 +91,13 @@ public class ClusterController extends SfmsController {
 		if (direction.isPresent()) {
 			effectiveDirection = direction.get();
 		} else {
-			effectiveDirection = ClusterSortingModel.ASCENDING;
+			effectiveDirection = SortingModel.ASCENDING;
 		}
 
 		ClusterField sortColumn = s_dbFieldMap.get(effectiveSort);
 
 		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(ClusterSortingModel.ASCENDING)) {
+		if (effectiveDirection.equals(SortingModel.ASCENDING)) {
 			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
 		} else {
 			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();

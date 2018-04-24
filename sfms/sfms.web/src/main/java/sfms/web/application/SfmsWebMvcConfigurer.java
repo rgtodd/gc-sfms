@@ -28,6 +28,7 @@ public class SfmsWebMvcConfigurer implements WebMvcConfigurer, ApplicationContex
 	public SfmsWebMvcConfigurer() {
 	}
 
+	@Override
 	public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}

@@ -28,7 +28,7 @@ public class SpaceshipGenerator {
 				String name = "USS " + ValueGenerator.getRandomAdjective() + " " + ValueGenerator.getRandomNoun();
 
 				IncompleteKey clusterKey = clusterKeyFactory.newKey();
-				FullEntity<IncompleteKey> cluster = Entity.newBuilder(clusterKey)
+				FullEntity<IncompleteKey> cluster = FullEntity.newBuilder(clusterKey)
 						.set(DbSpaceshipField.Name.getName(), name)
 						.build();
 				batchPut.add(cluster);

@@ -32,6 +32,7 @@ import sfms.web.RestFactory;
 import sfms.web.SfmsController;
 import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.PagingModel;
+import sfms.web.models.SortingModel;
 import sfms.web.models.StarModel;
 import sfms.web.models.StarSortingModel;
 import sfms.web.schemas.StarModelSchema;
@@ -84,15 +85,15 @@ public class StarController extends SfmsController {
 		String effectiveDirection;
 		if (direction.isPresent()) {
 			switch (direction.get()) {
-			case StarSortingModel.ASCENDING:
-			case StarSortingModel.DESCENDING:
+			case SortingModel.ASCENDING:
+			case SortingModel.DESCENDING:
 				effectiveDirection = direction.get();
 				break;
 			default:
-				effectiveDirection = StarSortingModel.ASCENDING;
+				effectiveDirection = SortingModel.ASCENDING;
 			}
 		} else {
-			effectiveDirection = StarSortingModel.ASCENDING;
+			effectiveDirection = SortingModel.ASCENDING;
 		}
 
 		StarField sortColumn = null;
@@ -109,7 +110,7 @@ public class StarController extends SfmsController {
 		}
 
 		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(ClusterSortingModel.ASCENDING)) {
+		if (effectiveDirection.equals(SortingModel.ASCENDING)) {
 			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
 		} else {
 			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();

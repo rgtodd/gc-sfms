@@ -42,6 +42,9 @@ import sfms.web.models.MapItemTypes;
 import sfms.web.models.ajax.GetMapItemsResponse;
 import sfms.web.models.ajax.GetSectorResponse;
 import sfms.web.models.ajax.GetSectorsResponse;
+import sfms.web.models.ajax.MapItemModel;
+import sfms.web.models.ajax.MapItemPropertyGroupModel;
+import sfms.web.models.ajax.MapItemPropertyModel;
 import sfms.web.models.ajax.MapItemSetModel;
 import sfms.web.models.ajax.SectorModel;
 
@@ -95,6 +98,67 @@ public class AjaxController extends SfmsController {
 		response.setSector(sector);
 
 		return response;
+	}
+
+	@GetMapping({ "/getMapItem" })
+	public MapItemModel getMapItem(
+			@RequestParam("mapItemType") Integer mapItemType,
+			@RequestParam("mapItemKey") String mapItemKey) {
+
+		switch (mapItemType) {
+		case MapItemTypes.STAR:
+
+			RestTemplate restTemplate = createRestTempate();
+			ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + mapItemKey),
+					HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Star>() {
+					});
+			Star star = restResponse.getBody();
+
+			List<MapItemPropertyGroupModel> propertyGroups = new ArrayList<MapItemPropertyGroupModel>();
+			addPropertyGroup(propertyGroups, "ID");
+			addProperty(propertyGroups, "BayerFlamsteedId", "BayerFlamsteedId", star.getBayerFlamsteedId());
+			addProperty(propertyGroups, "getHarvardRevisedId", "getHarvardRevisedId", star.getHarvardRevisedId());
+			addPropertyGroup(propertyGroups, "Coordinates");
+			addProperty(propertyGroups, "X", "X", star.getX().toString());
+			addProperty(propertyGroups, "Y", "Y", star.getY().toString());
+			addProperty(propertyGroups, "Z", "X", star.getZ().toString());
+
+			MapItemModel result = new MapItemModel();
+			result.setMapItemKey(mapItemKey);
+			result.setMapItemType(mapItemType);
+			result.setSectorKey(star.getSectorKey());
+			result.setPropertyGroups(propertyGroups);
+
+			return result;
+		case MapItemTypes.SHIP:
+			// TODO
+
+			return null;
+		default:
+
+			return null;
+		}
+	}
+
+	private void addPropertyGroup(List<MapItemPropertyGroupModel> propertyGroups, String title) {
+
+		List<MapItemPropertyModel> properties = new ArrayList<MapItemPropertyModel>();
+		MapItemPropertyGroupModel propertyGroup = new MapItemPropertyGroupModel();
+		propertyGroup.setTitle(title);
+		propertyGroup.setProperties(properties);
+
+		propertyGroups.add(propertyGroup);
+	}
+
+	private void addProperty(List<MapItemPropertyGroupModel> propertyGroups, String title, String description,
+			String value) {
+
+		MapItemPropertyModel property = new MapItemPropertyModel();
+		property.setTitle(title);
+		property.setDescription(description);
+		property.setValue(value);
+
+		propertyGroups.get(propertyGroups.size() - 1).getProperties().add(property);
 	}
 
 	@GetMapping({ "/getMapItemsBySector" })

@@ -18,11 +18,13 @@ public class DateFormatter implements Formatter<Date> {
 		super();
 	}
 
+	@Override
 	public Date parse(final String text, final Locale locale) throws ParseException {
 		final SimpleDateFormat dateFormat = createDateFormat(locale);
 		return dateFormat.parse(text);
 	}
 
+	@Override
 	public String print(final Date object, final Locale locale) {
 		final SimpleDateFormat dateFormat = createDateFormat(locale);
 		return dateFormat.format(object);

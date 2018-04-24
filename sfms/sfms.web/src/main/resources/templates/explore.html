@@ -16,10 +16,30 @@
 			</ol>
 		</nav>
 		<div class="row">
-			<div id="divSpaceViewer" class="col-sm" style="height: 600px;">
-				<canvas id="canvasSpaceViewer" style="width: 100%; height: 100%;"></canvas>
+			<div class="col-sm">
+				<div id="divSpaceViewer" class="mb-2" style="height: 500px;">
+					<canvas id="canvasSpaceViewer" style="width: 100%; height: 100%;"></canvas>
+				</div>
+				<div class="card">
+					<div class="card-header">
+						<ul class="nav nav-pills card-header-pills">
+							<li class="nav-item"><a id="aDebugRestLink"
+								class="nav-link active">REST <span id="spanDebugRestCounter"
+									class="badge badge-secondary">10</span>
+							</a></li>
+							<li class="nav-item"><a id="aDebugLogLink" class="nav-link">Log</a></li>
+						</ul>
+					</div>
+					<div class="card-body">
+						<div id="divDebugRestBody"></div>
+						<div id="divDebugLogBody"></div>
+					</div>
+				</div>
 			</div>
 			<div class="col-sm">
+				<!--/*-->
+				************************ BEGIN COMMENT BLOCK
+				<h2></h2>
 				<p>
 					Sector: <span id="ctrlSector"></span>
 				</p>
@@ -29,11 +49,74 @@
 				<p>
 					Hover: <span id="ctrlHover"></span>
 				</p>
+				************************ END COMMENT BLOCK
+				<!--*/-->
+				<div class="h2 border" style="background-color: #e9ecef;">
+					<div class="row">
+						<div id="divMapItemTitle" class="col-sm ml-2">Star 123</div>
+						<div class="col-sm">
+							Sector <span id="spanSectorX">X</span> &times; <span
+								id="spanSectorY">Y</span> &times; <span id="spanSectorZ">Z</span>
+						</div>
+					</div>
+				</div>
+				<div id="divMapItemProperties">
+					<!--/*-->
+					************************ BEGIN COMMENT BLOCK
+					<h6>ID</h6>
+					<table class="table table-sm">
+						<tbody>
+							<tr>
+								<th scope="row">1</th>
+								<td>Mark</td>
+							</tr>
+							<tr>
+								<th scope="row">2</th>
+								<td>Jacob</td>
+							</tr>
+							<tr>
+								<th scope="row">3</th>
+								<td colspan="2">Larry the Bird</td>
+							</tr>
+						</tbody>
+					</table>
+					<h6>Position</h6>
+					<table class="table table-sm">
+						<tbody>
+							<tr>
+								<th scope="row">1</th>
+								<td>Mark</td>
+							</tr>
+							<tr>
+								<th scope="row">2</th>
+								<td>Jacob</td>
+							</tr>
+							<tr>
+								<th scope="row">3</th>
+								<td colspan="2">Larry the Bird</td>
+							</tr>
+						</tbody>
+					</table>
+					************************ END COMMENT BLOCK
+					<!--*/-->
+				</div>
+			</div>
+		</div>
+		<!--/*-->
+		************************ BEGIN COMMENT BLOCK
+		<div class="row">
+			<div class="col-sm">
 				<p id="ctrlDebug"></p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm">
 				<p>REST</p>
 				<div id="ctrlRestLog" style="height: 400px; overflow: scroll;"></div>
 			</div>
 		</div>
+		************************ END COMMENT BLOCK
+		<!--*/-->
 	</div>
 	<div layout:fragment="scripts">
 		<script type="text/javascript" src="scripts/jquery-3.3.1.min.js"></script>
@@ -47,61 +130,9 @@
 		<script type="text/javascript" src="scripts/SpaceViewerMockHandler.js"></script>
 		<script type="text/javascript" src="scripts/SpaceViewerRestHandler.js"></script>
 		<script type="text/javascript" src="scripts/SpaceViewerRestLogger.js"></script>
+		<script type="text/javascript" src="scripts/explorer.js"></script>
 		<script type="text/javascript">
-			$(document)
-					.ready(
-							function() {
-								SpaceViewerRestLogger
-										.RegisterOnRestStartHandler(function(
-												url) {
-											$("#ctrlRestLog").append(
-													"Start: " + url + "<br>");
-										});
-
-								SpaceViewerRestLogger
-										.RegisterOnRestCompleteHandler(function(
-												url) {
-											$("#ctrlRestLog")
-													.append(
-															"Complete: " + url
-																	+ "<br>");
-										});
-
-								SpaceViewer
-										.RegisterGetSectorsHandler(SpaceViewerRestHandler.GetSectorsAsync);
-								SpaceViewer
-										.RegisterGetSectorByLocationHandler(SpaceViewerRestHandler.GetSectorByLocationAsync);
-								SpaceViewer
-										.RegisterGetSectorByKeyHandler(SpaceViewerRestHandler.GetSectorByKeyAsync);
-								SpaceViewer
-										.RegisterGetMapItemsBySectorHandler(SpaceViewerRestHandler.GetMapItemsBySectorAsync);
-								SpaceViewer
-										.RegisterGetMapItemsByRankHandler(SpaceViewerRestHandler.GetMapItemsByRankAsync);
-
-								SpaceViewer
-										.RegisterOnSectorClickHandler(function(
-												sectorKey) {
-											$('#ctrlSector').html(sectorKey);
-										});
-
-								SpaceViewer
-										.RegisterOnMapItemClickHandler(function(
-												mapItemType, mapItemKey) {
-											$('#ctrlObject').html(
-													mapItemType + ' '
-															+ mapItemKey);
-										});
-
-								SpaceViewer
-										.RegisterOnMapItemHoverHandler(function(
-												mapItemType, mapItemKey) {
-											$('#ctrlHover').html(
-													mapItemType + ' '
-															+ mapItemKey);
-										});
-
-								SpaceViewer.Initialize("#divSpaceViewer");
-							});
+			$(document).ready(Explorer.Initialize);
 		</script>
 	</div>
 </body>

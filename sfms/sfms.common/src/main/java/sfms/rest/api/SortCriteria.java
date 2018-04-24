@@ -85,6 +85,7 @@ public class SortCriteria {
 		return m_directions.get(index).equals(DESCENDING);
 	}
 
+	@Override
 	public String toString() {
 		if (m_columns == null || m_columns.isEmpty()) {
 			return EMPTY_STRING;

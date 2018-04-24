@@ -81,6 +81,7 @@ public class FilterCriteria {
 		return m_values.get(index);
 	}
 
+	@Override
 	public String toString() {
 		if (m_columns == null || m_columns.isEmpty()) {
 			return EMPTY_STRING;

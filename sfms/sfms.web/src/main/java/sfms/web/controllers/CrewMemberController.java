@@ -34,6 +34,7 @@ import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.CrewMemberModel;
 import sfms.web.models.CrewMemberSortingModel;
 import sfms.web.models.PagingModel;
+import sfms.web.models.SortingModel;
 import sfms.web.schemas.CrewMemberModelSchema;
 
 @Controller
@@ -83,15 +84,15 @@ public class CrewMemberController extends SfmsController {
 		String effectiveDirection;
 		if (direction.isPresent()) {
 			switch (direction.get()) {
-			case CrewMemberSortingModel.ASCENDING:
-			case CrewMemberSortingModel.DESCENDING:
+			case SortingModel.ASCENDING:
+			case SortingModel.DESCENDING:
 				effectiveDirection = direction.get();
 				break;
 			default:
-				effectiveDirection = CrewMemberSortingModel.ASCENDING;
+				effectiveDirection = SortingModel.ASCENDING;
 			}
 		} else {
-			effectiveDirection = CrewMemberSortingModel.ASCENDING;
+			effectiveDirection = SortingModel.ASCENDING;
 		}
 
 		CrewMemberField sortColumn = null;
@@ -105,7 +106,7 @@ public class CrewMemberController extends SfmsController {
 		}
 
 		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(ClusterSortingModel.ASCENDING)) {
+		if (effectiveDirection.equals(SortingModel.ASCENDING)) {
 			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
 		} else {
 			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();

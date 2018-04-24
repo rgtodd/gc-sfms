@@ -168,7 +168,7 @@ public class CrewMemberRestController {
 				.setKind(DbEntity.CrewMember.getKind())
 				.newKey();
 
-		FullEntity<IncompleteKey> entity = Entity.newBuilder(incompleteKey)
+		FullEntity<IncompleteKey> entity = FullEntity.newBuilder(incompleteKey)
 				.set(DbCrewMemberField.FirstName.getName(), crewMember.getFirstName())
 				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName())
 				.build();
