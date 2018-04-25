@@ -30,7 +30,6 @@ import sfms.rest.api.schemas.CrewMemberField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
-import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.CrewMemberModel;
 import sfms.web.models.CrewMemberSortingModel;
 import sfms.web.models.PagingModel;

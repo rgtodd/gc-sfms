@@ -33,12 +33,11 @@ import sfms.rest.api.schemas.SectorField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
+import sfms.web.models.PagingModel;
 import sfms.web.models.SectorModel;
 import sfms.web.models.SectorSortingModel;
 import sfms.web.models.SortingModel;
 import sfms.web.schemas.SectorModelSchema;
-import sfms.web.models.ClusterSortingModel;
-import sfms.web.models.PagingModel;
 
 @Controller
 @RequestMapping({ "/sector" })

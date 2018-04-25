@@ -30,7 +30,6 @@ import sfms.rest.api.schemas.StarField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
-import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.PagingModel;
 import sfms.web.models.SortingModel;
 import sfms.web.models.StarModel;
