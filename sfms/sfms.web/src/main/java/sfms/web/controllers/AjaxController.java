@@ -67,17 +67,13 @@ public class AjaxController extends SfmsController {
 	}
 
 	@GetMapping({ "/getSectorByLocation" })
-	public GetSectorResponse getSectorByLocation(
-			@RequestParam("x") Double x,
-			@RequestParam("y") Double y,
+	public GetSectorResponse getSectorByLocation(@RequestParam("x") Double x, @RequestParam("y") Double y,
 			@RequestParam("z") Double z) {
 
-		SectorModel sector = m_mockSpaceData.getSectors()
-				.stream()
+		SectorModel sector = m_mockSpaceData.getSectors().stream()
 				.filter(s -> s.getMinimumX() <= x && x < s.getMaximumX() && s.getMinimumY() <= y && y < s.getMaximumY()
 						&& s.getMinimumZ() <= z && z < s.getMaximumZ())
-				.findFirst()
-				.get();
+				.findFirst().get();
 
 		GetSectorResponse response = new GetSectorResponse();
 		response.setSector(sector);
@@ -88,10 +84,7 @@ public class AjaxController extends SfmsController {
 	@GetMapping({ "/getSectorByKey" })
 	public GetSectorResponse getSectorByKey(@RequestParam("key") String key) {
 
-		SectorModel sector = m_mockSpaceData.getSectors()
-				.stream()
-				.filter(s -> s.getKey().equals(key))
-				.findFirst()
+		SectorModel sector = m_mockSpaceData.getSectors().stream().filter(s -> s.getKey().equals(key)).findFirst()
 				.get();
 
 		GetSectorResponse response = new GetSectorResponse();
@@ -100,32 +93,124 @@ public class AjaxController extends SfmsController {
 		return response;
 	}
 
+	private String formatCoordinates(Double x, Double y, Double z) {
+		if (x == null && y == null && z == null)
+			return null;
+
+		StringBuilder sb = new StringBuilder();
+		if (x != null) {
+			sb.append(x);
+		}
+		sb.append(", ");
+		if (y != null) {
+			sb.append(y);
+		}
+		sb.append(", ");
+		if (z != null) {
+			sb.append(z);
+		}
+
+		return sb.toString();
+	}
+
 	@GetMapping({ "/getMapItem" })
-	public MapItemModel getMapItem(
-			@RequestParam("mapItemType") Integer mapItemType,
+	public MapItemModel getMapItem(@RequestParam("mapItemType") Integer mapItemType,
 			@RequestParam("mapItemKey") String mapItemKey) {
 
 		switch (mapItemType) {
 		case MapItemTypes.STAR:
 
 			RestTemplate restTemplate = createRestTempate();
-			ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + mapItemKey),
-					HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Star>() {
+			ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + mapItemKey), HttpMethod.GET,
+					createHttpEntity(), new ParameterizedTypeReference<Star>() {
 					});
 			Star star = restResponse.getBody();
 
 			List<MapItemPropertyGroupModel> propertyGroups = new ArrayList<MapItemPropertyGroupModel>();
+
+			addPropertyGroup(propertyGroups, "Summary");
+			addProperty(propertyGroups, "Key", "Key of star record in database.", null, star.getKey());
+			addProperty(propertyGroups, "Proper Name", "A common name for the star.", null, star.getProperName());
+			addProperty(propertyGroups, "Constellation", "Standard constellation associated with star.", null,
+					star.getConstellation());
+			addProperty(propertyGroups, "Coordinates", "Equatorial coordinates of star.", null,
+					formatCoordinates(star.getX(), star.getY(), star.getZ()));
+			addProperty(propertyGroups, "Right Ascension", "Right ascension of star for epoch and equinox 2000.0.",
+					null, star.getRightAscension());
+			addProperty(propertyGroups, "Declination", "Declination of star for epoch and equinox 2000.0.", null,
+					star.getDeclination());
+			addProperty(propertyGroups, "Distance", "Distance from Earth in parsecs.", null, star.getDistance());
+
+			addPropertyGroup(propertyGroups, "Position");
+			addProperty(propertyGroups, "Velocity Components",
+					"Velocity of equatorial components of star, in parsecs/year.", null,
+					formatCoordinates(star.getVx(), star.getVy(), star.getVz()));
+			addProperty(propertyGroups, "Right Ascension &theta;", "Right ascension of star in radians.", null,
+					star.getRightAcensionRadians());
+			addProperty(propertyGroups, "Declination &theta;", "Declination of star in radians.", null,
+					star.getDeclinationRadians());
+			addProperty(propertyGroups, "Proper Motion RA",
+					"Right ascension of proper motion of star in milliarcseconds per year.", null,
+					star.getProperMotionRightAscension());
+			addProperty(propertyGroups, "Proper Motion Dec",
+					"Declination of proper motion of star in milliarcseconds per year.", null,
+					star.getProperMotionDeclination());
+			addProperty(propertyGroups, "Proper Motion RA &theta;",
+					"Right ascension of proper motion of star in radians.", null,
+					star.getProperMotionRightAscensionRadians());
+			addProperty(propertyGroups, "Proper Motion Dec &theta;", "Declination of proper motion of star in radians.",
+					null, star.getProperMotionDeclinationRadians());
+			addProperty(propertyGroups, "Radial Velocity", "Radial velocity of star in km/sec.", null,
+					star.getRadialVelocity());
+
 			addPropertyGroup(propertyGroups, "ID");
-			addProperty(propertyGroups, "BayerFlamsteedId", "BayerFlamsteedId", star.getBayerFlamsteedId());
-			addProperty(propertyGroups, "getHarvardRevisedId", "getHarvardRevisedId", star.getHarvardRevisedId());
-			addPropertyGroup(propertyGroups, "Coordinates");
-			addProperty(propertyGroups, "X", "X", star.getX().toString());
-			addProperty(propertyGroups, "Y", "Y", star.getY().toString());
-			addProperty(propertyGroups, "Z", "X", star.getZ().toString());
+			addProperty(propertyGroups, "Hipparcos ID", "ID of star in the Hipparcos catalog.",
+					"https://www.cosmos.esa.int/web/hipparcos/catalogues", star.getHipparcosId());
+			addProperty(propertyGroups, "Henry Draper ID", "ID of star in the Henry Draper catalog.", null,
+					star.getHenryDraperId());
+			addProperty(propertyGroups, "Harvard Revised ID",
+					"ID of star in the Harvard Revised Catalog.  This is the same as its number in the Yale Bright Star Catalog.",
+					null, star.getHarvardRevisedId());
+			addProperty(propertyGroups, "Gliese ID",
+					"ID of star in the third edition of the Gliese Catalog of Nearby Stars.", null, star.getGlieseId());
+			addProperty(propertyGroups, "Bayer / Flamsteed Designation",
+					"The Bayer / Flamsteed designation, primarily from the Fifth Edition of the Yale Bright Star Catalog. This is a combination of the two designations. The Flamsteed number, if present, is given first; then a three-letter abbreviation for the Bayer Greek letter; the Bayer superscript number, if present; and finally, the three-letter constellation abbreviation. ",
+					null, star.getBayerFlamsteedId());
+			addProperty(propertyGroups, "Bayer Designation", "Bayer designation af star.", null, star.getBayerId());
+			addProperty(propertyGroups, "Flamsteed Number", "Flamsteed number of star.", null, star.getFlamsteed());
+			addProperty(propertyGroups, "Cluster Key", "Key of cluster containing star.", null, star.getClusterKey());
+			addProperty(propertyGroups, "Sector Key", "Key of sector containing star.", null, star.getSectorKey());
+
+			addPropertyGroup(propertyGroups, "Appearance");
+			addProperty(propertyGroups, "Magnitude", "The star's apparent visual magnitude.", null,
+					star.getMagnitude());
+			addProperty(propertyGroups, "Absolute Magnitude",
+					"The star's absolute visual magnitude (i.e. its apparent magntidue from a distance of 10 parsecs.)",
+					null, star.getAbsoluteMagnitude());
+			addProperty(propertyGroups, "Spectrum", "The star's spectral type.", null, star.getSpectrum());
+			addProperty(propertyGroups, "Color Index",
+					"The star's color index (i.e. blue magnitude - visual magnitude.)", null, star.getColorIndex()); // ColorIndex-ci
+			addProperty(propertyGroups, "Luminosity", "Lominosity of star as a multiple of Solar luminosity.", null,
+					star.getLuminosity());
+			addProperty(propertyGroups, "Variable Star Designation", "Standard variable star designation.", null,
+					star.getVariableStarDesignation());
+			addProperty(propertyGroups, "Minimum Magnitude", "Minimum magnitude of variable star.", null,
+					star.getVariableMinimum());
+			addProperty(propertyGroups, "Maximum Magnitude", "Maximum magnitude of variable star.", null,
+					star.getVariableMaximum());
+
+			addPropertyGroup(propertyGroups, "Multiple Star System");
+			addProperty(propertyGroups, "Companion Star ID", "In a multiple star system, ID of companion star.", null,
+					star.getCompanionStarId());
+			addProperty(propertyGroups, "Primary Star ID", "In a multiple star system, ID of primary star.", null,
+					star.getPrimaryStarId());
+			addProperty(propertyGroups, "Multiple Star ID", "ID of multiple star system.", null,
+					star.getMultipleStarId());
 
 			MapItemModel result = new MapItemModel();
 			result.setMapItemKey(mapItemKey);
 			result.setMapItemType(mapItemType);
+			result.setMapItemName("Star " + star.getCatalogId());
 			result.setSectorKey(star.getSectorKey());
 			result.setPropertyGroups(propertyGroups);
 
@@ -151,27 +236,28 @@ public class AjaxController extends SfmsController {
 	}
 
 	private void addProperty(List<MapItemPropertyGroupModel> propertyGroups, String title, String description,
-			String value) {
+			String url, Object value) {
 
 		MapItemPropertyModel property = new MapItemPropertyModel();
 		property.setTitle(title);
 		property.setDescription(description);
-		property.setValue(value);
+		property.setUrl(url);
+		if (value != null) {
+			property.setValue(value.toString());
+		}
 
 		propertyGroups.get(propertyGroups.size() - 1).getProperties().add(property);
 	}
 
 	@GetMapping({ "/getMapItemsBySector" })
-	public GetMapItemsResponse getMapItemsBySector(
-			@RequestParam("sectorKey") String sectorKey,
+	public GetMapItemsResponse getMapItemsBySector(@RequestParam("sectorKey") String sectorKey,
 			@RequestParam("mapItemType") Integer mapItemType) {
 
 		return getMapItemsBySectorRest(sectorKey, mapItemType);
 	}
 
 	@GetMapping({ "/getMapItemsByRank/get" })
-	public GetMapItemsResponse getMapItemsByRank(
-			@RequestParam("rank") Long rank) {
+	public GetMapItemsResponse getMapItemsByRank(@RequestParam("rank") Long rank) {
 
 		GetMapItemsResponse response = getMapItemsByRankRest(rank);
 
@@ -179,9 +265,8 @@ public class AjaxController extends SfmsController {
 	}
 
 	@GetMapping({ "/getMapItemsByRank" })
-	public void getMapItemsByRankCached(
-			@RequestParam("rank") Long rank,
-			HttpServletResponse response) throws Exception {
+	public void getMapItemsByRankCached(@RequestParam("rank") Long rank, HttpServletResponse response)
+			throws Exception {
 
 		ObjectFactory objectFactory = new ObjectFactory() {
 			@Override
@@ -198,11 +283,8 @@ public class AjaxController extends SfmsController {
 
 		String objectName = "getMapItemsByRank-" + String.valueOf(rank);
 
-		try (ReadableByteChannel readChannel = StorageManagerUtility.getCachedObject(
-				Storage.getManager(),
-				objectName,
-				Constants.CONTENT_TYPE_JSON,
-				objectFactory);
+		try (ReadableByteChannel readChannel = StorageManagerUtility.getCachedObject(Storage.getManager(), objectName,
+				Constants.CONTENT_TYPE_JSON, objectFactory);
 				InputStream inputStream = Channels.newInputStream(readChannel)) {
 			response.setContentType(Constants.CONTENT_TYPE_JSON);
 			try (OutputStream outputStream = response.getOutputStream()) {
@@ -217,24 +299,17 @@ public class AjaxController extends SfmsController {
 
 		FilterCriteria filterCriteria = FilterCriteria.newBuilder()
 				.add(SectorField.MinimumX.getName(), FilterCriteria.GE, minimumX.toString())
-				.add(SectorField.MinimumX.getName(), FilterCriteria.LT, maximumX.toString())
-				.build();
+				.add(SectorField.MinimumX.getName(), FilterCriteria.LT, maximumX.toString()).build();
 
-		String uri = UriComponentsBuilder.newInstance()
-				.path("sector")
-				.queryParam(RestParameters.FILTER, filterCriteria.toString())
-				.queryParam(RestParameters.DETAIL, "star")
-				.build()
-				.toUriString();
+		String uri = UriComponentsBuilder.newInstance().path("sector")
+				.queryParam(RestParameters.FILTER, filterCriteria.toString()).queryParam(RestParameters.DETAIL, "star")
+				.build().toUriString();
 
 		logger.info("Calling " + uri);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<SearchResult<Sector>> restResponse = restTemplate.exchange(
-				getRestUrl(uri),
-				HttpMethod.GET,
-				createHttpEntity(),
-				new ParameterizedTypeReference<SearchResult<Sector>>() {
+		ResponseEntity<SearchResult<Sector>> restResponse = restTemplate.exchange(getRestUrl(uri), HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<SearchResult<Sector>>() {
 				});
 		SearchResult<Sector> searchResults = restResponse.getBody();
 
@@ -277,8 +352,8 @@ public class AjaxController extends SfmsController {
 	private GetMapItemsResponse getMapItemsBySectorRest(String sectorKey, Integer mapItemType) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Sector> restResponse = restTemplate.exchange(getRestUrl("sector/" + sectorKey),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Sector>() {
+		ResponseEntity<Sector> restResponse = restTemplate.exchange(getRestUrl("sector/" + sectorKey), HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<Sector>() {
 				});
 		Sector sector = restResponse.getBody();
 
@@ -329,17 +404,12 @@ public class AjaxController extends SfmsController {
 			return null;
 		}
 
-		SectorModel sector = m_mockSpaceData.getSectors()
-				.stream()
-				.filter(s -> s.getKey().equals(sectorKey))
-				.findFirst()
+		SectorModel sector = m_mockSpaceData.getSectors().stream().filter(s -> s.getKey().equals(sectorKey)).findFirst()
 				.get();
 
-		List<MockSpaceData.Point> points = allPoints
-				.stream()
+		List<MockSpaceData.Point> points = allPoints.stream()
 				.filter(p -> sector.getMinimumX() <= p.x && p.x < sector.getMaximumX() && sector.getMinimumY() <= p.y
-						&& p.y < sector.getMaximumY()
-						&& sector.getMinimumZ() <= p.z && p.z < sector.getMaximumZ())
+						&& p.y < sector.getMaximumY() && sector.getMinimumZ() <= p.z && p.z < sector.getMaximumZ())
 				.collect(Collectors.toList());
 
 		List<String> mapItemKeys = new ArrayList<String>();

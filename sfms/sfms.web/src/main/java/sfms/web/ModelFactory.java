@@ -117,6 +117,7 @@ public class ModelFactory {
 	public StarModel createStar(Star star) {
 		StarModel result = new StarModel();
 		result.setKey(star.getKey());
+		result.setCatalogId(star.getCatalogId());
 		result.setClusterKey(star.getClusterKey());
 		result.setSectorKey(star.getSectorKey());
 		result.setHipparcosId(star.getHipparcosId());
@@ -143,8 +144,7 @@ public class ModelFactory {
 		result.setVz(star.getVz());
 		result.setRightAcensionRadians(star.getRightAcensionRadians());
 		result.setDeclinationRadians(star.getDeclinationRadians());
-		result.setProperMotionRightAscensionRadians(
-				star.getProperMotionRightAscensionRadians());
+		result.setProperMotionRightAscensionRadians(star.getProperMotionRightAscensionRadians());
 		result.setProperMotionDeclinationRadians(star.getProperMotionDeclinationRadians());
 		result.setBayerId(star.getBayerId());
 		result.setFlamsteed(star.getFlamsteed());

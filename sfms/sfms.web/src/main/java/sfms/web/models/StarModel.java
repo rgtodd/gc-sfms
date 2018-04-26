@@ -3,6 +3,7 @@ package sfms.web.models;
 public class StarModel {
 
 	private String m_key; // KEY
+	private String m_catalogId;
 	private String m_clusterKey;
 	private String m_sectorKey;
 	private String m_hipparcosId; // hip
@@ -356,7 +357,14 @@ public class StarModel {
 
 	@Override
 	public String toString() {
-		return "Key = " + getKey() +
-				", Proper Name = " + getProperName();
+		return "Key = " + getKey() + ", Proper Name = " + getProperName();
+	}
+
+	public String getCatalogId() {
+		return m_catalogId;
+	}
+
+	public void setCatalogId(String catalogId) {
+		m_catalogId = catalogId;
 	}
 }

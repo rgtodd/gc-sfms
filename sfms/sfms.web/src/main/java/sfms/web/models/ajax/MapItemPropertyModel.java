@@ -4,6 +4,7 @@ public class MapItemPropertyModel {
 
 	private String m_title;
 	private String m_description;
+	private String m_url;
 	private String m_value;
 
 	public String getTitle() {
@@ -28,5 +29,13 @@ public class MapItemPropertyModel {
 
 	public void setValue(String value) {
 		m_value = value;
+	}
+
+	public String getUrl() {
+		return m_url;
+	}
+
+	public void setUrl(String url) {
+		m_url = url;
 	}
 }

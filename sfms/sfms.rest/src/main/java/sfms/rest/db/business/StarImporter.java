@@ -32,7 +32,7 @@ public class StarImporter {
 
 	private static final String FIELD_DELIMITER_REXEX = ",";
 
-	private static final int FIELD_StarId = 0;
+	private static final int FIELD_CatalogId = 0;
 	private static final int FIELD_HipparcosId = 1;
 	private static final int FIELD_HenryDraperId = 2;
 	private static final int FIELD_HarvardRevisedId = 3;
@@ -148,7 +148,7 @@ public class StarImporter {
 
 		String[] fields = line.split(FIELD_DELIMITER_REXEX);
 
-		Long id = CsvValue.getLong(fields, FIELD_StarId);
+		Long catalogId = CsvValue.getLong(fields, FIELD_CatalogId);
 		String hipparcosId = CsvValue.getString(fields, FIELD_HipparcosId, "0");
 		String henryDraperId = CsvValue.getString(fields, FIELD_HenryDraperId);
 		String harvardRevisedId = CsvValue.getString(fields, FIELD_HarvardRevisedId);
@@ -186,8 +186,8 @@ public class StarImporter {
 		Double variableMinimum = CsvValue.getOptionalDouble(fields, FIELD_VariableMinimum);
 		Double variableMaximum = CsvValue.getOptionalDouble(fields, FIELD_VariableMaximum);
 
-		int idHash = hash32shift(id.hashCode());
-		String hashedId = String.valueOf(idHash) + "-" + String.valueOf(id);
+		int catalogIdHash = generateHash(catalogId.hashCode());
+		String keyValue = String.valueOf(catalogIdHash) + "-" + String.valueOf(catalogId);
 
 		Region cluster = m_clusters.findClosestRegion(x, y, z);
 		Key clusterKey = cluster != null ? m_clusterKeyFactory.newKey(cluster.getKey()) : null;
@@ -195,14 +195,14 @@ public class StarImporter {
 		Region sector = m_sectors.findContainingRegion(x, y, z);
 		Key sectorKey = sector != null ? m_sectorKeyFactory.newKey(sector.getKey()) : null;
 
-		Key key = DbEntity.Star.createEntityKey(m_datastore, hashedId);
+		Key key = DbEntity.Star.createEntityKey(m_datastore, keyValue);
 
 		Entity entity = Entity.newBuilder(key)
 				// Indexed columns
+				.set(DbStarField.CatalogId.getName(), DbValue.asValue(catalogId.toString()))
 				.set(DbStarField.ClusterKey.getName(), DbValue.asValue(clusterKey))
 				.set(DbStarField.SectorKey.getName(), DbValue.asValue(sectorKey))
-				.set(DbStarField.X.getName(), DbValue.asValue(x))
-				.set(DbStarField.Y.getName(), DbValue.asValue(y))
+				.set(DbStarField.X.getName(), DbValue.asValue(x)).set(DbStarField.Y.getName(), DbValue.asValue(y))
 				.set(DbStarField.Z.getName(), DbValue.asValue(z))
 				.set(DbStarField.HipparcosId.getName(), DbValue.asValue(hipparcosId))
 				// Unindexed columns
@@ -240,20 +240,19 @@ public class StarImporter {
 				.set(DbStarField.Luminosity.getName(), DbValue.asUnindexedValue(luminosity))
 				.set(DbStarField.VariableStarDesignation.getName(), DbValue.asUnindexedValue(variableStarDesignation))
 				.set(DbStarField.VariableMinimum.getName(), DbValue.asUnindexedValue(variableMinimum))
-				.set(DbStarField.VariableMaximum.getName(), DbValue.asUnindexedValue(variableMaximum))
-				.build();
+				.set(DbStarField.VariableMaximum.getName(), DbValue.asUnindexedValue(variableMaximum)).build();
 
 		batchPut.add(entity);
 	}
 
-	private int hash32shift(int key) {
+	private int generateHash(int key) {
 		key = ~key + (key << 15); // key = (key << 15) - key - 1;
 		key = key ^ (key >>> 12);
 		key = key + (key << 2);
 		key = key ^ (key >>> 4);
 		key = key * 2057; // key = (key + (key << 3)) + (key << 11);
 		key = key ^ (key >>> 16);
-		return key;
+		return Math.abs(key);
 	}
 
 }

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{layout}">
-<head>
+	layout:decorate="~{layoutFluid}">
 <head>
 <title>Explore</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" href="content/explore.css">
 </head>
 <body>
 	<div layout:fragment="content">
@@ -16,27 +15,47 @@
 			</ol>
 		</nav>
 		<div class="row">
-			<div class="col-sm">
+			<div class="col-sm-6">
 				<div id="divSpaceViewer" class="mb-2" style="height: 500px;">
 					<canvas id="canvasSpaceViewer" style="width: 100%; height: 100%;"></canvas>
 				</div>
+			</div>
+			<div class="col-sm-6">
 				<div class="card">
 					<div class="card-header">
 						<ul class="nav nav-pills card-header-pills">
-							<li class="nav-item"><a id="aDebugRestLink"
-								class="nav-link active">REST <span id="spanDebugRestCounter"
-									class="badge badge-secondary">10</span>
+							<li class="nav-item nav-item-tab"><a id="aMapItemLink"
+								class="nav-link nav-link-tab active" href="#"
+								data-body="#divMapItemBody">Object</a></li>
+							<li class="nav-item nav-item-tab"><a id="aRestLink"
+								class="nav-link nav-link-tab" href="#" data-body="#divRestBody">REST
+									<span id="spanRestCounter" class="badge badge-secondary">0</span>
 							</a></li>
-							<li class="nav-item"><a id="aDebugLogLink" class="nav-link">Log</a></li>
+							<li class="nav-item nav-item-tab"><a id="aLogLink"
+								class="nav-link nav-link-tab" href="#" data-body="#divLogBody">Log</a></li>
 						</ul>
 					</div>
 					<div class="card-body">
-						<div id="divDebugRestBody"></div>
-						<div id="divDebugLogBody"></div>
+						<div id="divMapItemBody" class="card-body-panel">
+							<div class="h2 border" style="background-color: #e9ecef;">
+								<div class="row">
+									<div id="divMapItemTitle" class="col-sm ml-2">Star 123</div>
+									<div class="col-sm">
+										Sector <span id="spanSectorX">X</span> &times; <span
+											id="spanSectorY">Y</span> &times; <span id="spanSectorZ">Z</span>
+									</div>
+								</div>
+							</div>
+							<div id="divMapItemProperties"></div>
+						</div>
+						<div id="divRestBody" class="card-body-panel">
+							<pre>
+								<code id="divRestBodyContent"></code>
+							</pre>
+						</div>
+						<div id="divLogBody" class="card-body-panel">Log body.</div>
 					</div>
 				</div>
-			</div>
-			<div class="col-sm">
 				<!--/*-->
 				************************ BEGIN COMMENT BLOCK
 				<h2></h2>
@@ -51,55 +70,6 @@
 				</p>
 				************************ END COMMENT BLOCK
 				<!--*/-->
-				<div class="h2 border" style="background-color: #e9ecef;">
-					<div class="row">
-						<div id="divMapItemTitle" class="col-sm ml-2">Star 123</div>
-						<div class="col-sm">
-							Sector <span id="spanSectorX">X</span> &times; <span
-								id="spanSectorY">Y</span> &times; <span id="spanSectorZ">Z</span>
-						</div>
-					</div>
-				</div>
-				<div id="divMapItemProperties">
-					<!--/*-->
-					************************ BEGIN COMMENT BLOCK
-					<h6>ID</h6>
-					<table class="table table-sm">
-						<tbody>
-							<tr>
-								<th scope="row">1</th>
-								<td>Mark</td>
-							</tr>
-							<tr>
-								<th scope="row">2</th>
-								<td>Jacob</td>
-							</tr>
-							<tr>
-								<th scope="row">3</th>
-								<td colspan="2">Larry the Bird</td>
-							</tr>
-						</tbody>
-					</table>
-					<h6>Position</h6>
-					<table class="table table-sm">
-						<tbody>
-							<tr>
-								<th scope="row">1</th>
-								<td>Mark</td>
-							</tr>
-							<tr>
-								<th scope="row">2</th>
-								<td>Jacob</td>
-							</tr>
-							<tr>
-								<th scope="row">3</th>
-								<td colspan="2">Larry the Bird</td>
-							</tr>
-						</tbody>
-					</table>
-					************************ END COMMENT BLOCK
-					<!--*/-->
-				</div>
 			</div>
 		</div>
 		<!--/*-->
@@ -119,7 +89,6 @@
 		<!--*/-->
 	</div>
 	<div layout:fragment="scripts">
-		<script type="text/javascript" src="scripts/jquery-3.3.1.min.js"></script>
 		<script type="text/javascript" src="scripts/three.js"></script>
 		<script type="text/javascript"
 			src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>

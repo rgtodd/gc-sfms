@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class Star {
 
 	private String m_key; // StarID-id *KEY*
+	private String m_catalogId;
 	private String m_clusterKey;
 	private String m_sectorKey;
 	private String m_hipparcosId; // hip
@@ -359,5 +360,13 @@ public class Star {
 
 	public void setVariableMaximum(Double variableMaximum) {
 		m_variableMaximum = variableMaximum;
+	}
+
+	public String getCatalogId() {
+		return m_catalogId;
+	}
+
+	public void setCatalogId(String catalogId) {
+		m_catalogId = catalogId;
 	}
 }

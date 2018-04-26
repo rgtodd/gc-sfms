@@ -8,9 +8,94 @@ var Explorer = (function() {
 	// **
 	// *********************************
 
+	var m_restCounter = 0;
+
 	// Module events
 	//
 	var m_getMapItemHandler = null;
+
+	var onRestStart = function(url) {
+
+		++m_restCounter;
+
+		$("#spanRestCounter").text(m_restCounter.toString());
+
+		$("#divRestBodyContent").append(
+				getCurrentTimeFormatted() + " - " + "Start: " + url + "<br>");
+	}
+
+	var onRestComplete = function(url) {
+		$("#divRestBodyContent")
+				.append(
+						getCurrentTimeFormatted() + " - " + "Complete: " + url
+								+ "<br>");
+	}
+
+	var getCurrentTimeFormatted = function() {
+		var now = new Date();
+
+		var year = now.getFullYear();
+		var month = now.getMonth();
+		var day = now.getDate();
+		var hour = now.getHours();
+		var minute = now.getMinutes();
+		var second = now.getSeconds();
+
+		return zeroPad(year, 4) + "-" + //
+		zeroPad(month, 2) + "-" + //
+		zeroPad(day, 2) + " " + //
+		zeroPad(hour, 2) + ":" + //
+		zeroPad(minute, 2) + ":" + //
+		zeroPad(second, 2);
+	}
+
+	var zeroPad = function(number, length) {
+		var result = number.toString();
+		while (result.length < length) {
+			result = "0" + result;
+		}
+		return result;
+	}
+
+	var onMapItemClick = function(mapItemType, mapItemKey) {
+
+		raiseGetMapItem(
+				mapItemType,
+				mapItemKey,
+				function(mapItem) {
+
+					$("#divMapItemTitle").html(mapItem.mapItemName);
+
+					var propertyHtml = "";
+					mapItem.propertyGroups
+							.forEach(function(propertyGroup) {
+								propertyHtml += "<h6>" + propertyGroup.title
+										+ "</h6>";
+								propertyHtml += "<table class='table table-sm'>";
+								propertyHtml += "<tbody>";
+								propertyGroup.properties
+										.forEach(function(property) {
+											propertyHtml += "<tr>";
+											propertyHtml += "<th scope='row'>";
+											propertyHtml += property.title;
+											if (property.description !== null) {
+												propertyHtml += " <i class='material-icons tooltip-description' data-toggle='tooltip' title='"
+														+ property.description
+														+ "'>help</i>";
+											}
+											propertyHtml += "</th>";
+											propertyHtml += "<td>"
+													+ property.value + "</td>";
+											propertyHtml += "</tr>";
+										});
+								propertyHtml += "</tbody>";
+								propertyHtml += "</table>";
+							});
+
+					$("#divMapItemProperties").html(propertyHtml);
+
+				});
+	}
 
 	// **
 	// ** MODULE EVENTS
@@ -32,13 +117,9 @@ var Explorer = (function() {
 
 	var initialize = function() {
 
-		SpaceViewerRestLogger.RegisterOnRestStartHandler(function(url) {
-			$("#ctrlRestLog").append("Start: " + url + "<br>");
-		});
+		SpaceViewerRestLogger.RegisterOnRestStartHandler(onRestStart);
 
-		SpaceViewerRestLogger.RegisterOnRestCompleteHandler(function(url) {
-			$("#ctrlRestLog").append("Complete: " + url + "<br>");
-		});
+		SpaceViewerRestLogger.RegisterOnRestCompleteHandler(onRestComplete);
 
 		Explorer.RegisterGetMapItemHandler(SpaceViewerRestHandler.GetMapItem);
 
@@ -60,31 +141,7 @@ var Explorer = (function() {
 			$('#spanSectorZ').html(coordinates[2]);
 		});
 
-		SpaceViewer.RegisterOnMapItemClickHandler(function(mapItemType,
-				mapItemKey) {
-
-			raiseGetMapItem(mapItemType, mapItemKey, function(mapItem) {
-
-				var propertyHtml = "";
-				mapItem.propertyGroups.forEach(function(propertyGroup) {
-					propertyHtml += "<h6>" + propertyGroup.title + "</h6>";
-					propertyHtml += "<table class='table table-sm'>";
-					propertyHtml += "<tbody>";
-					propertyGroup.properties.forEach(function(property) {
-						propertyHtml += "<tr>"
-						propertyHtml += "<th scope='row'>" + property.title
-								+ "</th>";
-						propertyHtml += "<td>" + property.value + "</td>";
-						propertyHtml += "</tr>";
-					});
-					propertyHtml += "</tbody>";
-					propertyHtml += "</table>";
-				});
-
-				$("#divMapItemProperties").html(propertyHtml);
-
-			});
-		});
+		SpaceViewer.RegisterOnMapItemClickHandler(onMapItemClick);
 
 		SpaceViewer.RegisterOnMapItemHoverHandler(function(mapItemType,
 				mapItemKey) {
@@ -92,6 +149,22 @@ var Explorer = (function() {
 		});
 
 		SpaceViewer.Initialize("#divSpaceViewer");
+
+		$(".card-body-panel").hide();
+		$("#divMapItemBody").show();
+
+		$(".nav-link-tab").on("click", function(e) {
+			$(".nav-link-tab").removeClass("active");
+			$(this).addClass("active");
+
+			$(".card-body-panel:visible").hide();
+			$($(this).data("body")).show();
+		});
+
+		$("body").tooltip({
+			selector : ".tooltip-description",
+			trigger : "hover"
+		});
 	};
 
 	// *********************************

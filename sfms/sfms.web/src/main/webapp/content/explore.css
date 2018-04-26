@@ -1,0 +1,9 @@
+/* EXPLORE.CSS */
+#divRestBody {
+	overflow: auto;
+}
+
+.tooltip-description {
+	color: #b9bfc6;
+	cursor: pointer;
+}

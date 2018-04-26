@@ -7,6 +7,7 @@ public class MapItemModel {
 	private String m_sectorKey;
 	private String m_mapItemKey;
 	private Integer m_mapItemType;
+	private String m_mapItemName;
 	private List<MapItemPropertyGroupModel> m_propertyGroups;
 
 	public String getSectorKey() {
@@ -39,5 +40,13 @@ public class MapItemModel {
 
 	public void setPropertyGroups(List<MapItemPropertyGroupModel> propertyGroups) {
 		m_propertyGroups = propertyGroups;
+	}
+
+	public String getMapItemName() {
+		return m_mapItemName;
+	}
+
+	public void setMapItemName(String mapItemName) {
+		m_mapItemName = mapItemName;
 	}
 }

@@ -89,10 +89,9 @@ public class RestFactory {
 
 		Star result = new Star();
 		result.setKey(DbEntity.Star.createRestKey(entity.getKey()));
-		result.setClusterKey(
-				DbEntity.Cluster.createRestKey(getKey(entity, DbStarField.ClusterKey)));
-		result.setSectorKey(
-				DbEntity.Sector.createRestKey(getKey(entity, DbStarField.SectorKey)));
+		result.setCatalogId(getString(entity, DbStarField.CatalogId));
+		result.setClusterKey(DbEntity.Cluster.createRestKey(getKey(entity, DbStarField.ClusterKey)));
+		result.setSectorKey(DbEntity.Sector.createRestKey(getKey(entity, DbStarField.SectorKey)));
 		result.setHipparcosId(getString(entity, DbStarField.HipparcosId));
 		result.setHenryDraperId(getString(entity, DbStarField.HenryDraperId));
 		result.setHarvardRevisedId(getString(entity, DbStarField.HarvardRevisedId));
@@ -117,8 +116,7 @@ public class RestFactory {
 		result.setVz(getDouble(entity, DbStarField.VZ));
 		result.setRightAcensionRadians(getDouble(entity, DbStarField.RightAcensionRadians));
 		result.setDeclinationRadians(getDouble(entity, DbStarField.DeclinationRadians));
-		result.setProperMotionRightAscensionRadians(
-				getDouble(entity, DbStarField.ProperMotionRightAscensionRadians));
+		result.setProperMotionRightAscensionRadians(getDouble(entity, DbStarField.ProperMotionRightAscensionRadians));
 		result.setProperMotionDeclinationRadians(getDouble(entity, DbStarField.ProperMotionDeclinationRadians));
 		result.setBayerId(getString(entity, DbStarField.BayerId));
 		result.setFlamsteed(getString(entity, DbStarField.Flamsteed));
