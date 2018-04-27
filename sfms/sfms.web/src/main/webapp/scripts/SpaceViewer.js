@@ -110,7 +110,7 @@ var SpaceViewer = (function() {
 		w.on('keydown', onWindowKeyDown);
 		var d = $(document);
 		m_container.on('mousemove', onDocumentMouseMove);
-		m_container.on('click', onDocumentMouseClick);
+		m_container.on('mouseclick', onDocumentMouseClick);
 
 		// render();
 		animate();
@@ -596,7 +596,7 @@ var SpaceViewer = (function() {
 				mapItemPoints, 3));
 
 		var material = new THREE.PointsMaterial({
-			size : 1,
+			size : 0.4,
 			sizeAttenuation : true,
 			map : getTextureForMapItemType(mapItemType),
 			alphaTest : 0.5,
