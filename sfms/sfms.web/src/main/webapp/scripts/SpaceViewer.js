@@ -32,11 +32,11 @@ var SpaceViewer = (function() {
 	var m_camera;
 	var m_container;
 	var m_raycaster;
-	var m_trackball;
+	// var m_trackball;
 	var m_starTexture;
 	var m_shipTexture;
 
-	var m_cameraTween = null;
+	// var m_cameraTween = null;
 
 	// Scene objects
 	//
@@ -98,8 +98,10 @@ var SpaceViewer = (function() {
 		initCreateCamera(); // m_camera
 		initCreateContainer(containerId); // m_container
 		initCreateRaycaster(); // m_raycaster
-		initCreateTrackball(); // m_trackball
+		// initCreateTrackball(); // m_trackball
 		initCreateTextures(); // m_starTexture, m_shipTexture
+
+		SpaceViewerController.Initialize(m_canvas[0], m_camera);
 
 		// Register event handlers.
 		//
@@ -272,18 +274,18 @@ var SpaceViewer = (function() {
 		m_raycaster.params.Points.threshold = RAYCASTER_THRESHOLD;
 	}
 
-	var initCreateTrackball = function() {
-		m_trackball = new THREE.TrackballControls(m_camera, m_canvas[0]);
-		m_trackball.rotateSpeed = 1.0;
-		m_trackball.zoomSpeed = 1.2;
-		m_trackball.panSpeed = 0.8;
-		m_trackball.noZoom = false;
-		m_trackball.noPan = false;
-		m_trackball.staticMoving = true;
-		m_trackball.dynamicDampingFactor = 0.3;
-		m_trackball.keys = [ 65, 83, 68 ];
-		// m_trackball.addEventListener('change', render);
-	}
+	// var initCreateTrackball = function() {
+	// m_trackball = new THREE.TrackballControls(m_camera, m_canvas[0]);
+	// m_trackball.rotateSpeed = 1.0;
+	// m_trackball.zoomSpeed = 1.2;
+	// m_trackball.panSpeed = 0.8;
+	// m_trackball.noZoom = false;
+	// m_trackball.noPan = false;
+	// m_trackball.staticMoving = true;
+	// m_trackball.dynamicDampingFactor = 0.3;
+	// m_trackball.keys = [ 65, 83, 68 ];
+	// // m_trackball.addEventListener('change', render);
+	// }
 
 	var initCreateTextures = function() {
 		var loader = new THREE.TextureLoader();
@@ -362,9 +364,10 @@ var SpaceViewer = (function() {
 
 	var onWindowResize = function(e) {
 		m_renderer.setSize(m_canvas.width(), m_canvas.height(), false);
-		m_camera.aspect = m_canvas.width() / m_canvas.height();
-		m_camera.updateProjectionMatrix();
-		m_trackball.handleResize();
+		// m_camera.aspect = m_canvas.width() / m_canvas.height();
+		// m_camera.updateProjectionMatrix();
+		// m_trackball.handleResize();
+		SpaceViewerController.OnWindowResize();
 		// render();
 	};
 
@@ -422,10 +425,11 @@ var SpaceViewer = (function() {
 
 	var animate = function() {
 		requestAnimationFrame(animate);
-		TWEEN.update();
+		TWEEN.update(); // required by SpaceViewerController
 		animateMapItemHighlight();
 		animateMapItemCursor();
-		m_trackball.update();
+		// m_trackball.update();
+		SpaceViewerController.Animate();
 		render();
 	};
 
@@ -673,48 +677,59 @@ var SpaceViewer = (function() {
 		m_sectorCursor.yzShadow.position.set(MIN_SPACE_COORDINATE, yMidpoint,
 				zMidpoint);
 
-		if (m_cameraTween !== null) {
-			m_cameraTween.stop();
-			m_cameraTween = null;
-		}
-
-		m_camera.up.set(0, 1, 0);
-		var tweenState = {
-			x : m_trackball.target.x,
-			y : m_trackball.target.y,
-			z : m_trackball.target.z
-		};
-		m_cameraTween = new TWEEN.Tween(tweenState).to({
+		SpaceViewerController.LookAtSector({
 			x : xMidpoint,
 			y : yMidpoint,
 			z : zMidpoint
-		}, 1000).easing(TWEEN.Easing.Quadratic.Out).onUpdate(
-				function() {
-					m_camera.position.set(tweenState.x, tweenState.y + 150,
-							tweenState.z + 250);
-					m_trackball.target.set(tweenState.x, tweenState.y,
-							tweenState.z);
-				}).start();
+		});
+
+		// if (m_cameraTween !== null) {
+		// m_cameraTween.stop();
+		// m_cameraTween = null;
+		// }
+		//
+		// m_camera.up.set(0, 1, 0);
+		// var tweenState = {
+		// x : m_trackball.target.x,
+		// y : m_trackball.target.y,
+		// z : m_trackball.target.z
+		// };
+		// m_cameraTween = new TWEEN.Tween(tweenState).to({
+		// x : xMidpoint,
+		// y : yMidpoint,
+		// z : zMidpoint
+		// }, 1000).easing(TWEEN.Easing.Quadratic.Out).onUpdate(
+		// function() {
+		// m_camera.position.set(tweenState.x, tweenState.y + 150,
+		// tweenState.z + 250);
+		// m_trackball.target.set(tweenState.x, tweenState.y,
+		// tweenState.z);
+		// }).start();
 	}
 
 	var lookAtMapItem = function(mapItemPosition) {
-		if (m_cameraTween !== null) {
-			m_cameraTween.stop();
-			m_cameraTween = null;
-		}
-
-		var tweenState = {
-			x : m_trackball.target.x,
-			y : m_trackball.target.y,
-			z : m_trackball.target.z
-		};
-		m_cameraTween = new TWEEN.Tween(tweenState).to({
+		SpaceViewerController.LookAtMapItem({
 			x : mapItemPosition.x,
 			y : mapItemPosition.y,
 			z : mapItemPosition.z
-		}, 1000).easing(TWEEN.Easing.Quadratic.Out).onUpdate(function() {
-			m_trackball.target.set(tweenState.x, tweenState.y, tweenState.z);
-		}).start();
+		});
+		// if (m_cameraTween !== null) {
+		// m_cameraTween.stop();
+		// m_cameraTween = null;
+		// }
+		//
+		// var tweenState = {
+		// x : m_trackball.target.x,
+		// y : m_trackball.target.y,
+		// z : m_trackball.target.z
+		// };
+		// m_cameraTween = new TWEEN.Tween(tweenState).to({
+		// x : mapItemPosition.x,
+		// y : mapItemPosition.y,
+		// z : mapItemPosition.z
+		// }, 1000).easing(TWEEN.Easing.Quadratic.Out).onUpdate(function() {
+		// m_trackball.target.set(tweenState.x, tweenState.y, tweenState.z);
+		// }).start();
 	}
 
 	// **
