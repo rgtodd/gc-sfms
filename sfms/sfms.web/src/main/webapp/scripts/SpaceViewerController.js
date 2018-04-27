@@ -7,11 +7,7 @@ var SpaceViewerController = (function() {
 	var m_jqCanvas;
 	// var m_trackball;
 
-	var m_cameraLookingAt = {
-		x : 0,
-		y : 0,
-		z : 0
-	};
+	var m_cameraLookingAt = new THREE.Vector3();
 	var m_cameraTween = null;
 	var m_mouseButton = 0;
 	var m_mouseDownPosition = null;
@@ -47,7 +43,15 @@ var SpaceViewerController = (function() {
 
 	var onMouseWheel = function(e) {
 		e.preventDefault();
+
+		var positionBefore = m_camera.getWorldPosition();
+
 		m_camera.translateZ(e.originalEvent.deltaY * 2);
+
+		var positionAfter = m_camera.getWorldPosition();
+		var positionDelta = positionAfter.clone().sub(positionBefore);
+
+		m_cameraLookingAt.add(positionDelta);
 	}
 
 	var onMouseDown = function(e) {
@@ -70,11 +74,21 @@ var SpaceViewerController = (function() {
 			var dx = -(e.pageX - m_mouseDownPosition.x);
 			var dy = e.pageY - m_mouseDownPosition.y;
 
+			var positionBefore = m_camera.getWorldPosition();
+
 			m_camera.translateX(dx - m_mouseDownCameraTranslation.x);
 			m_camera.translateY(dy - m_mouseDownCameraTranslation.y);
 
+			var positionAfter = m_camera.getWorldPosition();
+			var positionDelta = positionAfter.clone().sub(positionBefore);
+
+			m_cameraLookingAt.add(positionDelta);
+
 			m_mouseDownCameraTranslation.x = dx;
 			m_mouseDownCameraTranslation.y = dy;
+
+			// m_cameraLookingAt.x += dx;
+			// m_cameraLookingAt.y += dy;
 		}
 	}
 
@@ -110,11 +124,7 @@ var SpaceViewerController = (function() {
 			m_camera.lookAt(tweenState.x, tweenState.y, tweenState.z);
 		}).start();
 
-		m_cameraLookingAt = {
-			x : position.x,
-			y : position.y,
-			z : position.z
-		}
+		m_cameraLookingAt.set(position.x, position.y, position.z);
 	}
 
 	var lookAtSector = function(position) {
@@ -137,11 +147,7 @@ var SpaceViewerController = (function() {
 					m_camera.lookAt(tweenState.x, tweenState.y, tweenState.z);
 				}).start();
 
-		m_cameraLookingAt = {
-			x : position.x,
-			y : position.y,
-			z : position.z
-		}
+		m_cameraLookingAt.set(position.x, position.y, position.z);
 	}
 
 	// *********************************

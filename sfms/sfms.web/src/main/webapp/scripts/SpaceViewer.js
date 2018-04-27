@@ -32,11 +32,8 @@ var SpaceViewer = (function() {
 	var m_camera;
 	var m_container;
 	var m_raycaster;
-	// var m_trackball;
 	var m_starTexture;
 	var m_shipTexture;
-
-	// var m_cameraTween = null;
 
 	// Scene objects
 	//
@@ -69,6 +66,8 @@ var SpaceViewer = (function() {
 	var m_workQueue = [];
 	var m_mapItemKeysByBufferName = new Map();
 	var m_mouse = new THREE.Vector2();
+	var m_mouseButton = null;
+	var m_mouseDragging = false;
 
 	// Module events
 	//
@@ -98,7 +97,6 @@ var SpaceViewer = (function() {
 		initCreateCamera(); // m_camera
 		initCreateContainer(containerId); // m_container
 		initCreateRaycaster(); // m_raycaster
-		// initCreateTrackball(); // m_trackball
 		initCreateTextures(); // m_starTexture, m_shipTexture
 
 		SpaceViewerController.Initialize(m_canvas[0], m_camera);
@@ -108,9 +106,11 @@ var SpaceViewer = (function() {
 		var w = $(window);
 		w.on('resize', onWindowResize);
 		w.on('keydown', onWindowKeyDown);
-		var d = $(document);
-		m_container.on('mousemove', onDocumentMouseMove);
-		m_container.on('mouseclick', onDocumentMouseClick);
+		m_container.on('mousedown', onMouseDown);
+		m_container.on('mousemove', onMouseMove);
+		m_container.on('click', onClick);
+		m_container.on('mouseup', onMouseUp);
+		m_container.on('mouseleave', onMouseLeave);
 
 		// render();
 		animate();
@@ -274,19 +274,6 @@ var SpaceViewer = (function() {
 		m_raycaster.params.Points.threshold = RAYCASTER_THRESHOLD;
 	}
 
-	// var initCreateTrackball = function() {
-	// m_trackball = new THREE.TrackballControls(m_camera, m_canvas[0]);
-	// m_trackball.rotateSpeed = 1.0;
-	// m_trackball.zoomSpeed = 1.2;
-	// m_trackball.panSpeed = 0.8;
-	// m_trackball.noZoom = false;
-	// m_trackball.noPan = false;
-	// m_trackball.staticMoving = true;
-	// m_trackball.dynamicDampingFactor = 0.3;
-	// m_trackball.keys = [ 65, 83, 68 ];
-	// // m_trackball.addEventListener('change', render);
-	// }
-
 	var initCreateTextures = function() {
 		var loader = new THREE.TextureLoader();
 		m_starTexture = loader.load("textures/sfms_star.png");
@@ -297,28 +284,20 @@ var SpaceViewer = (function() {
 	// ** EVENT HANDLERS
 	// **
 
-	var onDocumentMouseClick = function(e) {
+	var onMouseDown = function(e) {
+		m_mouseButton = e.buttons;
+		m_mouseDragging = false;
+	}
 
-		if (m_mapItemHighlight.mapItemType === null) {
-			hideMapItemCursor();
+	var onMouseMove = function(e) {
+		if (m_mouseButton !== null) {
+			m_mouseDragging = true;
 		} else {
-			moveMapItemCursor(m_mapItemHighlight.mapItemType,
-					m_mapItemHighlight.mapItemKey,
-					m_mapItemHighlight.object.position);
-			hideMapItemHighlight();
+			onMouseMoveHover(e);
 		}
-
 	}
 
-	var onDocumentMouseMove = function(e) {
-
-		if (e.buttons == 0) {
-			onDocumentMouseMoveHover(e);
-		}
-
-	}
-
-	var onDocumentMouseMoveHover = function(e) {
+	var onMouseMoveHover = function(e) {
 
 		// Determine normalized mouse position used for ray-casting.
 		//
@@ -362,11 +341,29 @@ var SpaceViewer = (function() {
 		}
 	}
 
+	var onMouseUp = function(e) {
+		m_mouseButton = null;
+	}
+
+	var onMouseLeave = function(e) {
+		m_mouseButton = null;
+	}
+
+	var onClick = function(e) {
+		if (!m_mouseDragging) {
+			if (m_mapItemHighlight.mapItemType === null) {
+				hideMapItemCursor();
+			} else {
+				moveMapItemCursor(m_mapItemHighlight.mapItemType,
+						m_mapItemHighlight.mapItemKey,
+						m_mapItemHighlight.object.position);
+				hideMapItemHighlight();
+			}
+		}
+	}
+
 	var onWindowResize = function(e) {
 		m_renderer.setSize(m_canvas.width(), m_canvas.height(), false);
-		// m_camera.aspect = m_canvas.width() / m_canvas.height();
-		// m_camera.updateProjectionMatrix();
-		// m_trackball.handleResize();
 		SpaceViewerController.OnWindowResize();
 		// render();
 	};
@@ -428,7 +425,6 @@ var SpaceViewer = (function() {
 		TWEEN.update(); // required by SpaceViewerController
 		animateMapItemHighlight();
 		animateMapItemCursor();
-		// m_trackball.update();
 		SpaceViewerController.Animate();
 		render();
 	};
@@ -564,29 +560,6 @@ var SpaceViewer = (function() {
 		lookAtSector(sector);
 
 		raiseOnSectorClick(sector.key);
-
-		// m_objectGroup.children.forEach(function(element) {
-		// element.geometry.dispose();
-		// element.material.dispose();
-		// });
-		// m_objectGroup.children = [];
-		// m_objectKeysByType.clear();
-
-		// MAP_ITEM_TYPES.forEach(function(mapItemType) {
-		//
-		// var bufferName = createBufferName(sector.key, mapItemType);
-		// if (!m_mapItemKeysByBufferName.has(bufferName)) {
-		// m_mapItemKeysByBufferName.set(bufferName, "TEMP");
-		//
-		// raiseGetMapItemsBySector(sector.key, mapItemType, function(
-		// mapItemKeys, mapItemPoints) {
-		// m_mapItemKeysByBufferName.set(bufferName, mapItemKeys);
-		// var buffer = createBuffer(mapItemType, mapItemPoints);
-		// buffer.name = bufferName;
-		// m_objectGroup.add(buffer);
-		// });
-		// }
-		// });
 	}
 
 	var createBuffer = function(mapItemType, mapItemPoints) {
@@ -682,29 +655,6 @@ var SpaceViewer = (function() {
 			y : yMidpoint,
 			z : zMidpoint
 		});
-
-		// if (m_cameraTween !== null) {
-		// m_cameraTween.stop();
-		// m_cameraTween = null;
-		// }
-		//
-		// m_camera.up.set(0, 1, 0);
-		// var tweenState = {
-		// x : m_trackball.target.x,
-		// y : m_trackball.target.y,
-		// z : m_trackball.target.z
-		// };
-		// m_cameraTween = new TWEEN.Tween(tweenState).to({
-		// x : xMidpoint,
-		// y : yMidpoint,
-		// z : zMidpoint
-		// }, 1000).easing(TWEEN.Easing.Quadratic.Out).onUpdate(
-		// function() {
-		// m_camera.position.set(tweenState.x, tweenState.y + 150,
-		// tweenState.z + 250);
-		// m_trackball.target.set(tweenState.x, tweenState.y,
-		// tweenState.z);
-		// }).start();
 	}
 
 	var lookAtMapItem = function(mapItemPosition) {
@@ -713,23 +663,6 @@ var SpaceViewer = (function() {
 			y : mapItemPosition.y,
 			z : mapItemPosition.z
 		});
-		// if (m_cameraTween !== null) {
-		// m_cameraTween.stop();
-		// m_cameraTween = null;
-		// }
-		//
-		// var tweenState = {
-		// x : m_trackball.target.x,
-		// y : m_trackball.target.y,
-		// z : m_trackball.target.z
-		// };
-		// m_cameraTween = new TWEEN.Tween(tweenState).to({
-		// x : mapItemPosition.x,
-		// y : mapItemPosition.y,
-		// z : mapItemPosition.z
-		// }, 1000).easing(TWEEN.Easing.Quadratic.Out).onUpdate(function() {
-		// m_trackball.target.set(tweenState.x, tweenState.y, tweenState.z);
-		// }).start();
 	}
 
 	// **
@@ -773,30 +706,6 @@ var SpaceViewer = (function() {
 
 			processWorkQueue();
 		});
-
-		// var bufferName = createBufferName(entry.sectorKey,
-		// entry.mapItemType);
-		// if (!m_mapItemKeysByBufferName.has(bufferName)) {
-		// m_mapItemKeysByBufferName.set(bufferName, "TEMP");
-		//
-		// raiseGetMapItemsBySector(entry.sectorKey, entry.mapItemType,
-		// function(mapItemSets) {
-		// mapItemSets.forEach(function(mapItemSet) {
-		//
-		// if (mapItemSet.mapItemKeys.length > 0) {
-		// m_mapItemKeysByBufferName.set(bufferName,
-		// mapItemSet.mapItemKeys);
-		// var buffer = createBuffer(entry.mapItemType,
-		// mapItemSet.mapItemPoints);
-		// buffer.name = bufferName;
-		// m_objectGroup.add(buffer);
-		// }
-		//
-		// processWorkQueue();
-		// });
-		// });
-		// }
-
 	}
 
 	// **
