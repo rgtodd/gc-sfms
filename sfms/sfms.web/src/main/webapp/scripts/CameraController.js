@@ -85,8 +85,8 @@ var CameraController = (function() {
 
 	var dragTo = function(position) {
 
-		var dx = -(position.x - m_mouseDownPosition.x);
-		var dy = position.y - m_mouseDownPosition.y;
+		var dx = -(position.x - m_mouseDownPosition.x) * 0.1;
+		var dy = (position.y - m_mouseDownPosition.y) * 0.1;
 
 		var positionBefore = m_camera.getWorldPosition();
 
@@ -148,12 +148,11 @@ var CameraController = (function() {
 			z : m_cameraLookingAt.z
 		};
 		m_cameraTween = new TWEEN.Tween(tweenState).to(position, 1000).easing(
-				TWEEN.Easing.Quadratic.Out).onUpdate(
-				function() {
-					m_camera.position.set(tweenState.x, tweenState.y + 150,
-							tweenState.z + 250);
-					m_camera.lookAt(tweenState.x, tweenState.y, tweenState.z);
-				}).start();
+				TWEEN.Easing.Quadratic.Out).onUpdate(function() {
+			m_camera.position.set(tweenState.x, tweenState.y, // + 150,
+			tweenState.z + 250);
+			m_camera.lookAt(tweenState.x, tweenState.y, tweenState.z);
+		}).start();
 
 		m_cameraLookingAt.set(position.x, position.y, position.z);
 	}
@@ -164,11 +163,16 @@ var CameraController = (function() {
 
 	var onMouseEnter = function(e) {
 
+		Logger.LogMessage("onMouseEnter");
+
 		m_state = HOVER;
 
 	}
 
 	var onMouseMove = function(e) {
+
+		Logger.LogMessage("onMouseMove");
+
 		switch (m_state) {
 		case HOVER:
 			raiseOnHover(getPosition(e));
@@ -190,6 +194,9 @@ var CameraController = (function() {
 	}
 
 	var onMouseDown = function(e) {
+
+		Logger.LogMessage("onMouseDown");
+
 		switch (m_state) {
 		case HOVER:
 			m_state = MOUSE_DOWN;
@@ -225,6 +232,9 @@ var CameraController = (function() {
 	}
 
 	var onMouseUp = function(e) {
+
+		Logger.LogMessage("onMouseUp");
+
 		switch (m_state) {
 		case HOVER:
 			// No action required.
@@ -245,6 +255,9 @@ var CameraController = (function() {
 	}
 
 	var onClick = function(e) {
+
+		Logger.LogMessage("onClick");
+
 		switch (m_state) {
 		case HOVER:
 			// No action required.
@@ -266,6 +279,9 @@ var CameraController = (function() {
 	}
 
 	var onMouseWheel = function(e) {
+
+		Logger.LogMessage("onMouseWheel");
+
 		switch (m_state) {
 		case HOVER:
 			e.preventDefault();

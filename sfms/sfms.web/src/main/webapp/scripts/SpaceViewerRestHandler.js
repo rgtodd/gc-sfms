@@ -24,13 +24,15 @@ var SpaceViewerRestHandler = (function() {
 
 		var url = "/ajax/getSectors";
 
-		SpaceViewerRestLogger.RaiseOnRestStart(url);
+		Logger.RestStart(url);
 		$.ajax({
 			type : 'GET',
 			url : url
-		}).then(function(response) {
-			SpaceViewerRestLogger.RaiseOnRestComplete(url);
+		}).done(function(response) {
+			Logger.RestComplete(url);
 			callback(response.sectors);
+		}).fail(function(jqXHR, textStatus) {
+			Logger.RestError(url, jqXHR, textStatus);
 		});
 	};
 
@@ -38,13 +40,15 @@ var SpaceViewerRestHandler = (function() {
 
 		var url = "/ajax/getSectorByLocation?x=" + x + "&y=" + y + "&z=" + z;
 
-		SpaceViewerRestLogger.RaiseOnRestStart(url);
+		Logger.RestStart(url);
 		$.ajax({
 			type : 'GET',
 			url : url
-		}).then(function(response) {
-			SpaceViewerRestLogger.RaiseOnRestComplete(url);
+		}).done(function(response) {
+			Logger.RestComplete(url);
 			callback(response.sector);
+		}).fail(function(jqXHR, textStatus) {
+			Logger.RestError(url, jqXHR, textStatus);
 		});
 	}
 
@@ -52,13 +56,15 @@ var SpaceViewerRestHandler = (function() {
 
 		var url = "/ajax/getSectorByKey?key=" + key;
 
-		SpaceViewerRestLogger.RaiseOnRestStart(url);
+		Logger.RestStart(url);
 		$.ajax({
 			type : 'GET',
 			url : url
-		}).then(function(response) {
-			SpaceViewerRestLogger.RaiseOnRestComplete(url);
+		}).done(function(response) {
+			Logger.RestComplete(url);
 			callback(response.sector);
+		}).fail(function(jqXHR, textStatus) {
+			Logger.RestError(url, jqXHR, textStatus);
 		});
 	}
 
@@ -67,13 +73,15 @@ var SpaceViewerRestHandler = (function() {
 		var url = "/ajax/getMapItemsBySector?sectorKey=" + sectorKey
 				+ "&mapItemType=" + mapItemType;
 
-		SpaceViewerRestLogger.RaiseOnRestStart(url);
+		Logger.RestStart(url);
 		$.ajax({
 			type : 'GET',
 			url : url
-		}).then(function(response) {
-			SpaceViewerRestLogger.RaiseOnRestComplete(url);
+		}).done(function(response) {
+			Logger.RestComplete(url);
 			callback(response.mapItemSets);
+		}).fail(function(jqXHR, textStatus) {
+			Logger.RestError(url, jqXHR, textStatus);
 		});
 	};
 
@@ -81,13 +89,15 @@ var SpaceViewerRestHandler = (function() {
 
 		var url = "/ajax/getMapItemsByRank?rank=" + rank;
 
-		SpaceViewerRestLogger.RaiseOnRestStart(url);
+		Logger.RestStart(url);
 		$.ajax({
 			type : 'GET',
 			url : url
-		}).then(function(response) {
-			SpaceViewerRestLogger.RaiseOnRestComplete(url);
+		}).done(function(response) {
+			Logger.RestComplete(url);
 			callback(response.mapItemSets);
+		}).fail(function(jqXHR, textStatus) {
+			Logger.RestError(url, jqXHR, textStatus);
 		});
 	};
 
@@ -96,13 +106,15 @@ var SpaceViewerRestHandler = (function() {
 		var url = "/ajax/getMapItem?mapItemType=" + mapItemType
 				+ "&mapItemKey=" + mapItemKey;
 
-		SpaceViewerRestLogger.RaiseOnRestStart(url);
+		Logger.RestStart(url);
 		$.ajax({
 			type : 'GET',
 			url : url
-		}).then(function(response) {
-			SpaceViewerRestLogger.RaiseOnRestComplete(url);
+		}).done(function(response) {
+			Logger.RestComplete(url);
 			callback(response);
+		}).fail(function(jqXHR, textStatus) {
+			Logger.RestError(url, jqXHR, textStatus);
 		});
 	};
 

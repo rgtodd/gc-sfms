@@ -32,7 +32,9 @@
 									<span id="spanRestCounter" class="badge badge-secondary">0</span>
 							</a></li>
 							<li class="nav-item nav-item-tab"><a id="aLogLink"
-								class="nav-link nav-link-tab" href="#" data-body="#divLogBody">Log</a></li>
+								class="nav-link nav-link-tab" href="#" data-body="#divLogBody">Log
+									<span id="spanLogCounter" class="badge badge-secondary">0</span>
+							</a></li>
 						</ul>
 					</div>
 					<div class="card-body">
@@ -49,44 +51,21 @@
 							<div id="divMapItemProperties"></div>
 						</div>
 						<div id="divRestBody" class="card-body-panel">
-							<pre>
-								<code id="divRestBodyContent"></code>
-							</pre>
+							<div class="mb-2">
+								<button id="btnRestClear" class="btn btn-small">Clear</button>
+							</div>
+							<pre id="divRestBodyContent"></pre>
 						</div>
-						<div id="divLogBody" class="card-body-panel">Log body.</div>
+						<div id="divLogBody" class="card-body-panel">
+							<div class="mb-2">
+								<button id="btnLogClear" class="btn btn-small">Clear</button>
+							</div>
+							<pre id="divLogBodyContent"></pre>
+						</div>
 					</div>
 				</div>
-				<!--/*-->
-				************************ BEGIN COMMENT BLOCK
-				<h2></h2>
-				<p>
-					Sector: <span id="ctrlSector"></span>
-				</p>
-				<p>
-					Object: <span id="ctrlObject"></span>
-				</p>
-				<p>
-					Hover: <span id="ctrlHover"></span>
-				</p>
-				************************ END COMMENT BLOCK
-				<!--*/-->
 			</div>
 		</div>
-		<!--/*-->
-		************************ BEGIN COMMENT BLOCK
-		<div class="row">
-			<div class="col-sm">
-				<p id="ctrlDebug"></p>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-sm">
-				<p>REST</p>
-				<div id="ctrlRestLog" style="height: 400px; overflow: scroll;"></div>
-			</div>
-		</div>
-		************************ END COMMENT BLOCK
-		<!--*/-->
 	</div>
 	<div layout:fragment="scripts">
 		<script type="text/javascript" src="scripts/three.js"></script>
@@ -99,7 +78,7 @@
 		<script type="text/javascript" src="scripts/CameraController.js"></script>
 		<script type="text/javascript" src="scripts/SpaceViewerMockHandler.js"></script>
 		<script type="text/javascript" src="scripts/SpaceViewerRestHandler.js"></script>
-		<script type="text/javascript" src="scripts/SpaceViewerRestLogger.js"></script>
+		<script type="text/javascript" src="scripts/Logger.js"></script>
 		<script type="text/javascript" src="scripts/explorer.js"></script>
 		<script type="text/javascript">
 			$(document).ready(Explorer.Initialize);

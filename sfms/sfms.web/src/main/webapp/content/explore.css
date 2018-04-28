@@ -1,5 +1,11 @@
 /* EXPLORE.CSS */
-#divRestBody {
+#divRestBodyContent {
+	height: 400px;
+	overflow: auto;
+}
+
+#divLogBodyContent {
+	height: 400px;
 	overflow: auto;
 }
 

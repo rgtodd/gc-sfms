@@ -9,93 +9,12 @@ var Explorer = (function() {
 	// *********************************
 
 	var m_restCounter = 0;
+	var m_logCounter = 0;
+	var m_lastLogMessage = null;
 
 	// Module events
 	//
 	var m_getMapItemHandler = null;
-
-	var onRestStart = function(url) {
-
-		++m_restCounter;
-
-		$("#spanRestCounter").text(m_restCounter.toString());
-
-		$("#divRestBodyContent").append(
-				getCurrentTimeFormatted() + " - " + "Start: " + url + "<br>");
-	}
-
-	var onRestComplete = function(url) {
-		$("#divRestBodyContent")
-				.append(
-						getCurrentTimeFormatted() + " - " + "Complete: " + url
-								+ "<br>");
-	}
-
-	var getCurrentTimeFormatted = function() {
-		var now = new Date();
-
-		var year = now.getFullYear();
-		var month = now.getMonth();
-		var day = now.getDate();
-		var hour = now.getHours();
-		var minute = now.getMinutes();
-		var second = now.getSeconds();
-
-		return zeroPad(year, 4) + "-" + //
-		zeroPad(month, 2) + "-" + //
-		zeroPad(day, 2) + " " + //
-		zeroPad(hour, 2) + ":" + //
-		zeroPad(minute, 2) + ":" + //
-		zeroPad(second, 2);
-	}
-
-	var zeroPad = function(number, length) {
-		var result = number.toString();
-		while (result.length < length) {
-			result = "0" + result;
-		}
-		return result;
-	}
-
-	var onMapItemClick = function(mapItemType, mapItemKey) {
-
-		raiseGetMapItem(
-				mapItemType,
-				mapItemKey,
-				function(mapItem) {
-
-					$("#divMapItemTitle").html(mapItem.mapItemName);
-
-					var propertyHtml = "";
-					mapItem.propertyGroups
-							.forEach(function(propertyGroup) {
-								propertyHtml += "<h6>" + propertyGroup.title
-										+ "</h6>";
-								propertyHtml += "<table class='table table-sm'>";
-								propertyHtml += "<tbody>";
-								propertyGroup.properties
-										.forEach(function(property) {
-											propertyHtml += "<tr>";
-											propertyHtml += "<th scope='row'>";
-											propertyHtml += property.title;
-											if (property.description !== null) {
-												propertyHtml += " <i class='material-icons tooltip-description' data-toggle='tooltip' title='"
-														+ property.description
-														+ "'>help</i>";
-											}
-											propertyHtml += "</th>";
-											propertyHtml += "<td>"
-													+ property.value + "</td>";
-											propertyHtml += "</tr>";
-										});
-								propertyHtml += "</tbody>";
-								propertyHtml += "</table>";
-							});
-
-					$("#divMapItemProperties").html(propertyHtml);
-
-				});
-	}
 
 	// **
 	// ** MODULE EVENTS
@@ -117,9 +36,10 @@ var Explorer = (function() {
 
 	var initialize = function() {
 
-		SpaceViewerRestLogger.RegisterOnRestStartHandler(onRestStart);
-
-		SpaceViewerRestLogger.RegisterOnRestCompleteHandler(onRestComplete);
+		Logger.RegisterOnRestStartHandler(onRestStart);
+		Logger.RegisterOnRestCompleteHandler(onRestComplete);
+		Logger.RegisterOnRestErrorHandler(onRestError);
+		Logger.RegisterOnLogMessageHandler(onLogMessage);
 
 		Explorer.RegisterGetMapItemHandler(SpaceViewerRestHandler.GetMapItem);
 
@@ -158,14 +78,172 @@ var Explorer = (function() {
 			$(this).addClass("active");
 
 			$(".card-body-panel:visible").hide();
-			$($(this).data("body")).show();
+			var panel = $($(this).data("body"));
+			panel.show();
+			scrollToBottom(panel.children("pre"));
 		});
 
 		$("body").tooltip({
 			selector : ".tooltip-description",
 			trigger : "hover"
 		});
+
+		$("#btnRestClear").on("click", onRestClearClick);
+		$("#btnLogClear").on("click", onLogClearClick);
 	};
+
+	// **
+	// ** Event Handlers
+	// **
+
+	var onRestStart = function(url) {
+		addRestStartEntry(url);
+	}
+
+	var onRestComplete = function(url) {
+		addRestCompleteEntry(url);
+	}
+
+	var onRestError = function(url, jqXHR, textStatus) {
+		addRestErrorEntry(url, jqXHR, textStatus);
+	}
+
+	var onRestClearClick = function() {
+		clearRest();
+	}
+
+	var onLogMessage = function(message) {
+		addLogMessage(message);
+	}
+
+	var onLogClearClick = function() {
+		clearLog();
+	}
+
+	var onMapItemClick = function(mapItemType, mapItemKey) {
+		raiseGetMapItem(mapItemType, mapItemKey, updateMapItemDetail);
+	}
+
+	// **
+	// ** UI
+	// **
+
+	var updateMapItemDetail = function(mapItem) {
+
+		$("#divMapItemTitle").html(mapItem.mapItemName);
+
+		var propertyHtml = "";
+		mapItem.propertyGroups
+				.forEach(function(propertyGroup) {
+					propertyHtml += "<h6>" + propertyGroup.title + "</h6>";
+					propertyHtml += "<table class='table table-sm'>";
+					propertyHtml += "<tbody>";
+					propertyGroup.properties
+							.forEach(function(property) {
+								propertyHtml += "<tr>";
+								propertyHtml += "<th scope='row'>";
+								propertyHtml += property.title;
+								if (property.description !== null) {
+									propertyHtml += " <i class='material-icons tooltip-description' data-toggle='tooltip' title='"
+											+ property.description
+											+ "'>help</i>";
+								}
+								propertyHtml += "</th>";
+								propertyHtml += "<td>" + property.value
+										+ "</td>";
+								propertyHtml += "</tr>";
+							});
+					propertyHtml += "</tbody>";
+					propertyHtml += "</table>";
+				});
+
+		$("#divMapItemProperties").html(propertyHtml);
+	}
+
+	var addRestStartEntry = function(url) {
+		++m_restCounter;
+		$("#spanRestCounter").text(m_restCounter.toString());
+
+		var divContent = $("#divRestBodyContent");
+		divContent.append(getCurrentTimeFormatted() + " - Start: " + url
+				+ "<br>");
+		scrollToBottom(divContent);
+	}
+
+	var addRestCompleteEntry = function(url) {
+		var divContent = $("#divRestBodyContent");
+		divContent.append(getCurrentTimeFormatted() + " - Complete: " + url
+				+ "<br>");
+		scrollToBottom(divContent);
+	}
+
+	var addRestErrorEntry = function(url, jqXHR, textStatus) {
+		var divContent = $("#divRestBodyContent");
+		divContent.append(getCurrentTimeFormatted() + " - " + jqXHR.statusText
+				+ " (" + jqXHR.status + "): " + url + ")<br>");
+		scrollToBottom(divContent);
+	}
+
+	var clearRest = function() {
+		m_restCounter = 0;
+		$("#spanRestCounter").text(m_restCounter.toString());
+
+		var divContent = $("#divRestBodyContent");
+		divContent.text("");
+	}
+
+	var addLogMessage = function(message) {
+
+		if (message != m_lastLogMessage) {
+
+			++m_logCounter;
+			$("#spanLogCounter").text(m_logCounter.toString());
+
+			m_lastLogMessage = message;
+			var divContent = $("#divLogBodyContent");
+			divContent.append(getCurrentTimeFormatted() + " - " + message
+					+ "<br>");
+			scrollToBottom(divContent);
+		}
+	}
+
+	var clearLog = function() {
+		m_logCounter = 0;
+		$("#spanLogCounter").text(m_logCounter.toString());
+
+		var divContent = $("#divLogBodyContent");
+		divContent.text("");
+	}
+
+	var scrollToBottom = function(jq) {
+		jq.scrollTop(jq[0].scrollHeight);
+	}
+
+	var getCurrentTimeFormatted = function() {
+		var now = new Date();
+
+		var year = now.getFullYear();
+		var month = now.getMonth();
+		var day = now.getDate();
+		var hour = now.getHours();
+		var minute = now.getMinutes();
+		var second = now.getSeconds();
+
+		return zeroPad(year, 4) + "-" + //
+		zeroPad(month, 2) + "-" + //
+		zeroPad(day, 2) + " " + //
+		zeroPad(hour, 2) + ":" + //
+		zeroPad(minute, 2) + ":" + //
+		zeroPad(second, 2);
+	}
+
+	var zeroPad = function(number, length) {
+		var result = number.toString();
+		while (result.length < length) {
+			result = "0" + result;
+		}
+		return result;
+	}
 
 	// *********************************
 	// **
