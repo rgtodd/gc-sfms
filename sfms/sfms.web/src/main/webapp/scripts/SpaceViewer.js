@@ -66,8 +66,6 @@ var SpaceViewer = (function() {
 	var m_workQueue = [];
 	var m_mapItemKeysByBufferName = new Map();
 	var m_mouse = new THREE.Vector2();
-	var m_mouseButton = null;
-	var m_mouseDragging = false;
 
 	// Module events
 	//
@@ -99,18 +97,15 @@ var SpaceViewer = (function() {
 		initCreateRaycaster(); // m_raycaster
 		initCreateTextures(); // m_starTexture, m_shipTexture
 
-		SpaceViewerController.Initialize(m_canvas[0], m_camera);
+		CameraController.Initialize(m_canvas[0], m_camera);
 
 		// Register event handlers.
 		//
 		var w = $(window);
 		w.on('resize', onWindowResize);
 		w.on('keydown', onWindowKeyDown);
-		m_container.on('mousedown', onMouseDown);
-		m_container.on('mousemove', onMouseMove);
-		m_container.on('click', onClick);
-		m_container.on('mouseup', onMouseUp);
-		m_container.on('mouseleave', onMouseLeave);
+		CameraController.RegisterOnHoverHandler(onHover);
+		CameraController.RegisterOnClickHandler(onClick);
 
 		// render();
 		animate();
@@ -284,26 +279,13 @@ var SpaceViewer = (function() {
 	// ** EVENT HANDLERS
 	// **
 
-	var onMouseDown = function(e) {
-		m_mouseButton = e.buttons;
-		m_mouseDragging = false;
-	}
-
-	var onMouseMove = function(e) {
-		if (m_mouseButton !== null) {
-			m_mouseDragging = true;
-		} else {
-			onMouseMoveHover(e);
-		}
-	}
-
-	var onMouseMoveHover = function(e) {
+	var onHover = function(position) {
 
 		// Determine normalized mouse position used for ray-casting.
 		//
 		var containerPosition = m_canvas.offset();
-		var containerX = e.pageX - containerPosition.left;
-		var containerY = e.pageY - containerPosition.top;
+		var containerX = position.x - containerPosition.left;
+		var containerY = position.y - containerPosition.top;
 		m_mouse.x = (containerX / m_canvas.width()) * 2 - 1;
 		m_mouse.y = -(containerY / m_canvas.height()) * 2 + 1;
 
@@ -341,30 +323,20 @@ var SpaceViewer = (function() {
 		}
 	}
 
-	var onMouseUp = function(e) {
-		m_mouseButton = null;
-	}
-
-	var onMouseLeave = function(e) {
-		m_mouseButton = null;
-	}
-
 	var onClick = function(e) {
-		if (!m_mouseDragging) {
-			if (m_mapItemHighlight.mapItemType === null) {
-				hideMapItemCursor();
-			} else {
-				moveMapItemCursor(m_mapItemHighlight.mapItemType,
-						m_mapItemHighlight.mapItemKey,
-						m_mapItemHighlight.object.position);
-				hideMapItemHighlight();
-			}
+		if (m_mapItemHighlight.mapItemType === null) {
+			hideMapItemCursor();
+		} else {
+			moveMapItemCursor(m_mapItemHighlight.mapItemType,
+					m_mapItemHighlight.mapItemKey,
+					m_mapItemHighlight.object.position);
+			hideMapItemHighlight();
 		}
 	}
 
 	var onWindowResize = function(e) {
 		m_renderer.setSize(m_canvas.width(), m_canvas.height(), false);
-		SpaceViewerController.OnWindowResize();
+		CameraController.OnWindowResize();
 		// render();
 	};
 
@@ -422,10 +394,10 @@ var SpaceViewer = (function() {
 
 	var animate = function() {
 		requestAnimationFrame(animate);
-		TWEEN.update(); // required by SpaceViewerController
+		TWEEN.update(); // required by CameraController
 		animateMapItemHighlight();
 		animateMapItemCursor();
-		SpaceViewerController.Animate();
+		CameraController.Animate();
 		render();
 	};
 
@@ -562,27 +534,6 @@ var SpaceViewer = (function() {
 		raiseOnSectorClick(sector.key);
 	}
 
-	var createBuffer = function(mapItemType, mapItemPoints) {
-
-		var geometry = new THREE.BufferGeometry();
-		geometry.addAttribute('position', new THREE.Float32BufferAttribute(
-				mapItemPoints, 3));
-
-		var material = new THREE.PointsMaterial({
-			size : 0.4,
-			sizeAttenuation : true,
-			map : getTextureForMapItemType(mapItemType),
-			alphaTest : 0.5,
-			transparent : false
-		});
-		material.color.setHSL(1.0, 0.3, 0.7);
-
-		var points = new THREE.Points(geometry, material);
-
-		return points;
-
-	}
-
 	var moveMapItemCursor = function(mapItemType, mapItemKey, mapItemPosition) {
 		if (m_mapItemCursor.mapItemType !== mapItemType
 				|| m_mapItemCursor.mapItemKey !== mapItemKey) {
@@ -650,7 +601,7 @@ var SpaceViewer = (function() {
 		m_sectorCursor.yzShadow.position.set(MIN_SPACE_COORDINATE, yMidpoint,
 				zMidpoint);
 
-		SpaceViewerController.LookAtSector({
+		CameraController.PanTo({
 			x : xMidpoint,
 			y : yMidpoint,
 			z : zMidpoint
@@ -658,7 +609,7 @@ var SpaceViewer = (function() {
 	}
 
 	var lookAtMapItem = function(mapItemPosition) {
-		SpaceViewerController.LookAtMapItem({
+		CameraController.PivotTo({
 			x : mapItemPosition.x,
 			y : mapItemPosition.y,
 			z : mapItemPosition.z
@@ -711,6 +662,26 @@ var SpaceViewer = (function() {
 	// **
 	// ** UTILITY
 	// **
+
+	var createBuffer = function(mapItemType, mapItemPoints) {
+
+		var geometry = new THREE.BufferGeometry();
+		geometry.addAttribute('position', new THREE.Float32BufferAttribute(
+				mapItemPoints, 3));
+
+		var material = new THREE.PointsMaterial({
+			size : 0.4,
+			sizeAttenuation : true,
+			map : getTextureForMapItemType(mapItemType),
+			alphaTest : 0.5,
+			transparent : false
+		});
+		material.color.setHSL(1.0, 0.3, 0.7);
+
+		var points = new THREE.Points(geometry, material);
+
+		return points;
+	}
 
 	var clamp = function(value, minimum, maximum) {
 		if (value < minimum)
