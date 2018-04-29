@@ -18,4 +18,12 @@
 		<property name="y" direction="asc" />
 		<property name="z" direction="asc" />
 	</datastore-index>
+	<datastore-index kind="Crew" ancestor="false">
+		<property name="ln" direction="asc" />
+		<property name="fn" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Crew" ancestor="false">
+		<property name="fn" direction="asc" />
+		<property name="ln" direction="asc" />
+	</datastore-index>
 </datastore-indexes>
