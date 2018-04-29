@@ -19,6 +19,32 @@
 				<div id="divSpaceViewer" class="mb-2" style="height: 500px;">
 					<canvas id="canvasSpaceViewer" style="width: 100%; height: 100%;"></canvas>
 				</div>
+				<table id="tableLegend">
+					<tr>
+						<td colspan="2">Mouse</td>
+						<td colspan="6">Keyboard</td>
+					</tr>
+					<tr>
+						<td><kbd>Drag</kbd></td>
+						<td>Pan</td>
+						<td><kbd>&larr;</kbd></td>
+						<td>Left (-X)</td>
+						<td><kbd>&uarr;</kbd></td>
+						<td>Up (+Y)</td>
+						<td><kbd>Ctrl + &uarr;</kbd></td>
+						<td>Forward (-Z)</td>
+					</tr>
+					<tr>
+						<td><kbd>Wheel</kbd></td>
+						<td>Zoom</td>
+						<td><kbd>&rarr;</kbd></td>
+						<td>Right (+X)</td>
+						<td><kbd>&darr;</kbd></td>
+						<td>Down (-Y)</td>
+						<td><kbd>Ctrl + &darr;</kbd></td>
+						<td>Back (+Z)</td>
+					</tr>
+				</table>
 			</div>
 			<div class="col-sm-6">
 				<div class="card">
@@ -84,5 +110,6 @@
 			$(document).ready(Explorer.Initialize);
 		</script>
 	</div>
+
 </body>
 </html>

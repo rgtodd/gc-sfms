@@ -33,7 +33,9 @@ var SpaceViewer = (function() {
 	var m_container;
 	var m_raycaster;
 	var m_starTexture;
+	var m_starInactiveTexture;
 	var m_shipTexture;
+	var m_shipInactiveTexture;
 
 	// Scene objects
 	//
@@ -43,6 +45,7 @@ var SpaceViewer = (function() {
 		xzShadow : null,
 		yzShadow : null,
 		sectorKey : null,
+		buffers : null,
 		coordinates : {
 			sx : 0,
 			sy : 0,
@@ -59,12 +62,13 @@ var SpaceViewer = (function() {
 		mapItemType : null,
 		mapItemKey : null
 	}
-	var m_objectGroup; // parent Object3D of all selectable objects.
+	var m_allMapItemObjects;
+	var m_selectedMapItemObjects;
 
 	// UI state objects
 	//
 	var m_workQueue = [];
-	var m_mapItemKeysByBufferName = new Map();
+	var m_mapItemKeysByName = new Map();
 	var m_mouse = new THREE.Vector2();
 
 	// Module events
@@ -90,7 +94,7 @@ var SpaceViewer = (function() {
 
 		initCreateScene(); // m_scene
 		initAddDefaultObjectsToScene();
-		initCreateStats(); // m_stats
+		// initCreateStats(); // m_stats
 		initCreateRenderer(); // m_renderer
 		initCreateCamera(); // m_camera
 		initCreateContainer(containerId); // m_container
@@ -123,8 +127,9 @@ var SpaceViewer = (function() {
 		// var gridHelper = new THREE.GridHelper(100, 10);
 		// m_scene.add(gridHelper);
 
-		m_objectGroup = new THREE.Group();
-		m_scene.add(m_objectGroup);
+		m_selectedMapItemObjects = []
+		m_allMapItemObjects = new THREE.Group();
+		m_scene.add(m_allMapItemObjects);
 
 		// var dirX = new THREE.Vector3(1, 0, 0);
 		// var dirY = new THREE.Vector3(0, 1, 0);
@@ -261,7 +266,7 @@ var SpaceViewer = (function() {
 
 	var initCreateContainer = function(containerId) {
 		m_container = $(containerId);
-		m_container.append(m_stats.dom);
+		// m_container.append(m_stats.dom);
 	}
 
 	var initCreateRaycaster = function() {
@@ -272,7 +277,9 @@ var SpaceViewer = (function() {
 	var initCreateTextures = function() {
 		var loader = new THREE.TextureLoader();
 		m_starTexture = loader.load("textures/sfms_star.png");
+		m_starInactiveTexture = loader.load("textures/sfms_star_inactive.png");
 		m_shipTexture = loader.load("textures/sfms_ship.png");
+		m_shipInactiveTexture = loader.load("textures/sfms_ship_inactive.png");
 	}
 
 	// **
@@ -293,22 +300,22 @@ var SpaceViewer = (function() {
 		//
 		m_raycaster.setFromCamera(m_mouse, m_camera);
 		var intersections = m_raycaster.intersectObjects(
-				m_objectGroup.children, true);
+				m_selectedMapItemObjects, true);
 
 		if (intersections.length > 0) {
 			var intersection = intersections[0];
 			var index = intersection.index;
-			var buffer = intersection.object;
-			var parsedBufferName = parseBufferName(buffer.name);
-			var mapItemKeys = m_mapItemKeysByBufferName.get(buffer.name);
+			var mapItemObject = intersection.object;
+			var parsedBufferName = parseMapItemObjectName(mapItemObject.name);
+			var mapItemKeys = m_mapItemKeysByName.get(mapItemObject.name);
 			var mapItemKey = mapItemKeys[index];
 
 			if (m_mapItemCursor.mapItemType !== parsedBufferName.mapItemType
 					|| m_mapItemCursor.mapItemKey !== mapItemKey) {
 
-				var x = buffer.geometry.attributes.position.array[index * 3];
-				var y = buffer.geometry.attributes.position.array[index * 3 + 1];
-				var z = buffer.geometry.attributes.position.array[index * 3 + 2];
+				var x = mapItemObject.geometry.attributes.position.array[index * 3];
+				var y = mapItemObject.geometry.attributes.position.array[index * 3 + 1];
+				var z = mapItemObject.geometry.attributes.position.array[index * 3 + 2];
 				var mapItemPosition = new THREE.Vector3(x, y, z);
 
 				moveMapItemHighlight(parsedBufferName.mapItemType, mapItemKey,
@@ -343,16 +350,19 @@ var SpaceViewer = (function() {
 	var onWindowKeyDown = function(e) {
 		switch (e.which) {
 		case 37: // LEFT
+			e.preventDefault();
 			moveSectorCursor(m_sectorCursor.coordinates.sx - 1,
 					m_sectorCursor.coordinates.sy,
 					m_sectorCursor.coordinates.sz);
 			break;
 		case 39: // RIGHT
+			e.preventDefault();
 			moveSectorCursor(m_sectorCursor.coordinates.sx + 1,
 					m_sectorCursor.coordinates.sy,
 					m_sectorCursor.coordinates.sz);
 			break;
 		case 38: // UP
+			e.preventDefault();
 			if (e.ctrlKey) {
 				moveSectorCursor(m_sectorCursor.coordinates.sx,
 						m_sectorCursor.coordinates.sy,
@@ -364,6 +374,7 @@ var SpaceViewer = (function() {
 			}
 			break;
 		case 40: // DOWN
+			e.preventDefault();
 			if (e.ctrlKey) {
 				moveSectorCursor(m_sectorCursor.coordinates.sx,
 						m_sectorCursor.coordinates.sy,
@@ -385,8 +396,6 @@ var SpaceViewer = (function() {
 
 		raiseGetSectors(function(sectors) {
 			m_sectors = sectors;
-			moveSectorCursor(5, 5, 5);
-
 			populateWorkQueue();
 			processWorkQueue();
 		});
@@ -407,7 +416,7 @@ var SpaceViewer = (function() {
 				"Position = " + m_camera.position.x + "," + m_camera.position.y
 						+ "," + m_camera.position.z + "<br>FOV = "
 						+ m_camera.fov);
-		m_stats.update();
+		// m_stats.update();
 	}
 
 	// **
@@ -498,6 +507,15 @@ var SpaceViewer = (function() {
 	// ** UI
 	// **
 
+	var setMapItemObjectActive = function(mapItemObject, active) {
+
+		console.log(mapItemObject.name + " " + active);
+
+		var parsedBufferName = parseMapItemObjectName(mapItemObject.name);
+		mapItemObject.material.map = getTextureForMapItemType(
+				parsedBufferName.mapItemType, active);
+	}
+
 	var moveSectorCursor = function(sx, sy, sz) {
 
 		sx = clamp(sx, MIN_SECTOR_COORDINATE, MAX_SECTOR_COORDINATE);
@@ -520,6 +538,24 @@ var SpaceViewer = (function() {
 
 		hideMapItemHighlight();
 		hideMapItemCursor();
+
+		// Deactivate currently selected objects.
+		//
+		m_selectedMapItemObjects.forEach(function(mapItemObject) {
+			setMapItemObjectActive(mapItemObject, false);
+		});
+		while (m_selectedMapItemObjects.length > 0) {
+			m_selectedMapItemObjects.pop();
+		}
+
+		// Find and select objects in current sector.
+		//
+		m_allMapItemObjects.children.forEach(function(mapItemObject) {
+			if (mapItemObject.name.startsWith(sector.key)) {
+				setMapItemObjectActive(mapItemObject, true);
+				m_selectedMapItemObjects.push(mapItemObject);
+			}
+		});
 
 		m_sectorCursor.coordinates.sx = sx;
 		m_sectorCursor.coordinates.sy = sy;
@@ -633,24 +669,26 @@ var SpaceViewer = (function() {
 		var entry = m_workQueue.pop();
 		console.log(entry);
 		if (entry === undefined) {
+			moveSectorCursor(5, 5, 5);
 			return;
 		}
 
 		raiseGetMapItemsByRank(entry.rank, function(mapItemSets) {
 			mapItemSets.forEach(function(mapItemSet) {
 
-				var bufferName = createBufferName(mapItemSet.sectorKey,
-						mapItemSet.mapItemType);
+				var mapItemObjectName = createMapItemObjectName(
+						mapItemSet.sectorKey, mapItemSet.mapItemType);
 
-				if (!m_mapItemKeysByBufferName.has(bufferName)) {
+				if (!m_mapItemKeysByName.has(mapItemObjectName)) {
 					if (mapItemSet.mapItemKeys.length > 0) {
 
-						m_mapItemKeysByBufferName.set(bufferName,
+						m_mapItemKeysByName.set(mapItemObjectName,
 								mapItemSet.mapItemKeys);
-						var buffer = createBuffer(mapItemSet.mapItemType,
+						var mapItemObject = createMapItemObject(
+								mapItemSet.mapItemType,
 								mapItemSet.mapItemPoints);
-						buffer.name = bufferName;
-						m_objectGroup.add(buffer);
+						mapItemObject.name = mapItemObjectName;
+						m_allMapItemObjects.add(mapItemObject);
 					}
 				}
 			});
@@ -663,7 +701,7 @@ var SpaceViewer = (function() {
 	// ** UTILITY
 	// **
 
-	var createBuffer = function(mapItemType, mapItemPoints) {
+	var createMapItemObject = function(mapItemType, mapItemPoints) {
 
 		var geometry = new THREE.BufferGeometry();
 		geometry.addAttribute('position', new THREE.Float32BufferAttribute(
@@ -672,7 +710,7 @@ var SpaceViewer = (function() {
 		var material = new THREE.PointsMaterial({
 			size : 0.4,
 			sizeAttenuation : true,
-			map : getTextureForMapItemType(mapItemType),
+			map : getTextureForMapItemType(mapItemType, false),
 			alphaTest : 0.5,
 			transparent : false
 		});
@@ -691,14 +729,25 @@ var SpaceViewer = (function() {
 		return value;
 	}
 
-	var getTextureForMapItemType = function(mapItemType) {
-		switch (mapItemType) {
-		case MAP_ITEM_TYPE_STAR:
-			return m_starTexture;
-		case MAP_ITEM_TYPE_SHIP:
-			return m_shipTexture;
-		default:
-			throw "Unknown mapItemType" + mapItemType;
+	var getTextureForMapItemType = function(mapItemType, active) {
+		if (active) {
+			switch (mapItemType) {
+			case MAP_ITEM_TYPE_STAR:
+				return m_starTexture;
+			case MAP_ITEM_TYPE_SHIP:
+				return m_shipTexture;
+			default:
+				throw "Unknown mapItemType" + mapItemType;
+			}
+		} else {
+			switch (mapItemType) {
+			case MAP_ITEM_TYPE_STAR:
+				return m_starInactiveTexture;
+			case MAP_ITEM_TYPE_SHIP:
+				return m_shipInactiveTexture;
+			default:
+				throw "Unknown mapItemType" + mapItemType;
+			}
 		}
 	}
 
@@ -724,15 +773,15 @@ var SpaceViewer = (function() {
 		}
 	}
 
-	var createBufferName = function(sectorKey, mapItemType) {
+	var createMapItemObjectName = function(sectorKey, mapItemType) {
 		return sectorKey + "|" + getMapItemNameFromType(mapItemType);
 	}
 
-	var parseBufferName = function(bufferName) {
-		var indexDelimiter = bufferName.indexOf("|");
+	var parseMapItemObjectName = function(mapItemObjectName) {
+		var indexDelimiter = mapItemObjectName.indexOf("|");
 		return {
-			sectorKey : bufferName.substring(0, indexDelimiter),
-			mapItemType : getMapItemTypeFromName(bufferName
+			sectorKey : mapItemObjectName.substring(0, indexDelimiter),
+			mapItemType : getMapItemTypeFromName(mapItemObjectName
 					.substring(indexDelimiter + 1))
 		}
 	}

@@ -1,4 +1,8 @@
 /* EXPLORE.CSS */
+#tableLegend td {
+	padding: 5px;
+}
+
 #divRestBodyContent {
 	height: 400px;
 	overflow: auto;
