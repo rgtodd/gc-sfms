@@ -1,5 +1,60 @@
 "use strict";
 
+/*-
+ * SpaceViewer
+ * 
+ * Manages a HTML5 WebGL canvas to visualize stars, space ships and other items in the SFMS database.
+ * 
+ * MAP ITEMS
+ * =========
+ * 
+ * The data shown is obtained by the REST methods exposed by the AjaxController.  This controller abstracts
+ * all viewable entities as map items.  A map item has the following properties:
+ * 
+ *  * sectorKey - Identifies the sector containing the map item.
+ *  
+ *  * mapItemKey - A unique key that allows details for the map item to be retrieved.
+ *  
+ *  * mapItemType - Identifies the type of map item.  Values include:
+ *            
+ *                  0 = Star
+ *                  1 = Spaceship
+ *                  
+ *  * mapItemName - The name of the map item.
+ *  
+ *  * propertyGroups - A list of property groups that contain detail information for the map item.
+ *   
+ * For efficiency, map items are displayed as gl.POINTS WebGL objects.  There is a single gl.POINTS 
+ * object for every sectorKey/mapItemType combination.  
+ * 
+ * Each gl.POINTS object has an associated bitmap image texture that corresponds to the mapItemType 
+ * (e.g. sfms_star.png.)  These images are stored in the "textures" folder.
+ * 
+ * We divide map items in different sectors into separate gl.POINTS objects so that objects in 
+ * the active sector can be highlighted.  gl.POINTS are assigned the appropriate texture 
+ * (e.g. sfms_star.png vs. sfms_star_inactive.png) when a the sector cursor is moved.
+ * 
+ * CONTROLS
+ * ========
+ * 
+ * In addition to the map items, the viewer manages several controls:
+ * 
+ * Sector Cursor - A box that highlights the current sector.  Only map item sin the current sector
+ *                 can be highlighted or selected.
+ *                 
+ * Map Item Cursor - Identifies the map item selected (i.e. clicked) by the user.
+ * 
+ * Map Item Highlight - Highlights the map item currently under the cursor.  When a map item is 
+ *                      highlighted, clicking it moves the cursor to the highlighted item.
+ *                      
+ * REST EVENTS
+ * ===========
+ * 
+ * The SpaceViewer does not directly issues Ajax requests.  Instead, it raises events (e.g. GetSectors)
+ * when data is required.  The appropriate event handlers must be registered to retrieve the
+ * requested information.  See the SpaceViewerRestHandler module for additional details.
+ * 
+ */
 var SpaceViewer = (function() {
 
 	// *********************************
@@ -78,6 +133,7 @@ var SpaceViewer = (function() {
 	var m_getSectorByKeyHandler = null;
 	var m_getMapItemsBySectorHandler = null;
 	var m_getMapItemsByRankHandler = null;
+	var m_loadingCompleteHandler = null;
 	var m_onSectorClickHandler = null;
 	var m_onMapItemClickHandler = null;
 	var m_onMapItemHoverHandler = null;
@@ -105,9 +161,7 @@ var SpaceViewer = (function() {
 
 		// Register event handlers.
 		//
-		var w = $(window);
-		w.on('resize', onWindowResize);
-		w.on('keydown', onWindowKeyDown);
+		$(window).on('keydown', onWindowKeyDown);
 		CameraController.RegisterOnHoverHandler(onHover);
 		CameraController.RegisterOnClickHandler(onClick);
 
@@ -282,6 +336,12 @@ var SpaceViewer = (function() {
 		m_shipInactiveTexture = loader.load("textures/sfms_ship_inactive.png");
 	}
 
+	var onWindowResize = function(e) {
+		m_renderer.setSize(m_canvas.width(), m_canvas.height(), false);
+		CameraController.OnWindowResize();
+		// render();
+	};
+
 	// **
 	// ** EVENT HANDLERS
 	// **
@@ -340,12 +400,6 @@ var SpaceViewer = (function() {
 			hideMapItemHighlight();
 		}
 	}
-
-	var onWindowResize = function(e) {
-		m_renderer.setSize(m_canvas.width(), m_canvas.height(), false);
-		CameraController.OnWindowResize();
-		// render();
-	};
 
 	var onWindowKeyDown = function(e) {
 		switch (e.which) {
@@ -470,6 +524,16 @@ var SpaceViewer = (function() {
 	var raiseGetMapItemsByRank = function(rank, callback) {
 		if (m_getMapItemsByRankHandler !== null) {
 			m_getMapItemsByRankHandler(rank, callback);
+		}
+	}
+
+	var registerLoadingCompleteHandler = function(handler) {
+		m_loadingCompleteHandler = handler;
+	}
+
+	var raiseLoadingComplete = function() {
+		if (m_loadingCompleteHandler !== null) {
+			m_loadingCompleteHandler();
 		}
 	}
 
@@ -670,6 +734,7 @@ var SpaceViewer = (function() {
 		console.log(entry);
 		if (entry === undefined) {
 			moveSectorCursor(5, 5, 5);
+			raiseLoadingComplete();
 			return;
 		}
 
@@ -802,6 +867,10 @@ var SpaceViewer = (function() {
 			initialize(containerId);
 		},
 
+		OnWindowResize : function() {
+			onWindowResize();
+		},
+
 		// **
 		// ** MODULE EVENTS
 		// **
@@ -919,6 +988,15 @@ var SpaceViewer = (function() {
 		//
 		RegisterGetMapItemsByRankHandler : function(handler) {
 			registerGetMapItemsByRankHandler(handler);
+		},
+
+		// RegisterLoadingCompleteHandler - raised when all map item data has
+		// been loaded.
+		//
+		// handler = function()
+		//
+		RegisterLoadingCompleteHandler : function(handler) {
+			registerLoadingCompleteHandler(handler);
 		},
 
 		// RegisterOnSectorClickHandler - raised when the user selects a new

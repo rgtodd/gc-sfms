@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -91,26 +92,6 @@ public class AjaxController extends SfmsController {
 		response.setSector(sector);
 
 		return response;
-	}
-
-	private String formatCoordinates(Double x, Double y, Double z) {
-		if (x == null && y == null && z == null)
-			return null;
-
-		StringBuilder sb = new StringBuilder();
-		if (x != null) {
-			sb.append(x);
-		}
-		sb.append(", ");
-		if (y != null) {
-			sb.append(y);
-		}
-		sb.append(", ");
-		if (z != null) {
-			sb.append(z);
-		}
-
-		return sb.toString();
 	}
 
 	@GetMapping({ "/getMapItem" })
@@ -223,30 +204,6 @@ public class AjaxController extends SfmsController {
 
 			return null;
 		}
-	}
-
-	private void addPropertyGroup(List<MapItemPropertyGroupModel> propertyGroups, String title) {
-
-		List<MapItemPropertyModel> properties = new ArrayList<MapItemPropertyModel>();
-		MapItemPropertyGroupModel propertyGroup = new MapItemPropertyGroupModel();
-		propertyGroup.setTitle(title);
-		propertyGroup.setProperties(properties);
-
-		propertyGroups.add(propertyGroup);
-	}
-
-	private void addProperty(List<MapItemPropertyGroupModel> propertyGroups, String title, String description,
-			String url, Object value) {
-
-		MapItemPropertyModel property = new MapItemPropertyModel();
-		property.setTitle(title);
-		property.setDescription(description);
-		property.setUrl(url);
-		if (value != null) {
-			property.setValue(value.toString());
-		}
-
-		propertyGroups.get(propertyGroups.size() - 1).getProperties().add(property);
 	}
 
 	@GetMapping({ "/getMapItemsBySector" })
@@ -434,6 +391,50 @@ public class AjaxController extends SfmsController {
 		response.setMapItemSets(mapItemSets);
 
 		return response;
+	}
+
+	private String formatCoordinates(Double x, Double y, Double z) {
+		if (x == null && y == null && z == null)
+			return null;
+	
+		StringBuilder sb = new StringBuilder();
+		if (x != null) {
+			sb.append(x);
+		}
+		sb.append(", ");
+		if (y != null) {
+			sb.append(y);
+		}
+		sb.append(", ");
+		if (z != null) {
+			sb.append(z);
+		}
+	
+		return sb.toString();
+	}
+
+	private void addPropertyGroup(List<MapItemPropertyGroupModel> propertyGroups, String title) {
+	
+		List<MapItemPropertyModel> properties = new ArrayList<MapItemPropertyModel>();
+		MapItemPropertyGroupModel propertyGroup = new MapItemPropertyGroupModel();
+		propertyGroup.setTitle(title);
+		propertyGroup.setProperties(properties);
+	
+		propertyGroups.add(propertyGroup);
+	}
+
+	private void addProperty(List<MapItemPropertyGroupModel> propertyGroups, String title, String description,
+			String url, Object value) {
+	
+		MapItemPropertyModel property = new MapItemPropertyModel();
+		property.setTitle(title);
+		property.setDescription(HtmlUtils.htmlEscape(description));
+		property.setUrl(url);
+		if (value != null) {
+			property.setValue(value.toString());
+		}
+	
+		propertyGroups.get(propertyGroups.size() - 1).getProperties().add(property);
 	}
 
 }

@@ -1,5 +1,21 @@
 "use strict";
 
+/*-
+ * Explorer
+ * 
+ * Functions associated with the explorer.html template.
+ * 
+ * This module's primary function is to orchestrate events between the following
+ * modules:
+ * 
+ *  * SpaceViewer
+ *  * SpaceViewerRestHandler
+ *  * Logger
+ * 
+ * This module also updates the UI elements (e.g. the object properties tab) when
+ * a map item is clicked in the SpaceViewer.
+ * 
+ */
 var Explorer = (function() {
 
 	// *********************************
@@ -7,6 +23,8 @@ var Explorer = (function() {
 	// ** PRIVATE
 	// **
 	// *********************************
+
+	var MINIMUM_CONTENTS_HEIGHT = 200;
 
 	var m_restCounter = 0;
 	var m_logCounter = 0;
@@ -54,6 +72,10 @@ var Explorer = (function() {
 		SpaceViewer
 				.RegisterGetMapItemsByRankHandler(SpaceViewerRestHandler.GetMapItemsByRank);
 
+		SpaceViewer.RegisterLoadingCompleteHandler(function() {
+			$(".loading").hide();
+		});
+
 		SpaceViewer.RegisterOnSectorClickHandler(function(sectorKey) {
 			var coordinates = sectorKey.split(",");
 			$('#spanSectorX').html(coordinates[0]);
@@ -70,9 +92,11 @@ var Explorer = (function() {
 
 		SpaceViewer.Initialize("#divSpaceViewer");
 
-		$(".card-body-panel").hide();
-		$("#divMapItemBody").show();
+		onWindowResize();
 
+		$(window).on('resize', onWindowResize);
+		$("#btnRestClear").on("click", onRestClearClick);
+		$("#btnLogClear").on("click", onLogClearClick);
 		$(".nav-link-tab").on("click", function(e) {
 			$(".nav-link-tab").removeClass("active");
 			$(this).addClass("active");
@@ -88,8 +112,8 @@ var Explorer = (function() {
 			trigger : "hover"
 		});
 
-		$("#btnRestClear").on("click", onRestClearClick);
-		$("#btnLogClear").on("click", onLogClearClick);
+		$(".card-body-panel").hide();
+		$("#divMapItemBody").show();
 	};
 
 	// **
@@ -106,6 +130,26 @@ var Explorer = (function() {
 
 	var onRestError = function(url, jqXHR, textStatus) {
 		addRestErrorEntry(url, jqXHR, textStatus);
+	}
+
+	var onWindowResize = function() {
+		var jqDivSpaceViewer = $("#divSpaceViewer");
+
+		console.log("$(window).height() = " + $(window).height());
+		console.log("jqDivSpaceViewer.offset().top = "
+				+ jqDivSpaceViewer.offset().top);
+		console.log("$('#tableLegend').height() = "
+				+ $("#tableLegend").height());
+
+		var height = Math.max(MINIMUM_CONTENTS_HEIGHT, $(window).height()
+				- jqDivSpaceViewer.offset().top - $("#tableLegend").height()
+				- 16);
+
+		console.log("height  = " + height);
+
+		jqDivSpaceViewer.height(height);
+
+		SpaceViewer.OnWindowResize();
 	}
 
 	var onRestClearClick = function() {
@@ -135,22 +179,25 @@ var Explorer = (function() {
 		var propertyHtml = "";
 		mapItem.propertyGroups
 				.forEach(function(propertyGroup) {
-					propertyHtml += "<h6>" + propertyGroup.title + "</h6>";
+					propertyHtml += "<h5>" + propertyGroup.title + "</h5>";
 					propertyHtml += "<table class='table table-sm'>";
 					propertyHtml += "<tbody>";
 					propertyGroup.properties
 							.forEach(function(property) {
 								propertyHtml += "<tr>";
-								propertyHtml += "<th scope='row'>";
+								propertyHtml += "<td>";
 								propertyHtml += property.title;
 								if (property.description !== null) {
 									propertyHtml += " <i class='material-icons tooltip-description' data-toggle='tooltip' title='"
 											+ property.description
 											+ "'>help</i>";
 								}
-								propertyHtml += "</th>";
-								propertyHtml += "<td>" + property.value
-										+ "</td>";
+								propertyHtml += "</td>";
+								propertyHtml += "<td>";
+								if (property.value !== null) {
+									propertyHtml += property.value;
+								}
+								propertyHtml += "</td>";
 								propertyHtml += "</tr>";
 							});
 					propertyHtml += "</tbody>";

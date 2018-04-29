@@ -9,21 +9,31 @@
  * 
  * Hover  The default state.  In this state, mouse movements do not affect 
  *        the state of the controller.  Hover events are raised when the 
- *        mouse is moved.     
+ *        mouse is moved.  The SpaceViewer module responds to these events by 
+ *        updating the "focus" cursor.     
  * 
  * Drag   The controller enters Drag state when the mouse button is pressed.
  *        In this state, mouse movements cause the camera to be repositioned.
  *        No events are raised to the caller when the camera is being dragged.
  *
- * When the user first depresses the mouse button, we need to 
  * Internally, the Drag state has three sub-states:
  * 
- * Drag - Mouse Down  The initial state when the user first depresses the mouse.
+ * Drag-Mouse-Down  The initial state when the user first depresses the mouse.
  * 
- * Drag - Mouse Up
+ * Drag-Mouse-Up    State after user releases the mouse UNLESS the user has
+ *                  started dragging the mouse.
  * 
- * Drag - Active
+ * Drag-Active      State if the user has started dragging the mouse.
  * 
+ * These sub-states are required to properly handle the click event.  This
+ * event occurs AFTER the mouseup event.  When a click event is received,
+ * these sub-states are used as follows: 
+ * 
+ * Drag-Mouse Up  A Click controller event is raised.  The controller returns to
+ *                the Hover state.
+ *                  
+ * Drag-Active    The click event is ignored.  THe controller remains in Drag-Active
+ *                state.
  * 
  */
 
@@ -74,6 +84,10 @@ var CameraController = (function() {
 		m_jqCanvas.on('click', onClick);
 	};
 
+	// **
+	// ** PUBLIC METHODS
+	// **
+
 	var onWindowResize = function() {
 		m_camera.aspect = m_jqCanvas.width() / m_jqCanvas.height();
 		m_camera.updateProjectionMatrix();
@@ -81,80 +95,6 @@ var CameraController = (function() {
 
 	var animate = function() {
 		// No action required.
-	}
-
-	var dragTo = function(position) {
-
-		var dx = -(position.x - m_mouseDownPosition.x) * 0.1;
-		var dy = (position.y - m_mouseDownPosition.y) * 0.1;
-
-		var positionBefore = m_camera.getWorldPosition();
-
-		m_camera.translateX(dx - m_mouseDownCameraTranslation.x);
-		m_camera.translateY(dy - m_mouseDownCameraTranslation.y);
-
-		var positionAfter = m_camera.getWorldPosition();
-		var positionDelta = positionAfter.clone().sub(positionBefore);
-
-		m_cameraLookingAt.add(positionDelta);
-
-		m_mouseDownCameraTranslation.x = dx;
-		m_mouseDownCameraTranslation.y = dy;
-
-		// m_cameraLookingAt.x += dx;
-		// m_cameraLookingAt.y += dy;
-	}
-
-	var zoom = function(delta) {
-		var positionBefore = m_camera.getWorldPosition();
-
-		m_camera.translateZ(delta * 2);
-
-		var positionAfter = m_camera.getWorldPosition();
-		var positionDelta = positionAfter.clone().sub(positionBefore);
-
-		m_cameraLookingAt.add(positionDelta);
-	}
-
-	var pivotTo = function(position) {
-		if (m_cameraTween !== null) {
-			m_cameraTween.stop();
-			m_cameraTween = null;
-		}
-
-		var tweenState = {
-			x : m_cameraLookingAt.x,
-			y : m_cameraLookingAt.y,
-			z : m_cameraLookingAt.z
-		};
-		m_cameraTween = new TWEEN.Tween(tweenState).to(position, 1000).easing(
-				TWEEN.Easing.Quadratic.Out).onUpdate(function() {
-			m_camera.lookAt(tweenState.x, tweenState.y, tweenState.z);
-		}).start();
-
-		m_cameraLookingAt.set(position.x, position.y, position.z);
-	}
-
-	var panTo = function(position) {
-		if (m_cameraTween !== null) {
-			m_cameraTween.stop();
-			m_cameraTween = null;
-		}
-
-		m_camera.up.set(0, 1, 0);
-		var tweenState = {
-			x : m_cameraLookingAt.x,
-			y : m_cameraLookingAt.y,
-			z : m_cameraLookingAt.z
-		};
-		m_cameraTween = new TWEEN.Tween(tweenState).to(position, 1000).easing(
-				TWEEN.Easing.Quadratic.Out).onUpdate(function() {
-			m_camera.position.set(tweenState.x, tweenState.y, // + 150,
-			tweenState.z + 250);
-			m_camera.lookAt(tweenState.x, tweenState.y, tweenState.z);
-		}).start();
-
-		m_cameraLookingAt.set(position.x, position.y, position.z);
 	}
 
 	// **
@@ -285,7 +225,7 @@ var CameraController = (function() {
 		switch (m_state) {
 		case HOVER:
 			e.preventDefault();
-			zoom(e.originalEvent.deltaY);
+			zoom(e.originalEvent.deltaMode, e.originalEvent.deltaY);
 			break;
 
 		case MOUSE_DOWN:
@@ -324,6 +264,111 @@ var CameraController = (function() {
 		if (m_onClickHandler !== null) {
 			m_onClickHandler();
 		}
+	}
+
+	// **
+	// ** CAMERA METHODS
+	// **
+
+	var dragTo = function(position) {
+
+		var dx = -(position.x - m_mouseDownPosition.x) * 0.1;
+		var dy = (position.y - m_mouseDownPosition.y) * 0.1;
+
+		var positionBefore = m_camera.getWorldPosition(new THREE.Vector3());
+
+		m_camera.translateX(dx - m_mouseDownCameraTranslation.x);
+		m_camera.translateY(dy - m_mouseDownCameraTranslation.y);
+
+		var positionAfter = m_camera.getWorldPosition(new THREE.Vector3());
+		var positionDelta = positionAfter.clone().sub(positionBefore);
+
+		m_cameraLookingAt.add(positionDelta);
+
+		m_mouseDownCameraTranslation.x = dx;
+		m_mouseDownCameraTranslation.y = dy;
+
+		// m_cameraLookingAt.x += dx;
+		// m_cameraLookingAt.y += dy;
+	}
+
+	var zoom = function(deltaMode, deltaY) {
+
+		// console.log("deltaY = " + deltaY + " deltaMode = " + deltaMode);
+
+		// Some/most browsers specify +/- 120 for the values associated with a
+		// single mouse wheel "notch". Other browsers specify +/- 3. Normalize
+		// to +/- 3.
+		//
+		if (deltaY >= 120 || deltaY <= -120) {
+			deltaY /= 40;
+		}
+
+		// Apply deltaMode. Do not update if PIXEL (0) is specified.
+		//
+		switch (deltaMode) {
+		case 1: // LINE
+			deltaY *= 3;
+			break;
+
+		case 2: // PAGE
+			deltaY *= 10;
+			break;
+		}
+
+		// Apply standard scaling factor.
+		//
+		deltaY *= 3;
+
+		var positionBefore = m_camera.getWorldPosition(new THREE.Vector3());
+
+		m_camera.translateZ(deltaY);
+
+		var positionAfter = m_camera.getWorldPosition(new THREE.Vector3());
+		var positionDelta = positionAfter.clone().sub(positionBefore);
+
+		m_cameraLookingAt.add(positionDelta);
+	}
+
+	var pivotTo = function(position) {
+		if (m_cameraTween !== null) {
+			m_cameraTween.stop();
+			m_cameraTween = null;
+		}
+
+		var tweenState = {
+			x : m_cameraLookingAt.x,
+			y : m_cameraLookingAt.y,
+			z : m_cameraLookingAt.z
+		};
+		m_cameraTween = new TWEEN.Tween(tweenState).to(position, 1000).easing(
+				TWEEN.Easing.Quadratic.Out).onUpdate(function() {
+			m_camera.lookAt(tweenState.x, tweenState.y, tweenState.z);
+		}).start();
+
+		m_cameraLookingAt.set(position.x, position.y, position.z);
+	}
+
+	var panTo = function(position) {
+		if (m_cameraTween !== null) {
+			m_cameraTween.stop();
+			m_cameraTween = null;
+		}
+
+		m_camera.up.set(0, 1, 0);
+		var tweenState = {
+			x : m_cameraLookingAt.x,
+			y : m_cameraLookingAt.y,
+			z : m_cameraLookingAt.z
+		};
+		m_cameraTween = new TWEEN.Tween(tweenState).to(position, 1000).easing(
+				TWEEN.Easing.Quadratic.Out).onUpdate(function() {
+			m_camera.position.set(tweenState.x, tweenState.y, // + 150,
+			tweenState.z + 250);
+			m_camera.lookAt(tweenState.x, tweenState.y, tweenState.z);
+		}).start();
+
+		m_cameraLookingAt.set(position.x, position.y, position.z);
 	}
 
 	// **

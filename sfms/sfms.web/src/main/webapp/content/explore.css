@@ -1,4 +1,21 @@
 /* EXPLORE.CSS */
+.loading {
+	background-color: #000000cc;
+	color: #ffffff;
+	position: absolute;
+	width: 100%;
+	height: calc(100% - 120px);
+	position: absolute;
+}
+
+.loading__text {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-right: -50%;
+	transform: translate(-50%, -50%)
+}
+
 #tableLegend td {
 	padding: 5px;
 }

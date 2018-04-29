@@ -1,5 +1,10 @@
 "use strict";
 
+/*-
+ * SpaceViewerMockHandler
+ * 
+ * A mock implementation of the REST event handlers used by the SpaceViewer module. 
+ */
 var SpaceViewerMockHandler = (function() {
 
 	// Constants

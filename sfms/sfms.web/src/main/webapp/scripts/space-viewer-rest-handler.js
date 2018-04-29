@@ -1,5 +1,10 @@
 "use strict";
 
+/*-
+ * SpaceViewerRestHandler
+ * 
+ * Implements the REST event handlers used by the SpaceViewer module. 
+ */
 var SpaceViewerRestHandler = (function() {
 
 	// Constants

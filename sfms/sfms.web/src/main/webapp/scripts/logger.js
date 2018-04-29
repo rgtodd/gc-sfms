@@ -1,5 +1,11 @@
 "use strict";
 
+/*-
+ * Logger
+ * 
+ * Provides a connection between logging producers and consumers.
+ * 
+ */
 var Logger = (function() {
 
 	// *********************************
