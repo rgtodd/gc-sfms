@@ -316,10 +316,6 @@ var CameraController = (function() {
 			break;
 		}
 
-		// Apply standard scaling factor.
-		//
-		deltaY *= 3;
-
 		var positionBefore = m_camera.getWorldPosition(new THREE.Vector3());
 
 		m_camera.translateZ(deltaY);

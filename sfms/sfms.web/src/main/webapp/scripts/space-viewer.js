@@ -91,6 +91,8 @@ var SpaceViewer = (function() {
 	var m_starInactiveTexture;
 	var m_shipTexture;
 	var m_shipInactiveTexture;
+	var m_mapItemHighlightTexture;
+	var m_mapItemCursorTexture;
 
 	// Scene objects
 	//
@@ -125,6 +127,7 @@ var SpaceViewer = (function() {
 	var m_workQueue = [];
 	var m_mapItemKeysByName = new Map();
 	var m_mouse = new THREE.Vector2();
+	var m_cursorRotation = 0;
 
 	// Module events
 	//
@@ -149,13 +152,13 @@ var SpaceViewer = (function() {
 	var initialize = function(containerId) {
 
 		initCreateScene(); // m_scene
+		initCreateTextures(); // m_starTexture, m_shipTexture
 		initAddDefaultObjectsToScene();
 		// initCreateStats(); // m_stats
 		initCreateRenderer(); // m_renderer
 		initCreateCamera(); // m_camera
 		initCreateContainer(containerId); // m_container
 		initCreateRaycaster(); // m_raycaster
-		initCreateTextures(); // m_starTexture, m_shipTexture
 
 		CameraController.Initialize(m_canvas[0], m_camera);
 
@@ -206,24 +209,39 @@ var SpaceViewer = (function() {
 
 		// Map item cursor
 		{
-			var geometry = new THREE.SphereGeometry(0.75, 4, 4);
-			var material = new THREE.MeshBasicMaterial({
-				color : 0xff0000,
-				wireframe : true
+			var geometry = new THREE.BufferGeometry();
+			geometry.addAttribute('position', new THREE.Float32BufferAttribute(
+					[ 0, 0, 0 ], 3));
+
+			var material = new THREE.PointsMaterial({
+				size : 1.5,
+				sizeAttenuation : true,
+				map : m_mapItemCursorTexture,
+				alphaTest : 0.5,
+				transparent : false
 			});
-			m_mapItemCursor.object = new THREE.Mesh(geometry, material);
+
+			m_mapItemCursor.object = new THREE.Points(geometry, material);
 			m_mapItemCursor.object.visible = false;
+
 			m_scene.add(m_mapItemCursor.object);
 		}
 
 		// Map item highlight
 		{
-			var geometry = new THREE.SphereGeometry(0.75, 4, 4);
-			var material = new THREE.MeshBasicMaterial({
-				color : 0x00ff00,
-				wireframe : true
+			var geometry = new THREE.BufferGeometry();
+			geometry.addAttribute('position', new THREE.Float32BufferAttribute(
+					[ 0, 0, 0 ], 3));
+
+			var material = new THREE.PointsMaterial({
+				size : 1.5,
+				sizeAttenuation : true,
+				map : m_mapItemHighlightTexture,
+				alphaTest : 0.5,
+				transparent : false
 			});
-			m_mapItemHighlight.object = new THREE.Mesh(geometry, material);
+
+			m_mapItemHighlight.object = new THREE.Points(geometry, material);
 			m_mapItemHighlight.object.visible = false;
 			m_scene.add(m_mapItemHighlight.object);
 		}
@@ -334,6 +352,11 @@ var SpaceViewer = (function() {
 		m_starInactiveTexture = loader.load("textures/sfms_star_inactive.png");
 		m_shipTexture = loader.load("textures/sfms_ship.png");
 		m_shipInactiveTexture = loader.load("textures/sfms_ship_inactive.png");
+		m_mapItemHighlightTexture = loader.load("textures/focus_cursor2.png");
+		m_mapItemCursorTexture = loader.load("textures/active_cursor2.png");
+
+		m_mapItemHighlightTexture.center.set(0.5, 0.5);
+		m_mapItemCursorTexture.center.set(0.5, 0.5);
 	}
 
 	var onWindowResize = function(e) {
@@ -458,6 +481,7 @@ var SpaceViewer = (function() {
 	var animate = function() {
 		requestAnimationFrame(animate);
 		TWEEN.update(); // required by CameraController
+		m_cursorRotation += 0.015;
 		animateMapItemHighlight();
 		animateMapItemCursor();
 		CameraController.Animate();
@@ -659,7 +683,7 @@ var SpaceViewer = (function() {
 	}
 
 	var animateMapItemCursor = function() {
-		m_mapItemCursor.object.rotation.y += 0.015;
+		m_mapItemCursorTexture.rotation += 0.015;
 	}
 
 	var moveMapItemHighlight = function(mapItemType, mapItemKey,
@@ -686,7 +710,7 @@ var SpaceViewer = (function() {
 	}
 
 	var animateMapItemHighlight = function() {
-		m_mapItemHighlight.object.rotation.y += 0.015;
+		m_mapItemHighlightTexture.rotation += 0.015;
 	}
 
 	var lookAtSector = function(sector) {
