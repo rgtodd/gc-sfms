@@ -58,12 +58,10 @@ public class StarController extends SfmsController {
 	}
 
 	@GetMapping({ "/star" })
-	public String getList(
-			@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
+	public String getList(@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
 			@RequestParam(WebParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(WebParameters.SORT) Optional<String> sort,
-			@RequestParam(WebParameters.DIRECTION) Optional<String> direction,
-			ModelMap modelMap) {
+			@RequestParam(WebParameters.DIRECTION) Optional<String> direction, ModelMap modelMap) {
 
 		String effectiveSort;
 		if (sort.isPresent()) {
@@ -124,10 +122,7 @@ public class StarController extends SfmsController {
 		URI uri = uriBuilder.build();
 		logger.log(Level.INFO, "uri = {0}", uri);
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<SearchResult<Star>> restResponse = restTemplate.exchange(
-				uri,
-				HttpMethod.GET,
-				createHttpEntity(),
+		ResponseEntity<SearchResult<Star>> restResponse = restTemplate.exchange(uri, HttpMethod.GET, createHttpEntity(),
 				new ParameterizedTypeReference<SearchResult<Star>>() {
 				});
 
@@ -170,11 +165,8 @@ public class StarController extends SfmsController {
 		Star star = factory.createStar(starModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("star"),
-				HttpMethod.PUT,
-				createHttpEntity(star),
-				new ParameterizedTypeReference<CreateResult<String>>() {
+		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(getRestUrl("star"), HttpMethod.PUT,
+				createHttpEntity(star), new ParameterizedTypeReference<CreateResult<String>>() {
 				});
 
 		return "redirect:/star/" + restResponse.getBody().getKey();
@@ -203,11 +195,8 @@ public class StarController extends SfmsController {
 		Star star = factory.createStar(starModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<UpdateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("star/" + star.getKey()),
-				HttpMethod.PUT,
-				createHttpEntity(star),
-				new ParameterizedTypeReference<UpdateResult<String>>() {
+		ResponseEntity<UpdateResult<String>> restResponse = restTemplate.exchange(getRestUrl("star/" + star.getKey()),
+				HttpMethod.PUT, createHttpEntity(star), new ParameterizedTypeReference<UpdateResult<String>>() {
 				});
 
 		return "redirect:/star/" + restResponse.getBody().getKey();
@@ -237,11 +226,8 @@ public class StarController extends SfmsController {
 
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
-		ResponseEntity<DeleteResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("star/" + star.getKey()),
-				HttpMethod.DELETE,
-				createHttpEntity(star),
-				new ParameterizedTypeReference<DeleteResult<String>>() {
+		ResponseEntity<DeleteResult<String>> restResponse = restTemplate.exchange(getRestUrl("star/" + star.getKey()),
+				HttpMethod.DELETE, createHttpEntity(star), new ParameterizedTypeReference<DeleteResult<String>>() {
 				});
 
 		return "redirect:/star";

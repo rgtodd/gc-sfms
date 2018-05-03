@@ -60,8 +60,8 @@ public class ClusterController extends SfmsController {
 	public String get(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
+		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key), HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -73,12 +73,10 @@ public class ClusterController extends SfmsController {
 	}
 
 	@GetMapping({ "" })
-	public String getList(
-			@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
+	public String getList(@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
 			@RequestParam(WebParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(WebParameters.SORT) Optional<String> sort,
-			@RequestParam(WebParameters.DIRECTION) Optional<String> direction,
-			ModelMap modelMap) {
+			@RequestParam(WebParameters.DIRECTION) Optional<String> direction, ModelMap modelMap) {
 
 		String effectiveSort;
 		if (sort.isPresent()) {
@@ -113,11 +111,8 @@ public class ClusterController extends SfmsController {
 		logger.log(Level.INFO, "uri = {0}", uri);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<SearchResult<Cluster>> restResponse = restTemplate.exchange(
-				uri,
-				HttpMethod.GET,
-				createHttpEntity(),
-				new ParameterizedTypeReference<SearchResult<Cluster>>() {
+		ResponseEntity<SearchResult<Cluster>> restResponse = restTemplate.exchange(uri, HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<SearchResult<Cluster>>() {
 				});
 
 		SearchResult<Cluster> searchResult = restResponse.getBody();
@@ -159,11 +154,8 @@ public class ClusterController extends SfmsController {
 		Cluster cluster = factory.createCluster(clusterModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("cluster"),
-				HttpMethod.POST,
-				createHttpEntity(cluster),
-				new ParameterizedTypeReference<CreateResult<String>>() {
+		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(getRestUrl("cluster"),
+				HttpMethod.POST, createHttpEntity(cluster), new ParameterizedTypeReference<CreateResult<String>>() {
 				});
 
 		return "redirect:/cluster/" + restResponse.getBody().getKey().toString();
@@ -173,8 +165,8 @@ public class ClusterController extends SfmsController {
 	public String edit(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
+		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key), HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -193,9 +185,7 @@ public class ClusterController extends SfmsController {
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<UpdateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("cluster/" + cluster.getKey()),
-				HttpMethod.PUT,
-				createHttpEntity(cluster),
+				getRestUrl("cluster/" + cluster.getKey()), HttpMethod.PUT, createHttpEntity(cluster),
 				new ParameterizedTypeReference<UpdateResult<String>>() {
 				});
 
@@ -206,8 +196,8 @@ public class ClusterController extends SfmsController {
 	public String delete(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
+		ResponseEntity<Cluster> restResponse = restTemplate.exchange(getRestUrl("cluster/" + key), HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -227,9 +217,7 @@ public class ClusterController extends SfmsController {
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
 		ResponseEntity<DeleteResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("cluster/" + cluster.getKey()),
-				HttpMethod.DELETE,
-				createHttpEntity(cluster),
+				getRestUrl("cluster/" + cluster.getKey()), HttpMethod.DELETE, createHttpEntity(cluster),
 				new ParameterizedTypeReference<DeleteResult<String>>() {
 				});
 

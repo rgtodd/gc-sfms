@@ -62,8 +62,7 @@ public class UtilityServlet extends HttpServlet {
 
 					try (InputStream inputStream = item.openStream();
 							WritableByteChannel writeChannel = Storage.getManager().getWritableByteChannel(bucketName,
-									blobName,
-									contentType)) {
+									blobName, contentType)) {
 						byte[] buffer = new byte[1024];
 						int limit;
 						while ((limit = inputStream.read(buffer)) >= 0) {

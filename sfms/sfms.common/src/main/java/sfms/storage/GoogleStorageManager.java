@@ -22,9 +22,7 @@ public class GoogleStorageManager implements StorageManager {
 
 		BlobId blobId = BlobId.of(bucketName, blobName);
 
-		BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
-				.setContentType(contentType)
-				.build();
+		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(contentType).build();
 
 		Storage storage = StorageOptions.getDefaultInstance().getService();
 

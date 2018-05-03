@@ -396,7 +396,7 @@ public class AjaxController extends SfmsController {
 	private String formatCoordinates(Double x, Double y, Double z) {
 		if (x == null && y == null && z == null)
 			return null;
-	
+
 		StringBuilder sb = new StringBuilder();
 		if (x != null) {
 			sb.append(x);
@@ -409,23 +409,23 @@ public class AjaxController extends SfmsController {
 		if (z != null) {
 			sb.append(z);
 		}
-	
+
 		return sb.toString();
 	}
 
 	private void addPropertyGroup(List<MapItemPropertyGroupModel> propertyGroups, String title) {
-	
+
 		List<MapItemPropertyModel> properties = new ArrayList<MapItemPropertyModel>();
 		MapItemPropertyGroupModel propertyGroup = new MapItemPropertyGroupModel();
 		propertyGroup.setTitle(title);
 		propertyGroup.setProperties(properties);
-	
+
 		propertyGroups.add(propertyGroup);
 	}
 
 	private void addProperty(List<MapItemPropertyGroupModel> propertyGroups, String title, String description,
 			String url, Object value) {
-	
+
 		MapItemPropertyModel property = new MapItemPropertyModel();
 		property.setTitle(title);
 		property.setDescription(HtmlUtils.htmlEscape(description));
@@ -433,7 +433,7 @@ public class AjaxController extends SfmsController {
 		if (value != null) {
 			property.setValue(value.toString());
 		}
-	
+
 		propertyGroups.get(propertyGroups.size() - 1).getProperties().add(property);
 	}
 

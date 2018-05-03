@@ -72,10 +72,7 @@ public class UtilityController extends SfmsController {
 		logger.info("Calling " + url);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<String> response = restTemplate.exchange(
-				url,
-				HttpMethod.GET,
-				createHttpEntity(),
+		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, createHttpEntity(),
 				new ParameterizedTypeReference<String>() {
 				});
 
@@ -92,10 +89,7 @@ public class UtilityController extends SfmsController {
 		logger.info("Calling " + url);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<String> response = restTemplate.exchange(
-				url,
-				HttpMethod.GET,
-				createHttpEntity(),
+		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, createHttpEntity(),
 				new ParameterizedTypeReference<String>() {
 				});
 
@@ -122,10 +116,7 @@ public class UtilityController extends SfmsController {
 		logger.info("Calling " + url);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<String> response = restTemplate.exchange(
-				url,
-				HttpMethod.GET,
-				createHttpEntity(),
+		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, createHttpEntity(),
 				new ParameterizedTypeReference<String>() {
 				});
 
@@ -143,8 +134,7 @@ public class UtilityController extends SfmsController {
 	public String uploadComplete(@RequestParam(WebParameters.FILE_NAME) String fileName) throws IOException {
 
 		String bucketName = Constants.CLOUD_STORAGE_BUCKET;
-		String blobName = Constants.CLOUD_STOARGE_UPLOAD_FOLDER + "/" +
-				fileName;
+		String blobName = Constants.CLOUD_STOARGE_UPLOAD_FOLDER + "/" + fileName;
 
 		// Exclude header line.
 		//
@@ -178,16 +168,13 @@ public class UtilityController extends SfmsController {
 		url += "&" + RestParameters.COUNT + "=" + String.valueOf(recordCount);
 
 		RestTemplate restTemplate = createRestTempate();
-		restTemplate.exchange(getRestUrl(url),
-				HttpMethod.GET, createHttpEntity(), Object.class);
+		restTemplate.exchange(getRestUrl(url), HttpMethod.GET, createHttpEntity(), Object.class);
 	}
 
 	private void uploadPostSubmitTask(String fileName, int start, int recordCount) {
-		TaskOptions taskOptions = TaskOptions.Builder
-				.withUrl("/task/processStarFile")
+		TaskOptions taskOptions = TaskOptions.Builder.withUrl("/task/processStarFile")
 				.header(Constants.REST_AUTHORIZATION_TOKEN_HEADER_KEY, Secret.getRestAuthorizationToken())
-				.method(Method.GET)
-				.param(RestParameters.FILE_NAME, fileName)
+				.method(Method.GET).param(RestParameters.FILE_NAME, fileName)
 				.param(RestParameters.START, String.valueOf(start))
 				.param(RestParameters.COUNT, String.valueOf(recordCount));
 

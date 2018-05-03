@@ -7,8 +7,7 @@ package sfms.rest.api.schemas;
  */
 public enum SpaceshipField {
 
-	Key("Key"),
-	Name("Name");
+	Key("Key"), Name("Name");
 
 	private String m_name;
 

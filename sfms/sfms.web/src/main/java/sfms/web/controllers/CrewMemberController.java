@@ -45,8 +45,8 @@ public class CrewMemberController extends SfmsController {
 	public String get(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
+		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key), HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -58,12 +58,10 @@ public class CrewMemberController extends SfmsController {
 	}
 
 	@GetMapping({ "/crewMember" })
-	public String getList(
-			@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
+	public String getList(@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
 			@RequestParam(WebParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(WebParameters.SORT) Optional<String> sort,
-			@RequestParam(WebParameters.DIRECTION) Optional<String> direction,
-			ModelMap modelMap) {
+			@RequestParam(WebParameters.DIRECTION) Optional<String> direction, ModelMap modelMap) {
 
 		String effectiveSort;
 		if (sort.isPresent()) {
@@ -121,11 +119,8 @@ public class CrewMemberController extends SfmsController {
 		logger.log(Level.INFO, "uri = {0}", uri);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<SearchResult<CrewMember>> restResponse = restTemplate.exchange(
-				uri,
-				HttpMethod.GET,
-				createHttpEntity(),
-				new ParameterizedTypeReference<SearchResult<CrewMember>>() {
+		ResponseEntity<SearchResult<CrewMember>> restResponse = restTemplate.exchange(uri, HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<SearchResult<CrewMember>>() {
 				});
 
 		SearchResult<CrewMember> searchResult = restResponse.getBody();
@@ -167,11 +162,8 @@ public class CrewMemberController extends SfmsController {
 		CrewMember crewMember = factory.createCrewMember(crewMemberModel);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("crewMember"),
-				HttpMethod.POST,
-				createHttpEntity(crewMember),
-				new ParameterizedTypeReference<CreateResult<String>>() {
+		ResponseEntity<CreateResult<String>> restResponse = restTemplate.exchange(getRestUrl("crewMember"),
+				HttpMethod.POST, createHttpEntity(crewMember), new ParameterizedTypeReference<CreateResult<String>>() {
 				});
 
 		return "redirect:/crewMember/" + restResponse.getBody().getKey().toString();
@@ -181,8 +173,8 @@ public class CrewMemberController extends SfmsController {
 	public String edit(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
+		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key), HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -201,9 +193,7 @@ public class CrewMemberController extends SfmsController {
 
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<UpdateResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("crewMember/" + crewMember.getKey()),
-				HttpMethod.PUT,
-				createHttpEntity(crewMember),
+				getRestUrl("crewMember/" + crewMember.getKey()), HttpMethod.PUT, createHttpEntity(crewMember),
 				new ParameterizedTypeReference<UpdateResult<String>>() {
 				});
 
@@ -214,8 +204,8 @@ public class CrewMemberController extends SfmsController {
 	public String delete(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
+		ResponseEntity<CrewMember> restResponse = restTemplate.exchange(getRestUrl("crewMember/" + key), HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<CrewMember>() {
 				});
 
 		ModelFactory factory = new ModelFactory();
@@ -235,9 +225,7 @@ public class CrewMemberController extends SfmsController {
 		RestTemplate restTemplate = createRestTempate();
 		@SuppressWarnings("unused")
 		ResponseEntity<DeleteResult<String>> restResponse = restTemplate.exchange(
-				getRestUrl("crewMember/" + crewMember.getKey()),
-				HttpMethod.DELETE,
-				createHttpEntity(crewMember),
+				getRestUrl("crewMember/" + crewMember.getKey()), HttpMethod.DELETE, createHttpEntity(crewMember),
 				new ParameterizedTypeReference<DeleteResult<String>>() {
 				});
 
