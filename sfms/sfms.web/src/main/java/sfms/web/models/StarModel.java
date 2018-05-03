@@ -2,46 +2,46 @@ package sfms.web.models;
 
 public class StarModel {
 
-	private String m_key; // KEY
+	private String m_key;
 	private String m_catalogId;
 	private String m_clusterKey;
 	private String m_sectorKey;
-	private String m_hipparcosId; // hip
-	private String m_henryDraperId; // HD-hd
-	private String m_harvardRevisedId; // HR-hr
-	private String m_glieseId; // Gliese-gl
-	private String m_bayerFlamsteedId; // BayerFlamsteed-bf
-	private String m_properName; // ProperName-proper
-	private Double m_rightAscension; // RA-ra
-	private Double m_declination; // Dec-dec
-	private Double m_distance; // Distance-dist
-	private Double m_properMotionRightAscension; // pmra
-	private Double m_properMotionDeclination; // pmdec
-	private Double m_radialVelocity; // rv
-	private Double m_magnitude; // Mag-mag
-	private Double m_absoluteMagnitude; // AbsMag-absmag
-	private String m_spectrum; // Spectrum-spect
-	private Double m_colorIndex; // ColorIndex-ci
-	private Double m_x; // x
-	private Double m_y; // y
-	private Double m_z; // z
-	private Double m_vx; // vx
-	private Double m_vy; // vy
-	private Double m_vz; // vz
-	private Double m_rightAcensionRadians; // rarad
-	private Double m_declinationRadians; // decrad
-	private Double m_properMotionRightAscensionRadians; // pmrarad
-	private Double m_properMotionDeclinationRadians; // prdecrad
-	private String m_bayerId; // bayer
-	private String m_flamsteed; // flam
-	private String m_constellation; // con
-	private String m_companionStarId; // comp
-	private String m_primaryStarId; // comp_primary
-	private String m_multipleStarId; // base
-	private Double m_luminosity; // lum
-	private String m_variableStarDesignation; // var
-	private Double m_variableMinimum; // var_min
-	private Double m_variableMaximum; // var max
+	private String m_hipparcosId;
+	private String m_henryDraperId;
+	private String m_harvardRevisedId;
+	private String m_glieseId;
+	private String m_bayerFlamsteedId;
+	private String m_properName;
+	private Double m_rightAscension;
+	private Double m_declination;
+	private Double m_distance;
+	private Double m_properMotionRightAscension;
+	private Double m_properMotionDeclination;
+	private Double m_radialVelocity;
+	private Double m_magnitude;
+	private Double m_absoluteMagnitude;
+	private String m_spectrum;
+	private Double m_colorIndex;
+	private Double m_x;
+	private Double m_y;
+	private Double m_z;
+	private Double m_vx;
+	private Double m_vy;
+	private Double m_vz;
+	private Double m_rightAcensionRadians;
+	private Double m_declinationRadians;
+	private Double m_properMotionRightAscensionRadians;
+	private Double m_properMotionDeclinationRadians;
+	private String m_bayerId;
+	private String m_flamsteed;
+	private String m_constellation;
+	private String m_companionStarId;
+	private String m_primaryStarId;
+	private String m_multipleStarId;
+	private Double m_luminosity;
+	private String m_variableStarDesignation;
+	private Double m_variableMinimum;
+	private Double m_variableMaximum;
 
 	public String getClusterKey() {
 		return m_clusterKey;

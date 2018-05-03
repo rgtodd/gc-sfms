@@ -16,18 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.cloud.datastore.Cursor;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.EntityQuery;
-import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StructuredQuery.OrderBy;
 
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
@@ -35,10 +31,10 @@ import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
-import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.CrewMember;
 import sfms.rest.api.schemas.CrewMemberField;
+import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.schemas.DbCrewMemberField;
 import sfms.rest.db.schemas.DbEntity;
 
@@ -52,11 +48,11 @@ import sfms.rest.db.schemas.DbEntity;
 @RequestMapping("/crewMember")
 public class CrewMemberRestController {
 
-	private static final Map<CrewMemberField, DbCrewMemberField> s_dbFieldMap;
+	private static final Map<String, DbFieldSchema> s_dbFieldMap;
 	static {
-		s_dbFieldMap = new HashMap<CrewMemberField, DbCrewMemberField>();
-		s_dbFieldMap.put(CrewMemberField.FirstName, DbCrewMemberField.FirstName);
-		s_dbFieldMap.put(CrewMemberField.LastName, DbCrewMemberField.LastName);
+		s_dbFieldMap = new HashMap<String, DbFieldSchema>();
+		s_dbFieldMap.put(CrewMemberField.FirstName.getName(), DbCrewMemberField.FirstName);
+		s_dbFieldMap.put(CrewMemberField.LastName.getName(), DbCrewMemberField.LastName);
 	}
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
@@ -85,11 +81,13 @@ public class CrewMemberRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<CrewMember> getSearch(@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
+	public SearchResult<CrewMember> getSearch(
+			@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
 			@RequestParam(RestParameters.FILTER) Optional<String> filter,
-			@RequestParam(RestParameters.SORT) Optional<String> sort) throws Exception {
+			@RequestParam(RestParameters.SORT) Optional<String> sort,
+			@RequestParam(RestParameters.DETAIL) Optional<String> detail) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -99,28 +97,13 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Builder queryBuilder = Query.newEntityQueryBuilder();
-		queryBuilder.setKind(DbEntity.CrewMember.getKind());
-		queryBuilder.setLimit(limit);
-		if (sort.isPresent()) {
-			SortCriteria sortCriteria = SortCriteria.parse(sort.get());
-			for (int idx = 0; idx < sortCriteria.size(); ++idx) {
-				CrewMemberField restField = CrewMemberField.parse(sortCriteria.getColumn(idx));
-				DbCrewMemberField dbField = s_dbFieldMap.get(restField);
-				if (dbField != null) {
-					if (sortCriteria.isDescending(idx)) {
-						queryBuilder.addOrderBy(OrderBy.desc(dbField.getName()));
-					} else {
-						queryBuilder.addOrderBy(OrderBy.asc(dbField.getName()));
-					}
-				}
-			}
-		}
-		if (bookmark.isPresent()) {
-			queryBuilder.setStartCursor(Cursor.fromUrlSafe(bookmark.get()));
-		}
-
-		EntityQuery query = queryBuilder.build();
+		Query<Entity> query = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+				.setKind(DbEntity.CrewMember.getKind())
+				.setLimit(limit)
+				.addSortCriteria(sort)
+				.setQueryFilter(filter)
+				.setStartCursor(bookmark)
+				.build();
 
 		QueryResults<Entity> entities = datastore.run(query);
 

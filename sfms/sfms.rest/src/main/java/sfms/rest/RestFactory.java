@@ -164,12 +164,26 @@ public class RestFactory {
 		Spaceship result = new Spaceship();
 		result.setKey(DbEntity.Spaceship.createRestKey(entity.getKey()));
 		result.setName(entity.getString(DbSpaceshipField.Name.getName()));
-		result.setX(entity.getLong(DbSpaceshipField.X.getName()));
-		result.setY(entity.getLong(DbSpaceshipField.Y.getName()));
-		result.setX(entity.getLong(DbSpaceshipField.Z.getName()));
-		result.setStarKey(DbEntity.Star.createRestKey(entity.getKey(DbSpaceshipField.StarKey.getName())));
+		result.setX(getLong(entity, DbSpaceshipField.X.getName()));
+		result.setY(getLong(entity, DbSpaceshipField.Y.getName()));
+		result.setX(getLong(entity, DbSpaceshipField.Z.getName()));
+		result.setStarKey(DbEntity.Star.createRestKey(getKey(entity, DbSpaceshipField.StarKey.getName())));
 
 		return result;
+	}
+
+	private Key getKey(BaseEntity<Key> entity, String name) {
+		if (entity.contains(name)) {
+			return entity.getKey(name);
+		}
+		return null;
+	}
+
+	private Long getLong(BaseEntity<Key> entity, String name) {
+		if (entity.contains(name)) {
+			return entity.getLong(name);
+		}
+		return null;
 	}
 
 	public List<Spaceship> createSpaceships(Iterator<BaseEntity<Key>> entities) {

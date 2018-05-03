@@ -68,7 +68,9 @@ public class AjaxController extends SfmsController {
 	}
 
 	@GetMapping({ "/getSectorByLocation" })
-	public GetSectorResponse getSectorByLocation(@RequestParam("x") Double x, @RequestParam("y") Double y,
+	public GetSectorResponse getSectorByLocation(
+			@RequestParam("x") Double x,
+			@RequestParam("y") Double y,
 			@RequestParam("z") Double z) {
 
 		SectorModel sector = m_mockSpaceData.getSectors().stream()
@@ -95,7 +97,8 @@ public class AjaxController extends SfmsController {
 	}
 
 	@GetMapping({ "/getMapItem" })
-	public MapItemModel getMapItem(@RequestParam("mapItemType") Integer mapItemType,
+	public MapItemModel getMapItem(
+			@RequestParam("mapItemType") Integer mapItemType,
 			@RequestParam("mapItemKey") String mapItemKey) {
 
 		switch (mapItemType) {
@@ -207,7 +210,8 @@ public class AjaxController extends SfmsController {
 	}
 
 	@GetMapping({ "/getMapItemsBySector" })
-	public GetMapItemsResponse getMapItemsBySector(@RequestParam("sectorKey") String sectorKey,
+	public GetMapItemsResponse getMapItemsBySector(
+			@RequestParam("sectorKey") String sectorKey,
 			@RequestParam("mapItemType") Integer mapItemType) {
 
 		return getMapItemsBySectorRest(sectorKey, mapItemType);

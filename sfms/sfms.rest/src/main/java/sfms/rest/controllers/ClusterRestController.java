@@ -15,16 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.cloud.datastore.Cursor;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.ProjectionEntity;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StructuredQuery.OrderBy;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 import sfms.rest.RestFactory;
@@ -33,10 +30,10 @@ import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
-import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Cluster;
 import sfms.rest.api.schemas.ClusterField;
+import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.schemas.DbClusterField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
@@ -51,15 +48,15 @@ import sfms.rest.db.schemas.DbStarField;
 @RequestMapping("/cluster")
 public class ClusterRestController {
 
-	private static final Map<ClusterField, DbClusterField> s_dbFieldMap;
+	private static final Map<String, DbFieldSchema> s_dbFieldMap;
 	static {
-		s_dbFieldMap = new HashMap<ClusterField, DbClusterField>();
-		s_dbFieldMap.put(ClusterField.MinimumX, DbClusterField.MinimumX);
-		s_dbFieldMap.put(ClusterField.MinimumY, DbClusterField.MinimumY);
-		s_dbFieldMap.put(ClusterField.MinimumZ, DbClusterField.MinimumZ);
-		s_dbFieldMap.put(ClusterField.MaximumX, DbClusterField.MaximumX);
-		s_dbFieldMap.put(ClusterField.MaximumY, DbClusterField.MaximumY);
-		s_dbFieldMap.put(ClusterField.MaximumZ, DbClusterField.MaximumZ);
+		s_dbFieldMap = new HashMap<String, DbFieldSchema>();
+		s_dbFieldMap.put(ClusterField.MinimumX.getName(), DbClusterField.MinimumX);
+		s_dbFieldMap.put(ClusterField.MinimumY.getName(), DbClusterField.MinimumY);
+		s_dbFieldMap.put(ClusterField.MinimumZ.getName(), DbClusterField.MinimumZ);
+		s_dbFieldMap.put(ClusterField.MaximumX.getName(), DbClusterField.MaximumX);
+		s_dbFieldMap.put(ClusterField.MaximumY.getName(), DbClusterField.MaximumY);
+		s_dbFieldMap.put(ClusterField.MaximumZ.getName(), DbClusterField.MaximumZ);
 	}
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
@@ -94,11 +91,13 @@ public class ClusterRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Cluster> getSearch(@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
+	public SearchResult<Cluster> getSearch(
+			@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
 			@RequestParam(RestParameters.FILTER) Optional<String> filter,
-			@RequestParam(RestParameters.SORT) Optional<String> sort) throws Exception {
+			@RequestParam(RestParameters.SORT) Optional<String> sort,
+			@RequestParam(RestParameters.DETAIL) Optional<String> detail) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -108,28 +107,13 @@ public class ClusterRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Builder queryBuilder = Query.newEntityQueryBuilder();
-		queryBuilder.setKind(DbEntity.Cluster.getKind());
-		queryBuilder.setLimit(limit);
-		if (sort.isPresent()) {
-			SortCriteria sortCriteria = SortCriteria.parse(sort.get());
-			for (int idx = 0; idx < sortCriteria.size(); ++idx) {
-				ClusterField restField = ClusterField.parse(sortCriteria.getColumn(idx));
-				DbClusterField dbField = s_dbFieldMap.get(restField);
-				if (dbField != null) {
-					if (sortCriteria.isDescending(idx)) {
-						queryBuilder.addOrderBy(OrderBy.desc(dbField.getName()));
-					} else {
-						queryBuilder.addOrderBy(OrderBy.asc(dbField.getName()));
-					}
-				}
-			}
-		}
-		if (bookmark.isPresent()) {
-			queryBuilder.setStartCursor(Cursor.fromUrlSafe(bookmark.get()));
-		}
-
-		Query<Entity> query = queryBuilder.build();
+		Query<Entity> query = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+				.setKind(DbEntity.Cluster.getKind())
+				.setLimit(limit)
+				.addSortCriteria(sort)
+				.setQueryFilter(filter)
+				.setStartCursor(bookmark)
+				.build();
 
 		QueryResults<Entity> entities = datastore.run(query);
 
@@ -155,7 +139,8 @@ public class ClusterRestController {
 
 		Key key = DbEntity.Cluster.createEntityKey(datastore, id);
 
-		Entity entity = Entity.newBuilder(key).set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
+		Entity entity = Entity.newBuilder(key)
+				.set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
 				.set(DbClusterField.MinimumY.getName(), cluster.getMinimumY())
 				.set(DbClusterField.MinimumZ.getName(), cluster.getMinimumZ())
 				.set(DbClusterField.MaximumX.getName(), cluster.getMaximumX())
@@ -181,7 +166,8 @@ public class ClusterRestController {
 
 		Key key = DbEntity.Cluster.createEntityKey(datastore, cluster.getKey());
 
-		Entity entity = Entity.newBuilder(key).set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
+		Entity entity = Entity.newBuilder(key)
+				.set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
 				.set(DbClusterField.MinimumY.getName(), cluster.getMinimumY())
 				.set(DbClusterField.MinimumZ.getName(), cluster.getMinimumZ())
 				.set(DbClusterField.MaximumX.getName(), cluster.getMaximumX())

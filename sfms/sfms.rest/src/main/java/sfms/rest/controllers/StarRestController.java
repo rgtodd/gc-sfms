@@ -15,16 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.cloud.datastore.Cursor;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.EntityQuery;
-import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StructuredQuery.OrderBy;
 
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
@@ -32,10 +28,10 @@ import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
-import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.StarField;
+import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
 
@@ -49,12 +45,12 @@ import sfms.rest.db.schemas.DbStarField;
 @RequestMapping("/star")
 public class StarRestController {
 
-	private static final Map<StarField, DbStarField> s_dbFieldMap;
+	private static final Map<String, DbFieldSchema> s_dbFieldMap;
 	static {
-		s_dbFieldMap = new HashMap<StarField, DbStarField>();
-		s_dbFieldMap.put(StarField.X, DbStarField.X);
-		s_dbFieldMap.put(StarField.Y, DbStarField.Y);
-		s_dbFieldMap.put(StarField.Z, DbStarField.Z);
+		s_dbFieldMap = new HashMap<String, DbFieldSchema>();
+		s_dbFieldMap.put(StarField.X.getName(), DbStarField.X);
+		s_dbFieldMap.put(StarField.Y.getName(), DbStarField.Y);
+		s_dbFieldMap.put(StarField.Z.getName(), DbStarField.Z);
 	}
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
@@ -83,11 +79,13 @@ public class StarRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Star> getSearch(@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
+	public SearchResult<Star> getSearch(
+			@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
 			@RequestParam(RestParameters.FILTER) Optional<String> filter,
-			@RequestParam(RestParameters.SORT) Optional<String> sort) throws Exception {
+			@RequestParam(RestParameters.SORT) Optional<String> sort,
+			@RequestParam(RestParameters.DETAIL) Optional<String> detail) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -97,28 +95,13 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Builder queryBuilder = Query.newEntityQueryBuilder();
-		queryBuilder.setKind(DbEntity.Star.getKind());
-		queryBuilder.setLimit(limit);
-		if (sort.isPresent()) {
-			SortCriteria sortCriteria = SortCriteria.parse(sort.get());
-			for (int idx = 0; idx < sortCriteria.size(); ++idx) {
-				StarField restField = StarField.parse(sortCriteria.getColumn(idx));
-				DbStarField dbField = s_dbFieldMap.get(restField);
-				if (dbField != null) {
-					if (sortCriteria.isDescending(idx)) {
-						queryBuilder.addOrderBy(OrderBy.desc(dbField.getName()));
-					} else {
-						queryBuilder.addOrderBy(OrderBy.asc(dbField.getName()));
-					}
-				}
-			}
-		}
-		if (bookmark.isPresent()) {
-			queryBuilder.setStartCursor(Cursor.fromUrlSafe(bookmark.get()));
-		}
-
-		EntityQuery query = queryBuilder.build();
+		Query<Entity> query = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+				.setKind(DbEntity.Star.getKind())
+				.setLimit(limit)
+				.addSortCriteria(sort)
+				.setQueryFilter(filter)
+				.setStartCursor(bookmark)
+				.build();
 
 		QueryResults<Entity> entities = datastore.run(query);
 

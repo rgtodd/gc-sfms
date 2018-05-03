@@ -19,6 +19,10 @@ public class RestFactory {
 	public Cluster createCluster(ClusterModel clusterModel) {
 		Cluster result = new Cluster();
 		result.setKey(clusterModel.getKey());
+		result.setClusterPartition(clusterModel.getClusterPartition());
+		result.setClusterX(clusterModel.getClusterX());
+		result.setClusterY(clusterModel.getClusterY());
+		result.setClusterZ(clusterModel.getClusterZ());
 		result.setMinimumX(clusterModel.getMinimumX());
 		result.setMinimumY(clusterModel.getMinimumY());
 		result.setMinimumZ(clusterModel.getMinimumZ());
@@ -79,6 +83,10 @@ public class RestFactory {
 		Spaceship result = new Spaceship();
 		result.setKey(spaceshipModel.getKey());
 		result.setName(spaceshipModel.getName());
+		result.setX(spaceshipModel.getX());
+		result.setY(spaceshipModel.getY());
+		result.setZ(spaceshipModel.getZ());
+		result.setStarKey(spaceshipModel.getStarKey());
 		return result;
 	}
 
@@ -93,6 +101,7 @@ public class RestFactory {
 	public Star createStar(StarModel starModel) {
 		Star result = new Star();
 		result.setKey(starModel.getKey());
+		result.setCatalogId(starModel.getCatalogId());
 		result.setClusterKey(starModel.getClusterKey());
 		result.setSectorKey(starModel.getSectorKey());
 		result.setHipparcosId(starModel.getHipparcosId());

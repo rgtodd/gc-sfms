@@ -25,8 +25,10 @@ public class TaskRestController {
 	private final Logger logger = Logger.getLogger(TaskRestController.class.getName());
 
 	@GetMapping(value = "/processStarFile")
-	public void processStarFile(@RequestParam(RestParameters.FILE_NAME) String filename,
-			@RequestParam(RestParameters.START) Integer start, @RequestParam(RestParameters.COUNT) Integer count)
+	public void processStarFile(
+			@RequestParam(RestParameters.FILE_NAME) String filename,
+			@RequestParam(RestParameters.START) Integer start,
+			@RequestParam(RestParameters.COUNT) Integer count)
 			throws Exception {
 
 		logger.log(Level.INFO, "Processing {0}.", filename);

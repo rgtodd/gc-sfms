@@ -4,8 +4,11 @@ package sfms.rest.api.schemas;
  * Defines data fields used by the Sector REST service. These fields can appear
  * in sorting and filtering criteria.
  *
+ * These values correspond to the properties of the
+ * {@link sfms.rest.api.models.Sector} class.
+ * 
  */
-public enum SectorField {
+public enum SectorField implements FieldSchema {
 
 	Name("Key"),
 	MinimumX("MinimumX"),
@@ -32,6 +35,7 @@ public enum SectorField {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return m_name;
 	}

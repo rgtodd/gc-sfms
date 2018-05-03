@@ -16,17 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.cloud.datastore.Cursor;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.EntityQuery.Builder;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StructuredQuery.OrderBy;
 
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
@@ -34,10 +31,10 @@ import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
-import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.schemas.SpaceshipField;
+import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSpaceshipField;
 
@@ -51,10 +48,10 @@ import sfms.rest.db.schemas.DbSpaceshipField;
 @RequestMapping("/spaceship")
 public class SpaceshipRestController {
 
-	private static final Map<SpaceshipField, DbSpaceshipField> s_dbFieldMap;
+	private static final Map<String, DbFieldSchema> s_dbFieldMap;
 	static {
-		s_dbFieldMap = new HashMap<SpaceshipField, DbSpaceshipField>();
-		s_dbFieldMap.put(SpaceshipField.Name, DbSpaceshipField.Name);
+		s_dbFieldMap = new HashMap<String, DbFieldSchema>();
+		s_dbFieldMap.put(SpaceshipField.Name.getName(), DbSpaceshipField.Name);
 	}
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
@@ -83,11 +80,13 @@ public class SpaceshipRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Spaceship> getSearch(@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
+	public SearchResult<Spaceship> getSearch(
+			@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
 			@RequestParam(RestParameters.FILTER) Optional<String> filter,
-			@RequestParam(RestParameters.SORT) Optional<String> sort) throws Exception {
+			@RequestParam(RestParameters.SORT) Optional<String> sort,
+			@RequestParam(RestParameters.DETAIL) Optional<String> detail) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -97,28 +96,13 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Builder queryBuilder = Query.newEntityQueryBuilder();
-		queryBuilder.setKind(DbEntity.Spaceship.getKind());
-		queryBuilder.setLimit(limit);
-		if (sort.isPresent()) {
-			SortCriteria sortCriteria = SortCriteria.parse(sort.get());
-			for (int idx = 0; idx < sortCriteria.size(); ++idx) {
-				SpaceshipField restField = SpaceshipField.parse(sortCriteria.getColumn(idx));
-				DbSpaceshipField dbField = s_dbFieldMap.get(restField);
-				if (dbField != null) {
-					if (sortCriteria.isDescending(idx)) {
-						queryBuilder.addOrderBy(OrderBy.desc(dbField.getName()));
-					} else {
-						queryBuilder.addOrderBy(OrderBy.asc(dbField.getName()));
-					}
-				}
-			}
-		}
-		if (bookmark.isPresent()) {
-			queryBuilder.setStartCursor(Cursor.fromUrlSafe(bookmark.get()));
-		}
-
-		Query<Entity> query = queryBuilder.build();
+		Query<Entity> query = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+				.setKind(DbEntity.Spaceship.getKind())
+				.setLimit(limit)
+				.addSortCriteria(sort)
+				.setQueryFilter(filter)
+				.setStartCursor(bookmark)
+				.build();
 
 		QueryResults<Entity> entities = datastore.run(query);
 

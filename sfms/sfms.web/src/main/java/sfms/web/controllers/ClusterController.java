@@ -73,7 +73,8 @@ public class ClusterController extends SfmsController {
 	}
 
 	@GetMapping({ "" })
-	public String getList(@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
+	public String getList(
+			@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
 			@RequestParam(WebParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(WebParameters.SORT) Optional<String> sort,
 			@RequestParam(WebParameters.DIRECTION) Optional<String> direction, ModelMap modelMap) {

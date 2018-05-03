@@ -24,6 +24,10 @@ public class ModelFactory {
 	public ClusterModel createCluster(Cluster cluster) {
 		ClusterModel result = new ClusterModel();
 		result.setKey(cluster.getKey());
+		result.setClusterPartition(cluster.getClusterPartition());
+		result.setClusterX(cluster.getClusterX());
+		result.setClusterY(cluster.getClusterY());
+		result.setClusterZ(cluster.getClusterZ());
 		result.setMinimumX(cluster.getMinimumX());
 		result.setMinimumY(cluster.getMinimumY());
 		result.setMinimumZ(cluster.getMinimumZ());
@@ -71,6 +75,9 @@ public class ModelFactory {
 	public SectorModel createSector(Sector sector) {
 		SectorModel result = new SectorModel();
 		result.setKey(sector.getKey());
+		result.setSectorX(sector.getSectorX());
+		result.setSectorY(sector.getSectorY());
+		result.setSectorZ(sector.getSectorZ());
 		result.setMinimumX(sector.getMinimumX());
 		result.setMinimumY(sector.getMinimumY());
 		result.setMinimumZ(sector.getMinimumZ());
@@ -98,6 +105,10 @@ public class ModelFactory {
 		SpaceshipModel result = new SpaceshipModel();
 		result.setKey(spaceship.getKey());
 		result.setName(spaceship.getName());
+		result.setX(spaceship.getX());
+		result.setY(spaceship.getY());
+		result.setZ(spaceship.getZ());
+		result.setStarKey(spaceship.getStarKey());
 		return result;
 	}
 

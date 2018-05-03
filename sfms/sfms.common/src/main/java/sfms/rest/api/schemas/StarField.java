@@ -4,8 +4,11 @@ package sfms.rest.api.schemas;
  * Defines data fields used by the Star REST service. These fields can appear in
  * sorting and filtering criteria.
  *
+ * These values correspond to the properties of the
+ * {@link sfms.rest.api.models.Star} class.
+ * 
  */
-public enum StarField {
+public enum StarField implements FieldSchema {
 
 	Key("Key"),
 	ClusterKey("ClusterKey"),
@@ -63,6 +66,7 @@ public enum StarField {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return m_name;
 	}

@@ -4,10 +4,14 @@ package sfms.rest.api.schemas;
  * Defines data fields used by the Spaceship REST service. These fields can
  * appear in sorting and filtering criteria.
  *
+ * These values correspond to the properties of the
+ * {@link sfms.rest.api.models.Spaceship} class.
+ * 
  */
-public enum SpaceshipField {
+public enum SpaceshipField implements FieldSchema {
 
-	Key("Key"), Name("Name");
+	Key("Key"),
+	Name("Name");
 
 	private String m_name;
 
@@ -25,6 +29,7 @@ public enum SpaceshipField {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return m_name;
 	}

@@ -112,8 +112,8 @@ public class SortCriteria {
 
 	public static class Builder {
 
-		private static List<String> m_columns = new ArrayList<String>();
-		private static List<String> m_directions = new ArrayList<String>();
+		private List<String> m_columns = new ArrayList<String>();
+		private List<String> m_directions = new ArrayList<String>();
 
 		private Builder() {
 		}

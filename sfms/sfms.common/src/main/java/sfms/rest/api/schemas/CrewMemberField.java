@@ -4,10 +4,15 @@ package sfms.rest.api.schemas;
  * Defines data fields used by the Crew Member REST service. These fields can
  * appear in sorting and filtering criteria.
  * 
+ * These values correspond to the properties of the
+ * {@link sfms.rest.api.models.CrewMember} class.
+ * 
  */
-public enum CrewMemberField {
+public enum CrewMemberField implements FieldSchema {
 
-	Key("Key"), FirstName("FirstName"), LastName("LastName");
+	Key("Key"),
+	FirstName("FirstName"),
+	LastName("LastName");
 
 	private String m_name;
 
@@ -25,6 +30,7 @@ public enum CrewMemberField {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return m_name;
 	}
