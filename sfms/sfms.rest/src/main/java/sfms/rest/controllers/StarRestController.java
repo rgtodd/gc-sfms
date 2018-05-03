@@ -39,6 +39,12 @@ import sfms.rest.api.schemas.StarField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
 
+/**
+ * Controller for the Star REST service.
+ * 
+ * Provides basic CRUD operations for Star entities.
+ * 
+ */
 @RestController
 @RequestMapping("/star")
 public class StarRestController {
@@ -77,8 +83,7 @@ public class StarRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Star> getSearch(
-			@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
+	public SearchResult<Star> getSearch(@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
 			@RequestParam(RestParameters.FILTER) Optional<String> filter,
@@ -139,9 +144,7 @@ public class StarRestController {
 
 		Key key = DbEntity.Star.createEntityKey(datastore, id);
 
-		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ProperName.getName(), star.getProperName())
-				.build();
+		Entity entity = Entity.newBuilder(key).set(DbStarField.ProperName.getName(), star.getProperName()).build();
 
 		datastore.update(entity);
 
@@ -162,9 +165,7 @@ public class StarRestController {
 
 		Key key = DbEntity.Star.createEntityKey(datastore, star.getKey());
 
-		Entity entity = Entity.newBuilder(key)
-				.set(DbStarField.ProperName.getName(), star.getProperName())
-				.build();
+		Entity entity = Entity.newBuilder(key).set(DbStarField.ProperName.getName(), star.getProperName()).build();
 
 		datastore.put(entity);
 

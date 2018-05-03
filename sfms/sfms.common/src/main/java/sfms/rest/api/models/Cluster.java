@@ -12,6 +12,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class Cluster {
 
 	private String m_key;
+	private Long m_clusterPartition;
+	private Long m_clusterX;
+	private Long m_clusterY;
+	private Long m_clusterZ;
 	private Long m_minimumX;
 	private Long m_minimumY;
 	private Long m_minimumZ;
@@ -26,6 +30,38 @@ public class Cluster {
 
 	public void setKey(String key) {
 		m_key = key;
+	}
+
+	public Long getClusterPartition() {
+		return m_clusterPartition;
+	}
+
+	public void setClusterPartition(Long clusterPartition) {
+		m_clusterPartition = clusterPartition;
+	}
+
+	public Long getClusterX() {
+		return m_clusterX;
+	}
+
+	public void setClusterX(Long clusterX) {
+		m_clusterX = clusterX;
+	}
+
+	public Long getClusterY() {
+		return m_clusterY;
+	}
+
+	public void setClusterY(Long clusterY) {
+		m_clusterY = clusterY;
+	}
+
+	public Long getClusterZ() {
+		return m_clusterZ;
+	}
+
+	public void setClusterZ(Long clusterZ) {
+		m_clusterZ = clusterZ;
 	}
 
 	public Long getMinimumX() {

@@ -4,6 +4,10 @@ import com.google.cloud.datastore.LongValue;
 import com.google.cloud.datastore.NullValue;
 import com.google.cloud.datastore.Value;
 
+/**
+ * Factory class that parses strings into {@link LongValue} objects.
+ *
+ */
 public class DbLongValueParser implements DbValueParser {
 
 	private static final DbLongValueParser s_instance = new DbLongValueParser();

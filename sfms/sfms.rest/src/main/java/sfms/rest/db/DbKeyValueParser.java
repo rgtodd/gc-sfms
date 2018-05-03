@@ -5,6 +5,10 @@ import com.google.cloud.datastore.KeyValue;
 import com.google.cloud.datastore.NullValue;
 import com.google.cloud.datastore.Value;
 
+/**
+ * Factory class that parses strings into {@link KeyValue} objects.
+ *
+ */
 public class DbKeyValueParser implements DbValueParser {
 
 	private static final DbKeyValueParser s_instance = new DbKeyValueParser();

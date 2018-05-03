@@ -1,5 +1,11 @@
 package sfms.rest.db.business;
 
+/**
+ * Defines a rectangular region of 3D space.
+ * 
+ * Regions are used to define the dimensions of Sectors and Clusters.
+ *
+ */
 public class Region {
 
 	private String m_key;
@@ -14,10 +20,8 @@ public class Region {
 	private int m_maximumY;
 	private int m_maximumZ;
 
-	public Region(String key, int regionPartition,
-			int regionX, int regionY, int regionZ,
-			int minimumX, int minimumY, int minimumZ,
-			int maximumX, int maximumY, int maximumZ) {
+	public Region(String key, int regionPartition, int regionX, int regionY, int regionZ, int minimumX, int minimumY,
+			int minimumZ, int maximumX, int maximumY, int maximumZ) {
 		m_key = key;
 		m_regionPartition = regionPartition;
 		m_regionX = regionX;
@@ -76,19 +80,14 @@ public class Region {
 	}
 
 	public Coordinates getMidpoint() {
-		return new Coordinates(
-				(m_minimumX + m_maximumX) / 2.0,
-				(m_minimumY + m_maximumY) / 2.0,
+		return new Coordinates((m_minimumX + m_maximumX) / 2.0, (m_minimumY + m_maximumY) / 2.0,
 				(m_minimumZ + m_maximumZ) / 2.0);
 	}
 
 	public boolean contains(Region subregion) {
-		return getMinimumX() <= subregion.getMinimumX() &&
-				getMinimumY() <= subregion.getMinimumY() &&
-				getMinimumZ() <= subregion.getMinimumZ() &&
-				subregion.getMaximumX() <= getMaximumX() &&
-				subregion.getMaximumY() <= getMaximumY() &&
-				subregion.getMaximumZ() <= getMaximumZ();
+		return getMinimumX() <= subregion.getMinimumX() && getMinimumY() <= subregion.getMinimumY()
+				&& getMinimumZ() <= subregion.getMinimumZ() && subregion.getMaximumX() <= getMaximumX()
+				&& subregion.getMaximumY() <= getMaximumY() && subregion.getMaximumZ() <= getMaximumZ();
 	}
 
 	@Override
@@ -130,15 +129,15 @@ public class Region {
 
 	@Override
 	public String toString() {
-		return "Region [m_key=" + m_key + ", m_minimumX=" + m_minimumX + ", m_minimumY=" + m_minimumY
-				+ ", m_minimumZ=" + m_minimumZ + ", m_maximumX=" + m_maximumX + ", m_maximumY=" + m_maximumY
-				+ ", m_maximumZ=" + m_maximumZ + "]";
+		return "Region [m_key=" + m_key + ", m_minimumX=" + m_minimumX + ", m_minimumY=" + m_minimumY + ", m_minimumZ="
+				+ m_minimumZ + ", m_maximumX=" + m_maximumX + ", m_maximumY=" + m_maximumY + ", m_maximumZ="
+				+ m_maximumZ + "]";
 	}
 
 	public boolean contains(Coordinates coordinates) {
-		return m_minimumX <= coordinates.getX() && coordinates.getX() < m_maximumX
-				&& m_minimumY <= coordinates.getY() && coordinates.getY() < m_maximumY
-				&& m_minimumZ <= coordinates.getZ() && coordinates.getZ() < m_maximumZ;
+		return m_minimumX <= coordinates.getX() && coordinates.getX() < m_maximumX && m_minimumY <= coordinates.getY()
+				&& coordinates.getY() < m_maximumY && m_minimumZ <= coordinates.getZ()
+				&& coordinates.getZ() < m_maximumZ;
 	}
 
 }

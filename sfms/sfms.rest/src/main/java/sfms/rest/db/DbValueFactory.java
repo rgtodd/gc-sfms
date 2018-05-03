@@ -7,9 +7,13 @@ import com.google.cloud.datastore.NullValue;
 import com.google.cloud.datastore.StringValue;
 import com.google.cloud.datastore.Value;
 
-public class DbValue {
+/**
+ * Factory class for creating {@link Value} objects.
+ *
+ */
+public class DbValueFactory {
 
-	private DbValue() {
+	private DbValueFactory() {
 
 	}
 

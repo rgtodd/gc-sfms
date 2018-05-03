@@ -1,5 +1,9 @@
 package sfms.rest.db.business;
 
+/**
+ * Utility class used to represent a 3D vector.
+ *
+ */
 public class Coordinates {
 
 	private double m_x;

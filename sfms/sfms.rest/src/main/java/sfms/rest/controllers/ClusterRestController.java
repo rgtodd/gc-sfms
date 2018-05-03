@@ -41,6 +41,12 @@ import sfms.rest.db.schemas.DbClusterField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
 
+/**
+ * Controller for the Cluster REST service.
+ * 
+ * Provides basic CRUD operations for Cluster entities.
+ *
+ */
 @RestController
 @RequestMapping("/cluster")
 public class ClusterRestController {
@@ -74,13 +80,10 @@ public class ClusterRestController {
 		Key key = DbEntity.Cluster.createEntityKey(datastore, id);
 		Entity dbCluster = datastore.get(key);
 
-		Query<ProjectionEntity> query = Query.newProjectionEntityQueryBuilder()
-				.setKind(DbEntity.Star.getKind())
-				.addProjection(DbStarField.X.getName())
-				.addProjection(DbStarField.Y.getName())
+		Query<ProjectionEntity> query = Query.newProjectionEntityQueryBuilder().setKind(DbEntity.Star.getKind())
+				.addProjection(DbStarField.X.getName()).addProjection(DbStarField.Y.getName())
 				.addProjection(DbStarField.Z.getName())
-				.setFilter(PropertyFilter.eq(DbStarField.ClusterKey.getName(), key))
-				.build();
+				.setFilter(PropertyFilter.eq(DbStarField.ClusterKey.getName(), key)).build();
 
 		QueryResults<ProjectionEntity> dbStars = datastore.run(query);
 
@@ -91,8 +94,7 @@ public class ClusterRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Cluster> getSearch(
-			@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
+	public SearchResult<Cluster> getSearch(@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
 			@RequestParam(RestParameters.FILTER) Optional<String> filter,
@@ -143,8 +145,7 @@ public class ClusterRestController {
 	}
 
 	@PutMapping(value = "/{id}")
-	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Cluster cluster)
-			throws Exception {
+	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Cluster cluster) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -154,14 +155,12 @@ public class ClusterRestController {
 
 		Key key = DbEntity.Cluster.createEntityKey(datastore, id);
 
-		Entity entity = Entity.newBuilder(key)
-				.set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
+		Entity entity = Entity.newBuilder(key).set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
 				.set(DbClusterField.MinimumY.getName(), cluster.getMinimumY())
 				.set(DbClusterField.MinimumZ.getName(), cluster.getMinimumZ())
 				.set(DbClusterField.MaximumX.getName(), cluster.getMaximumX())
 				.set(DbClusterField.MaximumY.getName(), cluster.getMaximumY())
-				.set(DbClusterField.MaximumZ.getName(), cluster.getMaximumZ())
-				.build();
+				.set(DbClusterField.MaximumZ.getName(), cluster.getMaximumZ()).build();
 
 		datastore.update(entity);
 
@@ -182,14 +181,12 @@ public class ClusterRestController {
 
 		Key key = DbEntity.Cluster.createEntityKey(datastore, cluster.getKey());
 
-		Entity entity = Entity.newBuilder(key)
-				.set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
+		Entity entity = Entity.newBuilder(key).set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
 				.set(DbClusterField.MinimumY.getName(), cluster.getMinimumY())
 				.set(DbClusterField.MinimumZ.getName(), cluster.getMinimumZ())
 				.set(DbClusterField.MaximumX.getName(), cluster.getMaximumX())
 				.set(DbClusterField.MaximumY.getName(), cluster.getMaximumY())
-				.set(DbClusterField.MaximumZ.getName(), cluster.getMaximumZ())
-				.build();
+				.set(DbClusterField.MaximumZ.getName(), cluster.getMaximumZ()).build();
 
 		datastore.put(entity);
 

@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Access property data used by the application.
+ * Provides access property data used by the application.
  * 
  * @see java.util.Properties
  * 

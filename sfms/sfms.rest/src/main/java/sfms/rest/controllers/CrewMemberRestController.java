@@ -42,6 +42,12 @@ import sfms.rest.api.schemas.CrewMemberField;
 import sfms.rest.db.schemas.DbCrewMemberField;
 import sfms.rest.db.schemas.DbEntity;
 
+/**
+ * Controller for the Crew Member REST service.
+ * 
+ * Provides basic CRUD operations for Crew Member entities.
+ * 
+ */
 @RestController
 @RequestMapping("/crewMember")
 public class CrewMemberRestController {
@@ -79,8 +85,7 @@ public class CrewMemberRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<CrewMember> getSearch(
-			@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
+	public SearchResult<CrewMember> getSearch(@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
 			@RequestParam(RestParameters.FILTER) Optional<String> filter,
@@ -142,10 +147,8 @@ public class CrewMemberRestController {
 
 		Key key = DbEntity.CrewMember.createEntityKey(datastore, id);
 
-		Entity entity = Entity.newBuilder(key)
-				.set(DbCrewMemberField.FirstName.getName(), crewMember.getFirstName())
-				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName())
-				.build();
+		Entity entity = Entity.newBuilder(key).set(DbCrewMemberField.FirstName.getName(), crewMember.getFirstName())
+				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName()).build();
 
 		datastore.update(entity);
 
@@ -164,14 +167,11 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		IncompleteKey incompleteKey = datastore.newKeyFactory()
-				.setKind(DbEntity.CrewMember.getKind())
-				.newKey();
+		IncompleteKey incompleteKey = datastore.newKeyFactory().setKind(DbEntity.CrewMember.getKind()).newKey();
 
 		FullEntity<IncompleteKey> entity = FullEntity.newBuilder(incompleteKey)
 				.set(DbCrewMemberField.FirstName.getName(), crewMember.getFirstName())
-				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName())
-				.build();
+				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName()).build();
 
 		Entity createdEntity = datastore.put(entity);
 

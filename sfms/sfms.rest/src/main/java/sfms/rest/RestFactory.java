@@ -24,6 +24,10 @@ import sfms.rest.db.schemas.DbSectorField;
 import sfms.rest.db.schemas.DbSpaceshipField;
 import sfms.rest.db.schemas.DbStarField;
 
+/**
+ * Factory used to create REST entities from data store entities.
+ * 
+ */
 public class RestFactory {
 
 	@SuppressWarnings("unused")
@@ -33,6 +37,10 @@ public class RestFactory {
 
 		Cluster result = new Cluster();
 		result.setKey(DbEntity.Cluster.createRestKey(entity.getKey()));
+		result.setClusterPartition(getLong(entity, DbClusterField.ClusterPartition));
+		result.setClusterX(getLong(entity, DbClusterField.ClusterX));
+		result.setClusterY(getLong(entity, DbClusterField.ClusterY));
+		result.setClusterZ(getLong(entity, DbClusterField.ClusterZ));
 		result.setMinimumX(getLong(entity, DbClusterField.MinimumX));
 		result.setMinimumY(getLong(entity, DbClusterField.MinimumY));
 		result.setMinimumZ(getLong(entity, DbClusterField.MinimumZ));
@@ -60,6 +68,9 @@ public class RestFactory {
 
 		Sector result = new Sector();
 		result.setKey(DbEntity.Sector.createRestKey(entity.getKey()));
+		result.setSectorX(getLong(entity, DbSectorField.SectorX));
+		result.setSectorY(getLong(entity, DbSectorField.SectorY));
+		result.setSectorZ(getLong(entity, DbSectorField.SectorZ));
 		result.setMinimumX(getLong(entity, DbSectorField.MinimumX));
 		result.setMinimumY(getLong(entity, DbSectorField.MinimumY));
 		result.setMinimumZ(getLong(entity, DbSectorField.MinimumZ));
@@ -153,6 +164,11 @@ public class RestFactory {
 		Spaceship result = new Spaceship();
 		result.setKey(DbEntity.Spaceship.createRestKey(entity.getKey()));
 		result.setName(entity.getString(DbSpaceshipField.Name.getName()));
+		result.setX(entity.getLong(DbSpaceshipField.X.getName()));
+		result.setY(entity.getLong(DbSpaceshipField.Y.getName()));
+		result.setX(entity.getLong(DbSpaceshipField.Z.getName()));
+		result.setStarKey(DbEntity.Star.createRestKey(entity.getKey(DbSpaceshipField.StarKey.getName())));
+
 		return result;
 	}
 

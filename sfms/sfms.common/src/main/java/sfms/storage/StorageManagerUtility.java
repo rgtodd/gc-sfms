@@ -27,8 +27,7 @@ public class StorageManagerUtility {
 	}
 
 	public static ReadableByteChannel getCachedObject(StorageManager storageManager, String objectName,
-			String contentType,
-			ObjectFactory factory) throws Exception {
+			String contentType, ObjectFactory factory) throws Exception {
 
 		String blobName = CACHE_FOLDER_NAME + "/" + objectName.replace(',', '-');
 
@@ -40,8 +39,7 @@ public class StorageManagerUtility {
 			}
 		}
 
-		ReadableByteChannel readChannel = Storage.getManager().getReadableByteChannel(CACHE_BUCKET_NAME,
-				blobName);
+		ReadableByteChannel readChannel = Storage.getManager().getReadableByteChannel(CACHE_BUCKET_NAME, blobName);
 
 		return readChannel;
 	}

@@ -3,18 +3,26 @@ package sfms.rest.db.schemas;
 import com.google.cloud.datastore.Value;
 
 import sfms.rest.db.DbFieldSchema;
+import sfms.rest.db.DbValueType;
 
+/**
+ * Defines the fields used by the Cluster Sector entity.
+ * 
+ * @see DbEntity#ClusterSector
+ */
 public enum DbClusterSectorField implements DbFieldSchema {
 
-	ClusterKey("cls_k", "Cluster Key", "Key of parent Cluster entity ."),
-	SectorKey("sct_k", "Sector Key", "Key of Sector entity contained in this cluster.");
+	ClusterKey("cls_k", DbValueType.Key, "Cluster Key", "Key of parent Cluster entity ."),
+	SectorKey("sct_k", DbValueType.Key, "Sector Key", "Key of Sector entity contained in this cluster.");
 
 	private String m_name;
+	private DbValueType m_dbValueType;
 	private String m_title;
 	private String m_description;
 
-	private DbClusterSectorField(String name, String title, String description) {
+	private DbClusterSectorField(String name, DbValueType dbValueType, String title, String description) {
 		m_name = name;
+		m_dbValueType = dbValueType;
 		m_title = title;
 		m_description = description;
 	}
@@ -46,6 +54,6 @@ public enum DbClusterSectorField implements DbFieldSchema {
 
 	@Override
 	public Value<?> parseValue(String text) {
-		return null;
+		return m_dbValueType.parse(text);
 	}
 }

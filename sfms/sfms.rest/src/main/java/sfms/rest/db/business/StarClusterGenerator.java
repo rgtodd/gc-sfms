@@ -15,6 +15,10 @@ import sfms.rest.db.schemas.DbClusterSectorField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSectorField;
 
+/**
+ * Adds Cluster and Sector entities to the data store.
+ *
+ */
 public class StarClusterGenerator {
 
 	private final Logger logger = Logger.getLogger(StarClusterGenerator.class.getName());
@@ -65,8 +69,7 @@ public class StarClusterGenerator {
 						.set(DbSectorField.MinimumZ.getName(), sectorRegion.getMinimumZ())
 						.set(DbSectorField.MaximumX.getName(), sectorRegion.getMaximumX())
 						.set(DbSectorField.MaximumY.getName(), sectorRegion.getMaximumY())
-						.set(DbSectorField.MaximumZ.getName(), sectorRegion.getMaximumZ())
-						.build();
+						.set(DbSectorField.MaximumZ.getName(), sectorRegion.getMaximumZ()).build();
 				batchPut.add(sector);
 			}
 		}
@@ -90,8 +93,7 @@ public class StarClusterGenerator {
 						.set(DbClusterField.MinimumZ.getName(), clusterRegion.getMinimumZ())
 						.set(DbClusterField.MaximumX.getName(), clusterRegion.getMaximumX())
 						.set(DbClusterField.MaximumY.getName(), clusterRegion.getMaximumY())
-						.set(DbClusterField.MaximumZ.getName(), clusterRegion.getMaximumZ())
-						.build();
+						.set(DbClusterField.MaximumZ.getName(), clusterRegion.getMaximumZ()).build();
 				batchPut.add(cluster);
 			}
 		}
@@ -118,8 +120,7 @@ public class StarClusterGenerator {
 						Key clusterSectorKey = clusterSectorKeyFactory.newKey(clusterRegion.getKey() + "-" + idx);
 						Entity clusterSector = Entity.newBuilder(clusterSectorKey)
 								.set(DbClusterSectorField.ClusterKey.getName(), clusterKey)
-								.set(DbClusterSectorField.SectorKey.getName(), sectorKey)
-								.build();
+								.set(DbClusterSectorField.SectorKey.getName(), sectorKey).build();
 						batchPut.add(clusterSector);
 					}
 				}
@@ -134,11 +135,9 @@ public class StarClusterGenerator {
 
 	private RegionSet createClusterRegions() {
 		RegionSet result = RegionSet.create(Constants.SECTOR_MINIMUM_BOUNDS, Constants.SECTOR_MAXIMUM_BOUNDS,
-				Constants.SECTOR_BOUNDS_DELTA * 2,
-				0);
+				Constants.SECTOR_BOUNDS_DELTA * 2, 0);
 		result.addAll(RegionSet.create(Constants.SECTOR_MINIMUM_BOUNDS + Constants.SECTOR_BOUNDS_DELTA,
-				Constants.SECTOR_MAXIMUM_BOUNDS,
-				Constants.SECTOR_BOUNDS_DELTA * 2, 1));
+				Constants.SECTOR_MAXIMUM_BOUNDS, Constants.SECTOR_BOUNDS_DELTA * 2, 1));
 		return result;
 	}
 

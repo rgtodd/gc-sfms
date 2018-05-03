@@ -1,5 +1,9 @@
 package sfms.rest.db;
 
+/**
+ * Utility class for managing CSV-formatted data files.
+ *
+ */
 public class CsvValue {
 
 	private CsvValue() {

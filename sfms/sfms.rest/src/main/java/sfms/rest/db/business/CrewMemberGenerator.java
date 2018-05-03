@@ -13,6 +13,10 @@ import sfms.rest.api.test.ValueGenerator;
 import sfms.rest.db.schemas.DbCrewMemberField;
 import sfms.rest.db.schemas.DbEntity;
 
+/**
+ * Factory class used to generate test Crew Member entities.
+ *
+ */
 public class CrewMemberGenerator {
 
 	private final Logger logger = Logger.getLogger(CrewMemberGenerator.class.getName());
@@ -27,8 +31,7 @@ public class CrewMemberGenerator {
 				IncompleteKey clusterKey = clusterKeyFactory.newKey();
 				FullEntity<IncompleteKey> cluster = FullEntity.newBuilder(clusterKey)
 						.set(DbCrewMemberField.FirstName.getName(), ValueGenerator.getRandomFirstName())
-						.set(DbCrewMemberField.LastName.getName(), ValueGenerator.getRandomLastName())
-						.build();
+						.set(DbCrewMemberField.LastName.getName(), ValueGenerator.getRandomLastName()).build();
 				batchPut.add(cluster);
 			}
 		} catch (Exception e) {

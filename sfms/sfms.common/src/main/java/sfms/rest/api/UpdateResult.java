@@ -5,6 +5,7 @@ package sfms.rest.api;
  *
  * @param <TKey>
  *            the key type of the updated entity.
+ * 
  */
 public class UpdateResult<TKey> {
 

@@ -5,6 +5,7 @@ package sfms.rest.api;
  *
  * @param <TKey>
  *            the key type of the deleted entity.
+ * 
  */
 public class DeleteResult<TKey> {
 

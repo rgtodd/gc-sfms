@@ -55,6 +55,9 @@ public class RestFactory {
 	public Sector createSector(SectorModel sectorModel) {
 		Sector result = new Sector();
 		result.setKey(sectorModel.getKey());
+		result.setSectorX(sectorModel.getSectorX());
+		result.setSectorY(sectorModel.getSectorY());
+		result.setSectorZ(sectorModel.getSectorZ());
 		result.setMinimumX(sectorModel.getMinimumX());
 		result.setMinimumY(sectorModel.getMinimumY());
 		result.setMinimumZ(sectorModel.getMinimumZ());
@@ -116,8 +119,7 @@ public class RestFactory {
 		result.setVz(starModel.getVz());
 		result.setRightAcensionRadians(starModel.getRightAcensionRadians());
 		result.setDeclinationRadians(starModel.getDeclinationRadians());
-		result.setProperMotionRightAscensionRadians(
-				starModel.getProperMotionRightAscensionRadians());
+		result.setProperMotionRightAscensionRadians(starModel.getProperMotionRightAscensionRadians());
 		result.setProperMotionDeclinationRadians(starModel.getProperMotionDeclinationRadians());
 		result.setBayerId(starModel.getBayerId());
 		result.setFlamsteed(starModel.getFlamsteed());

@@ -2,6 +2,10 @@ package sfms.rest.api.test;
 
 import java.util.Random;
 
+/**
+ * Utility class used to create test data.
+ *
+ */
 public class ValueGenerator {
 
 	private static final Random RANDOM = new Random();

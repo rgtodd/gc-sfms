@@ -13,6 +13,10 @@ import sfms.rest.api.test.ValueGenerator;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSpaceshipField;
 
+/**
+ * Factory class used to generate test Spaceship entities.
+ *
+ */
 public class SpaceshipGenerator {
 
 	private final Logger logger = Logger.getLogger(SpaceshipGenerator.class.getName());
@@ -28,8 +32,7 @@ public class SpaceshipGenerator {
 
 				IncompleteKey clusterKey = clusterKeyFactory.newKey();
 				FullEntity<IncompleteKey> cluster = FullEntity.newBuilder(clusterKey)
-						.set(DbSpaceshipField.Name.getName(), name)
-						.build();
+						.set(DbSpaceshipField.Name.getName(), name).build();
 				batchPut.add(cluster);
 			}
 		} catch (Exception e) {

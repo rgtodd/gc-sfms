@@ -2,9 +2,16 @@ package sfms.rest.db;
 
 import com.google.cloud.datastore.Value;
 
+/**
+ * Specifies values types supported by the data store.
+ *
+ */
 public enum DbValueType {
 
-	Long(DbLongValueParser.getInstance());
+	Double(DbDoubleValueParser.getInstance()),
+	Key(DbKeyValueParser.getInstance()),
+	Long(DbLongValueParser.getInstance()),
+	String(DbStringValueParser.getInstance());
 
 	private DbValueParser m_dbValueParser;
 

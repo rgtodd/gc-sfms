@@ -13,6 +13,12 @@ import sfms.rest.db.business.CrewMemberGenerator;
 import sfms.rest.db.business.SpaceshipGenerator;
 import sfms.rest.db.business.StarClusterGenerator;
 
+/**
+ * Controller for the Utility REST service.
+ * 
+ * These operations perform maintenance and other miscellaneous operations.
+ *
+ */
 @RestController
 @RequestMapping("/utility")
 public class UtilityRestController {

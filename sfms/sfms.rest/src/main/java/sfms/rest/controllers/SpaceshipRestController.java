@@ -41,6 +41,12 @@ import sfms.rest.api.schemas.SpaceshipField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSpaceshipField;
 
+/**
+ * Controller for the Spaceship REST service.
+ * 
+ * Provides basic CRUD operations for Space Ship entities.
+ * 
+ */
 @RestController
 @RequestMapping("/spaceship")
 public class SpaceshipRestController {
@@ -77,8 +83,7 @@ public class SpaceshipRestController {
 	}
 
 	@GetMapping(value = "")
-	public SearchResult<Spaceship> getSearch(
-			@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
+	public SearchResult<Spaceship> getSearch(@RequestParam(RestParameters.BOOKMARK) Optional<String> bookmark,
 			@RequestParam(RestParameters.PAGE_INDEX) Optional<Long> pageIndex,
 			@RequestParam(RestParameters.PAGE_SIZE) Optional<Integer> pageSize,
 			@RequestParam(RestParameters.FILTER) Optional<String> filter,
@@ -139,9 +144,7 @@ public class SpaceshipRestController {
 
 		Key key = DbEntity.Spaceship.createEntityKey(datastore, id);
 
-		Entity entity = Entity.newBuilder(key)
-				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
-				.build();
+		Entity entity = Entity.newBuilder(key).set(DbSpaceshipField.Name.getName(), spaceship.getName()).build();
 
 		datastore.update(entity);
 
@@ -160,13 +163,10 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		IncompleteKey incompleteKey = datastore.newKeyFactory()
-				.setKind(DbEntity.Spaceship.getKind())
-				.newKey();
+		IncompleteKey incompleteKey = datastore.newKeyFactory().setKind(DbEntity.Spaceship.getKind()).newKey();
 
 		FullEntity<IncompleteKey> entity = FullEntity.newBuilder(incompleteKey)
-				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
-				.build();
+				.set(DbSpaceshipField.Name.getName(), spaceship.getName()).build();
 
 		Entity createdEntity = datastore.put(entity);
 

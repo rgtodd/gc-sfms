@@ -7,6 +7,7 @@ import java.util.List;
  *
  * @param <TEntity>
  *            the type of the entities returned by the service.
+ * 
  */
 public class SearchResult<TEntity> {
 

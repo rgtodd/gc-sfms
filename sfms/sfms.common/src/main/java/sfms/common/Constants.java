@@ -1,5 +1,9 @@
 package sfms.common;
 
+/**
+ * Defines common constant values used by the REST and Web services.
+ *
+ */
 public class Constants {
 
 	public static final String CLOUD_STORAGE_BUCKET = "rgt-ssms.appspot.com";

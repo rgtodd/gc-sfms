@@ -19,6 +19,15 @@ import org.springframework.util.StringUtils;
 import sfms.common.Constants;
 import sfms.common.Secret;
 
+/**
+ * Filter used by REST controllers to ensure the required HTTP header is
+ * present. This ensures that REST controllers only process requests submitted
+ * by the web service.
+ * 
+ * @see Secret#getRestAuthorizationToken()
+ * @see Constants#REST_AUTHORIZATION_TOKEN_HEADER_KEY
+ *
+ */
 public class AppEngineHeaderFilter implements Filter {
 
 	private final Logger logger = Logger.getLogger(AppEngineHeaderFilter.class.getName());

@@ -11,6 +11,11 @@ import com.google.cloud.datastore.QueryResults;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
 
+/**
+ * Iterates over all Star entities and updates the SectorKey and ClusterKey
+ * fields to the appropriate values.
+ *
+ */
 public class StarClusterAssigner {
 
 	private Datastore m_datastore;
@@ -29,9 +34,7 @@ public class StarClusterAssigner {
 
 	public void process() {
 
-		Query<Entity> query = Query.newEntityQueryBuilder()
-				.setKind(DbEntity.Star.getKind())
-				.build();
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind(DbEntity.Star.getKind()).build();
 
 		QueryResults<Entity> entities = m_datastore.run(query);
 		while (entities.hasNext()) {
@@ -52,10 +55,8 @@ public class StarClusterAssigner {
 		Region sector = m_sectors.findClosestRegion(x, y, z);
 		Key sectorKey = m_sectorKeyFactory.newKey(sector.getKey());
 
-		Entity updatedStar = Entity.newBuilder(star)
-				.set(DbStarField.ClusterKey.getName(), clusterKey)
-				.set(DbStarField.SectorKey.getName(), sectorKey)
-				.build();
+		Entity updatedStar = Entity.newBuilder(star).set(DbStarField.ClusterKey.getName(), clusterKey)
+				.set(DbStarField.SectorKey.getName(), sectorKey).build();
 
 		m_datastore.put(updatedStar);
 	}

@@ -12,6 +12,12 @@ import sfms.common.Constants;
 import sfms.rest.api.RestParameters;
 import sfms.rest.db.business.StarImporter;
 
+/**
+ * Controller for the Task REST service.
+ * 
+ * These operations are the targets of App Engine task requests.
+ * 
+ */
 @RestController
 @RequestMapping("/task")
 public class TaskRestController {
@@ -19,10 +25,9 @@ public class TaskRestController {
 	private final Logger logger = Logger.getLogger(TaskRestController.class.getName());
 
 	@GetMapping(value = "/processStarFile")
-	public void processStarFile(
-			@RequestParam(RestParameters.FILE_NAME) String filename,
-			@RequestParam(RestParameters.START) Integer start,
-			@RequestParam(RestParameters.COUNT) Integer count) throws Exception {
+	public void processStarFile(@RequestParam(RestParameters.FILE_NAME) String filename,
+			@RequestParam(RestParameters.START) Integer start, @RequestParam(RestParameters.COUNT) Integer count)
+			throws Exception {
 
 		logger.log(Level.INFO, "Processing {0}.", filename);
 

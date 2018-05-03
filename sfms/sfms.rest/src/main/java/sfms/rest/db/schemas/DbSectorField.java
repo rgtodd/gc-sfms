@@ -5,6 +5,11 @@ import com.google.cloud.datastore.Value;
 import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.DbValueType;
 
+/**
+ * Defines the fields used by the Sector entity.
+ * 
+ * @see DbEntity#Sector
+ */
 public enum DbSectorField implements DbFieldSchema {
 
 	SectorX("x", DbValueType.Long, "X", "X index of sector."),

@@ -3,6 +3,9 @@ package sfms.rest.db.schemas;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Key;
 
+/**
+ * Defines the entities managed by data store.
+ */
 public enum DbEntity {
 
 	// ID Based Entities

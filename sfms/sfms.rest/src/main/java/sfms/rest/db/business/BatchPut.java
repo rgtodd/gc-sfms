@@ -6,6 +6,17 @@ import java.util.List;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.FullEntity;
 
+/**
+ * Manages batches of operations to be sent to the data store.
+ * 
+ * Operations are added to the batch using the {@link #add} method. When the
+ * batch is full, the operations are sent to the data store with a single PUT
+ * operation.
+ * 
+ * When the batch is closed, any outstanding operations are sent to the data
+ * store.
+ *
+ */
 public class BatchPut implements AutoCloseable {
 
 	private static final int BATCH_SIZE = 100;

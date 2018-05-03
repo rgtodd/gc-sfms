@@ -14,6 +14,10 @@ import sfms.rest.db.schemas.DbClusterField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSectorField;
 
+/**
+ * A collection of contiguous {@link Region} objects over 3D space.
+ * 
+ */
 public class RegionSet implements Iterable<Region> {
 
 	private Set<Region> m_regions;
@@ -59,9 +63,7 @@ public class RegionSet implements Iterable<Region> {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> query = Query.newEntityQueryBuilder()
-				.setKind(DbEntity.Cluster.getKind())
-				.build();
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind(DbEntity.Cluster.getKind()).build();
 
 		QueryResults<Entity> entities = datastore.run(query);
 		while (entities.hasNext()) {
@@ -77,12 +79,8 @@ public class RegionSet implements Iterable<Region> {
 			int maximumY = (int) entity.getLong(DbClusterField.MaximumY.getName());
 			int maximumZ = (int) entity.getLong(DbClusterField.MaximumX.getName());
 
-			Region region = new Region(
-					entity.getKey().getName(),
-					clusterPartition,
-					clusterX, clusterY, clusterZ,
-					minimumX, minimumY, minimumZ,
-					maximumX, maximumY, maximumZ);
+			Region region = new Region(entity.getKey().getName(), clusterPartition, clusterX, clusterY, clusterZ,
+					minimumX, minimumY, minimumZ, maximumX, maximumY, maximumZ);
 			regions.add(region);
 		}
 
@@ -94,9 +92,7 @@ public class RegionSet implements Iterable<Region> {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> query = Query.newEntityQueryBuilder()
-				.setKind(DbEntity.Sector.getKind())
-				.build();
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind(DbEntity.Sector.getKind()).build();
 
 		QueryResults<Entity> entities = datastore.run(query);
 		while (entities.hasNext()) {
@@ -111,12 +107,8 @@ public class RegionSet implements Iterable<Region> {
 			int maximumY = (int) entity.getLong(DbSectorField.MaximumY.getName());
 			int maximumZ = (int) entity.getLong(DbSectorField.MaximumZ.getName());
 
-			Region region = new Region(
-					entity.getKey().getName(),
-					0,
-					sectorX, sectorY, sectorZ,
-					minimumX, minimumY, minimumZ,
-					maximumX, maximumY, maximumZ);
+			Region region = new Region(entity.getKey().getName(), 0, sectorX, sectorY, sectorZ, minimumX, minimumY,
+					minimumZ, maximumX, maximumY, maximumZ);
 			regions.add(region);
 		}
 

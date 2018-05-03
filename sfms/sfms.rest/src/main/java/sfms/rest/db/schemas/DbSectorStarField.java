@@ -3,18 +3,26 @@ package sfms.rest.db.schemas;
 import com.google.cloud.datastore.Value;
 
 import sfms.rest.db.DbFieldSchema;
+import sfms.rest.db.DbValueType;
 
+/**
+ * Defines the fields used by the Sector Star entity.
+ * 
+ * @see DbEntity#Sector
+ */
 public enum DbSectorStarField implements DbFieldSchema {
 
-	SectorKey("sct_k", "Sector Key", "Key of parent Sector entity."),
-	StarKey("str_k", "Star Key", "Key of Star entity contained in this sector.");
+	SectorKey("sct_k", DbValueType.Key, "Sector Key", "Key of parent Sector entity."),
+	StarKey("str_k", DbValueType.Key, "Star Key", "Key of Star entity contained in this sector.");
 
 	private String m_name;
+	private DbValueType m_dbValueType;
 	private String m_title;
 	private String m_description;
 
-	private DbSectorStarField(String name, String title, String description) {
+	private DbSectorStarField(String name, DbValueType dbValueType, String title, String description) {
 		m_name = name;
+		m_dbValueType = dbValueType;
 		m_title = title;
 		m_description = description;
 	}
@@ -46,6 +54,6 @@ public enum DbSectorStarField implements DbFieldSchema {
 
 	@Override
 	public Value<?> parseValue(String text) {
-		return null;
+		return m_dbValueType.parse(text);
 	}
 }

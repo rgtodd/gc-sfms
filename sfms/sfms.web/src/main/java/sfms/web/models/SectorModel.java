@@ -5,6 +5,9 @@ import java.util.List;
 public class SectorModel {
 
 	private String m_key;
+	private Long m_sectorX;
+	private Long m_sectorY;
+	private Long m_sectorZ;
 	private Long m_minimumX;
 	private Long m_minimumY;
 	private Long m_minimumZ;
@@ -18,6 +21,30 @@ public class SectorModel {
 
 	public String getKey() {
 		return m_key;
+	}
+
+	public Long getSectorX() {
+		return m_sectorX;
+	}
+
+	public void setSectorX(Long sectorX) {
+		m_sectorX = sectorX;
+	}
+
+	public Long getSectorY() {
+		return m_sectorY;
+	}
+
+	public void setSectorY(Long sectorY) {
+		m_sectorY = sectorY;
+	}
+
+	public Long getSectorZ() {
+		return m_sectorZ;
+	}
+
+	public void setSectorZ(Long sectorZ) {
+		m_sectorZ = sectorZ;
 	}
 
 	public Long getMaximumX() {

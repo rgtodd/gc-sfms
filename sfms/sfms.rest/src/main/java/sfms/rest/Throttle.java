@@ -4,6 +4,11 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * Used by REST services to limit call frequency. When {@link #increment()}
+ * returns false, the REST request should be rejected.
+ * 
+ */
 public class Throttle {
 
 	public static final int MAX_OPERATIONS_PER_HOUR = 20000;
