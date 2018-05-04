@@ -74,20 +74,22 @@ public class ClusterRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Cluster.createEntityKey(datastore, id);
-		Entity dbCluster = datastore.get(key);
+		Key dbClusterKey = DbEntity.Cluster.createEntityKey(datastore, id);
+		Entity dbCluster = datastore.get(dbClusterKey);
 
-		Query<ProjectionEntity> query = Query.newProjectionEntityQueryBuilder().setKind(DbEntity.Star.getKind())
-				.addProjection(DbStarField.X.getName()).addProjection(DbStarField.Y.getName())
+		Query<ProjectionEntity> dbStarQuery = Query.newProjectionEntityQueryBuilder()
+				.setKind(DbEntity.Star.getKind())
+				.addProjection(DbStarField.X.getName())
+				.addProjection(DbStarField.Y.getName())
 				.addProjection(DbStarField.Z.getName())
-				.setFilter(PropertyFilter.eq(DbStarField.ClusterKey.getName(), key)).build();
+				.setFilter(PropertyFilter.eq(DbStarField.ClusterKey.getName(), dbClusterKey)).build();
 
-		QueryResults<ProjectionEntity> dbStars = datastore.run(query);
+		QueryResults<ProjectionEntity> dbStars = datastore.run(dbStarQuery);
 
 		RestFactory factory = new RestFactory();
-		Cluster result = factory.createCluster(dbCluster, factory.createStarsFromProjection(dbStars));
+		Cluster cluster = factory.createCluster(dbCluster, factory.createStarsFromProjection(dbStars));
 
-		return result;
+		return cluster;
 	}
 
 	@GetMapping(value = "")
@@ -107,7 +109,7 @@ public class ClusterRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> query = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+		Query<Entity> dbClusterQuery = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
 				.setKind(DbEntity.Cluster.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
@@ -115,14 +117,14 @@ public class ClusterRestController {
 				.setStartCursor(bookmark)
 				.build();
 
-		QueryResults<Entity> entities = datastore.run(query);
+		QueryResults<Entity> dbClusters = datastore.run(dbClusterQuery);
 
 		RestFactory factory = new RestFactory();
-		List<Cluster> clusters = factory.createClusters(entities);
+		List<Cluster> clusters = factory.createClusters(dbClusters);
 
 		SearchResult<Cluster> result = new SearchResult<Cluster>();
 		result.setEntities(clusters);
-		result.setEndingBookmark(entities.getCursorAfter().toUrlSafe());
+		result.setEndingBookmark(dbClusters.getCursorAfter().toUrlSafe());
 		result.setEndOfResults(clusters.size() < limit);
 
 		return result;
@@ -137,17 +139,18 @@ public class ClusterRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Cluster.createEntityKey(datastore, id);
+		Key dbClusterKey = DbEntity.Cluster.createEntityKey(datastore, id);
 
-		Entity entity = Entity.newBuilder(key)
+		Entity dbCluster = Entity.newBuilder(dbClusterKey)
 				.set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
 				.set(DbClusterField.MinimumY.getName(), cluster.getMinimumY())
 				.set(DbClusterField.MinimumZ.getName(), cluster.getMinimumZ())
 				.set(DbClusterField.MaximumX.getName(), cluster.getMaximumX())
 				.set(DbClusterField.MaximumY.getName(), cluster.getMaximumY())
-				.set(DbClusterField.MaximumZ.getName(), cluster.getMaximumZ()).build();
+				.set(DbClusterField.MaximumZ.getName(), cluster.getMaximumZ())
+				.build();
 
-		datastore.update(entity);
+		datastore.update(dbCluster);
 
 		UpdateResult<String> result = new UpdateResult<String>();
 		result.setKey(id);
@@ -164,20 +167,21 @@ public class ClusterRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Cluster.createEntityKey(datastore, cluster.getKey());
+		Key dbClusterKey = DbEntity.Cluster.createEntityKey(datastore, cluster.getKey());
 
-		Entity entity = Entity.newBuilder(key)
+		Entity dbCluster = Entity.newBuilder(dbClusterKey)
 				.set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
 				.set(DbClusterField.MinimumY.getName(), cluster.getMinimumY())
 				.set(DbClusterField.MinimumZ.getName(), cluster.getMinimumZ())
 				.set(DbClusterField.MaximumX.getName(), cluster.getMaximumX())
 				.set(DbClusterField.MaximumY.getName(), cluster.getMaximumY())
-				.set(DbClusterField.MaximumZ.getName(), cluster.getMaximumZ()).build();
+				.set(DbClusterField.MaximumZ.getName(), cluster.getMaximumZ())
+				.build();
 
-		datastore.put(entity);
+		datastore.put(dbCluster);
 
 		CreateResult<String> result = new CreateResult<String>();
-		result.setKey(key.getId().toString());
+		result.setKey(DbEntity.Cluster.createRestKey(dbClusterKey));
 
 		return result;
 	}
@@ -191,12 +195,12 @@ public class ClusterRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Cluster.createEntityKey(datastore, id);
+		Key dbClusterKey = DbEntity.Cluster.createEntityKey(datastore, id);
 
-		datastore.delete(key);
+		datastore.delete(dbClusterKey);
 
 		DeleteResult<String> result = new DeleteResult<String>();
-		result.setKey(id);
+		result.setKey(DbEntity.Cluster.createRestKey(dbClusterKey));
 
 		return result;
 	}

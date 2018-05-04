@@ -70,14 +70,14 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.CrewMember.createEntityKey(datastore, id);
+		Key dbCrewMemberKey = DbEntity.CrewMember.createEntityKey(datastore, id);
 
-		Entity entity = datastore.get(key);
+		Entity dbCrewMember = datastore.get(dbCrewMemberKey);
 
 		RestFactory factory = new RestFactory();
-		CrewMember result = factory.createCrewMember(entity);
+		CrewMember crewMember = factory.createCrewMember(dbCrewMember);
 
-		return result;
+		return crewMember;
 	}
 
 	@GetMapping(value = "")
@@ -97,7 +97,7 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> query = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+		Query<Entity> dbCrewMemberQuery = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
 				.setKind(DbEntity.CrewMember.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
@@ -105,14 +105,14 @@ public class CrewMemberRestController {
 				.setStartCursor(bookmark)
 				.build();
 
-		QueryResults<Entity> entities = datastore.run(query);
+		QueryResults<Entity> dbCrewMembers = datastore.run(dbCrewMemberQuery);
 
 		RestFactory factory = new RestFactory();
-		List<CrewMember> crewMembers = factory.createCrewMembers(entities);
+		List<CrewMember> crewMembers = factory.createCrewMembers(dbCrewMembers);
 
 		SearchResult<CrewMember> result = new SearchResult<CrewMember>();
 		result.setEntities(crewMembers);
-		result.setEndingBookmark(entities.getCursorAfter().toUrlSafe());
+		result.setEndingBookmark(dbCrewMembers.getCursorAfter().toUrlSafe());
 		result.setEndOfResults(crewMembers.size() < limit);
 
 		return result;
@@ -128,12 +128,14 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.CrewMember.createEntityKey(datastore, id);
+		Key dbCrewMemberKey = DbEntity.CrewMember.createEntityKey(datastore, id);
 
-		Entity entity = Entity.newBuilder(key).set(DbCrewMemberField.FirstName.getName(), crewMember.getFirstName())
-				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName()).build();
+		Entity dbCrewMember = Entity.newBuilder(dbCrewMemberKey)
+				.set(DbCrewMemberField.FirstName.getName(), crewMember.getFirstName())
+				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName())
+				.build();
 
-		datastore.update(entity);
+		datastore.update(dbCrewMember);
 
 		UpdateResult<String> result = new UpdateResult<String>();
 		result.setKey(id);
@@ -150,16 +152,18 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		IncompleteKey incompleteKey = datastore.newKeyFactory().setKind(DbEntity.CrewMember.getKind()).newKey();
+		IncompleteKey dbCrewMemberIncompleteKey = datastore.newKeyFactory().setKind(DbEntity.CrewMember.getKind())
+				.newKey();
 
-		FullEntity<IncompleteKey> entity = FullEntity.newBuilder(incompleteKey)
+		FullEntity<IncompleteKey> dbCrewMember = FullEntity.newBuilder(dbCrewMemberIncompleteKey)
 				.set(DbCrewMemberField.FirstName.getName(), crewMember.getFirstName())
-				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName()).build();
+				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName())
+				.build();
 
-		Entity createdEntity = datastore.put(entity);
+		Key dbCrewMemberKey = datastore.put(dbCrewMember).getKey();
 
 		CreateResult<String> result = new CreateResult<String>();
-		result.setKey(DbEntity.CrewMember.createRestKey(createdEntity.getKey()));
+		result.setKey(DbEntity.CrewMember.createRestKey(dbCrewMemberKey));
 
 		return result;
 	}
@@ -173,12 +177,12 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.CrewMember.createEntityKey(datastore, id);
+		Key dbCrewMemberKey = DbEntity.CrewMember.createEntityKey(datastore, id);
 
-		datastore.delete(key);
+		datastore.delete(dbCrewMemberKey);
 
 		DeleteResult<String> result = new DeleteResult<String>();
-		result.setKey(id);
+		result.setKey(DbEntity.CrewMember.createRestKey(dbCrewMemberKey));
 
 		return result;
 	}

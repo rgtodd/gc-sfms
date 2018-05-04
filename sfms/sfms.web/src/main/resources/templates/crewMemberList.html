@@ -24,15 +24,11 @@
 					<th></th>
 					<th>Key</th>
 					<th><a class="nav-link"
-						th:href="@{|/crewMember?sort=FirstName&direction=${sorting.firstNameLinkDirection}|}">First
-							Name <i class="material-icons"
-							th:if="${sorting.firstNameHasIcon}" th:text="${sorting.iconName}">arrow_drop_up</i>
-					</a></th>
+						th:href="@{|/crewMember?sort=${F.FirstName}&direction=${sorting.direction(F.FirstName)}|}">First
+							Name [(${sorting.icon(F.FirstName)})]</a></th>
 					<th><a class="nav-link"
-						th:href="@{|/crewMember?sort=LastName&direction=${sorting.lastNameLinkDirection}|}">Last
-							Name <i class="material-icons" th:if="${sorting.lastNameHasIcon}"
-							th:text="${sorting.iconName}">arrow_drop_up</i>
-					</a></th>
+						th:href="@{|/crewMember?sort=${F.LastName}&direction=${sorting.direction(F.LastName)}|}">Last
+							Name [(${sorting.icon(F.LastName)})]</a></th>
 				</tr>
 			</thead>
 			<tbody>

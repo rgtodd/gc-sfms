@@ -24,10 +24,8 @@
 					<th></th>
 					<th>Key</th>
 					<th><a class="nav-link"
-						th:href="@{|/sector?sort=MinimumX&direction=${sorting.minimumXLinkDirection}|}">Minimum
-							X <i class="material-icons" th:if="${sorting.minimumXHasIcon}"
-							th:text="${sorting.iconName}">arrow_drop_up</i>
-					</a></th>
+						th:href="@{|/sector?sort=${F.MinimumX}&direction=${sorting.direction(F.MinimumX)}|}">Minimum
+							X [(${sorting.icon(F.MinimumX)})]</a></th>
 				</tr>
 			</thead>
 			<tbody>

@@ -25,6 +25,7 @@ import com.google.appengine.api.taskqueue.TaskOptions.Method;
 import sfms.common.Constants;
 import sfms.common.PropertyFile;
 import sfms.common.Secret;
+import sfms.rest.api.RestHeaders;
 import sfms.rest.api.RestParameters;
 import sfms.storage.StorageManagerUtility;
 import sfms.web.SfmsController;
@@ -173,7 +174,7 @@ public class UtilityController extends SfmsController {
 
 	private void uploadPostSubmitTask(String fileName, int start, int recordCount) {
 		TaskOptions taskOptions = TaskOptions.Builder.withUrl("/task/processStarFile")
-				.header(Constants.REST_AUTHORIZATION_TOKEN_HEADER_KEY, Secret.getRestAuthorizationToken())
+				.header(RestHeaders.REST_AUTHORIZATION_TOKEN, Secret.getRestAuthorizationToken())
 				.method(Method.GET).param(RestParameters.FILE_NAME, fileName)
 				.param(RestParameters.START, String.valueOf(start))
 				.param(RestParameters.COUNT, String.valueOf(recordCount));

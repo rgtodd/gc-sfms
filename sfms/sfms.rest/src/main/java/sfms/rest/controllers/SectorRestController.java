@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -42,6 +41,7 @@ import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
 import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
+import sfms.rest.api.RestHeaders;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.UpdateResult;
@@ -66,8 +66,6 @@ import sfms.storage.StorageManagerUtility.ObjectFactory;
 @RequestMapping("/sector")
 public class SectorRestController {
 
-	private final Logger logger = Logger.getLogger(SectorRestController.class.getName());
-
 	private static final Map<String, DbFieldSchema> s_dbFieldMap;
 	static {
 		s_dbFieldMap = new HashMap<String, DbFieldSchema>();
@@ -86,10 +84,8 @@ public class SectorRestController {
 	@Autowired
 	private Throttle m_throttle;
 
-	@GetMapping(value = "/get/{id}")
-	public Sector getLookup(@PathVariable String id) throws Exception {
-
-		logger.info("getLookup: start");
+	@GetMapping(value = "/{id}", headers = { RestHeaders.CACHE + "!=" + RestHeaders.CACHE_ENABLED })
+	public Sector getLookupUncached(@PathVariable String id) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -98,10 +94,8 @@ public class SectorRestController {
 		return retrieveSectorFromDb(id);
 	}
 
-	@GetMapping(value = "/{id}")
+	@GetMapping(value = "/{id}", headers = { RestHeaders.CACHE + "=" + RestHeaders.CACHE_ENABLED })
 	public void getLookupCached(@PathVariable String id, HttpServletResponse response) throws Exception {
-
-		logger.info("getLookupCached: start");
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -149,7 +143,7 @@ public class SectorRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> sectorQuery = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+		Query<Entity> dbSectorQuery = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
 				.setKind(DbEntity.Sector.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
@@ -157,73 +151,13 @@ public class SectorRestController {
 				.setStartCursor(bookmark)
 				.build();
 
-		QueryResults<Entity> dbSectors = datastore.run(sectorQuery);
+		QueryResults<Entity> dbSectors = datastore.run(dbSectorQuery);
 
-		RestFactory factory = new RestFactory();
 		List<Sector> sectors;
 		if (detail.isPresent() && detail.get().equals(DETAIL_STAR)) {
-
-			Long minimumX = null;
-			Long maximumX = null;
-			Long minimumY = null;
-			Long maximumY = null;
-			Long minimumZ = null;
-			Long maximumZ = null;
-			Map<String, Sector> sectorsByKey = new HashMap<String, Sector>();
-			while (dbSectors.hasNext()) {
-				BaseEntity<Key> dbSector = dbSectors.next();
-				Sector sector = factory.createSector(dbSector, new ArrayList<Star>());
-				if (minimumX == null || sector.getMinimumX() < minimumX) {
-					minimumX = sector.getMinimumX();
-				}
-				if (maximumX == null || sector.getMaximumX() > maximumX) {
-					maximumX = sector.getMaximumX();
-				}
-				if (minimumY == null || sector.getMinimumY() < minimumY) {
-					minimumY = sector.getMinimumY();
-				}
-				if (maximumY == null || sector.getMaximumY() > maximumY) {
-					maximumY = sector.getMaximumY();
-				}
-				if (minimumZ == null || sector.getMinimumZ() < minimumZ) {
-					minimumZ = sector.getMinimumZ();
-				}
-				if (maximumZ == null || sector.getMaximumZ() > maximumZ) {
-					maximumZ = sector.getMaximumZ();
-				}
-				sectorsByKey.put(sector.getKey(), sector);
-			}
-
-			if (!sectorsByKey.isEmpty()) {
-
-				Query<ProjectionEntity> starQuery = Query.newProjectionEntityQueryBuilder()
-						.setKind(DbEntity.Star.getKind())
-						.setFilter(CompositeFilter.and(PropertyFilter.ge(DbStarField.X.getName(), (double) minimumX),
-								PropertyFilter.lt(DbStarField.X.getName(), (double) maximumX)))
-						.addProjection(DbStarField.SectorKey.getName()).addProjection(DbStarField.X.getName())
-						.addProjection(DbStarField.Y.getName()).addProjection(DbStarField.Z.getName()).build();
-
-				QueryResults<ProjectionEntity> dbStars = datastore.run(starQuery);
-
-				while (dbStars.hasNext()) {
-					BaseEntity<Key> dbStar = dbStars.next();
-					double y = dbStar.getDouble(DbStarField.Y.getName());
-					double z = dbStar.getDouble(DbStarField.Z.getName());
-					if (y >= minimumY && y < maximumY && z >= minimumZ && z < maximumZ) {
-						Star star = factory.createStar(dbStar);
-						String starSectorKey = star.getSectorKey();
-						if (starSectorKey != null) {
-							Sector sector = sectorsByKey.get(starSectorKey);
-							if (sector != null) {
-								sector.getStars().add(star);
-							}
-						}
-					}
-				}
-			}
-
-			sectors = new ArrayList<Sector>(sectorsByKey.values());
+			sectors = getSectorsWithDetail(datastore, dbSectors);
 		} else {
+			RestFactory factory = new RestFactory();
 			sectors = factory.createSectors(dbSectors);
 		}
 
@@ -244,19 +178,20 @@ public class SectorRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Sector.createEntityKey(datastore, id);
+		Key dbSectorKey = DbEntity.Sector.createEntityKey(datastore, id);
 
-		Entity entity = Entity.newBuilder(key).set(DbSectorField.MinimumX.getName(), sector.getMinimumX())
+		Entity dbSector = Entity.newBuilder(dbSectorKey).set(DbSectorField.MinimumX.getName(), sector.getMinimumX())
 				.set(DbSectorField.MinimumY.getName(), sector.getMinimumY())
 				.set(DbSectorField.MinimumZ.getName(), sector.getMinimumZ())
 				.set(DbSectorField.MaximumX.getName(), sector.getMaximumX())
 				.set(DbSectorField.MaximumY.getName(), sector.getMaximumY())
-				.set(DbSectorField.MaximumZ.getName(), sector.getMaximumZ()).build();
+				.set(DbSectorField.MaximumZ.getName(), sector.getMaximumZ())
+				.build();
 
-		datastore.update(entity);
+		datastore.update(dbSector);
 
 		UpdateResult<String> result = new UpdateResult<String>();
-		result.setKey(id);
+		result.setKey(DbEntity.Sector.createRestKey(dbSectorKey));
 
 		return result;
 	}
@@ -270,19 +205,20 @@ public class SectorRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Sector.createEntityKey(datastore, sector.getKey());
+		Key dbSectorKey = DbEntity.Sector.createEntityKey(datastore, sector.getKey());
 
-		Entity entity = Entity.newBuilder(key).set(DbSectorField.MinimumX.getName(), sector.getMinimumX())
+		Entity dbSector = Entity.newBuilder(dbSectorKey).set(DbSectorField.MinimumX.getName(), sector.getMinimumX())
 				.set(DbSectorField.MinimumY.getName(), sector.getMinimumY())
 				.set(DbSectorField.MinimumZ.getName(), sector.getMinimumZ())
 				.set(DbSectorField.MaximumX.getName(), sector.getMaximumX())
 				.set(DbSectorField.MaximumY.getName(), sector.getMaximumY())
-				.set(DbSectorField.MaximumZ.getName(), sector.getMaximumZ()).build();
+				.set(DbSectorField.MaximumZ.getName(), sector.getMaximumZ())
+				.build();
 
-		datastore.put(entity);
+		datastore.put(dbSector);
 
 		CreateResult<String> result = new CreateResult<String>();
-		result.setKey(key.getId().toString());
+		result.setKey(DbEntity.Sector.createRestKey(dbSectorKey));
 
 		return result;
 	}
@@ -296,37 +232,103 @@ public class SectorRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Sector.createEntityKey(datastore, id);
+		Key dbSectorKey = DbEntity.Sector.createEntityKey(datastore, id);
 
-		datastore.delete(key);
+		datastore.delete(dbSectorKey);
 
 		DeleteResult<String> result = new DeleteResult<String>();
-		result.setKey(id);
+		result.setKey(DbEntity.Sector.createRestKey(dbSectorKey));
 
 		return result;
 	}
 
+	private List<Sector> getSectorsWithDetail(Datastore datastore, QueryResults<Entity> dbSectors) {
+		List<Sector> sectors;
+		RestFactory factory = new RestFactory();
+		Long minimumX = null;
+		Long maximumX = null;
+		Long minimumY = null;
+		Long maximumY = null;
+		Long minimumZ = null;
+		Long maximumZ = null;
+		Map<String, Sector> sectorsByKey = new HashMap<String, Sector>();
+		while (dbSectors.hasNext()) {
+			BaseEntity<Key> dbSector = dbSectors.next();
+			Sector sector = factory.createSector(dbSector, new ArrayList<Star>());
+			if (minimumX == null || sector.getMinimumX() < minimumX) {
+				minimumX = sector.getMinimumX();
+			}
+			if (maximumX == null || sector.getMaximumX() > maximumX) {
+				maximumX = sector.getMaximumX();
+			}
+			if (minimumY == null || sector.getMinimumY() < minimumY) {
+				minimumY = sector.getMinimumY();
+			}
+			if (maximumY == null || sector.getMaximumY() > maximumY) {
+				maximumY = sector.getMaximumY();
+			}
+			if (minimumZ == null || sector.getMinimumZ() < minimumZ) {
+				minimumZ = sector.getMinimumZ();
+			}
+			if (maximumZ == null || sector.getMaximumZ() > maximumZ) {
+				maximumZ = sector.getMaximumZ();
+			}
+			sectorsByKey.put(sector.getKey(), sector);
+		}
+	
+		if (!sectorsByKey.isEmpty()) {
+	
+			Query<ProjectionEntity> dbStarQuery = Query.newProjectionEntityQueryBuilder()
+					.setKind(DbEntity.Star.getKind())
+					.setFilter(CompositeFilter.and(PropertyFilter.ge(DbStarField.X.getName(), (double) minimumX),
+							PropertyFilter.lt(DbStarField.X.getName(), (double) maximumX)))
+					.addProjection(DbStarField.SectorKey.getName()).addProjection(DbStarField.X.getName())
+					.addProjection(DbStarField.Y.getName()).addProjection(DbStarField.Z.getName()).build();
+	
+			QueryResults<ProjectionEntity> dbStars = datastore.run(dbStarQuery);
+	
+			while (dbStars.hasNext()) {
+				BaseEntity<Key> dbStar = dbStars.next();
+				double y = dbStar.getDouble(DbStarField.Y.getName());
+				double z = dbStar.getDouble(DbStarField.Z.getName());
+				if (y >= minimumY && y < maximumY && z >= minimumZ && z < maximumZ) {
+					Star star = factory.createStar(dbStar);
+					String starSectorKey = star.getSectorKey();
+					if (starSectorKey != null) {
+						Sector sector = sectorsByKey.get(starSectorKey);
+						if (sector != null) {
+							sector.getStars().add(star);
+						}
+					}
+				}
+			}
+		}
+	
+		sectors = new ArrayList<Sector>(sectorsByKey.values());
+		return sectors;
+	}
+
 	private Sector retrieveSectorFromDb(String id) {
+
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Sector.createEntityKey(datastore, id);
-		Entity dbSector = datastore.get(key);
+		Key dbSectorKey = DbEntity.Sector.createEntityKey(datastore, id);
 
-		Query<ProjectionEntity> query = Query.newProjectionEntityQueryBuilder()
+		Entity dbSector = datastore.get(dbSectorKey);
+
+		Query<ProjectionEntity> dbStarQuery = Query.newProjectionEntityQueryBuilder()
 				.setKind(DbEntity.Star.getKind())
 				.addProjection(DbStarField.X.getName())
 				.addProjection(DbStarField.Y.getName())
 				.addProjection(DbStarField.Z.getName())
-				.setFilter(PropertyFilter.eq(DbStarField.SectorKey.getName(), key)).build();
+				.setFilter(PropertyFilter.eq(DbStarField.SectorKey.getName(), dbSectorKey))
+				.build();
 
-		logger.info("getLookup: run query");
-
-		QueryResults<ProjectionEntity> dbStars = datastore.run(query);
-
-		logger.info("getLookup: build results");
+		QueryResults<ProjectionEntity> dbStars = datastore.run(dbStarQuery);
 
 		RestFactory factory = new RestFactory();
-		Sector result = factory.createSector(dbSector, factory.createStarsFromProjection(dbStars));
-		return result;
+		Sector sector = factory.createSector(dbSector, factory.createStarsFromProjection(dbStars));
+
+		return sector;
 	}
 }

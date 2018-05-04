@@ -34,10 +34,10 @@ import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
 import sfms.web.models.ClusterModel;
-import sfms.web.models.ClusterSortingModel;
 import sfms.web.models.PagingModel;
 import sfms.web.models.SortingModel;
 import sfms.web.schemas.ClusterModelSchema;
+import sfms.web.schemas.CrewMemberModelSchema;
 
 @Controller
 @RequestMapping({ "/cluster" })
@@ -129,11 +129,12 @@ public class ClusterController extends SfmsController {
 		pagingModel.setNextPageNumber(pageNumber.orElse(1) + 1);
 		modelMap.addAttribute("paging", pagingModel);
 
-		ClusterSortingModel sortingModel = new ClusterSortingModel();
+		SortingModel sortingModel = new SortingModel();
 		sortingModel.setSort(effectiveSort);
 		sortingModel.setDirection(effectiveDirection);
 		modelMap.addAttribute("sorting", sortingModel);
-
+		modelMap.addAttribute("F", new ClusterModelSchema());
+		
 		return "clusterList";
 	}
 

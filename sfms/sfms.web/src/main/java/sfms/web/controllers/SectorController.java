@@ -35,7 +35,6 @@ import sfms.web.RestFactory;
 import sfms.web.SfmsController;
 import sfms.web.models.PagingModel;
 import sfms.web.models.SectorModel;
-import sfms.web.models.SectorSortingModel;
 import sfms.web.models.SortingModel;
 import sfms.web.schemas.SectorModelSchema;
 
@@ -129,10 +128,11 @@ public class SectorController extends SfmsController {
 		pagingModel.setNextPageNumber(pageNumber.orElse(1) + 1);
 		modelMap.addAttribute("paging", pagingModel);
 
-		SectorSortingModel sortingModel = new SectorSortingModel();
+		SortingModel sortingModel = new SortingModel();
 		sortingModel.setSort(effectiveSort);
 		sortingModel.setDirection(effectiveDirection);
 		modelMap.addAttribute("sorting", sortingModel);
+		modelMap.addAttribute("F", new SectorModelSchema());
 
 		return "sectorList";
 	}

@@ -52,6 +52,10 @@ public class SpaceshipRestController {
 	static {
 		s_dbFieldMap = new HashMap<String, DbFieldSchema>();
 		s_dbFieldMap.put(SpaceshipField.Name.getName(), DbSpaceshipField.Name);
+		s_dbFieldMap.put(SpaceshipField.X.getName(), DbSpaceshipField.X);
+		s_dbFieldMap.put(SpaceshipField.Y.getName(), DbSpaceshipField.Y);
+		s_dbFieldMap.put(SpaceshipField.Z.getName(), DbSpaceshipField.Z);
+		s_dbFieldMap.put(SpaceshipField.StarKey.getName(), DbSpaceshipField.StarKey);
 	}
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
@@ -69,14 +73,14 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Spaceship.createEntityKey(datastore, id);
+		Key dbSpaceshipKey = DbEntity.Spaceship.createEntityKey(datastore, id);
 
-		Entity entity = datastore.get(key);
+		Entity dbSpaceship = datastore.get(dbSpaceshipKey);
 
 		RestFactory factory = new RestFactory();
-		Spaceship result = factory.createSpaceship(entity);
+		Spaceship spaceship = factory.createSpaceship(dbSpaceship);
 
-		return result;
+		return spaceship;
 	}
 
 	@GetMapping(value = "")
@@ -96,7 +100,7 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> query = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+		Query<Entity> dbSpaceshipQuery = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
 				.setKind(DbEntity.Spaceship.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
@@ -104,14 +108,14 @@ public class SpaceshipRestController {
 				.setStartCursor(bookmark)
 				.build();
 
-		QueryResults<Entity> entities = datastore.run(query);
+		QueryResults<Entity> dbSpaceships = datastore.run(dbSpaceshipQuery);
 
 		RestFactory factory = new RestFactory();
-		List<Spaceship> spaceships = factory.createSpaceships(entities);
+		List<Spaceship> spaceships = factory.createSpaceships(dbSpaceships);
 
 		SearchResult<Spaceship> result = new SearchResult<Spaceship>();
 		result.setEntities(spaceships);
-		result.setEndingBookmark(entities.getCursorAfter().toUrlSafe());
+		result.setEndingBookmark(dbSpaceships.getCursorAfter().toUrlSafe());
 		result.setEndOfResults(spaceships.size() < limit);
 
 		return result;
@@ -126,14 +130,21 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Spaceship.createEntityKey(datastore, id);
+		Key dbSpaceshipKey = DbEntity.Spaceship.createEntityKey(datastore, id);
 
-		Entity entity = Entity.newBuilder(key).set(DbSpaceshipField.Name.getName(), spaceship.getName()).build();
+		Entity dbSpaceship = Entity.newBuilder(dbSpaceshipKey)
+				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
+				.set(DbSpaceshipField.X.getName(), spaceship.getX())
+				.set(DbSpaceshipField.Y.getName(), spaceship.getY())
+				.set(DbSpaceshipField.Z.getName(), spaceship.getZ())
+				.set(DbSpaceshipField.StarKey.getName(),
+						DbEntity.Star.createEntityKey(datastore, spaceship.getStarKey()))
+				.build();
 
-		datastore.update(entity);
+		datastore.update(dbSpaceship);
 
 		UpdateResult<String> result = new UpdateResult<String>();
-		result.setKey(id);
+		result.setKey(DbEntity.Spaceship.createRestKey(dbSpaceshipKey));
 
 		return result;
 	}
@@ -147,15 +158,22 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		IncompleteKey incompleteKey = datastore.newKeyFactory().setKind(DbEntity.Spaceship.getKind()).newKey();
+		IncompleteKey dbSpaceshipIncompleteKey = datastore.newKeyFactory().setKind(DbEntity.Spaceship.getKind())
+				.newKey();
 
-		FullEntity<IncompleteKey> entity = FullEntity.newBuilder(incompleteKey)
-				.set(DbSpaceshipField.Name.getName(), spaceship.getName()).build();
+		FullEntity<IncompleteKey> dbSpaceship = FullEntity.newBuilder(dbSpaceshipIncompleteKey)
+				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
+				.set(DbSpaceshipField.X.getName(), spaceship.getX())
+				.set(DbSpaceshipField.Y.getName(), spaceship.getY())
+				.set(DbSpaceshipField.Z.getName(), spaceship.getZ())
+				.set(DbSpaceshipField.StarKey.getName(),
+						DbEntity.Star.createEntityKey(datastore, spaceship.getStarKey()))
+				.build();
 
-		Entity createdEntity = datastore.put(entity);
+		Key dbSpaceshipKey = datastore.put(dbSpaceship).getKey();
 
 		CreateResult<String> result = new CreateResult<String>();
-		result.setKey(DbEntity.Spaceship.createRestKey(createdEntity.getKey()));
+		result.setKey(DbEntity.Spaceship.createRestKey(dbSpaceshipKey));
 
 		return result;
 	}
@@ -169,12 +187,12 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Spaceship.createEntityKey(datastore, id);
+		Key dbSpaceshipKey = DbEntity.Spaceship.createEntityKey(datastore, id);
 
-		datastore.delete(key);
+		datastore.delete(dbSpaceshipKey);
 
 		DeleteResult<String> result = new DeleteResult<String>();
-		result.setKey(id);
+		result.setKey(DbEntity.Spaceship.createRestKey(dbSpaceshipKey));
 
 		return result;
 	}

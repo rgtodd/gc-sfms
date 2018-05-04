@@ -31,7 +31,6 @@ import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
 import sfms.web.models.CrewMemberModel;
-import sfms.web.models.CrewMemberSortingModel;
 import sfms.web.models.PagingModel;
 import sfms.web.models.SortingModel;
 import sfms.web.schemas.CrewMemberModelSchema;
@@ -137,10 +136,11 @@ public class CrewMemberController extends SfmsController {
 		pagingModel.setNextPageNumber(pageNumber.orElse(1) + 1);
 		modelMap.addAttribute("paging", pagingModel);
 
-		CrewMemberSortingModel sortingModel = new CrewMemberSortingModel();
+		SortingModel sortingModel = new SortingModel();
 		sortingModel.setSort(effectiveSort);
 		sortingModel.setDirection(effectiveDirection);
 		modelMap.addAttribute("sorting", sortingModel);
+		modelMap.addAttribute("F", new CrewMemberModelSchema());
 
 		return "crewMemberList";
 	}

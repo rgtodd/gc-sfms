@@ -48,4 +48,15 @@ public class SortingModel {
 		}
 	}
 
+	public String icon(String field) {
+		if (getSort().equals(field)) {
+			return "<i class=\"material-icons\">" + getIconName() + "</i>";
+		} else {
+			return null;
+		}
+	}
+
+	public String direction(String field) {
+		return getLinkDirection(field);
+	}
 }

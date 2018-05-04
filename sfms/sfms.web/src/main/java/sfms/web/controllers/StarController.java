@@ -33,7 +33,6 @@ import sfms.web.SfmsController;
 import sfms.web.models.PagingModel;
 import sfms.web.models.SortingModel;
 import sfms.web.models.StarModel;
-import sfms.web.models.StarSortingModel;
 import sfms.web.schemas.StarModelSchema;
 
 @Controller
@@ -140,10 +139,11 @@ public class StarController extends SfmsController {
 		pagingModel.setNextPageNumber(pageNumber.orElse(1) + 1);
 		modelMap.addAttribute("paging", pagingModel);
 
-		StarSortingModel sortingModel = new StarSortingModel();
+		SortingModel sortingModel = new SortingModel();
 		sortingModel.setSort(effectiveSort);
 		sortingModel.setDirection(effectiveDirection);
 		modelMap.addAttribute("sorting", sortingModel);
+		modelMap.addAttribute("F", new StarModelSchema());
 
 		return "starList";
 	}

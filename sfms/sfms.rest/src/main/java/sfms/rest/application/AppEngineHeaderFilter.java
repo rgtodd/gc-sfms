@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 
 import sfms.common.Constants;
 import sfms.common.Secret;
+import sfms.rest.api.RestHeaders;
 
 /**
  * Filter used by REST controllers to ensure the required HTTP header is
@@ -44,7 +45,7 @@ public class AppEngineHeaderFilter implements Filter {
 		String expectedAuthorizationToken = Secret.getRestAuthorizationToken();
 		if (!StringUtils.isEmpty(expectedAuthorizationToken)) {
 			HttpServletRequest httpRequest = (HttpServletRequest) request;
-			String actualAuthorizationToken = httpRequest.getHeader(Constants.REST_AUTHORIZATION_TOKEN_HEADER_KEY);
+			String actualAuthorizationToken = httpRequest.getHeader(RestHeaders.REST_AUTHORIZATION_TOKEN);
 			if (actualAuthorizationToken == null || !actualAuthorizationToken.equals(expectedAuthorizationToken)) {
 
 				String message = "Invalid authorization token";

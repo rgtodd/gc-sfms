@@ -11,7 +11,11 @@ package sfms.rest.api.schemas;
 public enum SpaceshipField implements FieldSchema {
 
 	Key("Key"),
-	Name("Name");
+	Name("Name"),
+	X("X"),
+	Y("Y"),
+	Z("Z"),
+	StarKey("StarKey");
 
 	private String m_name;
 

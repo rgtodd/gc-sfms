@@ -23,6 +23,10 @@ public class SectorModel {
 		return m_key;
 	}
 
+	public void setKey(String key) {
+		m_key = key;
+	}
+
 	public Long getSectorX() {
 		return m_sectorX;
 	}
@@ -47,63 +51,71 @@ public class SectorModel {
 		m_sectorZ = sectorZ;
 	}
 
-	public Long getMaximumX() {
-		return m_maximumX;
-	}
-
-	public Long getMaximumY() {
-		return m_maximumY;
-	}
-
-	public Long getMaximumZ() {
-		return m_maximumZ;
-	}
-
 	public Long getMinimumX() {
 		return m_minimumX;
-	}
-
-	public Long getMinimumY() {
-		return m_minimumY;
-	}
-
-	public Long getMinimumZ() {
-		return m_minimumZ;
-	}
-
-	public List<StarModel> getStars() {
-		return m_stars;
-	}
-
-	public void setKey(String key) {
-		m_key = key;
-	}
-
-	public void setMaximumX(Long maximumX) {
-		m_maximumX = maximumX;
-	}
-
-	public void setMaximumY(Long maximumY) {
-		m_maximumY = maximumY;
-	}
-
-	public void setMaximumZ(Long maximumZ) {
-		m_maximumZ = maximumZ;
 	}
 
 	public void setMinimumX(Long minimumX) {
 		m_minimumX = minimumX;
 	}
 
+	public Long getMinimumY() {
+		return m_minimumY;
+	}
+
 	public void setMinimumY(Long minimumY) {
 		m_minimumY = minimumY;
+	}
+
+	public Long getMinimumZ() {
+		return m_minimumZ;
 	}
 
 	public void setMinimumZ(Long minimumZ) {
 		m_minimumZ = minimumZ;
 	}
 
+	public Long getMaximumX() {
+		return m_maximumX;
+	}
+
+	public void setMaximumX(Long maximumX) {
+		m_maximumX = maximumX;
+	}
+
+	public Long getMaximumY() {
+		return m_maximumY;
+	}
+
+	public void setMaximumY(Long maximumY) {
+		m_maximumY = maximumY;
+	}
+
+	public Long getMaximumZ() {
+		return m_maximumZ;
+	}
+
+	public void setMaximumZ(Long maximumZ) {
+		m_maximumZ = maximumZ;
+	}
+
+	public List<StarModel> getStars() {
+		return m_stars;
+	}
+
 	public void setStars(List<StarModel> stars) {
 		m_stars = stars;
+	}
+
+	public String getSectorXyz() {
+		return ModuleUtility.formatCoordinates(m_sectorX, m_sectorY, m_sectorZ);
+	}
+
+	public String getMinimumXyz() {
+		return ModuleUtility.formatCoordinates(m_minimumX, m_minimumY, m_minimumZ);
+	}
+
+	public String getMaximumXyz() {
+		return ModuleUtility.formatCoordinates(m_maximumX, m_maximumY, m_maximumZ);
 	}
 }

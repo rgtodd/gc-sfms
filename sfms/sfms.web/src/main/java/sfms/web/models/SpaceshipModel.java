@@ -61,4 +61,8 @@ public class SpaceshipModel {
 	public void setStarKey(String starKey) {
 		m_starKey = starKey;
 	}
+
+	public String getXYZ() {
+		return ModuleUtility.formatCoordinates(m_x, m_y, m_z);
+	}
 }

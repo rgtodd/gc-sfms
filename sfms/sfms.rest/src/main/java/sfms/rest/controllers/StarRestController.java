@@ -68,12 +68,12 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Star.createEntityKey(datastore, id);
+		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, id);
 
-		Entity entity = datastore.get(key);
+		Entity dbStar = datastore.get(dbStarKey);
 
 		RestFactory factory = new RestFactory();
-		Star star = factory.createStar(entity);
+		Star star = factory.createStar(dbStar);
 
 		return star;
 	}
@@ -95,7 +95,7 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> query = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+		Query<Entity> dbStarQuery = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
 				.setKind(DbEntity.Star.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
@@ -103,14 +103,14 @@ public class StarRestController {
 				.setStartCursor(bookmark)
 				.build();
 
-		QueryResults<Entity> entities = datastore.run(query);
+		QueryResults<Entity> dbStars = datastore.run(dbStarQuery);
 
 		RestFactory factory = new RestFactory();
-		List<Star> stars = factory.createStars(entities);
+		List<Star> stars = factory.createStars(dbStars);
 
 		SearchResult<Star> result = new SearchResult<Star>();
 		result.setEntities(stars);
-		result.setEndingBookmark(entities.getCursorAfter().toUrlSafe());
+		result.setEndingBookmark(dbStars.getCursorAfter().toUrlSafe());
 		result.setEndOfResults(stars.size() < limit);
 
 		return result;
@@ -125,14 +125,56 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Star.createEntityKey(datastore, id);
+		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, id);
 
-		Entity entity = Entity.newBuilder(key).set(DbStarField.ProperName.getName(), star.getProperName()).build();
+		Entity dbStar = Entity.newBuilder(dbStarKey)
+				.set(DbStarField.CatalogId.getName(), star.getCatalogId())
+				.set(DbStarField.ClusterKey.getName(),
+						DbEntity.Cluster.createEntityKey(datastore, star.getClusterKey()))
+				.set(DbStarField.SectorKey.getName(), DbEntity.Sector.createEntityKey(datastore, star.getProperName()))
+				.set(DbStarField.HipparcosId.getName(), star.getHipparcosId())
+				.set(DbStarField.HenryDraperId.getName(), star.getHenryDraperId())
+				.set(DbStarField.HarvardRevisedId.getName(), star.getHarvardRevisedId())
+				.set(DbStarField.GlieseId.getName(), star.getGlieseId())
+				.set(DbStarField.BayerFlamsteedId.getName(), star.getBayerFlamsteedId())
+				.set(DbStarField.ProperName.getName(), star.getProperName())
+				.set(DbStarField.RightAscension.getName(), star.getRightAscension())
+				.set(DbStarField.Declination.getName(), star.getDeclination())
+				.set(DbStarField.Distance.getName(), star.getDistance())
+				.set(DbStarField.ProperMotionRightAscension.getName(), star.getProperMotionRightAscension())
+				.set(DbStarField.ProperMotionDeclination.getName(), star.getProperMotionDeclination())
+				.set(DbStarField.RadialVelocity.getName(), star.getRadialVelocity())
+				.set(DbStarField.Magnitude.getName(), star.getMagnitude())
+				.set(DbStarField.AbsoluteMagnitude.getName(), star.getAbsoluteMagnitude())
+				.set(DbStarField.Spectrum.getName(), star.getSpectrum())
+				.set(DbStarField.ColorIndex.getName(), star.getColorIndex())
+				.set(DbStarField.X.getName(), star.getX())
+				.set(DbStarField.Y.getName(), star.getY())
+				.set(DbStarField.Z.getName(), star.getZ())
+				.set(DbStarField.VX.getName(), star.getVx())
+				.set(DbStarField.VY.getName(), star.getVy())
+				.set(DbStarField.VZ.getName(), star.getVz())
+				.set(DbStarField.RightAcensionRadians.getName(), star.getRightAcensionRadians())
+				.set(DbStarField.DeclinationRadians.getName(), star.getDeclinationRadians())
+				.set(DbStarField.ProperMotionRightAscensionRadians.getName(),
+						star.getProperMotionRightAscensionRadians())
+				.set(DbStarField.ProperMotionDeclinationRadians.getName(), star.getProperMotionDeclinationRadians())
+				.set(DbStarField.BayerId.getName(), star.getBayerId())
+				.set(DbStarField.Flamsteed.getName(), star.getFlamsteed())
+				.set(DbStarField.Constellation.getName(), star.getConstellation())
+				.set(DbStarField.CompanionStarId.getName(), star.getCompanionStarId())
+				.set(DbStarField.PrimaryStarId.getName(), star.getPrimaryStarId())
+				.set(DbStarField.MultipleStarId.getName(), star.getMultipleStarId())
+				.set(DbStarField.Luminosity.getName(), star.getLuminosity())
+				.set(DbStarField.VariableStarDesignation.getName(), star.getVariableStarDesignation())
+				.set(DbStarField.VariableMinimum.getName(), star.getVariableMinimum())
+				.set(DbStarField.VariableMaximum.getName(), star.getVariableMaximum())
+				.build();
 
-		datastore.update(entity);
+		datastore.update(dbStar);
 
 		UpdateResult<String> result = new UpdateResult<String>();
-		result.setKey(id);
+		result.setKey(DbEntity.Star.createRestKey(dbStarKey));
 
 		return result;
 	}
@@ -146,14 +188,56 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Star.createEntityKey(datastore, star.getKey());
+		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, star.getKey());
 
-		Entity entity = Entity.newBuilder(key).set(DbStarField.ProperName.getName(), star.getProperName()).build();
+		Entity dbStar = Entity.newBuilder(dbStarKey)
+				.set(DbStarField.CatalogId.getName(), star.getCatalogId())
+				.set(DbStarField.ClusterKey.getName(),
+						DbEntity.Cluster.createEntityKey(datastore, star.getClusterKey()))
+				.set(DbStarField.SectorKey.getName(), DbEntity.Sector.createEntityKey(datastore, star.getProperName()))
+				.set(DbStarField.HipparcosId.getName(), star.getHipparcosId())
+				.set(DbStarField.HenryDraperId.getName(), star.getHenryDraperId())
+				.set(DbStarField.HarvardRevisedId.getName(), star.getHarvardRevisedId())
+				.set(DbStarField.GlieseId.getName(), star.getGlieseId())
+				.set(DbStarField.BayerFlamsteedId.getName(), star.getBayerFlamsteedId())
+				.set(DbStarField.ProperName.getName(), star.getProperName())
+				.set(DbStarField.RightAscension.getName(), star.getRightAscension())
+				.set(DbStarField.Declination.getName(), star.getDeclination())
+				.set(DbStarField.Distance.getName(), star.getDistance())
+				.set(DbStarField.ProperMotionRightAscension.getName(), star.getProperMotionRightAscension())
+				.set(DbStarField.ProperMotionDeclination.getName(), star.getProperMotionDeclination())
+				.set(DbStarField.RadialVelocity.getName(), star.getRadialVelocity())
+				.set(DbStarField.Magnitude.getName(), star.getMagnitude())
+				.set(DbStarField.AbsoluteMagnitude.getName(), star.getAbsoluteMagnitude())
+				.set(DbStarField.Spectrum.getName(), star.getSpectrum())
+				.set(DbStarField.ColorIndex.getName(), star.getColorIndex())
+				.set(DbStarField.X.getName(), star.getX())
+				.set(DbStarField.Y.getName(), star.getY())
+				.set(DbStarField.Z.getName(), star.getZ())
+				.set(DbStarField.VX.getName(), star.getVx())
+				.set(DbStarField.VY.getName(), star.getVy())
+				.set(DbStarField.VZ.getName(), star.getVz())
+				.set(DbStarField.RightAcensionRadians.getName(), star.getRightAcensionRadians())
+				.set(DbStarField.DeclinationRadians.getName(), star.getDeclinationRadians())
+				.set(DbStarField.ProperMotionRightAscensionRadians.getName(),
+						star.getProperMotionRightAscensionRadians())
+				.set(DbStarField.ProperMotionDeclinationRadians.getName(), star.getProperMotionDeclinationRadians())
+				.set(DbStarField.BayerId.getName(), star.getBayerId())
+				.set(DbStarField.Flamsteed.getName(), star.getFlamsteed())
+				.set(DbStarField.Constellation.getName(), star.getConstellation())
+				.set(DbStarField.CompanionStarId.getName(), star.getCompanionStarId())
+				.set(DbStarField.PrimaryStarId.getName(), star.getPrimaryStarId())
+				.set(DbStarField.MultipleStarId.getName(), star.getMultipleStarId())
+				.set(DbStarField.Luminosity.getName(), star.getLuminosity())
+				.set(DbStarField.VariableStarDesignation.getName(), star.getVariableStarDesignation())
+				.set(DbStarField.VariableMinimum.getName(), star.getVariableMinimum())
+				.set(DbStarField.VariableMaximum.getName(), star.getVariableMaximum())
+				.build();
 
-		datastore.put(entity);
+		datastore.put(dbStar);
 
 		CreateResult<String> result = new CreateResult<String>();
-		result.setKey(star.getKey());
+		result.setKey(DbEntity.Star.createRestKey(dbStarKey));
 
 		return result;
 	}
@@ -167,12 +251,12 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key key = DbEntity.Star.createEntityKey(datastore, id);
+		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, id);
 
-		datastore.delete(key);
+		datastore.delete(dbStarKey);
 
 		DeleteResult<String> result = new DeleteResult<String>();
-		result.setKey(id);
+		result.setKey(DbEntity.Star.createRestKey(dbStarKey));
 
 		return result;
 	}
