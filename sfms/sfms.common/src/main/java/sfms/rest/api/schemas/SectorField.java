@@ -11,6 +11,9 @@ package sfms.rest.api.schemas;
 public enum SectorField implements FieldSchema {
 
 	Name("Key"),
+	SectorX("SectorX"),
+	SectorY("SectorY"),
+	SectorZ("SectorZ"),
 	MinimumX("MinimumX"),
 	MinimumY("MinimumY"),
 	MinimumZ("MinimumZ"),

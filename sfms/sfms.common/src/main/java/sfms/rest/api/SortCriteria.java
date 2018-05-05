@@ -118,6 +118,13 @@ public class SortCriteria {
 		private Builder() {
 		}
 
+		public Builder sort(String column, String direction) {
+			m_columns.add(column);
+			m_directions.add(direction);
+
+			return this;
+		}
+
 		public Builder ascending(String column) {
 			m_columns.add(column);
 			m_directions.add(ASCENDING);

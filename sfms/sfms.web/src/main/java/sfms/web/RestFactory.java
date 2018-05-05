@@ -123,9 +123,9 @@ public class RestFactory {
 		result.setX(starModel.getX());
 		result.setY(starModel.getY());
 		result.setZ(starModel.getZ());
-		result.setVx(starModel.getVx());
-		result.setVy(starModel.getVy());
-		result.setVz(starModel.getVz());
+		result.setVX(starModel.getVX());
+		result.setVY(starModel.getVY());
+		result.setVZ(starModel.getVZ());
 		result.setRightAcensionRadians(starModel.getRightAcensionRadians());
 		result.setDeclinationRadians(starModel.getDeclinationRadians());
 		result.setProperMotionRightAscensionRadians(starModel.getProperMotionRightAscensionRadians());

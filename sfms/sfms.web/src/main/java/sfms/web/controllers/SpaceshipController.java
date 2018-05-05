@@ -1,6 +1,8 @@
 package sfms.web.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -18,13 +20,25 @@ import sfms.rest.api.DeleteResult;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Spaceship;
+import sfms.rest.api.schemas.SpaceshipField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
 import sfms.web.models.SpaceshipModel;
+import sfms.web.schemas.SpaceshipModelField;
 
 @Controller
 public class SpaceshipController extends SfmsController {
+
+	private static final Map<String, SpaceshipField> s_dbFieldMap;
+	static {
+		s_dbFieldMap = new HashMap<String, SpaceshipField>();
+		s_dbFieldMap.put(SpaceshipModelField.Name, SpaceshipField.Name);
+		s_dbFieldMap.put(SpaceshipModelField.X, SpaceshipField.X);
+		s_dbFieldMap.put(SpaceshipModelField.Y, SpaceshipField.Y);
+		s_dbFieldMap.put(SpaceshipModelField.Z, SpaceshipField.Z);
+		s_dbFieldMap.put(SpaceshipModelField.StarKey, SpaceshipField.StarKey);
+	}
 
 	@GetMapping({ "/spaceship/{id}" })
 	public String get(@PathVariable Long id, ModelMap modelMap) {

@@ -226,27 +226,27 @@ public class Star {
 		m_z = z;
 	}
 
-	public Double getVx() {
+	public Double getVX() {
 		return m_vx;
 	}
 
-	public void setVx(Double vx) {
+	public void setVX(Double vx) {
 		m_vx = vx;
 	}
 
-	public Double getVy() {
+	public Double getVY() {
 		return m_vy;
 	}
 
-	public void setVy(Double vy) {
+	public void setVY(Double vy) {
 		m_vy = vy;
 	}
 
-	public Double getVz() {
+	public Double getVZ() {
 		return m_vz;
 	}
 
-	public void setVz(Double vz) {
+	public void setVZ(Double vz) {
 		m_vz = vz;
 	}
 

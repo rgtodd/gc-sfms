@@ -51,6 +51,10 @@ public class StarRestController {
 		s_dbFieldMap.put(StarField.X.getName(), DbStarField.X);
 		s_dbFieldMap.put(StarField.Y.getName(), DbStarField.Y);
 		s_dbFieldMap.put(StarField.Z.getName(), DbStarField.Z);
+		s_dbFieldMap.put(StarField.CatalogId.getName(), DbStarField.CatalogId);
+		s_dbFieldMap.put(StarField.ProperName.getName(), DbStarField.ProperName);
+		s_dbFieldMap.put(StarField.ClusterKey.getName(), DbStarField.ClusterKey);
+		s_dbFieldMap.put(StarField.SectorKey.getName(), DbStarField.SectorKey);
 	}
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
@@ -151,9 +155,9 @@ public class StarRestController {
 				.set(DbStarField.X.getName(), star.getX())
 				.set(DbStarField.Y.getName(), star.getY())
 				.set(DbStarField.Z.getName(), star.getZ())
-				.set(DbStarField.VX.getName(), star.getVx())
-				.set(DbStarField.VY.getName(), star.getVy())
-				.set(DbStarField.VZ.getName(), star.getVz())
+				.set(DbStarField.VX.getName(), star.getVX())
+				.set(DbStarField.VY.getName(), star.getVY())
+				.set(DbStarField.VZ.getName(), star.getVZ())
 				.set(DbStarField.RightAcensionRadians.getName(), star.getRightAcensionRadians())
 				.set(DbStarField.DeclinationRadians.getName(), star.getDeclinationRadians())
 				.set(DbStarField.ProperMotionRightAscensionRadians.getName(),
@@ -214,9 +218,9 @@ public class StarRestController {
 				.set(DbStarField.X.getName(), star.getX())
 				.set(DbStarField.Y.getName(), star.getY())
 				.set(DbStarField.Z.getName(), star.getZ())
-				.set(DbStarField.VX.getName(), star.getVx())
-				.set(DbStarField.VY.getName(), star.getVy())
-				.set(DbStarField.VZ.getName(), star.getVz())
+				.set(DbStarField.VX.getName(), star.getVX())
+				.set(DbStarField.VY.getName(), star.getVY())
+				.set(DbStarField.VZ.getName(), star.getVZ())
 				.set(DbStarField.RightAcensionRadians.getName(), star.getRightAcensionRadians())
 				.set(DbStarField.DeclinationRadians.getName(), star.getDeclinationRadians())
 				.set(DbStarField.ProperMotionRightAscensionRadians.getName(),

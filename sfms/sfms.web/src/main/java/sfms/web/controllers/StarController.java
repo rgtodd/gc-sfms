@@ -1,7 +1,9 @@
 package sfms.web.controllers;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,12 +35,24 @@ import sfms.web.SfmsController;
 import sfms.web.models.PagingModel;
 import sfms.web.models.SortingModel;
 import sfms.web.models.StarModel;
-import sfms.web.schemas.StarModelSchema;
+import sfms.web.schemas.StarModelField;
 
 @Controller
 public class StarController extends SfmsController {
 
 	private final Logger logger = Logger.getLogger(StarController.class.getName());
+
+	private static final Map<String, StarField> s_dbFieldMap;
+	static {
+		s_dbFieldMap = new HashMap<String, StarField>();
+		s_dbFieldMap.put(StarModelField.CatalogId, StarField.CatalogId);
+		s_dbFieldMap.put(StarModelField.ProperName, StarField.ProperName);
+		s_dbFieldMap.put(StarModelField.SectorKey, StarField.SectorKey);
+		s_dbFieldMap.put(StarModelField.ClusterKey, StarField.ClusterKey);
+		s_dbFieldMap.put(StarModelField.X, StarField.X);
+		s_dbFieldMap.put(StarModelField.Y, StarField.Y);
+		s_dbFieldMap.put(StarModelField.Z, StarField.Z);
+	}
 
 	@GetMapping({ "/star/{id}" })
 	public String get(@PathVariable String id, ModelMap modelMap) {
@@ -60,67 +74,13 @@ public class StarController extends SfmsController {
 	public String getList(
 			@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
 			@RequestParam(WebParameters.BOOKMARK) Optional<String> bookmark,
-			@RequestParam(WebParameters.SORT) Optional<String> sort,
-			@RequestParam(WebParameters.DIRECTION) Optional<String> direction, ModelMap modelMap) {
+			@RequestParam(name = WebParameters.SORT, defaultValue = StarModelField.CatalogId) String sort,
+			@RequestParam(name = WebParameters.DIRECTION, defaultValue = SortCriteria.ASCENDING) String direction,
+			ModelMap modelMap) {
 
-		String effectiveSort;
-		if (sort.isPresent()) {
-			switch (sort.get()) {
-			case StarModelSchema.X:
-			case StarModelSchema.Y:
-			case StarModelSchema.Z:
-				effectiveSort = sort.get();
-				break;
-			default:
-				effectiveSort = StarModelSchema.X;
-				break;
-			}
-		} else {
-			effectiveSort = StarModelSchema.X;
-		}
-
-		String effectiveDirection;
-		if (direction.isPresent()) {
-			switch (direction.get()) {
-			case SortingModel.ASCENDING:
-			case SortingModel.DESCENDING:
-				effectiveDirection = direction.get();
-				break;
-			default:
-				effectiveDirection = SortingModel.ASCENDING;
-			}
-		} else {
-			effectiveDirection = SortingModel.ASCENDING;
-		}
-
-		StarField sortColumn = null;
-		switch (effectiveSort) {
-		case StarModelSchema.X:
-			sortColumn = StarField.X;
-			break;
-		case StarModelSchema.Y:
-			sortColumn = StarField.Y;
-			break;
-		case StarModelSchema.Z:
-			sortColumn = StarField.Z;
-			break;
-		}
-
-		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(SortingModel.ASCENDING)) {
-			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
-		} else {
-			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();
-		}
-
-		UriBuilder uriBuilder = getUriBuilder().pathSegment("star");
-		if (bookmark.isPresent()) {
-			uriBuilder.queryParam(RestParameters.BOOKMARK, bookmark.get());
-		}
-		uriBuilder.queryParam(RestParameters.SORT, sortCriteria.toString());
-
-		URI uri = uriBuilder.build();
+		URI uri = createListUri(sort, direction, bookmark);
 		logger.log(Level.INFO, "uri = {0}", uri);
+
 		RestTemplate restTemplate = createRestTempate();
 		ResponseEntity<SearchResult<Star>> restResponse = restTemplate.exchange(uri, HttpMethod.GET, createHttpEntity(),
 				new ParameterizedTypeReference<SearchResult<Star>>() {
@@ -140,10 +100,10 @@ public class StarController extends SfmsController {
 		modelMap.addAttribute("paging", pagingModel);
 
 		SortingModel sortingModel = new SortingModel();
-		sortingModel.setSort(effectiveSort);
-		sortingModel.setDirection(effectiveDirection);
+		sortingModel.setSort(sort);
+		sortingModel.setDirection(direction);
 		modelMap.addAttribute("sorting", sortingModel);
-		modelMap.addAttribute("F", new StarModelSchema());
+		modelMap.addAttribute("F", new StarModelField());
 
 		return "starList";
 	}
@@ -232,5 +192,31 @@ public class StarController extends SfmsController {
 				});
 
 		return "redirect:/star";
+	}
+
+	private URI createListUri(String sort, String direction, Optional<String> bookmark) {
+
+		SortCriteria sortCriteria;
+		if (sort.equals(StarModelField.XYZ)) {
+			sortCriteria = SortCriteria.newBuilder()
+					.sort(StarField.X.getName(), direction)
+					.sort(StarField.Y.getName(), direction)
+					.sort(StarField.Z.getName(), direction)
+					.build();
+		} else {
+			StarField sortColumn = s_dbFieldMap.get(sort);
+			sortCriteria = SortCriteria.newBuilder()
+					.sort(sortColumn.getName(), direction)
+					.build();
+		}
+
+		UriBuilder uriBuilder = getUriBuilder().pathSegment("star");
+		if (bookmark.isPresent()) {
+			uriBuilder.queryParam(RestParameters.BOOKMARK, bookmark.get());
+		}
+		uriBuilder.queryParam(RestParameters.SORT, sortCriteria.toString());
+
+		URI uri = uriBuilder.build();
+		return uri;
 	}
 }

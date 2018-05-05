@@ -1,7 +1,9 @@
 package sfms.web.controllers;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,12 +35,19 @@ import sfms.web.SfmsController;
 import sfms.web.models.CrewMemberModel;
 import sfms.web.models.PagingModel;
 import sfms.web.models.SortingModel;
-import sfms.web.schemas.CrewMemberModelSchema;
+import sfms.web.schemas.CrewMemberModelField;
 
 @Controller
 public class CrewMemberController extends SfmsController {
 
 	private final Logger logger = Logger.getLogger(CrewMemberController.class.getName());
+
+	private static final Map<String, CrewMemberField> s_dbFieldMap;
+	static {
+		s_dbFieldMap = new HashMap<String, CrewMemberField>();
+		s_dbFieldMap.put(CrewMemberModelField.LastName, CrewMemberField.LastName);
+		s_dbFieldMap.put(CrewMemberModelField.FirstName, CrewMemberField.FirstName);
+	}
 
 	@GetMapping({ "/crewMember/{key}" })
 	public String get(@PathVariable String key, ModelMap modelMap) {
@@ -66,44 +75,44 @@ public class CrewMemberController extends SfmsController {
 		String effectiveSort;
 		if (sort.isPresent()) {
 			switch (sort.get()) {
-			case CrewMemberModelSchema.FIRST_NAME:
-			case CrewMemberModelSchema.LAST_NAME:
+			case CrewMemberModelField.FirstName:
+			case CrewMemberModelField.LastName:
 				effectiveSort = sort.get();
 				break;
 			default:
-				effectiveSort = CrewMemberModelSchema.LAST_NAME;
+				effectiveSort = CrewMemberModelField.LastName;
 				break;
 			}
 		} else {
-			effectiveSort = CrewMemberModelSchema.LAST_NAME;
+			effectiveSort = CrewMemberModelField.LastName;
 		}
 
 		String effectiveDirection;
 		if (direction.isPresent()) {
 			switch (direction.get()) {
-			case SortingModel.ASCENDING:
-			case SortingModel.DESCENDING:
+			case SortCriteria.ASCENDING:
+			case SortCriteria.DESCENDING:
 				effectiveDirection = direction.get();
 				break;
 			default:
-				effectiveDirection = SortingModel.ASCENDING;
+				effectiveDirection = SortCriteria.ASCENDING;
 			}
 		} else {
-			effectiveDirection = SortingModel.ASCENDING;
+			effectiveDirection = SortCriteria.ASCENDING;
 		}
 
 		CrewMemberField sortColumn = null;
 		switch (effectiveSort) {
-		case CrewMemberModelSchema.FIRST_NAME:
+		case CrewMemberModelField.FirstName:
 			sortColumn = CrewMemberField.FirstName;
 			break;
-		case CrewMemberModelSchema.LAST_NAME:
+		case CrewMemberModelField.LastName:
 			sortColumn = CrewMemberField.LastName;
 			break;
 		}
 
 		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(SortingModel.ASCENDING)) {
+		if (effectiveDirection.equals(SortCriteria.ASCENDING)) {
 			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
 		} else {
 			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();
@@ -140,7 +149,7 @@ public class CrewMemberController extends SfmsController {
 		sortingModel.setSort(effectiveSort);
 		sortingModel.setDirection(effectiveDirection);
 		modelMap.addAttribute("sorting", sortingModel);
-		modelMap.addAttribute("F", new CrewMemberModelSchema());
+		modelMap.addAttribute("F", new CrewMemberModelField());
 
 		return "crewMemberList";
 	}

@@ -1,9 +1,8 @@
 package sfms.web.models;
 
-public class SortingModel {
+import sfms.rest.api.SortCriteria;
 
-	public static final String ASCENDING = "A";
-	public static final String DESCENDING = "D";
+public class SortingModel {
 
 	private String m_sort;
 	private String m_direction;
@@ -25,7 +24,7 @@ public class SortingModel {
 	}
 
 	public String getIconName() {
-		if (getDirection().equals(ASCENDING)) {
+		if (getDirection().equals(SortCriteria.ASCENDING)) {
 			return "arrow_drop_up";
 		} else {
 			return "arrow_drop_down";
@@ -36,15 +35,15 @@ public class SortingModel {
 		if (getSort().equals(column)) {
 			return toggle(m_direction);
 		} else {
-			return ASCENDING;
+			return SortCriteria.ASCENDING;
 		}
 	}
 
 	protected String toggle(String direction) {
-		if (direction.equals(ASCENDING)) {
-			return DESCENDING;
+		if (direction.equals(SortCriteria.ASCENDING)) {
+			return SortCriteria.DESCENDING;
 		} else {
-			return ASCENDING;
+			return SortCriteria.ASCENDING;
 		}
 	}
 

@@ -23,22 +23,34 @@
 			<thead>
 				<tr>
 					<th></th>
-					<th>Star ID</th>
-					<th>Proper Name</th>
-					<th>Coordinates</th>
-					<th>Cluster Key</th>
-					<th>Sector Key</th>
+					<th>Key</th>
+					<th><a class="nav-link"
+						th:href="@{|/star?sort=${F.CatalogId}&direction=${sorting.direction(F.CatalogId)}|}">Catalog
+							ID [(${sorting.icon(F.CatalogId)})]</a></th>
+					<th><a class="nav-link"
+						th:href="@{|/star?sort=${F.XYZ}&direction=${sorting.direction(F.XYZ)}|}">Coordinates
+							[(${sorting.icon(F.XYZ)})]</a></th>
+					<th><a class="nav-link"
+						th:href="@{|/star?sort=${F.ProperName}&direction=${sorting.direction(F.ProperName)}|}">Proper
+							Name [(${sorting.icon(F.ProperName)})]</a></th>
+					<th><a class="nav-link"
+						th:href="@{|/star?sort=${F.ClusterKey}&direction=${sorting.direction(F.ClusterKey)}|}">Cluster
+							Key [(${sorting.icon(F.ClusterKey)})]</a></th>
+					<th><a class="nav-link"
+						th:href="@{|/star?sort=${F.SectorKey}&direction=${sorting.direction(F.SectorKey)}|}">Sector
+							Key [(${sorting.icon(F.SectorKey)})]</a></th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr th:each="star: ${stars}">
 					<td><a class="btn btn-primary"
-						th:href="@{|/star/${star.key}|}">View</a></td>
-					<td th:text="${star.key}">123</td>
-					<td th:text="${star.properName}">Proper Name</td>
-					<td th:text="${star.x + ' , ' + star.y + ' , ' + star.z}">X,Y,Z</td>
-					<td th:text="${star.clusterKey}">Cluster Key</td>
-					<td th:text="${star.sectorKey}">Sector Key</td>
+						th:href="@{|/star/${star.Key}|}">View</a></td>
+					<td th:text="${star.Key}">123</td>
+					<td th:text="${star.CatalogId}">Catalog ID</td>
+					<td th:text="${star.XYZ}">X,Y,Z</td>
+					<td th:text="${star.ProperName}">Proper Name</td>
+					<td th:text="${star.ClusterKey}">Cluster Key</td>
+					<td th:text="${star.SectorKey}">Sector Key</td>
 				</tr>
 			</tbody>
 		</table>

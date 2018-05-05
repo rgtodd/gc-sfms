@@ -1,17 +1,17 @@
 package sfms.web.schemas;
 
-public class StarModelSchema {
+public class StarModelField {
 
-	public static final String KEY = "Key";
-	public static final String CATALOG_ID = "CatalogId";
-	public static final String CLUSTER_KEY = "ClusterKey";
-	public static final String SECTOR_KEY = "SectorKey";
+	public static final String Key = "Key";
+	public static final String CatalogId = "CatalogId";
+	public static final String ClusterKey = "ClusterKey";
+	public static final String SectorKey = "SectorKey";
 	public static final String HIPPARCOS_ID = "HipparcosId";
 	public static final String HENRY_DRAPER_ID = "HenryDraperId";
 	public static final String HARVARD_REVISED_ID = "HarvardRevisedId";
 	public static final String GLIESE_ID = "GlieseId";
 	public static final String BAYER_FLAMSTEED_ID = "BayerFlamsteedId";
-	public static final String PROPER_NAME = "ProperName";
+	public static final String ProperName = "ProperName";
 	public static final String RIGHT_ASCENSION = "RightAscension";
 	public static final String DECLINATION = "Declination";
 	public static final String DISTANCE = "Distance";
@@ -25,9 +25,9 @@ public class StarModelSchema {
 	public static final String X = "X";
 	public static final String Y = "Y";
 	public static final String Z = "Z";
-	public static final String VX = "Vx";
-	public static final String VY = "Vy";
-	public static final String VZ = "Vz";
+	public static final String VX = "VX";
+	public static final String VY = "VY";
+	public static final String VZ = "VZ";
 	public static final String RIGHT_ASCENSION_RADIANS = "RightAcensionRadians";
 	public static final String DECLINATION_RADIANS = "DeclinationRadians";
 	public static final String PROPER_MOTION_RIGHT_ASCENSION_RADIANS = "ProperMotionRightAscensionRadians";
@@ -42,21 +42,22 @@ public class StarModelSchema {
 	public static final String VARIABLE_STAR_DESIGNATION = "VariableStarDesignation";
 	public static final String VARIABLE_MINIMUM = "VariableMinimum";
 	public static final String VARIABLE_MAXIMUM = "VariableMaximum";
+	public static final String XYZ = "XYZ";
 
 	public String getKey() {
-		return KEY;
+		return Key;
 	}
 
 	public String getCatalogId() {
-		return CATALOG_ID;
+		return CatalogId;
 	}
 
 	public String getClusterKey() {
-		return CLUSTER_KEY;
+		return ClusterKey;
 	}
 
 	public String getSectorKey() {
-		return SECTOR_KEY;
+		return SectorKey;
 	}
 
 	public String getHipparcosId() {
@@ -80,7 +81,7 @@ public class StarModelSchema {
 	}
 
 	public String getProperName() {
-		return PROPER_NAME;
+		return ProperName;
 	}
 
 	public String getRightAscension() {
@@ -135,15 +136,15 @@ public class StarModelSchema {
 		return Z;
 	}
 
-	public String getVx() {
+	public String getVX() {
 		return VX;
 	}
 
-	public String getVy() {
+	public String getVY() {
 		return VY;
 	}
 
-	public String getVz() {
+	public String getVZ() {
 		return VZ;
 	}
 
@@ -201,5 +202,9 @@ public class StarModelSchema {
 
 	public String getVariableMaximum() {
 		return VARIABLE_MAXIMUM;
+	}
+
+	public String getXYZ() {
+		return XYZ;
 	}
 }

@@ -11,6 +11,7 @@ package sfms.rest.api.schemas;
 public enum StarField implements FieldSchema {
 
 	Key("Key"),
+	CatalogId("CatalogId"),
 	ClusterKey("ClusterKey"),
 	SectorKey("SectorKey"),
 	HipparcosId("HipparcosId"),

@@ -1,15 +1,15 @@
 package sfms.web.schemas;
 
-public class SpaceshipModelSchema {
+public class SpaceshipModelField {
 
-	public static final String NAME = "Name";
+	public static final String Name = "Name";
 	public static final String X = "X";
 	public static final String Y = "Y";
 	public static final String Z = "Z";
-	public static final String STAR_KEY = "StarKey";
+	public static final String StarKey = "StarKey";
 
 	public static String getName() {
-		return NAME;
+		return Name;
 	}
 
 	public static String getX() {
@@ -25,7 +25,7 @@ public class SpaceshipModelSchema {
 	}
 
 	public static String getStarKey() {
-		return STAR_KEY;
+		return StarKey;
 	}
 
 }

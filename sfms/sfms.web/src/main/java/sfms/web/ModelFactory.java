@@ -150,9 +150,9 @@ public class ModelFactory {
 		result.setX(star.getX());
 		result.setY(star.getY());
 		result.setZ(star.getZ());
-		result.setVx(star.getVx());
-		result.setVy(star.getVy());
-		result.setVz(star.getVz());
+		result.setVX(star.getVX());
+		result.setVY(star.getVY());
+		result.setVZ(star.getVZ());
 		result.setRightAcensionRadians(star.getRightAcensionRadians());
 		result.setDeclinationRadians(star.getDeclinationRadians());
 		result.setProperMotionRightAscensionRadians(star.getProperMotionRightAscensionRadians());

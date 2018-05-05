@@ -77,7 +77,7 @@ public class RegionSet implements Iterable<Region> {
 			int minimumZ = (int) entity.getLong(DbClusterField.MinimumZ.getName());
 			int maximumX = (int) entity.getLong(DbClusterField.MaximumX.getName());
 			int maximumY = (int) entity.getLong(DbClusterField.MaximumY.getName());
-			int maximumZ = (int) entity.getLong(DbClusterField.MaximumX.getName());
+			int maximumZ = (int) entity.getLong(DbClusterField.MaximumZ.getName());
 
 			Region region = new Region(entity.getKey().getName(), clusterPartition, clusterX, clusterY, clusterZ,
 					minimumX, minimumY, minimumZ, maximumX, maximumY, maximumZ);

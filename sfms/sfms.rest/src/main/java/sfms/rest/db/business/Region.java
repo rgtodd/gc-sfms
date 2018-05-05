@@ -135,9 +135,9 @@ public class Region {
 	}
 
 	public boolean contains(Coordinates coordinates) {
-		return m_minimumX <= coordinates.getX() && coordinates.getX() < m_maximumX && m_minimumY <= coordinates.getY()
-				&& coordinates.getY() < m_maximumY && m_minimumZ <= coordinates.getZ()
-				&& coordinates.getZ() < m_maximumZ;
+		return m_minimumX <= coordinates.getX() && coordinates.getX() < m_maximumX &&
+				m_minimumY <= coordinates.getY() && coordinates.getY() < m_maximumY &&
+				m_minimumZ <= coordinates.getZ() && coordinates.getZ() < m_maximumZ;
 	}
 
 }

@@ -107,15 +107,15 @@ public class SectorModel {
 		m_stars = stars;
 	}
 
-	public String getSectorXyz() {
+	public String getSectorXYZ() {
 		return ModuleUtility.formatCoordinates(m_sectorX, m_sectorY, m_sectorZ);
 	}
 
-	public String getMinimumXyz() {
+	public String getMinimumXYZ() {
 		return ModuleUtility.formatCoordinates(m_minimumX, m_minimumY, m_minimumZ);
 	}
 
-	public String getMaximumXyz() {
+	public String getMaximumXYZ() {
 		return ModuleUtility.formatCoordinates(m_maximumX, m_maximumY, m_maximumZ);
 	}
 }

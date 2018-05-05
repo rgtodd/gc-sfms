@@ -36,7 +36,7 @@ import sfms.web.SfmsController;
 import sfms.web.models.PagingModel;
 import sfms.web.models.SectorModel;
 import sfms.web.models.SortingModel;
-import sfms.web.schemas.SectorModelSchema;
+import sfms.web.schemas.SectorModelField;
 
 @Controller
 @RequestMapping({ "/sector" })
@@ -47,12 +47,15 @@ public class SectorController extends SfmsController {
 	private static final Map<String, SectorField> s_dbFieldMap;
 	static {
 		s_dbFieldMap = new HashMap<String, SectorField>();
-		s_dbFieldMap.put(SectorModelSchema.MINIMUM_X, SectorField.MinimumX);
-		s_dbFieldMap.put(SectorModelSchema.MINIMUM_Y, SectorField.MinimumY);
-		s_dbFieldMap.put(SectorModelSchema.MINIMUM_Z, SectorField.MinimumZ);
-		s_dbFieldMap.put(SectorModelSchema.MAXIMUM_X, SectorField.MaximumX);
-		s_dbFieldMap.put(SectorModelSchema.MAXIMUM_Y, SectorField.MaximumY);
-		s_dbFieldMap.put(SectorModelSchema.MAXIMUM_Z, SectorField.MaximumZ);
+		s_dbFieldMap.put(SectorModelField.SectorX, SectorField.SectorX);
+		s_dbFieldMap.put(SectorModelField.SectorY, SectorField.SectorY);
+		s_dbFieldMap.put(SectorModelField.SectorZ, SectorField.SectorZ);
+		s_dbFieldMap.put(SectorModelField.MinimumX, SectorField.MinimumX);
+		s_dbFieldMap.put(SectorModelField.MinimumY, SectorField.MinimumY);
+		s_dbFieldMap.put(SectorModelField.MinimumZ, SectorField.MinimumZ);
+		s_dbFieldMap.put(SectorModelField.MaximumX, SectorField.MaximumX);
+		s_dbFieldMap.put(SectorModelField.MaximumY, SectorField.MaximumY);
+		s_dbFieldMap.put(SectorModelField.MaximumZ, SectorField.MaximumZ);
 	}
 
 	@GetMapping({ "/{key}" })
@@ -82,20 +85,20 @@ public class SectorController extends SfmsController {
 		if (sort.isPresent()) {
 			effectiveSort = sort.get();
 		} else {
-			effectiveSort = SectorModelSchema.MINIMUM_X;
+			effectiveSort = SectorModelField.MinimumX;
 		}
 
 		String effectiveDirection;
 		if (direction.isPresent()) {
 			effectiveDirection = direction.get();
 		} else {
-			effectiveDirection = SortingModel.ASCENDING;
+			effectiveDirection = SortCriteria.ASCENDING;
 		}
 
 		SectorField sortColumn = s_dbFieldMap.get(effectiveSort);
 
 		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(SortingModel.ASCENDING)) {
+		if (effectiveDirection.equals(SortCriteria.ASCENDING)) {
 			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
 		} else {
 			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();
@@ -132,7 +135,7 @@ public class SectorController extends SfmsController {
 		sortingModel.setSort(effectiveSort);
 		sortingModel.setDirection(effectiveDirection);
 		modelMap.addAttribute("sorting", sortingModel);
-		modelMap.addAttribute("F", new SectorModelSchema());
+		modelMap.addAttribute("F", new SectorModelField());
 
 		return "sectorList";
 	}

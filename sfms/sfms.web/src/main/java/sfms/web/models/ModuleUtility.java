@@ -32,4 +32,29 @@ public class ModuleUtility {
 		return sb.toString();
 	}
 
+	public static String formatCoordinates(Double x, Double y, Double z) {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append('(');
+		if (x == null) {
+			sb.append('-');
+		} else {
+			sb.append(x);
+		}
+		sb.append(',');
+		if (y == null) {
+			sb.append('-');
+		} else {
+			sb.append(y);
+		}
+		sb.append(',');
+		if (z == null) {
+			sb.append('-');
+		} else {
+			sb.append(z);
+		}
+		sb.append(')');
+
+		return sb.toString();
+	}
 }

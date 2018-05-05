@@ -122,9 +122,9 @@ public class RestFactory {
 		result.setX(getDouble(entity, DbStarField.X));
 		result.setY(getDouble(entity, DbStarField.Y));
 		result.setZ(getDouble(entity, DbStarField.Z));
-		result.setVx(getDouble(entity, DbStarField.VX));
-		result.setVy(getDouble(entity, DbStarField.VY));
-		result.setVz(getDouble(entity, DbStarField.VZ));
+		result.setVX(getDouble(entity, DbStarField.VX));
+		result.setVY(getDouble(entity, DbStarField.VY));
+		result.setVZ(getDouble(entity, DbStarField.VZ));
 		result.setRightAcensionRadians(getDouble(entity, DbStarField.RightAcensionRadians));
 		result.setDeclinationRadians(getDouble(entity, DbStarField.DeclinationRadians));
 		result.setProperMotionRightAscensionRadians(getDouble(entity, DbStarField.ProperMotionRightAscensionRadians));

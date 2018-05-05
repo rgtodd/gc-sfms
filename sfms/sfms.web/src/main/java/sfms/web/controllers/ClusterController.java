@@ -36,8 +36,7 @@ import sfms.web.SfmsController;
 import sfms.web.models.ClusterModel;
 import sfms.web.models.PagingModel;
 import sfms.web.models.SortingModel;
-import sfms.web.schemas.ClusterModelSchema;
-import sfms.web.schemas.CrewMemberModelSchema;
+import sfms.web.schemas.ClusterModelField;
 
 @Controller
 @RequestMapping({ "/cluster" })
@@ -48,12 +47,16 @@ public class ClusterController extends SfmsController {
 	private static final Map<String, ClusterField> s_dbFieldMap;
 	static {
 		s_dbFieldMap = new HashMap<String, ClusterField>();
-		s_dbFieldMap.put(ClusterModelSchema.MINIMUM_X, ClusterField.MinimumX);
-		s_dbFieldMap.put(ClusterModelSchema.MINIMUM_Y, ClusterField.MinimumY);
-		s_dbFieldMap.put(ClusterModelSchema.MINIMUM_Z, ClusterField.MinimumZ);
-		s_dbFieldMap.put(ClusterModelSchema.MAXIMUM_X, ClusterField.MaximumX);
-		s_dbFieldMap.put(ClusterModelSchema.MAXIMUM_Y, ClusterField.MaximumY);
-		s_dbFieldMap.put(ClusterModelSchema.MAXIMUM_Z, ClusterField.MaximumZ);
+		s_dbFieldMap.put(ClusterModelField.ClusterPartition, ClusterField.ClusterPartition);
+		s_dbFieldMap.put(ClusterModelField.ClusterX, ClusterField.ClusterX);
+		s_dbFieldMap.put(ClusterModelField.ClusterY, ClusterField.ClusterY);
+		s_dbFieldMap.put(ClusterModelField.ClusterZ, ClusterField.ClusterZ);
+		s_dbFieldMap.put(ClusterModelField.MinimumX, ClusterField.MinimumX);
+		s_dbFieldMap.put(ClusterModelField.MinimumY, ClusterField.MinimumY);
+		s_dbFieldMap.put(ClusterModelField.MinimumZ, ClusterField.MinimumZ);
+		s_dbFieldMap.put(ClusterModelField.MaximumX, ClusterField.MaximumX);
+		s_dbFieldMap.put(ClusterModelField.MaximumY, ClusterField.MaximumY);
+		s_dbFieldMap.put(ClusterModelField.MaximumZ, ClusterField.MaximumZ);
 	}
 
 	@GetMapping({ "/{key}" })
@@ -83,20 +86,20 @@ public class ClusterController extends SfmsController {
 		if (sort.isPresent()) {
 			effectiveSort = sort.get();
 		} else {
-			effectiveSort = ClusterModelSchema.MINIMUM_X;
+			effectiveSort = ClusterModelField.MinimumX;
 		}
 
 		String effectiveDirection;
 		if (direction.isPresent()) {
 			effectiveDirection = direction.get();
 		} else {
-			effectiveDirection = SortingModel.ASCENDING;
+			effectiveDirection = SortCriteria.ASCENDING;
 		}
 
 		ClusterField sortColumn = s_dbFieldMap.get(effectiveSort);
 
 		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(SortingModel.ASCENDING)) {
+		if (effectiveDirection.equals(SortCriteria.ASCENDING)) {
 			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
 		} else {
 			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();
@@ -133,8 +136,8 @@ public class ClusterController extends SfmsController {
 		sortingModel.setSort(effectiveSort);
 		sortingModel.setDirection(effectiveDirection);
 		modelMap.addAttribute("sorting", sortingModel);
-		modelMap.addAttribute("F", new ClusterModelSchema());
-		
+		modelMap.addAttribute("F", new ClusterModelField());
+
 		return "clusterList";
 	}
 

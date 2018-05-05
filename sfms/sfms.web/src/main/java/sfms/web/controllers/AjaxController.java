@@ -128,7 +128,7 @@ public class AjaxController extends SfmsController {
 			addPropertyGroup(propertyGroups, "Position");
 			addProperty(propertyGroups, "Velocity Components",
 					"Velocity of equatorial components of star, in parsecs/year.", null,
-					formatCoordinates(star.getVx(), star.getVy(), star.getVz()));
+					formatCoordinates(star.getVX(), star.getVY(), star.getVZ()));
 			addProperty(propertyGroups, "Right Ascension &theta;", "Right ascension of star in radians.", null,
 					star.getRightAcensionRadians());
 			addProperty(propertyGroups, "Declination &theta;", "Declination of star in radians.", null,

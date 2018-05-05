@@ -203,28 +203,28 @@ public class StarModel {
 		m_z = z;
 	}
 
-	public Double getVx() {
+	public Double getVX() {
 		return m_vx;
 	}
 
-	public void setVx(Double vx) {
-		m_vx = vx;
+	public void setVX(Double vX) {
+		m_vx = vX;
 	}
 
-	public Double getVy() {
+	public Double getVY() {
 		return m_vy;
 	}
 
-	public void setVy(Double vy) {
-		m_vy = vy;
+	public void setVY(Double vY) {
+		m_vy = vY;
 	}
 
-	public Double getVz() {
+	public Double getVZ() {
 		return m_vz;
 	}
 
-	public void setVz(Double vz) {
-		m_vz = vz;
+	public void setVZ(Double vZ) {
+		m_vz = vZ;
 	}
 
 	public Double getRightAcensionRadians() {
@@ -367,4 +367,9 @@ public class StarModel {
 	public void setCatalogId(String catalogId) {
 		m_catalogId = catalogId;
 	}
+
+	public String getXYZ() {
+		return ModuleUtility.formatCoordinates(m_x, m_y, m_z);
+	}
+
 }
