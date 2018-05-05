@@ -32,6 +32,7 @@ import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.StarField;
 import sfms.rest.db.DbFieldSchema;
+import sfms.rest.db.DbValueFactory;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
 
@@ -131,49 +132,7 @@ public class StarRestController {
 
 		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, id);
 
-		Entity dbStar = Entity.newBuilder(dbStarKey)
-				.set(DbStarField.CatalogId.getName(), star.getCatalogId())
-				.set(DbStarField.ClusterKey.getName(),
-						DbEntity.Cluster.createEntityKey(datastore, star.getClusterKey()))
-				.set(DbStarField.SectorKey.getName(), DbEntity.Sector.createEntityKey(datastore, star.getProperName()))
-				.set(DbStarField.HipparcosId.getName(), star.getHipparcosId())
-				.set(DbStarField.HenryDraperId.getName(), star.getHenryDraperId())
-				.set(DbStarField.HarvardRevisedId.getName(), star.getHarvardRevisedId())
-				.set(DbStarField.GlieseId.getName(), star.getGlieseId())
-				.set(DbStarField.BayerFlamsteedId.getName(), star.getBayerFlamsteedId())
-				.set(DbStarField.ProperName.getName(), star.getProperName())
-				.set(DbStarField.RightAscension.getName(), star.getRightAscension())
-				.set(DbStarField.Declination.getName(), star.getDeclination())
-				.set(DbStarField.Distance.getName(), star.getDistance())
-				.set(DbStarField.ProperMotionRightAscension.getName(), star.getProperMotionRightAscension())
-				.set(DbStarField.ProperMotionDeclination.getName(), star.getProperMotionDeclination())
-				.set(DbStarField.RadialVelocity.getName(), star.getRadialVelocity())
-				.set(DbStarField.Magnitude.getName(), star.getMagnitude())
-				.set(DbStarField.AbsoluteMagnitude.getName(), star.getAbsoluteMagnitude())
-				.set(DbStarField.Spectrum.getName(), star.getSpectrum())
-				.set(DbStarField.ColorIndex.getName(), star.getColorIndex())
-				.set(DbStarField.X.getName(), star.getX())
-				.set(DbStarField.Y.getName(), star.getY())
-				.set(DbStarField.Z.getName(), star.getZ())
-				.set(DbStarField.VX.getName(), star.getVX())
-				.set(DbStarField.VY.getName(), star.getVY())
-				.set(DbStarField.VZ.getName(), star.getVZ())
-				.set(DbStarField.RightAcensionRadians.getName(), star.getRightAcensionRadians())
-				.set(DbStarField.DeclinationRadians.getName(), star.getDeclinationRadians())
-				.set(DbStarField.ProperMotionRightAscensionRadians.getName(),
-						star.getProperMotionRightAscensionRadians())
-				.set(DbStarField.ProperMotionDeclinationRadians.getName(), star.getProperMotionDeclinationRadians())
-				.set(DbStarField.BayerId.getName(), star.getBayerId())
-				.set(DbStarField.Flamsteed.getName(), star.getFlamsteed())
-				.set(DbStarField.Constellation.getName(), star.getConstellation())
-				.set(DbStarField.CompanionStarId.getName(), star.getCompanionStarId())
-				.set(DbStarField.PrimaryStarId.getName(), star.getPrimaryStarId())
-				.set(DbStarField.MultipleStarId.getName(), star.getMultipleStarId())
-				.set(DbStarField.Luminosity.getName(), star.getLuminosity())
-				.set(DbStarField.VariableStarDesignation.getName(), star.getVariableStarDesignation())
-				.set(DbStarField.VariableMinimum.getName(), star.getVariableMinimum())
-				.set(DbStarField.VariableMaximum.getName(), star.getVariableMaximum())
-				.build();
+		Entity dbStar = createDbStar(star, datastore, dbStarKey);
 
 		datastore.update(dbStar);
 
@@ -194,49 +153,7 @@ public class StarRestController {
 
 		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, star.getKey());
 
-		Entity dbStar = Entity.newBuilder(dbStarKey)
-				.set(DbStarField.CatalogId.getName(), star.getCatalogId())
-				.set(DbStarField.ClusterKey.getName(),
-						DbEntity.Cluster.createEntityKey(datastore, star.getClusterKey()))
-				.set(DbStarField.SectorKey.getName(), DbEntity.Sector.createEntityKey(datastore, star.getProperName()))
-				.set(DbStarField.HipparcosId.getName(), star.getHipparcosId())
-				.set(DbStarField.HenryDraperId.getName(), star.getHenryDraperId())
-				.set(DbStarField.HarvardRevisedId.getName(), star.getHarvardRevisedId())
-				.set(DbStarField.GlieseId.getName(), star.getGlieseId())
-				.set(DbStarField.BayerFlamsteedId.getName(), star.getBayerFlamsteedId())
-				.set(DbStarField.ProperName.getName(), star.getProperName())
-				.set(DbStarField.RightAscension.getName(), star.getRightAscension())
-				.set(DbStarField.Declination.getName(), star.getDeclination())
-				.set(DbStarField.Distance.getName(), star.getDistance())
-				.set(DbStarField.ProperMotionRightAscension.getName(), star.getProperMotionRightAscension())
-				.set(DbStarField.ProperMotionDeclination.getName(), star.getProperMotionDeclination())
-				.set(DbStarField.RadialVelocity.getName(), star.getRadialVelocity())
-				.set(DbStarField.Magnitude.getName(), star.getMagnitude())
-				.set(DbStarField.AbsoluteMagnitude.getName(), star.getAbsoluteMagnitude())
-				.set(DbStarField.Spectrum.getName(), star.getSpectrum())
-				.set(DbStarField.ColorIndex.getName(), star.getColorIndex())
-				.set(DbStarField.X.getName(), star.getX())
-				.set(DbStarField.Y.getName(), star.getY())
-				.set(DbStarField.Z.getName(), star.getZ())
-				.set(DbStarField.VX.getName(), star.getVX())
-				.set(DbStarField.VY.getName(), star.getVY())
-				.set(DbStarField.VZ.getName(), star.getVZ())
-				.set(DbStarField.RightAcensionRadians.getName(), star.getRightAcensionRadians())
-				.set(DbStarField.DeclinationRadians.getName(), star.getDeclinationRadians())
-				.set(DbStarField.ProperMotionRightAscensionRadians.getName(),
-						star.getProperMotionRightAscensionRadians())
-				.set(DbStarField.ProperMotionDeclinationRadians.getName(), star.getProperMotionDeclinationRadians())
-				.set(DbStarField.BayerId.getName(), star.getBayerId())
-				.set(DbStarField.Flamsteed.getName(), star.getFlamsteed())
-				.set(DbStarField.Constellation.getName(), star.getConstellation())
-				.set(DbStarField.CompanionStarId.getName(), star.getCompanionStarId())
-				.set(DbStarField.PrimaryStarId.getName(), star.getPrimaryStarId())
-				.set(DbStarField.MultipleStarId.getName(), star.getMultipleStarId())
-				.set(DbStarField.Luminosity.getName(), star.getLuminosity())
-				.set(DbStarField.VariableStarDesignation.getName(), star.getVariableStarDesignation())
-				.set(DbStarField.VariableMinimum.getName(), star.getVariableMinimum())
-				.set(DbStarField.VariableMaximum.getName(), star.getVariableMaximum())
-				.build();
+		Entity dbStar = createDbStar(star, datastore, dbStarKey);
 
 		datastore.put(dbStar);
 
@@ -263,5 +180,57 @@ public class StarRestController {
 		result.setKey(DbEntity.Star.createRestKey(dbStarKey));
 
 		return result;
+	}
+
+	private Entity createDbStar(Star star, Datastore datastore, Key dbStarKey) {
+		Entity dbStar = Entity.newBuilder(dbStarKey)
+				.set(DbStarField.CatalogId.getName(), DbValueFactory.asValue(star.getCatalogId()))
+				.set(DbStarField.ClusterKey.getName(), DbValueFactory.asValue(
+						DbEntity.Cluster.createEntityKey(datastore, star.getClusterKey())))
+				.set(DbStarField.SectorKey.getName(),
+						DbValueFactory.asValue(DbEntity.Sector.createEntityKey(datastore, star.getProperName())))
+				.set(DbStarField.HipparcosId.getName(), DbValueFactory.asValue(star.getHipparcosId()))
+				.set(DbStarField.HenryDraperId.getName(), DbValueFactory.asValue(star.getHenryDraperId()))
+				.set(DbStarField.HarvardRevisedId.getName(), DbValueFactory.asValue(star.getHarvardRevisedId()))
+				.set(DbStarField.GlieseId.getName(), DbValueFactory.asValue(star.getGlieseId()))
+				.set(DbStarField.BayerFlamsteedId.getName(), DbValueFactory.asValue(star.getBayerFlamsteedId()))
+				.set(DbStarField.ProperName.getName(), DbValueFactory.asValue(star.getProperName()))
+				.set(DbStarField.RightAscension.getName(), DbValueFactory.asValue(star.getRightAscension()))
+				.set(DbStarField.Declination.getName(), DbValueFactory.asValue(star.getDeclination()))
+				.set(DbStarField.Distance.getName(), DbValueFactory.asValue(star.getDistance()))
+				.set(DbStarField.ProperMotionRightAscension.getName(),
+						DbValueFactory.asValue(star.getProperMotionRightAscension()))
+				.set(DbStarField.ProperMotionDeclination.getName(),
+						DbValueFactory.asValue(star.getProperMotionDeclination()))
+				.set(DbStarField.RadialVelocity.getName(), DbValueFactory.asValue(star.getRadialVelocity()))
+				.set(DbStarField.Magnitude.getName(), DbValueFactory.asValue(star.getMagnitude()))
+				.set(DbStarField.AbsoluteMagnitude.getName(), DbValueFactory.asValue(star.getAbsoluteMagnitude()))
+				.set(DbStarField.Spectrum.getName(), DbValueFactory.asValue(star.getSpectrum()))
+				.set(DbStarField.ColorIndex.getName(), DbValueFactory.asValue(star.getColorIndex()))
+				.set(DbStarField.X.getName(), DbValueFactory.asValue(star.getX()))
+				.set(DbStarField.Y.getName(), DbValueFactory.asValue(star.getY()))
+				.set(DbStarField.Z.getName(), DbValueFactory.asValue(star.getZ()))
+				.set(DbStarField.VX.getName(), DbValueFactory.asValue(star.getVX()))
+				.set(DbStarField.VY.getName(), DbValueFactory.asValue(star.getVY()))
+				.set(DbStarField.VZ.getName(), DbValueFactory.asValue(star.getVZ()))
+				.set(DbStarField.RightAcensionRadians.getName(), DbValueFactory.asValue(star.getRightAcensionRadians()))
+				.set(DbStarField.DeclinationRadians.getName(), DbValueFactory.asValue(star.getDeclinationRadians()))
+				.set(DbStarField.ProperMotionRightAscensionRadians.getName(),
+						DbValueFactory.asValue(star.getProperMotionRightAscensionRadians()))
+				.set(DbStarField.ProperMotionDeclinationRadians.getName(),
+						DbValueFactory.asValue(star.getProperMotionDeclinationRadians()))
+				.set(DbStarField.BayerId.getName(), DbValueFactory.asValue(star.getBayerId()))
+				.set(DbStarField.Flamsteed.getName(), DbValueFactory.asValue(star.getFlamsteed()))
+				.set(DbStarField.Constellation.getName(), DbValueFactory.asValue(star.getConstellation()))
+				.set(DbStarField.CompanionStarId.getName(), DbValueFactory.asValue(star.getCompanionStarId()))
+				.set(DbStarField.PrimaryStarId.getName(), DbValueFactory.asValue(star.getPrimaryStarId()))
+				.set(DbStarField.MultipleStarId.getName(), DbValueFactory.asValue(star.getMultipleStarId()))
+				.set(DbStarField.Luminosity.getName(), DbValueFactory.asValue(star.getLuminosity()))
+				.set(DbStarField.VariableStarDesignation.getName(),
+						DbValueFactory.asValue(star.getVariableStarDesignation()))
+				.set(DbStarField.VariableMinimum.getName(), DbValueFactory.asValue(star.getVariableMinimum()))
+				.set(DbStarField.VariableMaximum.getName(), DbValueFactory.asValue(star.getVariableMaximum()))
+				.build();
+		return dbStar;
 	}
 }

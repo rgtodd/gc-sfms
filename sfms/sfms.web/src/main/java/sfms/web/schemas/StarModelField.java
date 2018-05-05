@@ -2,62 +2,62 @@ package sfms.web.schemas;
 
 public class StarModelField {
 
-	public static final String Key = "Key";
-	public static final String CatalogId = "CatalogId";
-	public static final String ClusterKey = "ClusterKey";
-	public static final String SectorKey = "SectorKey";
-	public static final String HIPPARCOS_ID = "HipparcosId";
-	public static final String HENRY_DRAPER_ID = "HenryDraperId";
-	public static final String HARVARD_REVISED_ID = "HarvardRevisedId";
-	public static final String GLIESE_ID = "GlieseId";
-	public static final String BAYER_FLAMSTEED_ID = "BayerFlamsteedId";
-	public static final String ProperName = "ProperName";
-	public static final String RIGHT_ASCENSION = "RightAscension";
-	public static final String DECLINATION = "Declination";
-	public static final String DISTANCE = "Distance";
-	public static final String PROPER_MOTION_RIGHT_ASCENSION = "ProperMotionRightAscension";
-	public static final String PROPER_MOTION_DECLINATION = "ProperMotionDeclination";
-	public static final String RADIAL_VELOCITY = "RadialVelocity";
-	public static final String MAGNITUDE = "Magnitude";
-	public static final String ABSOLUTE_MAGNITUDE = "AbsoluteMagnitude";
-	public static final String SPECTRUM = "Spectrum";
-	public static final String COLOR_INDEX = "ColorIndex";
+	public static final String KEY = "KEY";
+	public static final String CATALOG_ID = "CATALOG_ID";
+	public static final String CLUSTER_KEY = "CLUSTER_KEY";
+	public static final String SECTOR_KEY = "SECTOR_KEY";
+	public static final String HIPPARCOS_ID = "HIPPARCOS_ID";
+	public static final String HENRY_DRAPER_ID = "HENRY_DRAPER_ID";
+	public static final String HARVARD_REVISED_ID = "HARVARD_REVISED_ID";
+	public static final String GLIESE_ID = "GLIESE_ID";
+	public static final String BAYER_FLAMSTEED_ID = "BAYER_FLAMSTEED_ID";
+	public static final String PROPER_NAME = "PROPER_NAME";
+	public static final String RIGHT_ASCENSION = "RIGHT_ASCENSION";
+	public static final String DECLINATION = "DECLINATION";
+	public static final String DISTANCE = "DISTANCE";
+	public static final String PROPER_MOTION_RIGHT_ASCENSION = "PROPER_MOTION_RIGHT_ASCENSION";
+	public static final String PROPER_MOTION_DECLINATION = "PROPER_MOTION_DECLINATION";
+	public static final String RADIAL_VELOCITY = "RADIAL_VELOCITY";
+	public static final String MAGNITUDE = "MAGNITUDE";
+	public static final String ABSOLUTE_MAGNITUDE = "ABSOLUTE_MAGNITUDE";
+	public static final String SPECTRUM = "SPECTRUM";
+	public static final String COLOR_INDEX = "COLOR_INDEX";
 	public static final String X = "X";
 	public static final String Y = "Y";
 	public static final String Z = "Z";
 	public static final String VX = "VX";
 	public static final String VY = "VY";
 	public static final String VZ = "VZ";
-	public static final String RIGHT_ASCENSION_RADIANS = "RightAcensionRadians";
-	public static final String DECLINATION_RADIANS = "DeclinationRadians";
-	public static final String PROPER_MOTION_RIGHT_ASCENSION_RADIANS = "ProperMotionRightAscensionRadians";
-	public static final String PROPER_MOTION_DECLINATION_RADIANS = "ProperMotionDeclinationRadians";
-	public static final String BAYER_ID = "BayerId";
-	public static final String FLAMSTEED = "Flamsteed";
-	public static final String CONSTALLATION = "Constellation";
-	public static final String COMPANION_STAR_ID = "CompanionStarId";
-	public static final String PRIAMRY_STAR_ID = "PrimaryStarId";
-	public static final String MULTIPLE_STAR_ID = "MultipleStarId";
-	public static final String LUMINOSITY = "Luminosity";
-	public static final String VARIABLE_STAR_DESIGNATION = "VariableStarDesignation";
-	public static final String VARIABLE_MINIMUM = "VariableMinimum";
-	public static final String VARIABLE_MAXIMUM = "VariableMaximum";
+	public static final String RIGHT_ASCENSION_RADIANS = "RIGHT_ASCENSION_RADIANS";
+	public static final String DECLINATION_RADIANS = "DECLINATION_RADIANS";
+	public static final String PROPER_MOTION_RIGHT_ASCENSION_RADIANS = "PROPER_MOTION_RIGHT_ASCENSION_RADIANS";
+	public static final String PROPER_MOTION_DECLINATION_RADIANS = "PROPER_MOTION_DECLINATION_RADIANS";
+	public static final String BAYER_ID = "BAYER_ID";
+	public static final String FLAMSTEED = "FLAMSTEED";
+	public static final String CONSTALLATION = "CONSTALLATION";
+	public static final String COMPANION_STAR_ID = "COMPANION_STAR_ID";
+	public static final String PRIAMRY_STAR_ID = "PRIAMRY_STAR_ID";
+	public static final String MULTIPLE_STAR_ID = "MULTIPLE_STAR_ID";
+	public static final String LUMINOSITY = "LUMINOSITY";
+	public static final String VARIABLE_STAR_DESIGNATION = "VARIABLE_STAR_DESIGNATION";
+	public static final String VARIABLE_MINIMUM = "VARIABLE_MINIMUM";
+	public static final String VARIABLE_MAXIMUM = "VARIABLE_MAXIMUM";
 	public static final String XYZ = "XYZ";
 
 	public String getKey() {
-		return Key;
+		return KEY;
 	}
 
 	public String getCatalogId() {
-		return CatalogId;
+		return CATALOG_ID;
 	}
 
 	public String getClusterKey() {
-		return ClusterKey;
+		return CLUSTER_KEY;
 	}
 
 	public String getSectorKey() {
-		return SectorKey;
+		return SECTOR_KEY;
 	}
 
 	public String getHipparcosId() {
@@ -81,7 +81,7 @@ public class StarModelField {
 	}
 
 	public String getProperName() {
-		return ProperName;
+		return PROPER_NAME;
 	}
 
 	public String getRightAscension() {

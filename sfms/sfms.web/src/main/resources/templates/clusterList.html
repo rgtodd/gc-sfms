@@ -24,8 +24,17 @@
 					<th></th>
 					<th>Key</th>
 					<th><a class="nav-link"
-						th:href="@{|/cluster?sort=${F.MinimumX}&direction=${sorting.direction(F.MinimumX)}|}">Minimum
-							X [(${sorting.icon(F.MinimumX)})]</a></th>
+						th:href="@{|/cluster?sort=${F.ClusterPartition}&direction=${sorting.direction(F.ClusterPartition)}|}">Partition
+							[(${sorting.icon(F.ClusterPartition)})]</a></th>
+					<th><a class="nav-link"
+						th:href="@{|/cluster?sort=${F.ClusterXYZ}&direction=${sorting.direction(F.ClusterXYZ)}|}">Coordinates
+							[(${sorting.icon(F.ClusterXYZ)})]</a></th>
+					<th><a class="nav-link"
+						th:href="@{|/cluster?sort=${F.MinimumXYZ}&direction=${sorting.direction(F.MinimumXYZ)}|}">Minimum
+							[(${sorting.icon(F.MinimumXYZ)})]</a></th>
+					<th><a class="nav-link"
+						th:href="@{|/cluster?sort=${F.MaximumXYZ}&direction=${sorting.direction(F.MaximumXYZ)}|}">Maximum
+							[(${sorting.icon(F.MaximumXYZ)})]</a></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -33,7 +42,10 @@
 					<td><a class="btn btn-primary"
 						th:href="@{|/cluster/${cluster.key}|}">View</a></td>
 					<td th:text="${cluster.key}">123</td>
-					<td th:text="${cluster.minimumX}">USS Demo</td>
+					<td th:text="${cluster.clusterPartition}">USS Demo</td>
+					<td th:text="${cluster.clusterXYZ}">USS Demo</td>
+					<td th:text="${cluster.minimumXYZ}">USS Demo</td>
+					<td th:text="${cluster.maximumXYZ}">USS Demo</td>
 				</tr>
 			</tbody>
 		</table>

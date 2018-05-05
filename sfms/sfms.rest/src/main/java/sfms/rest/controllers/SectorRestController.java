@@ -49,6 +49,7 @@ import sfms.rest.api.models.Sector;
 import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.SectorField;
 import sfms.rest.db.DbFieldSchema;
+import sfms.rest.db.DbValueFactory;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSectorField;
 import sfms.rest.db.schemas.DbStarField;
@@ -69,6 +70,9 @@ public class SectorRestController {
 	private static final Map<String, DbFieldSchema> s_dbFieldMap;
 	static {
 		s_dbFieldMap = new HashMap<String, DbFieldSchema>();
+		s_dbFieldMap.put(SectorField.SectorX.getName(), DbSectorField.SectorX);
+		s_dbFieldMap.put(SectorField.SectorY.getName(), DbSectorField.SectorY);
+		s_dbFieldMap.put(SectorField.SectorZ.getName(), DbSectorField.SectorZ);
 		s_dbFieldMap.put(SectorField.MinimumX.getName(), DbSectorField.MinimumX);
 		s_dbFieldMap.put(SectorField.MinimumY.getName(), DbSectorField.MinimumY);
 		s_dbFieldMap.put(SectorField.MinimumZ.getName(), DbSectorField.MinimumZ);
@@ -180,13 +184,7 @@ public class SectorRestController {
 
 		Key dbSectorKey = DbEntity.Sector.createEntityKey(datastore, id);
 
-		Entity dbSector = Entity.newBuilder(dbSectorKey).set(DbSectorField.MinimumX.getName(), sector.getMinimumX())
-				.set(DbSectorField.MinimumY.getName(), sector.getMinimumY())
-				.set(DbSectorField.MinimumZ.getName(), sector.getMinimumZ())
-				.set(DbSectorField.MaximumX.getName(), sector.getMaximumX())
-				.set(DbSectorField.MaximumY.getName(), sector.getMaximumY())
-				.set(DbSectorField.MaximumZ.getName(), sector.getMaximumZ())
-				.build();
+		Entity dbSector = createDbSector(sector, dbSectorKey);
 
 		datastore.update(dbSector);
 
@@ -207,13 +205,7 @@ public class SectorRestController {
 
 		Key dbSectorKey = DbEntity.Sector.createEntityKey(datastore, sector.getKey());
 
-		Entity dbSector = Entity.newBuilder(dbSectorKey).set(DbSectorField.MinimumX.getName(), sector.getMinimumX())
-				.set(DbSectorField.MinimumY.getName(), sector.getMinimumY())
-				.set(DbSectorField.MinimumZ.getName(), sector.getMinimumZ())
-				.set(DbSectorField.MaximumX.getName(), sector.getMaximumX())
-				.set(DbSectorField.MaximumY.getName(), sector.getMaximumY())
-				.set(DbSectorField.MaximumZ.getName(), sector.getMaximumZ())
-				.build();
+		Entity dbSector = createDbSector(sector, dbSectorKey);
 
 		datastore.put(dbSector);
 
@@ -275,18 +267,18 @@ public class SectorRestController {
 			}
 			sectorsByKey.put(sector.getKey(), sector);
 		}
-	
+
 		if (!sectorsByKey.isEmpty()) {
-	
+
 			Query<ProjectionEntity> dbStarQuery = Query.newProjectionEntityQueryBuilder()
 					.setKind(DbEntity.Star.getKind())
 					.setFilter(CompositeFilter.and(PropertyFilter.ge(DbStarField.X.getName(), (double) minimumX),
 							PropertyFilter.lt(DbStarField.X.getName(), (double) maximumX)))
 					.addProjection(DbStarField.SectorKey.getName()).addProjection(DbStarField.X.getName())
 					.addProjection(DbStarField.Y.getName()).addProjection(DbStarField.Z.getName()).build();
-	
+
 			QueryResults<ProjectionEntity> dbStars = datastore.run(dbStarQuery);
-	
+
 			while (dbStars.hasNext()) {
 				BaseEntity<Key> dbStar = dbStars.next();
 				double y = dbStar.getDouble(DbStarField.Y.getName());
@@ -303,7 +295,7 @@ public class SectorRestController {
 				}
 			}
 		}
-	
+
 		sectors = new ArrayList<Sector>(sectorsByKey.values());
 		return sectors;
 	}
@@ -330,5 +322,20 @@ public class SectorRestController {
 		Sector sector = factory.createSector(dbSector, factory.createStarsFromProjection(dbStars));
 
 		return sector;
+	}
+
+	private Entity createDbSector(Sector sector, Key dbSectorKey) {
+		Entity dbSector = Entity.newBuilder(dbSectorKey)
+				.set(DbSectorField.SectorX.getName(), DbValueFactory.asValue(sector.getSectorX()))
+				.set(DbSectorField.SectorY.getName(), DbValueFactory.asValue(sector.getSectorY()))
+				.set(DbSectorField.SectorZ.getName(), DbValueFactory.asValue(sector.getSectorZ()))
+				.set(DbSectorField.MinimumX.getName(), DbValueFactory.asValue(sector.getMinimumX()))
+				.set(DbSectorField.MinimumY.getName(), DbValueFactory.asValue(sector.getMinimumY()))
+				.set(DbSectorField.MinimumZ.getName(), DbValueFactory.asValue(sector.getMinimumZ()))
+				.set(DbSectorField.MaximumX.getName(), DbValueFactory.asValue(sector.getMaximumX()))
+				.set(DbSectorField.MaximumY.getName(), DbValueFactory.asValue(sector.getMaximumY()))
+				.set(DbSectorField.MaximumZ.getName(), DbValueFactory.asValue(sector.getMaximumZ()))
+				.build();
+		return dbSector;
 	}
 }

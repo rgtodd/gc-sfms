@@ -2,15 +2,15 @@ package sfms.web.schemas;
 
 public class CrewMemberModelField {
 
-	public static final String FirstName = "FirstName";
-	public static final String LastName = "LastName";
+	public static final String FIRST_NAME = "FIRST_NAME";
+	public static final String LAST_NAME = "LAST_NAME";
 
-	public static String getFirstName() {
-		return FirstName;
+	public String getFirstName() {
+		return FIRST_NAME;
 	}
 
-	public static String getLastName() {
-		return LastName;
+	public String getLastName() {
+		return LAST_NAME;
 	}
 
 }

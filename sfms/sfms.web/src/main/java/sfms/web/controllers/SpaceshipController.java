@@ -1,8 +1,12 @@
 package sfms.web.controllers;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -13,38 +17,48 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriBuilder;
 
 import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
+import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
+import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.schemas.SpaceshipField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
+import sfms.web.models.PagingModel;
+import sfms.web.models.SortingModel;
 import sfms.web.models.SpaceshipModel;
 import sfms.web.schemas.SpaceshipModelField;
 
 @Controller
+@RequestMapping({ "/spaceship" })
 public class SpaceshipController extends SfmsController {
+
+	private final Logger logger = Logger.getLogger(SpaceshipController.class.getName());
 
 	private static final Map<String, SpaceshipField> s_dbFieldMap;
 	static {
 		s_dbFieldMap = new HashMap<String, SpaceshipField>();
-		s_dbFieldMap.put(SpaceshipModelField.Name, SpaceshipField.Name);
+		s_dbFieldMap.put(SpaceshipModelField.NAME, SpaceshipField.Name);
 		s_dbFieldMap.put(SpaceshipModelField.X, SpaceshipField.X);
 		s_dbFieldMap.put(SpaceshipModelField.Y, SpaceshipField.Y);
 		s_dbFieldMap.put(SpaceshipModelField.Z, SpaceshipField.Z);
-		s_dbFieldMap.put(SpaceshipModelField.StarKey, SpaceshipField.StarKey);
+		s_dbFieldMap.put(SpaceshipModelField.STAR_KEY, SpaceshipField.StarKey);
 	}
 
-	@GetMapping({ "/spaceship/{id}" })
-	public String get(@PathVariable Long id, ModelMap modelMap) {
+	@GetMapping({ "/{key}" })
+	public String get(@PathVariable Long key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(getRestUrl("spaceship/" + id.toString()),
+		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(getRestUrl("spaceship/" + key.toString()),
 				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Spaceship>() {
 				});
 
@@ -56,23 +70,45 @@ public class SpaceshipController extends SfmsController {
 		return "spaceshipDetail";
 	}
 
-	@GetMapping({ "/spaceship" })
-	public String getList(ModelMap modelMap) {
+	@GetMapping({ "" })
+	public String getList(
+			@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
+			@RequestParam(WebParameters.BOOKMARK) Optional<String> bookmark,
+			@RequestParam(name = WebParameters.SORT, defaultValue = SpaceshipModelField.NAME) String sort,
+			@RequestParam(name = WebParameters.DIRECTION, defaultValue = SortCriteria.ASCENDING) String direction,
+			ModelMap modelMap) {
+
+		URI uri = createListUri(sort, direction, bookmark);
+		logger.log(Level.INFO, "uri = {0}", uri);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<SearchResult<Spaceship>> restResponse = restTemplate.exchange(getRestUrl("spaceship"),
-				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<SearchResult<Spaceship>>() {
+		ResponseEntity<SearchResult<Spaceship>> restResponse = restTemplate.exchange(uri, HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<SearchResult<Spaceship>>() {
 				});
 
-		ModelFactory factory = new ModelFactory();
-		List<SpaceshipModel> spaceshipModels = factory.createSpaceships(restResponse.getBody().getEntities());
+		SearchResult<Spaceship> searchResult = restResponse.getBody();
 
-		modelMap.addAttribute("spaceships", spaceshipModels);
+		ModelFactory factory = new ModelFactory();
+		List<SpaceshipModel> clusterModels = factory.createSpaceships(searchResult.getEntities());
+		modelMap.addAttribute("spaceships", clusterModels);
+
+		PagingModel pagingModel = new PagingModel();
+		pagingModel.setNextBookmark(searchResult.getEndingBookmark());
+		pagingModel.setEndOfResults(searchResult.getEndOfResults());
+		pagingModel.setCurrentPageNumber(pageNumber.orElse(1));
+		pagingModel.setNextPageNumber(pageNumber.orElse(1) + 1);
+		modelMap.addAttribute("paging", pagingModel);
+
+		SortingModel sortingModel = new SortingModel();
+		sortingModel.setSort(sort);
+		sortingModel.setDirection(direction);
+		modelMap.addAttribute("sorting", sortingModel);
+		modelMap.addAttribute("F", new SpaceshipModelField());
 
 		return "spaceshipList";
 	}
 
-	@GetMapping({ "/spaceship_create" })
+	@GetMapping({ "/create" })
 	public String create(ModelMap modelMap) {
 
 		ModelFactory factory = new ModelFactory();
@@ -83,7 +119,7 @@ public class SpaceshipController extends SfmsController {
 		return "spaceshipCreate";
 	}
 
-	@PostMapping({ "/spaceship_createPost" })
+	@PostMapping({ "/createPost" })
 	public String createPost(@ModelAttribute SpaceshipModel spaceshipModel) {
 
 		RestFactory factory = new RestFactory();
@@ -97,11 +133,11 @@ public class SpaceshipController extends SfmsController {
 		return "redirect:/spaceship/" + restResponse.getBody().getKey().toString();
 	}
 
-	@GetMapping({ "/spaceship_edit/{id}" })
-	public String edit(@PathVariable Long id, ModelMap modelMap) {
+	@GetMapping({ "/edit/{key}" })
+	public String edit(@PathVariable Long key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(getRestUrl("spaceship/" + id.toString()),
+		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(getRestUrl("spaceship/" + key.toString()),
 				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Spaceship>() {
 				});
 
@@ -113,7 +149,7 @@ public class SpaceshipController extends SfmsController {
 		return "spaceshipEdit";
 	}
 
-	@PostMapping({ "/spaceship_editPost" })
+	@PostMapping({ "/editPost" })
 	public String editPost(@ModelAttribute SpaceshipModel spaceshipModel) {
 
 		RestFactory factory = new RestFactory();
@@ -128,11 +164,11 @@ public class SpaceshipController extends SfmsController {
 		return "redirect:/spaceship/" + restResponse.getBody().getKey().toString();
 	}
 
-	@GetMapping({ "/spaceship_delete/{id}" })
-	public String delete(@PathVariable Long id, ModelMap modelMap) {
+	@GetMapping({ "/delete/{key}" })
+	public String delete(@PathVariable Long key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(getRestUrl("spaceship/" + id.toString()),
+		ResponseEntity<Spaceship> restResponse = restTemplate.exchange(getRestUrl("spaceship/" + key.toString()),
 				HttpMethod.GET, createHttpEntity(), new ParameterizedTypeReference<Spaceship>() {
 				});
 
@@ -144,7 +180,7 @@ public class SpaceshipController extends SfmsController {
 		return "spaceshipDelete";
 	}
 
-	@PostMapping({ "/spaceship_deletePost" })
+	@PostMapping({ "/deletePost" })
 	public String deletePost(@ModelAttribute SpaceshipModel spaceshipModel) {
 
 		RestFactory factory = new RestFactory();
@@ -158,5 +194,22 @@ public class SpaceshipController extends SfmsController {
 				});
 
 		return "redirect:/spaceship";
+	}
+
+	private URI createListUri(String sort, String direction, Optional<String> bookmark) {
+
+		SpaceshipField sortColumn = s_dbFieldMap.get(sort);
+		SortCriteria sortCriteria = SortCriteria.newBuilder()
+				.sort(sortColumn.getName(), direction)
+				.build();
+
+		UriBuilder uriBuilder = getUriBuilder().pathSegment("spaceship");
+		if (bookmark.isPresent()) {
+			uriBuilder.queryParam(RestParameters.BOOKMARK, bookmark.get());
+		}
+		uriBuilder.queryParam(RestParameters.SORT, sortCriteria.toString());
+
+		URI uri = uriBuilder.build();
+		return uri;
 	}
 }

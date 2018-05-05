@@ -35,6 +35,7 @@ import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.CrewMember;
 import sfms.rest.api.schemas.CrewMemberField;
 import sfms.rest.db.DbFieldSchema;
+import sfms.rest.db.DbValueFactory;
 import sfms.rest.db.schemas.DbCrewMemberField;
 import sfms.rest.db.schemas.DbEntity;
 
@@ -131,8 +132,8 @@ public class CrewMemberRestController {
 		Key dbCrewMemberKey = DbEntity.CrewMember.createEntityKey(datastore, id);
 
 		Entity dbCrewMember = Entity.newBuilder(dbCrewMemberKey)
-				.set(DbCrewMemberField.FirstName.getName(), crewMember.getFirstName())
-				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName())
+				.set(DbCrewMemberField.FirstName.getName(), DbValueFactory.asValue(crewMember.getFirstName()))
+				.set(DbCrewMemberField.LastName.getName(), DbValueFactory.asValue(crewMember.getLastName()))
 				.build();
 
 		datastore.update(dbCrewMember);
@@ -156,8 +157,8 @@ public class CrewMemberRestController {
 				.newKey();
 
 		FullEntity<IncompleteKey> dbCrewMember = FullEntity.newBuilder(dbCrewMemberIncompleteKey)
-				.set(DbCrewMemberField.FirstName.getName(), crewMember.getFirstName())
-				.set(DbCrewMemberField.LastName.getName(), crewMember.getLastName())
+				.set(DbCrewMemberField.FirstName.getName(), DbValueFactory.asValue(crewMember.getFirstName()))
+				.set(DbCrewMemberField.LastName.getName(), DbValueFactory.asValue(crewMember.getLastName()))
 				.build();
 
 		Key dbCrewMemberKey = datastore.put(dbCrewMember).getKey();

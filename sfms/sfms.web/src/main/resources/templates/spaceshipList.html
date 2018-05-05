@@ -15,14 +15,17 @@
 			</ol>
 		</nav>
 		<p>
-			<a class="btn btn-primary" th:href="@{/spaceship_create}">Create</a>
+			<a class="btn btn-primary" th:href="@{/spaceship/create}">Create</a>
 		</p>
+		<h3 th:text="${'Page ' + paging.currentPageNumber}">Page #</h3>
 		<table class="table">
 			<thead>
 				<tr>
 					<th></th>
 					<th>Key</th>
-					<th>Name</th>
+					<th><a class="nav-link"
+						th:href="@{|/spaceship?sort=${F.Name}&direction=${sorting.direction(F.Name)}|}">Name
+							[(${sorting.icon(F.Name)})]</a></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -34,6 +37,10 @@
 				</tr>
 			</tbody>
 		</table>
+		<p th:unless="${paging.endOfResults}">
+			<a class="btn btn-primary"
+				th:href="@{|/spaceship?sort=${sorting.sort}&direction=${sorting.direction}&pageNumber=${paging.nextPageNumber}&bookmark=${paging.nextBookmark}|}">Next</a>
+		</p>
 	</div>
 </body>
 </html>

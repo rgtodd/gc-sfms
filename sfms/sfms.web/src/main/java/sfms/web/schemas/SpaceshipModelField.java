@@ -2,30 +2,30 @@ package sfms.web.schemas;
 
 public class SpaceshipModelField {
 
-	public static final String Name = "Name";
+	public static final String NAME = "NAME";
 	public static final String X = "X";
 	public static final String Y = "Y";
 	public static final String Z = "Z";
-	public static final String StarKey = "StarKey";
+	public static final String STAR_KEY = "STAR_KEY";
 
-	public static String getName() {
-		return Name;
+	public String getName() {
+		return NAME;
 	}
 
-	public static String getX() {
+	public String getX() {
 		return X;
 	}
 
-	public static String getY() {
+	public String getY() {
 		return Y;
 	}
 
-	public static String getZ() {
+	public String getZ() {
 		return Z;
 	}
 
-	public static String getStarKey() {
-		return StarKey;
+	public String getStarKey() {
+		return STAR_KEY;
 	}
 
 }

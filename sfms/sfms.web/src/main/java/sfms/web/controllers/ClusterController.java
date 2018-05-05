@@ -47,16 +47,16 @@ public class ClusterController extends SfmsController {
 	private static final Map<String, ClusterField> s_dbFieldMap;
 	static {
 		s_dbFieldMap = new HashMap<String, ClusterField>();
-		s_dbFieldMap.put(ClusterModelField.ClusterPartition, ClusterField.ClusterPartition);
-		s_dbFieldMap.put(ClusterModelField.ClusterX, ClusterField.ClusterX);
-		s_dbFieldMap.put(ClusterModelField.ClusterY, ClusterField.ClusterY);
-		s_dbFieldMap.put(ClusterModelField.ClusterZ, ClusterField.ClusterZ);
-		s_dbFieldMap.put(ClusterModelField.MinimumX, ClusterField.MinimumX);
-		s_dbFieldMap.put(ClusterModelField.MinimumY, ClusterField.MinimumY);
-		s_dbFieldMap.put(ClusterModelField.MinimumZ, ClusterField.MinimumZ);
-		s_dbFieldMap.put(ClusterModelField.MaximumX, ClusterField.MaximumX);
-		s_dbFieldMap.put(ClusterModelField.MaximumY, ClusterField.MaximumY);
-		s_dbFieldMap.put(ClusterModelField.MaximumZ, ClusterField.MaximumZ);
+		s_dbFieldMap.put(ClusterModelField.CLUSTER_PARTITION, ClusterField.ClusterPartition);
+		s_dbFieldMap.put(ClusterModelField.CLUSTER_X, ClusterField.ClusterX);
+		s_dbFieldMap.put(ClusterModelField.CLUSTER_Y, ClusterField.ClusterY);
+		s_dbFieldMap.put(ClusterModelField.CLUSTER_Z, ClusterField.ClusterZ);
+		s_dbFieldMap.put(ClusterModelField.MINIMUM_X, ClusterField.MinimumX);
+		s_dbFieldMap.put(ClusterModelField.MINIMUM_Y, ClusterField.MinimumY);
+		s_dbFieldMap.put(ClusterModelField.MINIMUM_Z, ClusterField.MinimumZ);
+		s_dbFieldMap.put(ClusterModelField.MAXIMUM_X, ClusterField.MaximumX);
+		s_dbFieldMap.put(ClusterModelField.MAXIMUM_Y, ClusterField.MaximumY);
+		s_dbFieldMap.put(ClusterModelField.MAXIMUM_Z, ClusterField.MaximumZ);
 	}
 
 	@GetMapping({ "/{key}" })
@@ -79,39 +79,11 @@ public class ClusterController extends SfmsController {
 	public String getList(
 			@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
 			@RequestParam(WebParameters.BOOKMARK) Optional<String> bookmark,
-			@RequestParam(WebParameters.SORT) Optional<String> sort,
-			@RequestParam(WebParameters.DIRECTION) Optional<String> direction, ModelMap modelMap) {
+			@RequestParam(name = WebParameters.SORT, defaultValue = ClusterModelField.CLUSTER_XYZ) String sort,
+			@RequestParam(name = WebParameters.DIRECTION, defaultValue = SortCriteria.ASCENDING) String direction,
+			ModelMap modelMap) {
 
-		String effectiveSort;
-		if (sort.isPresent()) {
-			effectiveSort = sort.get();
-		} else {
-			effectiveSort = ClusterModelField.MinimumX;
-		}
-
-		String effectiveDirection;
-		if (direction.isPresent()) {
-			effectiveDirection = direction.get();
-		} else {
-			effectiveDirection = SortCriteria.ASCENDING;
-		}
-
-		ClusterField sortColumn = s_dbFieldMap.get(effectiveSort);
-
-		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(SortCriteria.ASCENDING)) {
-			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
-		} else {
-			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();
-		}
-
-		UriBuilder uriBuilder = getUriBuilder().pathSegment("cluster");
-		if (bookmark.isPresent()) {
-			uriBuilder.queryParam(RestParameters.BOOKMARK, bookmark.get());
-		}
-		uriBuilder.queryParam(RestParameters.SORT, sortCriteria.toString());
-
-		URI uri = uriBuilder.build();
+		URI uri = createListUri(sort, direction, bookmark);
 		logger.log(Level.INFO, "uri = {0}", uri);
 
 		RestTemplate restTemplate = createRestTempate();
@@ -133,8 +105,8 @@ public class ClusterController extends SfmsController {
 		modelMap.addAttribute("paging", pagingModel);
 
 		SortingModel sortingModel = new SortingModel();
-		sortingModel.setSort(effectiveSort);
-		sortingModel.setDirection(effectiveDirection);
+		sortingModel.setSort(sort);
+		sortingModel.setDirection(direction);
 		modelMap.addAttribute("sorting", sortingModel);
 		modelMap.addAttribute("F", new ClusterModelField());
 
@@ -227,5 +199,43 @@ public class ClusterController extends SfmsController {
 				});
 
 		return "redirect:/cluster";
+	}
+
+	private URI createListUri(String sort, String direction, Optional<String> bookmark) {
+
+		SortCriteria sortCriteria;
+		if (sort.equals(ClusterModelField.CLUSTER_XYZ)) {
+			sortCriteria = SortCriteria.newBuilder()
+					.sort(ClusterField.ClusterX.getName(), direction)
+					.sort(ClusterField.ClusterY.getName(), direction)
+					.sort(ClusterField.ClusterZ.getName(), direction)
+					.build();
+		} else if (sort.equals(ClusterModelField.MINIMUM_XYZ)) {
+			sortCriteria = SortCriteria.newBuilder()
+					.sort(ClusterField.MinimumX.getName(), direction)
+					.sort(ClusterField.MinimumY.getName(), direction)
+					.sort(ClusterField.MinimumZ.getName(), direction)
+					.build();
+		} else if (sort.equals(ClusterModelField.MAXIMUM_XYZ)) {
+			sortCriteria = SortCriteria.newBuilder()
+					.sort(ClusterField.MaximumX.getName(), direction)
+					.sort(ClusterField.MaximumY.getName(), direction)
+					.sort(ClusterField.MaximumZ.getName(), direction)
+					.build();
+		} else {
+			ClusterField sortColumn = s_dbFieldMap.get(sort);
+			sortCriteria = SortCriteria.newBuilder()
+					.sort(sortColumn.getName(), direction)
+					.build();
+		}
+
+		UriBuilder uriBuilder = getUriBuilder().pathSegment("cluster");
+		if (bookmark.isPresent()) {
+			uriBuilder.queryParam(RestParameters.BOOKMARK, bookmark.get());
+		}
+		uriBuilder.queryParam(RestParameters.SORT, sortCriteria.toString());
+
+		URI uri = uriBuilder.build();
+		return uri;
 	}
 }

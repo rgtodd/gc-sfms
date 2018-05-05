@@ -2,64 +2,64 @@ package sfms.web.schemas;
 
 public class SectorModelField {
 
-	public static final String SectorX = "SectorX";
-	public static final String SectorY = "SectorY";
-	public static final String SectorZ = "SectorZ";
-	public static final String MinimumX = "MinimumX";
-	public static final String MinimumY = "MinimumY";
-	public static final String MinimumZ = "MinimumZ";
-	public static final String MaximumX = "MaximumX";
-	public static final String MaximumY = "MaximumY";
-	public static final String MaximumZ = "MaximumZ";
-	public static final String SectorXYZ = "SectorXYZ";
-	public static final String MinimumXYZ = "MinimumXYZ";
-	public static final String MaximumXYZ = "MaximumXYZ";
+	public static final String SECTOR_X = "SECTOR_X";
+	public static final String SECTOR_Y = "SECTOR_Y";
+	public static final String SECTOR_Z = "SECTOR_Z";
+	public static final String MINIMUM_X = "MINIMUM_X";
+	public static final String MINIMUM_Y = "MINIMUM_Y";
+	public static final String MINIMUM_Z = "MINIMUM_Z";
+	public static final String MAXIMUM_X = "MAXIMUM_X";
+	public static final String MAXIMUM_Y = "MAXIMUM_Y";
+	public static final String MAXIMUM_Z = "MAXIMUM_Z";
+	public static final String SECTOR_XYZ = "SECTOR_XYZ";
+	public static final String MINIMUM_XYZ = "MINIMUM_XYZ";
+	public static final String MAXIMUM_XYZ = "MAXIMUM_XYZ";
 
-	public static String getSectorX() {
-		return SectorX;
+	public String getSectorX() {
+		return SECTOR_X;
 	}
 
-	public static String getSectorY() {
-		return SectorY;
+	public String getSectorY() {
+		return SECTOR_Y;
 	}
 
-	public static String getSectorZ() {
-		return SectorZ;
+	public String getSectorZ() {
+		return SECTOR_Z;
 	}
 
-	public static String getMinimumX() {
-		return MinimumX;
+	public String getMinimumX() {
+		return MINIMUM_X;
 	}
 
-	public static String getMinimumY() {
-		return MinimumY;
+	public String getMinimumY() {
+		return MINIMUM_Y;
 	}
 
-	public static String getMinimumZ() {
-		return MinimumZ;
+	public String getMinimumZ() {
+		return MINIMUM_Z;
 	}
 
-	public static String getMaximumX() {
-		return MaximumX;
+	public String getMaximumX() {
+		return MAXIMUM_X;
 	}
 
-	public static String getMaximumY() {
-		return MaximumY;
+	public String getMaximumY() {
+		return MAXIMUM_Y;
 	}
 
-	public static String getMaximumZ() {
-		return MaximumZ;
+	public String getMaximumZ() {
+		return MAXIMUM_Z;
 	}
 
-	public static String getSectorXYZ() {
-		return SectorXYZ;
+	public String getSectorXYZ() {
+		return SECTOR_XYZ;
 	}
 
-	public static String getMinimumXYZ() {
-		return MinimumXYZ;
+	public String getMinimumXYZ() {
+		return MINIMUM_XYZ;
 	}
 
-	public static String getMaximumXYZ() {
-		return MaximumXYZ;
+	public String getMaximumXYZ() {
+		return MAXIMUM_XYZ;
 	}
 }

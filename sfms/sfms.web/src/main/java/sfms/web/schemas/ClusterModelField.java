@@ -2,69 +2,69 @@ package sfms.web.schemas;
 
 public class ClusterModelField {
 
-	public static final String ClusterPartition = "ClusterPartition";
-	public static final String ClusterX = "ClusterX";
-	public static final String ClusterY = "ClusterY";
-	public static final String ClusterZ = "ClusterZ";
-	public static final String MinimumX = "MinimumX";
-	public static final String MinimumY = "MinimumY";
-	public static final String MinimumZ = "MinimumZ";
-	public static final String MaximumX = "MaximumX";
-	public static final String MaximumY = "MaximumY";
-	public static final String MaximumZ = "MaximumZ";
-	public static final String ClusterXYZ = "ClusterXYZ";
-	public static final String MinimumXYZ = "MinimumXYZ";
-	public static final String MaximumXYZ = "MaximumXYZ";
+	public static final String CLUSTER_PARTITION = "CLUSTER_PARTITION";
+	public static final String CLUSTER_X = "CLUSTER_X";
+	public static final String CLUSTER_Y = "CLUSTER_Y";
+	public static final String CLUSTER_Z = "CLUSTER_Z";
+	public static final String MINIMUM_X = "MINIMUM_X";
+	public static final String MINIMUM_Y = "MINIMUM_Y";
+	public static final String MINIMUM_Z = "MINIMUM_Z";
+	public static final String MAXIMUM_X = "MAXIMUM_X";
+	public static final String MAXIMUM_Y = "MAXIMUM_Y";
+	public static final String MAXIMUM_Z = "MAXIMUM_Z";
+	public static final String CLUSTER_XYZ = "CLUSTER_XYZ";
+	public static final String MINIMUM_XYZ = "MINIMUM_XYZ";
+	public static final String MAXIMUM_XYZ = "MAXIMUM_XYZ";
 
-	public static String getClusterPartition() {
-		return ClusterPartition;
+	public String getClusterPartition() {
+		return CLUSTER_PARTITION;
 	}
 
-	public static String getClusterX() {
-		return ClusterX;
+	public String getClusterX() {
+		return CLUSTER_X;
 	}
 
-	public static String getClusterY() {
-		return ClusterY;
+	public String getClusterY() {
+		return CLUSTER_Y;
 	}
 
-	public static String getClusterZ() {
-		return ClusterZ;
+	public String getClusterZ() {
+		return CLUSTER_Z;
 	}
 
-	public static String getMinimumX() {
-		return MinimumX;
+	public String getMinimumX() {
+		return MINIMUM_X;
 	}
 
-	public static String getMinimumY() {
-		return MinimumY;
+	public String getMinimumY() {
+		return MINIMUM_Y;
 	}
 
-	public static String getMinimumZ() {
-		return MinimumZ;
+	public String getMinimumZ() {
+		return MINIMUM_Z;
 	}
 
-	public static String getMaximumX() {
-		return MaximumX;
+	public String getMaximumX() {
+		return MAXIMUM_X;
 	}
 
-	public static String getMaximumY() {
-		return MaximumY;
+	public String getMaximumY() {
+		return MAXIMUM_Y;
 	}
 
-	public static String getMaximumZ() {
-		return MaximumZ;
+	public String getMaximumZ() {
+		return MAXIMUM_Z;
 	}
 
-	public static String getClusterXYZ() {
-		return ClusterXYZ;
+	public String getClusterXYZ() {
+		return CLUSTER_XYZ;
 	}
 
-	public static String getMinimumXYZ() {
-		return MinimumXYZ;
+	public String getMinimumXYZ() {
+		return MINIMUM_XYZ;
 	}
 
-	public static String getMaximumXYZ() {
-		return MaximumXYZ;
+	public String getMaximumXYZ() {
+		return MAXIMUM_XYZ;
 	}
 }

@@ -3,6 +3,7 @@ package sfms.rest.db;
 import com.google.cloud.datastore.DoubleValue;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyValue;
+import com.google.cloud.datastore.LongValue;
 import com.google.cloud.datastore.NullValue;
 import com.google.cloud.datastore.StringValue;
 import com.google.cloud.datastore.Value;
@@ -43,6 +44,20 @@ public class DbValueFactory {
 			return NullValue.newBuilder().setExcludeFromIndexes(true).build();
 		}
 		return DoubleValue.newBuilder(value).setExcludeFromIndexes(true).build();
+	}
+
+	public static Value<?> asValue(Long value) {
+		if (value == null) {
+			return NullValue.of();
+		}
+		return LongValue.of(value);
+	}
+
+	public static Value<?> asUnindexedValue(Long value) {
+		if (value == null) {
+			return NullValue.newBuilder().setExcludeFromIndexes(true).build();
+		}
+		return LongValue.newBuilder(value).setExcludeFromIndexes(true).build();
 	}
 
 	public static Value<?> asValue(Key value) {

@@ -47,15 +47,15 @@ public class SectorController extends SfmsController {
 	private static final Map<String, SectorField> s_dbFieldMap;
 	static {
 		s_dbFieldMap = new HashMap<String, SectorField>();
-		s_dbFieldMap.put(SectorModelField.SectorX, SectorField.SectorX);
-		s_dbFieldMap.put(SectorModelField.SectorY, SectorField.SectorY);
-		s_dbFieldMap.put(SectorModelField.SectorZ, SectorField.SectorZ);
-		s_dbFieldMap.put(SectorModelField.MinimumX, SectorField.MinimumX);
-		s_dbFieldMap.put(SectorModelField.MinimumY, SectorField.MinimumY);
-		s_dbFieldMap.put(SectorModelField.MinimumZ, SectorField.MinimumZ);
-		s_dbFieldMap.put(SectorModelField.MaximumX, SectorField.MaximumX);
-		s_dbFieldMap.put(SectorModelField.MaximumY, SectorField.MaximumY);
-		s_dbFieldMap.put(SectorModelField.MaximumZ, SectorField.MaximumZ);
+		s_dbFieldMap.put(SectorModelField.SECTOR_X, SectorField.SectorX);
+		s_dbFieldMap.put(SectorModelField.SECTOR_Y, SectorField.SectorY);
+		s_dbFieldMap.put(SectorModelField.SECTOR_Z, SectorField.SectorZ);
+		s_dbFieldMap.put(SectorModelField.MINIMUM_X, SectorField.MinimumX);
+		s_dbFieldMap.put(SectorModelField.MINIMUM_Y, SectorField.MinimumY);
+		s_dbFieldMap.put(SectorModelField.MINIMUM_Z, SectorField.MinimumZ);
+		s_dbFieldMap.put(SectorModelField.MAXIMUM_X, SectorField.MaximumX);
+		s_dbFieldMap.put(SectorModelField.MAXIMUM_Y, SectorField.MaximumY);
+		s_dbFieldMap.put(SectorModelField.MAXIMUM_Z, SectorField.MaximumZ);
 	}
 
 	@GetMapping({ "/{key}" })
@@ -78,39 +78,11 @@ public class SectorController extends SfmsController {
 	public String getList(
 			@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
 			@RequestParam(WebParameters.BOOKMARK) Optional<String> bookmark,
-			@RequestParam(WebParameters.SORT) Optional<String> sort,
-			@RequestParam(WebParameters.DIRECTION) Optional<String> direction, ModelMap modelMap) {
+			@RequestParam(name = WebParameters.SORT, defaultValue = SectorModelField.SECTOR_XYZ) String sort,
+			@RequestParam(name = WebParameters.DIRECTION, defaultValue = SortCriteria.ASCENDING) String direction,
+			ModelMap modelMap) {
 
-		String effectiveSort;
-		if (sort.isPresent()) {
-			effectiveSort = sort.get();
-		} else {
-			effectiveSort = SectorModelField.MinimumX;
-		}
-
-		String effectiveDirection;
-		if (direction.isPresent()) {
-			effectiveDirection = direction.get();
-		} else {
-			effectiveDirection = SortCriteria.ASCENDING;
-		}
-
-		SectorField sortColumn = s_dbFieldMap.get(effectiveSort);
-
-		SortCriteria sortCriteria;
-		if (effectiveDirection.equals(SortCriteria.ASCENDING)) {
-			sortCriteria = SortCriteria.newBuilder().ascending(sortColumn.getName()).build();
-		} else {
-			sortCriteria = SortCriteria.newBuilder().descending(sortColumn.getName()).build();
-		}
-
-		UriBuilder uriBuilder = getUriBuilder().pathSegment("sector");
-		if (bookmark.isPresent()) {
-			uriBuilder.queryParam(RestParameters.BOOKMARK, bookmark.get());
-		}
-		uriBuilder.queryParam(RestParameters.SORT, sortCriteria.toString());
-
-		URI uri = uriBuilder.build();
+		URI uri = createListUri(sort, direction, bookmark);
 		logger.log(Level.INFO, "uri = {0}", uri);
 
 		RestTemplate restTemplate = createRestTempate();
@@ -132,8 +104,8 @@ public class SectorController extends SfmsController {
 		modelMap.addAttribute("paging", pagingModel);
 
 		SortingModel sortingModel = new SortingModel();
-		sortingModel.setSort(effectiveSort);
-		sortingModel.setDirection(effectiveDirection);
+		sortingModel.setSort(sort);
+		sortingModel.setDirection(direction);
 		modelMap.addAttribute("sorting", sortingModel);
 		modelMap.addAttribute("F", new SectorModelField());
 
@@ -226,5 +198,43 @@ public class SectorController extends SfmsController {
 				});
 
 		return "redirect:/sector";
+	}
+
+	private URI createListUri(String sort, String direction, Optional<String> bookmark) {
+
+		SortCriteria sortCriteria;
+		if (sort.equals(SectorModelField.SECTOR_XYZ)) {
+			sortCriteria = SortCriteria.newBuilder()
+					.sort(SectorField.SectorX.getName(), direction)
+					.sort(SectorField.SectorY.getName(), direction)
+					.sort(SectorField.SectorZ.getName(), direction)
+					.build();
+		} else if (sort.equals(SectorModelField.MINIMUM_XYZ)) {
+			sortCriteria = SortCriteria.newBuilder()
+					.sort(SectorField.MinimumX.getName(), direction)
+					.sort(SectorField.MinimumY.getName(), direction)
+					.sort(SectorField.MinimumZ.getName(), direction)
+					.build();
+		} else if (sort.equals(SectorModelField.MAXIMUM_XYZ)) {
+			sortCriteria = SortCriteria.newBuilder()
+					.sort(SectorField.MaximumX.getName(), direction)
+					.sort(SectorField.MaximumY.getName(), direction)
+					.sort(SectorField.MaximumZ.getName(), direction)
+					.build();
+		} else {
+			SectorField sortColumn = s_dbFieldMap.get(sort);
+			sortCriteria = SortCriteria.newBuilder()
+					.sort(sortColumn.getName(), direction)
+					.build();
+		}
+
+		UriBuilder uriBuilder = getUriBuilder().pathSegment("sector");
+		if (bookmark.isPresent()) {
+			uriBuilder.queryParam(RestParameters.BOOKMARK, bookmark.get());
+		}
+		uriBuilder.queryParam(RestParameters.SORT, sortCriteria.toString());
+
+		URI uri = uriBuilder.build();
+		return uri;
 	}
 }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriBuilder;
@@ -38,6 +39,7 @@ import sfms.web.models.StarModel;
 import sfms.web.schemas.StarModelField;
 
 @Controller
+@RequestMapping({ "/star" })
 public class StarController extends SfmsController {
 
 	private final Logger logger = Logger.getLogger(StarController.class.getName());
@@ -45,20 +47,20 @@ public class StarController extends SfmsController {
 	private static final Map<String, StarField> s_dbFieldMap;
 	static {
 		s_dbFieldMap = new HashMap<String, StarField>();
-		s_dbFieldMap.put(StarModelField.CatalogId, StarField.CatalogId);
-		s_dbFieldMap.put(StarModelField.ProperName, StarField.ProperName);
-		s_dbFieldMap.put(StarModelField.SectorKey, StarField.SectorKey);
-		s_dbFieldMap.put(StarModelField.ClusterKey, StarField.ClusterKey);
+		s_dbFieldMap.put(StarModelField.CATALOG_ID, StarField.CatalogId);
+		s_dbFieldMap.put(StarModelField.PROPER_NAME, StarField.ProperName);
+		s_dbFieldMap.put(StarModelField.SECTOR_KEY, StarField.SectorKey);
+		s_dbFieldMap.put(StarModelField.CLUSTER_KEY, StarField.ClusterKey);
 		s_dbFieldMap.put(StarModelField.X, StarField.X);
 		s_dbFieldMap.put(StarModelField.Y, StarField.Y);
 		s_dbFieldMap.put(StarModelField.Z, StarField.Z);
 	}
 
-	@GetMapping({ "/star/{id}" })
-	public String get(@PathVariable String id, ModelMap modelMap) {
+	@GetMapping({ "/{key}" })
+	public String get(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + id), HttpMethod.GET,
+		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + key), HttpMethod.GET,
 				createHttpEntity(), new ParameterizedTypeReference<Star>() {
 				});
 
@@ -70,11 +72,11 @@ public class StarController extends SfmsController {
 		return "starDetail";
 	}
 
-	@GetMapping({ "/star" })
+	@GetMapping({ "" })
 	public String getList(
 			@RequestParam(WebParameters.PAGE_NUMBER) Optional<Integer> pageNumber,
 			@RequestParam(WebParameters.BOOKMARK) Optional<String> bookmark,
-			@RequestParam(name = WebParameters.SORT, defaultValue = StarModelField.CatalogId) String sort,
+			@RequestParam(name = WebParameters.SORT, defaultValue = StarModelField.CATALOG_ID) String sort,
 			@RequestParam(name = WebParameters.DIRECTION, defaultValue = SortCriteria.ASCENDING) String direction,
 			ModelMap modelMap) {
 
@@ -108,7 +110,7 @@ public class StarController extends SfmsController {
 		return "starList";
 	}
 
-	@GetMapping({ "/star_create" })
+	@GetMapping({ "/create" })
 	public String create(ModelMap modelMap) {
 
 		ModelFactory factory = new ModelFactory();
@@ -119,7 +121,7 @@ public class StarController extends SfmsController {
 		return "starCreate";
 	}
 
-	@PostMapping({ "/star_createPost" })
+	@PostMapping({ "/createPost" })
 	public String createPost(@ModelAttribute StarModel starModel) {
 
 		RestFactory factory = new RestFactory();
@@ -133,11 +135,11 @@ public class StarController extends SfmsController {
 		return "redirect:/star/" + restResponse.getBody().getKey();
 	}
 
-	@GetMapping({ "/star_edit/{id}" })
-	public String edit(@PathVariable String id, ModelMap modelMap) {
+	@GetMapping({ "/edit/{key}" })
+	public String edit(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + id), HttpMethod.GET,
+		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + key), HttpMethod.GET,
 				createHttpEntity(), new ParameterizedTypeReference<Star>() {
 				});
 
@@ -149,7 +151,7 @@ public class StarController extends SfmsController {
 		return "starEdit";
 	}
 
-	@PostMapping({ "/star_editPost" })
+	@PostMapping({ "/editPost" })
 	public String editPost(@ModelAttribute StarModel starModel) {
 
 		RestFactory factory = new RestFactory();
@@ -163,11 +165,11 @@ public class StarController extends SfmsController {
 		return "redirect:/star/" + restResponse.getBody().getKey();
 	}
 
-	@GetMapping({ "/star_delete/{id}" })
-	public String delete(@PathVariable String id, ModelMap modelMap) {
+	@GetMapping({ "/delete/{key}" })
+	public String delete(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + id), HttpMethod.GET,
+		ResponseEntity<Star> restResponse = restTemplate.exchange(getRestUrl("star/" + key), HttpMethod.GET,
 				createHttpEntity(), new ParameterizedTypeReference<Star>() {
 				});
 
@@ -179,7 +181,7 @@ public class StarController extends SfmsController {
 		return "starDelete";
 	}
 
-	@PostMapping({ "/star_deletePost" })
+	@PostMapping({ "/deletePost" })
 	public String deletePost(@ModelAttribute StarModel starModel) {
 
 		RestFactory factory = new RestFactory();

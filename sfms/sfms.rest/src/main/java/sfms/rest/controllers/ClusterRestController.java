@@ -34,6 +34,7 @@ import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Cluster;
 import sfms.rest.api.schemas.ClusterField;
 import sfms.rest.db.DbFieldSchema;
+import sfms.rest.db.DbValueFactory;
 import sfms.rest.db.schemas.DbClusterField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
@@ -51,6 +52,10 @@ public class ClusterRestController {
 	private static final Map<String, DbFieldSchema> s_dbFieldMap;
 	static {
 		s_dbFieldMap = new HashMap<String, DbFieldSchema>();
+		s_dbFieldMap.put(ClusterField.ClusterPartition.getName(), DbClusterField.ClusterPartition);
+		s_dbFieldMap.put(ClusterField.ClusterX.getName(), DbClusterField.ClusterX);
+		s_dbFieldMap.put(ClusterField.ClusterY.getName(), DbClusterField.ClusterY);
+		s_dbFieldMap.put(ClusterField.ClusterZ.getName(), DbClusterField.ClusterZ);
 		s_dbFieldMap.put(ClusterField.MinimumX.getName(), DbClusterField.MinimumX);
 		s_dbFieldMap.put(ClusterField.MinimumY.getName(), DbClusterField.MinimumY);
 		s_dbFieldMap.put(ClusterField.MinimumZ.getName(), DbClusterField.MinimumZ);
@@ -141,14 +146,7 @@ public class ClusterRestController {
 
 		Key dbClusterKey = DbEntity.Cluster.createEntityKey(datastore, id);
 
-		Entity dbCluster = Entity.newBuilder(dbClusterKey)
-				.set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
-				.set(DbClusterField.MinimumY.getName(), cluster.getMinimumY())
-				.set(DbClusterField.MinimumZ.getName(), cluster.getMinimumZ())
-				.set(DbClusterField.MaximumX.getName(), cluster.getMaximumX())
-				.set(DbClusterField.MaximumY.getName(), cluster.getMaximumY())
-				.set(DbClusterField.MaximumZ.getName(), cluster.getMaximumZ())
-				.build();
+		Entity dbCluster = createDbCluster(cluster, dbClusterKey);
 
 		datastore.update(dbCluster);
 
@@ -169,14 +167,7 @@ public class ClusterRestController {
 
 		Key dbClusterKey = DbEntity.Cluster.createEntityKey(datastore, cluster.getKey());
 
-		Entity dbCluster = Entity.newBuilder(dbClusterKey)
-				.set(DbClusterField.MinimumX.getName(), cluster.getMinimumX())
-				.set(DbClusterField.MinimumY.getName(), cluster.getMinimumY())
-				.set(DbClusterField.MinimumZ.getName(), cluster.getMinimumZ())
-				.set(DbClusterField.MaximumX.getName(), cluster.getMaximumX())
-				.set(DbClusterField.MaximumY.getName(), cluster.getMaximumY())
-				.set(DbClusterField.MaximumZ.getName(), cluster.getMaximumZ())
-				.build();
+		Entity dbCluster = createDbCluster(cluster, dbClusterKey);
 
 		datastore.put(dbCluster);
 
@@ -203,5 +194,21 @@ public class ClusterRestController {
 		result.setKey(DbEntity.Cluster.createRestKey(dbClusterKey));
 
 		return result;
+	}
+
+	private Entity createDbCluster(Cluster cluster, Key dbClusterKey) {
+		Entity dbCluster = Entity.newBuilder(dbClusterKey)
+				.set(DbClusterField.ClusterPartition.getName(), DbValueFactory.asValue(cluster.getClusterPartition()))
+				.set(DbClusterField.ClusterX.getName(), DbValueFactory.asValue(cluster.getClusterX()))
+				.set(DbClusterField.ClusterY.getName(), DbValueFactory.asValue(cluster.getClusterY()))
+				.set(DbClusterField.ClusterZ.getName(), DbValueFactory.asValue(cluster.getClusterZ()))
+				.set(DbClusterField.MinimumX.getName(), DbValueFactory.asValue(cluster.getMinimumX()))
+				.set(DbClusterField.MinimumY.getName(), DbValueFactory.asValue(cluster.getMinimumY()))
+				.set(DbClusterField.MinimumZ.getName(), DbValueFactory.asValue(cluster.getMinimumZ()))
+				.set(DbClusterField.MaximumX.getName(), DbValueFactory.asValue(cluster.getMaximumX()))
+				.set(DbClusterField.MaximumY.getName(), DbValueFactory.asValue(cluster.getMaximumY()))
+				.set(DbClusterField.MaximumZ.getName(), DbValueFactory.asValue(cluster.getMaximumZ()))
+				.build();
+		return dbCluster;
 	}
 }

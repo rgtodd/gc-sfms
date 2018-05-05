@@ -24,8 +24,14 @@
 					<th></th>
 					<th>Key</th>
 					<th><a class="nav-link"
-						th:href="@{|/sector?sort=${F.MinimumX}&direction=${sorting.direction(F.MinimumX)}|}">Minimum
-							X [(${sorting.icon(F.MinimumX)})]</a></th>
+						th:href="@{|/sector?sort=${F.SectorXYZ}&direction=${sorting.direction(F.SectorXYZ)}|}">Coordinates
+							[(${sorting.icon(F.SectorXYZ)})]</a></th>
+					<th><a class="nav-link"
+						th:href="@{|/sector?sort=${F.MinimumXYZ}&direction=${sorting.direction(F.MinimumXYZ)}|}">Minimum
+							[(${sorting.icon(F.MinimumXYZ)})]</a></th>
+					<th><a class="nav-link"
+						th:href="@{|/sector?sort=${F.MaximumXYZ}&direction=${sorting.direction(F.MaximumXYZ)}|}">Maximum
+							[(${sorting.icon(F.MaximumXYZ)})]</a></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -33,7 +39,9 @@
 					<td><a class="btn btn-primary"
 						th:href="@{|/sector/${sector.key}|}">View</a></td>
 					<td th:text="${sector.key}">123</td>
-					<td th:text="${sector.minimumX}">USS Demo</td>
+					<td th:text="${sector.sectorXYZ}">USS Demo</td>
+					<td th:text="${sector.minimumXYZ}">USS Demo</td>
+					<td th:text="${sector.maximumXYZ}">USS Demo</td>
 				</tr>
 			</tbody>
 		</table>

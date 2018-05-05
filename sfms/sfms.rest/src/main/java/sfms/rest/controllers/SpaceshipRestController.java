@@ -35,6 +35,7 @@ import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.schemas.SpaceshipField;
 import sfms.rest.db.DbFieldSchema;
+import sfms.rest.db.DbValueFactory;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSpaceshipField;
 
@@ -133,12 +134,12 @@ public class SpaceshipRestController {
 		Key dbSpaceshipKey = DbEntity.Spaceship.createEntityKey(datastore, id);
 
 		Entity dbSpaceship = Entity.newBuilder(dbSpaceshipKey)
-				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
-				.set(DbSpaceshipField.X.getName(), spaceship.getX())
-				.set(DbSpaceshipField.Y.getName(), spaceship.getY())
-				.set(DbSpaceshipField.Z.getName(), spaceship.getZ())
-				.set(DbSpaceshipField.StarKey.getName(),
-						DbEntity.Star.createEntityKey(datastore, spaceship.getStarKey()))
+				.set(DbSpaceshipField.Name.getName(), DbValueFactory.asValue(spaceship.getName()))
+				.set(DbSpaceshipField.X.getName(), DbValueFactory.asValue(spaceship.getX()))
+				.set(DbSpaceshipField.Y.getName(), DbValueFactory.asValue(spaceship.getY()))
+				.set(DbSpaceshipField.Z.getName(), DbValueFactory.asValue(spaceship.getZ()))
+				.set(DbSpaceshipField.StarKey.getName(), DbValueFactory.asValue(
+						DbEntity.Star.createEntityKey(datastore, spaceship.getStarKey())))
 				.build();
 
 		datastore.update(dbSpaceship);
@@ -162,10 +163,10 @@ public class SpaceshipRestController {
 				.newKey();
 
 		FullEntity<IncompleteKey> dbSpaceship = FullEntity.newBuilder(dbSpaceshipIncompleteKey)
-				.set(DbSpaceshipField.Name.getName(), spaceship.getName())
-				.set(DbSpaceshipField.X.getName(), spaceship.getX())
-				.set(DbSpaceshipField.Y.getName(), spaceship.getY())
-				.set(DbSpaceshipField.Z.getName(), spaceship.getZ())
+				.set(DbSpaceshipField.Name.getName(), DbValueFactory.asValue(spaceship.getName()))
+				.set(DbSpaceshipField.X.getName(), DbValueFactory.asValue(spaceship.getX()))
+				.set(DbSpaceshipField.Y.getName(), DbValueFactory.asValue(spaceship.getY()))
+				.set(DbSpaceshipField.Z.getName(), DbValueFactory.asValue(spaceship.getZ()))
 				.set(DbSpaceshipField.StarKey.getName(),
 						DbEntity.Star.createEntityKey(datastore, spaceship.getStarKey()))
 				.build();
