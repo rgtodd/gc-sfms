@@ -24,6 +24,7 @@ import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
 import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
+import sfms.rest.api.FilterCriteria;
 import sfms.rest.api.RestDetail;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
@@ -62,7 +63,7 @@ public class StarRestController {
 	}
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
-	private static final int MAX_PAGE_SIZE = 100;
+	private static final int MAX_PAGE_SIZE = 100000;
 
 	@Autowired
 	private Throttle m_throttle;
@@ -103,12 +104,16 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
+		FilterCriteria filterCriteria = filter.isPresent() ? FilterCriteria.parse(filter.get()) : null;
+
 		SelectionCriteria selectionCriteria;
 		if (detail.isPresent() && detail.get().equals(RestDetail.MINIMAL)) {
-			selectionCriteria = SelectionCriteria.newBuilder()
+			selectionCriteria = SelectionCriteria.newBuilder(filterCriteria)
 					.select(StarField.X.getName())
 					.select(StarField.Y.getName())
 					.select(StarField.Z.getName())
+					.select(StarField.ClusterKey.getName())
+					.select(StarField.SectorKey.getName())
 					.build();
 		} else {
 			selectionCriteria = null;
@@ -118,7 +123,7 @@ public class StarRestController {
 				.setKind(DbEntity.Star.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
-				.setFilterCriteria(filter)
+				.setFilterCriteria(datastore, filterCriteria)
 				.setStartCursor(bookmark)
 				.build();
 

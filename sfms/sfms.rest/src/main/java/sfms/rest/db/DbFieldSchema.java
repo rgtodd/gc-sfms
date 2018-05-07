@@ -1,5 +1,6 @@
 package sfms.rest.db;
 
+import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Value;
 
 /**
@@ -14,6 +15,6 @@ public interface DbFieldSchema {
 
 	public String getDescription();
 
-	public Value<?> parseValue(String text);
+	public Value<?> parseValue(Datastore datastore, String text);
 
 }

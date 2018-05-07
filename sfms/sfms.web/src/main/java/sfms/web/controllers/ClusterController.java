@@ -24,12 +24,16 @@ import org.springframework.web.util.UriBuilder;
 
 import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
+import sfms.rest.api.FilterCriteria;
+import sfms.rest.api.RestDetail;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Cluster;
+import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.ClusterField;
+import sfms.rest.api.schemas.StarField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
@@ -67,8 +71,15 @@ public class ClusterController extends SfmsController {
 				createHttpEntity(), new ParameterizedTypeReference<Cluster>() {
 				});
 
+		URI uriStarList = createStarListUri(key);
+		logger.log(Level.INFO, "uriStarList = {0}", uriStarList);
+
+		ResponseEntity<SearchResult<Star>> starResponse = restTemplate.exchange(uriStarList, HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<SearchResult<Star>>() {
+				});
+
 		ModelFactory factory = new ModelFactory();
-		ClusterModel clusterModel = factory.createCluster(restResponse.getBody());
+		ClusterModel clusterModel = factory.createCluster(restResponse.getBody(), starResponse.getBody().getEntities());
 
 		modelMap.addAttribute("cluster", clusterModel);
 
@@ -147,7 +158,7 @@ public class ClusterController extends SfmsController {
 				});
 
 		ModelFactory factory = new ModelFactory();
-		ClusterModel clusterModel = factory.createCluster(restResponse.getBody());
+		ClusterModel clusterModel = factory.createCluster(restResponse.getBody(), null);
 
 		modelMap.addAttribute("cluster", clusterModel);
 
@@ -178,7 +189,7 @@ public class ClusterController extends SfmsController {
 				});
 
 		ModelFactory factory = new ModelFactory();
-		ClusterModel clusterModel = factory.createCluster(restResponse.getBody());
+		ClusterModel clusterModel = factory.createCluster(restResponse.getBody(), null);
 
 		modelMap.addAttribute("cluster", clusterModel);
 
@@ -199,6 +210,20 @@ public class ClusterController extends SfmsController {
 				});
 
 		return "redirect:/cluster";
+	}
+
+	private URI createStarListUri(String key) {
+
+		FilterCriteria filterCriteria = FilterCriteria.newBuilder()
+				.add(StarField.ClusterKey.getName(), FilterCriteria.EQ, key)
+				.build();
+
+		UriBuilder uriBuilder = getUriBuilder().pathSegment("star");
+		uriBuilder.queryParam(RestParameters.FILTER, filterCriteria.toString());
+		uriBuilder.queryParam(RestParameters.DETAIL, RestDetail.MINIMAL);
+
+		URI uri = uriBuilder.build();
+		return uri;
 	}
 
 	private URI createListUri(String sort, String direction, Optional<String> bookmark) {

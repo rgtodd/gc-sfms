@@ -24,12 +24,16 @@ import org.springframework.web.util.UriBuilder;
 
 import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
+import sfms.rest.api.FilterCriteria;
+import sfms.rest.api.RestDetail;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.SortCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Sector;
+import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.SectorField;
+import sfms.rest.api.schemas.StarField;
 import sfms.web.ModelFactory;
 import sfms.web.RestFactory;
 import sfms.web.SfmsController;
@@ -62,12 +66,19 @@ public class SectorController extends SfmsController {
 	public String get(@PathVariable String key, ModelMap modelMap) {
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Sector> restResponse = restTemplate.exchange(getRestUrl("sector/" + key), HttpMethod.GET,
+		ResponseEntity<Sector> sectorResponse = restTemplate.exchange(getRestUrl("sector/" + key), HttpMethod.GET,
 				createHttpEntity(), new ParameterizedTypeReference<Sector>() {
 				});
 
+		URI uriStarList = createStarListUri(key);
+		logger.log(Level.INFO, "uriStarList = {0}", uriStarList);
+
+		ResponseEntity<SearchResult<Star>> starResponse = restTemplate.exchange(uriStarList, HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<SearchResult<Star>>() {
+				});
+
 		ModelFactory factory = new ModelFactory();
-		SectorModel sectorModel = factory.createSector(restResponse.getBody());
+		SectorModel sectorModel = factory.createSector(sectorResponse.getBody(), starResponse.getBody().getEntities());
 
 		modelMap.addAttribute("sector", sectorModel);
 
@@ -82,7 +93,7 @@ public class SectorController extends SfmsController {
 			@RequestParam(name = WebParameters.DIRECTION, defaultValue = SortCriteria.ASCENDING) String direction,
 			ModelMap modelMap) {
 
-		URI uri = createListUri(sort, direction, bookmark);
+		URI uri = createSectorListUri(sort, direction, bookmark);
 		logger.log(Level.INFO, "uri = {0}", uri);
 
 		RestTemplate restTemplate = createRestTempate();
@@ -146,7 +157,7 @@ public class SectorController extends SfmsController {
 				});
 
 		ModelFactory factory = new ModelFactory();
-		SectorModel sectorModel = factory.createSector(restResponse.getBody());
+		SectorModel sectorModel = factory.createSector(restResponse.getBody(), null);
 
 		modelMap.addAttribute("sector", sectorModel);
 
@@ -177,7 +188,7 @@ public class SectorController extends SfmsController {
 				});
 
 		ModelFactory factory = new ModelFactory();
-		SectorModel sectorModel = factory.createSector(restResponse.getBody());
+		SectorModel sectorModel = factory.createSector(restResponse.getBody(), null);
 
 		modelMap.addAttribute("sector", sectorModel);
 
@@ -200,7 +211,21 @@ public class SectorController extends SfmsController {
 		return "redirect:/sector";
 	}
 
-	private URI createListUri(String sort, String direction, Optional<String> bookmark) {
+	private URI createStarListUri(String key) {
+
+		FilterCriteria filterCriteria = FilterCriteria.newBuilder()
+				.add(StarField.SectorKey.getName(), FilterCriteria.EQ, key)
+				.build();
+
+		UriBuilder uriBuilder = getUriBuilder().pathSegment("star");
+		uriBuilder.queryParam(RestParameters.FILTER, filterCriteria.toString());
+		uriBuilder.queryParam(RestParameters.DETAIL, RestDetail.MINIMAL);
+
+		URI uri = uriBuilder.build();
+		return uri;
+	}
+
+	private URI createSectorListUri(String sort, String direction, Optional<String> bookmark) {
 
 		SortCriteria sortCriteria;
 		if (sort.equals(SectorModelField.SECTOR_XYZ)) {

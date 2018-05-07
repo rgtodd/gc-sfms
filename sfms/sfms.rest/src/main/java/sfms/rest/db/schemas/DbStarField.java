@@ -1,5 +1,7 @@
 package sfms.rest.db.schemas;
 
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.KeyValue;
 import com.google.cloud.datastore.Value;
 
 import sfms.rest.db.DbFieldSchema;
@@ -13,8 +15,8 @@ import sfms.rest.db.DbValueType;
 public enum DbStarField implements DbFieldSchema {
 
 	CatalogId("cat_id", DbValueType.Long, "Catalog ID", "ID of star in source catalog."),
-	ClusterKey("cls_k", DbValueType.Key, "Cluster Key", "Key of parent Cluster entity."),
-	SectorKey("sct_k", DbValueType.Key, "Sector Key", "Key of parent Sector entity."),
+	ClusterKey("cls_k", DbEntity.Cluster, "Cluster Key", "Key of parent Cluster entity."),
+	SectorKey("sct_k", DbEntity.Sector, "Sector Key", "Key of parent Sector entity."),
 	HipparcosId("hip", DbValueType.String, "Hipparcos ID", "ID of star in Hipparcos Catalog."),
 	HenryDraperId("hd", DbValueType.String, "Henry Draper ID", "ID of star in Henry Draper Catalog."),
 	HarvardRevisedId("hr", DbValueType.String, "Harvard Revised ID", "ID of star in Harvard Revised Catalog."),
@@ -68,12 +70,20 @@ public enum DbStarField implements DbFieldSchema {
 
 	private String m_name;
 	private DbValueType m_dbValueType;
+	private DbEntity m_dbEntity;
 	private String m_title;
 	private String m_description;
 
 	private DbStarField(String name, DbValueType dbValueType, String title, String description) {
 		m_name = name;
 		m_dbValueType = dbValueType;
+		m_title = title;
+		m_description = description;
+	}
+
+	private DbStarField(String name, DbEntity dbEntity, String title, String description) {
+		m_name = name;
+		m_dbEntity = dbEntity;
 		m_title = title;
 		m_description = description;
 	}
@@ -104,7 +114,11 @@ public enum DbStarField implements DbFieldSchema {
 	}
 
 	@Override
-	public Value<?> parseValue(String text) {
-		return m_dbValueType.parse(text);
+	public Value<?> parseValue(Datastore datastore, String text) {
+		if (m_dbValueType != null) {
+			return m_dbValueType.parse(text);
+		} else {
+			return KeyValue.of(m_dbEntity.createEntityKey(datastore, text));
+		}
 	}
 }

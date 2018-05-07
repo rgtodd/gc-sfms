@@ -5,9 +5,10 @@ import java.io.OutputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,11 +30,12 @@ import com.google.api.client.util.IOUtils;
 
 import sfms.common.Constants;
 import sfms.rest.api.FilterCriteria;
+import sfms.rest.api.RestDetail;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
-import sfms.rest.api.models.Sector;
+import sfms.rest.api.SortCriteria;
 import sfms.rest.api.models.Star;
-import sfms.rest.api.schemas.SectorField;
+import sfms.rest.api.schemas.StarField;
 import sfms.storage.Storage;
 import sfms.storage.StorageManagerUtility;
 import sfms.storage.StorageManagerUtility.ObjectFactory;
@@ -209,13 +211,13 @@ public class AjaxController extends SfmsController {
 		}
 	}
 
-	@GetMapping({ "/getMapItemsBySector" })
-	public GetMapItemsResponse getMapItemsBySector(
-			@RequestParam("sectorKey") String sectorKey,
-			@RequestParam("mapItemType") Integer mapItemType) {
-
-		return getMapItemsBySectorRest(sectorKey, mapItemType);
-	}
+	// @GetMapping({ "/getMapItemsBySector" })
+	// public GetMapItemsResponse getMapItemsBySector(
+	// @RequestParam("sectorKey") String sectorKey,
+	// @RequestParam("mapItemType") Integer mapItemType) {
+	//
+	// return getMapItemsBySectorRest(sectorKey, mapItemType);
+	// }
 
 	@GetMapping({ "/getMapItemsByRank/get" })
 	public GetMapItemsResponse getMapItemsByRank(@RequestParam("rank") Long rank) {
@@ -255,147 +257,154 @@ public class AjaxController extends SfmsController {
 	}
 
 	private GetMapItemsResponse getMapItemsByRankRest(Long rank) {
+
 		Long minimumX = -1000 + rank * 200;
 		Long maximumX = minimumX + 200;
 
-		FilterCriteria filterCriteria = FilterCriteria.newBuilder()
-				.add(SectorField.MinimumX.getName(), FilterCriteria.GE, minimumX.toString())
-				.add(SectorField.MinimumX.getName(), FilterCriteria.LT, maximumX.toString()).build();
+		Map<String, MapItemSetModel> mapItemSetByKey = new HashMap<String, MapItemSetModel>();
 
-		String uri = UriComponentsBuilder.newInstance().path("sector")
-				.queryParam(RestParameters.FILTER, filterCriteria.toString()).queryParam(RestParameters.DETAIL, "star")
+		SortCriteria sortCriteria = SortCriteria.newBuilder()
+				.ascending(StarField.X.getName())
+				.build();
+
+		FilterCriteria filterCriteria = FilterCriteria.newBuilder()
+				.add(StarField.X.getName(), FilterCriteria.GE, minimumX.toString())
+				.add(StarField.X.getName(), FilterCriteria.LT, maximumX.toString()).build();
+
+		String uri = UriComponentsBuilder.newInstance().path("star")
+				.queryParam(RestParameters.FILTER, filterCriteria.toString())
+				.queryParam(RestParameters.SORT, sortCriteria.toString())
+				.queryParam(RestParameters.DETAIL, RestDetail.MINIMAL)
+				.queryParam(RestParameters.PAGE_SIZE, "999999")
 				.build().toUriString();
 
 		logger.info("Calling " + uri);
 
 		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<SearchResult<Sector>> restResponse = restTemplate.exchange(getRestUrl(uri), HttpMethod.GET,
-				createHttpEntity(), new ParameterizedTypeReference<SearchResult<Sector>>() {
+		ResponseEntity<SearchResult<Star>> restResponse = restTemplate.exchange(getRestUrl(uri), HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<SearchResult<Star>>() {
 				});
-		SearchResult<Sector> searchResults = restResponse.getBody();
+		SearchResult<Star> searchResults = restResponse.getBody();
 
-		List<MapItemSetModel> mapItemSets = new ArrayList<MapItemSetModel>();
-		for (Sector sector : searchResults.getEntities()) {
+		for (Star star : searchResults.getEntities()) {
 
-			// Add sector stars.
-			//
-			{
-				List<String> mapItemKeys = new ArrayList<String>();
-				List<Double> mapItemPoints = new ArrayList<Double>();
-				for (Star star : sector.getStars()) {
-					mapItemKeys.add(star.getKey());
-					mapItemPoints.add(star.getX());
-					mapItemPoints.add(star.getY());
-					mapItemPoints.add(star.getZ());
-				}
+			String sectorKey = star.getSectorKey();
 
-				MapItemSetModel mapItemSet = new MapItemSetModel();
-				mapItemSet.setSectorKey(sector.getKey());
+			MapItemSetModel mapItemSet = mapItemSetByKey.get(sectorKey);
+
+			if (mapItemSet == null) {
+				mapItemSet = new MapItemSetModel();
+				mapItemSet.setSectorKey(sectorKey);
 				mapItemSet.setMapItemType(MapItemTypes.STAR);
-				mapItemSet.setMapItemKeys(mapItemKeys);
-				mapItemSet.setMapItemPoints(mapItemPoints);
+				mapItemSet.setMapItemKeys(new ArrayList<String>());
+				mapItemSet.setMapItemPoints(new ArrayList<Double>());
 
-				mapItemSets.add(mapItemSet);
+				mapItemSetByKey.put(sectorKey, mapItemSet);
 			}
 
-			// Add sector ships.
-			//
-			{
-				// TODO
-			}
+			mapItemSet.getMapItemKeys().add(star.getKey());
+			mapItemSet.getMapItemPoints().add(star.getX());
+			mapItemSet.getMapItemPoints().add(star.getY());
+			mapItemSet.getMapItemPoints().add(star.getZ());
 		}
 
 		GetMapItemsResponse response = new GetMapItemsResponse();
-		response.setMapItemSets(mapItemSets);
+		response.setMapItemSets(new ArrayList<MapItemSetModel>(mapItemSetByKey.values()));
 		return response;
 	}
 
-	private GetMapItemsResponse getMapItemsBySectorRest(String sectorKey, Integer mapItemType) {
+	// private GetMapItemsResponse getMapItemsBySectorRest(String sectorKey, Integer
+	// mapItemType) {
+	//
+	// RestTemplate restTemplate = createRestTempate();
+	// ResponseEntity<Sector> restResponse =
+	// restTemplate.exchange(getRestUrl("sector/" + sectorKey), HttpMethod.GET,
+	// createHttpEntity(), new ParameterizedTypeReference<Sector>() {
+	// });
+	// Sector sector = restResponse.getBody();
+	//
+	// List<String> mapItemKeys = new ArrayList<String>();
+	// List<Double> mapItemPoints = new ArrayList<Double>();
+	// switch (mapItemType) {
+	// case MapItemTypes.STAR:
+	// // for (Star star : sector.getStars()) {
+	// // mapItemKeys.add(star.getKey());
+	// // mapItemPoints.add(star.getX());
+	// // mapItemPoints.add(star.getY());
+	// // mapItemPoints.add(star.getZ());
+	// // }
+	// break;
+	// case MapItemTypes.SHIP:
+	// // TBD
+	// break;
+	// default:
+	// break;
+	// }
+	//
+	// MapItemSetModel mapItemSet = new MapItemSetModel();
+	// mapItemSet.setSectorKey(sectorKey);
+	// mapItemSet.setMapItemType(mapItemType);
+	// mapItemSet.setMapItemKeys(mapItemKeys);
+	// mapItemSet.setMapItemPoints(mapItemPoints);
+	//
+	// List<MapItemSetModel> mapItemSets = new ArrayList<MapItemSetModel>();
+	// mapItemSets.add(mapItemSet);
+	//
+	// GetMapItemsResponse response = new GetMapItemsResponse();
+	// response.setMapItemSets(mapItemSets);
+	//
+	// return response;
+	// }
 
-		RestTemplate restTemplate = createRestTempate();
-		ResponseEntity<Sector> restResponse = restTemplate.exchange(getRestUrl("sector/" + sectorKey), HttpMethod.GET,
-				createHttpEntity(), new ParameterizedTypeReference<Sector>() {
-				});
-		Sector sector = restResponse.getBody();
-
-		List<String> mapItemKeys = new ArrayList<String>();
-		List<Double> mapItemPoints = new ArrayList<Double>();
-		switch (mapItemType) {
-		case MapItemTypes.STAR:
-			for (Star star : sector.getStars()) {
-				mapItemKeys.add(star.getKey());
-				mapItemPoints.add(star.getX());
-				mapItemPoints.add(star.getY());
-				mapItemPoints.add(star.getZ());
-			}
-			break;
-		case MapItemTypes.SHIP:
-			// TBD
-			break;
-		default:
-			break;
-		}
-
-		MapItemSetModel mapItemSet = new MapItemSetModel();
-		mapItemSet.setSectorKey(sectorKey);
-		mapItemSet.setMapItemType(mapItemType);
-		mapItemSet.setMapItemKeys(mapItemKeys);
-		mapItemSet.setMapItemPoints(mapItemPoints);
-
-		List<MapItemSetModel> mapItemSets = new ArrayList<MapItemSetModel>();
-		mapItemSets.add(mapItemSet);
-
-		GetMapItemsResponse response = new GetMapItemsResponse();
-		response.setMapItemSets(mapItemSets);
-
-		return response;
-	}
-
-	@SuppressWarnings("unused")
-	private GetMapItemsResponse getMapItemsBySectorMock(String sectorKey, Integer mapItemType) {
-		List<MockSpaceData.Point> allPoints;
-		switch (mapItemType) {
-		case MapItemTypes.STAR:
-			allPoints = m_mockSpaceData.getStars();
-			break;
-		case MapItemTypes.SHIP:
-			allPoints = m_mockSpaceData.getShips();
-			break;
-		default:
-			return null;
-		}
-
-		SectorModel sector = m_mockSpaceData.getSectors().stream().filter(s -> s.getKey().equals(sectorKey)).findFirst()
-				.get();
-
-		List<MockSpaceData.Point> points = allPoints.stream()
-				.filter(p -> sector.getMinimumX() <= p.x && p.x < sector.getMaximumX() && sector.getMinimumY() <= p.y
-						&& p.y < sector.getMaximumY() && sector.getMinimumZ() <= p.z && p.z < sector.getMaximumZ())
-				.collect(Collectors.toList());
-
-		List<String> mapItemKeys = new ArrayList<String>();
-		List<Double> mapItemPoints = new ArrayList<Double>();
-		for (MockSpaceData.Point point : points) {
-			mapItemKeys.add(point.key);
-			mapItemPoints.add(point.x);
-			mapItemPoints.add(point.y);
-			mapItemPoints.add(point.z);
-		}
-
-		MapItemSetModel mapItemSet = new MapItemSetModel();
-		mapItemSet.setSectorKey(sectorKey);
-		mapItemSet.setMapItemType(mapItemType);
-		mapItemSet.setMapItemKeys(mapItemKeys);
-		mapItemSet.setMapItemPoints(mapItemPoints);
-
-		List<MapItemSetModel> mapItemSets = new ArrayList<MapItemSetModel>();
-		mapItemSets.add(mapItemSet);
-
-		GetMapItemsResponse response = new GetMapItemsResponse();
-		response.setMapItemSets(mapItemSets);
-
-		return response;
-	}
+	// @SuppressWarnings("unused")
+	// private GetMapItemsResponse getMapItemsBySectorMock(String sectorKey, Integer
+	// mapItemType) {
+	// List<MockSpaceData.Point> allPoints;
+	// switch (mapItemType) {
+	// case MapItemTypes.STAR:
+	// allPoints = m_mockSpaceData.getStars();
+	// break;
+	// case MapItemTypes.SHIP:
+	// allPoints = m_mockSpaceData.getShips();
+	// break;
+	// default:
+	// return null;
+	// }
+	//
+	// SectorModel sector = m_mockSpaceData.getSectors().stream().filter(s ->
+	// s.getKey().equals(sectorKey)).findFirst()
+	// .get();
+	//
+	// List<MockSpaceData.Point> points = allPoints.stream()
+	// .filter(p -> sector.getMinimumX() <= p.x && p.x < sector.getMaximumX() &&
+	// sector.getMinimumY() <= p.y
+	// && p.y < sector.getMaximumY() && sector.getMinimumZ() <= p.z && p.z <
+	// sector.getMaximumZ())
+	// .collect(Collectors.toList());
+	//
+	// List<String> mapItemKeys = new ArrayList<String>();
+	// List<Double> mapItemPoints = new ArrayList<Double>();
+	// for (MockSpaceData.Point point : points) {
+	// mapItemKeys.add(point.key);
+	// mapItemPoints.add(point.x);
+	// mapItemPoints.add(point.y);
+	// mapItemPoints.add(point.z);
+	// }
+	//
+	// MapItemSetModel mapItemSet = new MapItemSetModel();
+	// mapItemSet.setSectorKey(sectorKey);
+	// mapItemSet.setMapItemType(mapItemType);
+	// mapItemSet.setMapItemKeys(mapItemKeys);
+	// mapItemSet.setMapItemPoints(mapItemPoints);
+	//
+	// List<MapItemSetModel> mapItemSets = new ArrayList<MapItemSetModel>();
+	// mapItemSets.add(mapItemSet);
+	//
+	// GetMapItemsResponse response = new GetMapItemsResponse();
+	// response.setMapItemSets(mapItemSets);
+	//
+	// return response;
+	// }
 
 	private String formatCoordinates(Double x, Double y, Double z) {
 		if (x == null && y == null && z == null)

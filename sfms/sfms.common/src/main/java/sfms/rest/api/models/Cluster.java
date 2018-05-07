@@ -1,7 +1,5 @@
 package sfms.rest.api.models;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
@@ -22,7 +20,6 @@ public class Cluster {
 	private Long m_maximumX;
 	private Long m_maximumY;
 	private Long m_maximumZ;
-	private List<Star> m_stars;
 
 	public String getKey() {
 		return m_key;
@@ -111,13 +108,4 @@ public class Cluster {
 	public void setMaximumZ(Long maximumZ) {
 		m_maximumZ = maximumZ;
 	}
-
-	public List<Star> getStars() {
-		return m_stars;
-	}
-
-	public void setStars(List<Star> stars) {
-		m_stars = stars;
-	}
-
 }

@@ -21,7 +21,7 @@ public class ModelFactory {
 		return result;
 	}
 
-	public ClusterModel createCluster(Cluster cluster) {
+	public ClusterModel createCluster(Cluster cluster, List<Star> stars) {
 		ClusterModel result = new ClusterModel();
 		result.setKey(cluster.getKey());
 		result.setClusterPartition(cluster.getClusterPartition());
@@ -34,14 +34,16 @@ public class ModelFactory {
 		result.setMaximumX(cluster.getMaximumX());
 		result.setMaximumY(cluster.getMaximumY());
 		result.setMaximumZ(cluster.getMaximumZ());
-		result.setStars(createStars(cluster.getStars()));
+		if (stars != null) {
+			result.setStars(createStars(stars));
+		}
 		return result;
 	}
 
 	public List<ClusterModel> createClusters(Iterable<Cluster> clusters) {
 		List<ClusterModel> result = new ArrayList<ClusterModel>();
 		for (Cluster cluster : clusters) {
-			result.add(createCluster(cluster));
+			result.add(createCluster(cluster, null));
 		}
 		return result;
 	}
@@ -72,7 +74,7 @@ public class ModelFactory {
 		return result;
 	}
 
-	public SectorModel createSector(Sector sector) {
+	public SectorModel createSector(Sector sector, List<Star> stars) {
 		SectorModel result = new SectorModel();
 		result.setKey(sector.getKey());
 		result.setSectorX(sector.getSectorX());
@@ -84,14 +86,16 @@ public class ModelFactory {
 		result.setMaximumX(sector.getMaximumX());
 		result.setMaximumY(sector.getMaximumY());
 		result.setMaximumZ(sector.getMaximumZ());
-		result.setStars(createStars(sector.getStars()));
+		if (stars != null) {
+			result.setStars(createStars(stars));
+		}
 		return result;
 	}
 
 	public List<SectorModel> createSectors(Iterable<Sector> sectors) {
 		List<SectorModel> result = new ArrayList<SectorModel>();
 		for (Sector sector : sectors) {
-			result.add(createSector(sector));
+			result.add(createSector(sector, null));
 		}
 		return result;
 	}

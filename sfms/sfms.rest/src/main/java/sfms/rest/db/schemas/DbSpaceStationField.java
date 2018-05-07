@@ -1,5 +1,7 @@
 package sfms.rest.db.schemas;
 
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.KeyValue;
 import com.google.cloud.datastore.Value;
 
 import sfms.rest.db.DbFieldSchema;
@@ -13,16 +15,24 @@ import sfms.rest.db.DbValueType;
 public enum DbSpaceStationField implements DbFieldSchema {
 
 	Name("n", DbValueType.String, "Name", "Name of space station."),
-	StarKey("str_k", DbValueType.Key, "Star Key", "Key of Star entity locating the space station.");
+	StarKey("str_k", DbEntity.Star, "Star Key", "Key of Star entity locating the space station.");
 
 	private String m_name;
-	private DbValueType m_dbValueType;
 	private String m_title;
 	private String m_description;
+	private DbValueType m_dbValueType;
+	private DbEntity m_dbEntity;
 
 	private DbSpaceStationField(String name, DbValueType dbValueType, String title, String description) {
 		m_name = name;
 		m_dbValueType = dbValueType;
+		m_title = title;
+		m_description = description;
+	}
+
+	private DbSpaceStationField(String name, DbEntity dbEntity, String title, String description) {
+		m_name = name;
+		m_dbEntity = dbEntity;
 		m_title = title;
 		m_description = description;
 	}
@@ -53,7 +63,11 @@ public enum DbSpaceStationField implements DbFieldSchema {
 	}
 
 	@Override
-	public Value<?> parseValue(String text) {
-		return m_dbValueType.parse(text);
+	public Value<?> parseValue(Datastore datastore, String text) {
+		if (m_dbValueType != null) {
+			return m_dbValueType.parse(text);
+		} else {
+			return KeyValue.of(m_dbEntity.createEntityKey(datastore, text));
+		}
 	}
 }

@@ -75,24 +75,48 @@ public class SelectionCriteria {
 	}
 
 	public static Builder newBuilder() {
-		return new Builder();
+		return new Builder(null);
+	}
+
+	public static Builder newBuilder(FilterCriteria filterCriteria) {
+		return new Builder(filterCriteria);
 	}
 
 	public static class Builder {
 
+		private FilterCriteria m_filterCriteria;
 		private List<String> m_columns = new ArrayList<String>();
 
-		private Builder() {
+		private Builder(FilterCriteria filterCriteria) {
+			m_filterCriteria = filterCriteria;
 		}
 
 		public Builder select(String column) {
-			m_columns.add(column);
+			if (!isFiltered(column)) {
+				m_columns.add(column);
+			}
 
 			return this;
 		}
 
 		public SelectionCriteria build() {
 			return new SelectionCriteria(m_columns);
+		}
+
+		private boolean isFiltered(String column) {
+			if (m_filterCriteria == null) {
+				return false;
+			}
+
+			for (int idx = 0; idx < m_filterCriteria.size(); ++idx) {
+				if (m_filterCriteria.getColumn(idx).equals(column)
+						&& m_filterCriteria.getOperator(idx).equals(FilterCriteria.EQ)) {
+					return true;
+				}
+
+			}
+
+			return false;
 		}
 	}
 }

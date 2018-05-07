@@ -106,7 +106,7 @@ public class SpaceshipRestController {
 				.setKind(DbEntity.Spaceship.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
-				.setFilterCriteria(filter)
+				.setFilterCriteria(datastore, filter)
 				.setStartCursor(bookmark)
 				.build();
 

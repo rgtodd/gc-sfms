@@ -33,7 +33,7 @@ public class RestFactory {
 	@SuppressWarnings("unused")
 	private final Logger logger = Logger.getLogger(RestFactory.class.getName());
 
-	public Cluster createCluster(BaseEntity<Key> entity, List<Star> stars) {
+	public Cluster createCluster(BaseEntity<Key> entity) {
 
 		Cluster result = new Cluster();
 		result.setKey(DbEntity.Cluster.createRestKey(entity.getKey()));
@@ -47,7 +47,6 @@ public class RestFactory {
 		result.setMaximumX(getLong(entity, DbClusterField.MaximumX));
 		result.setMaximumY(getLong(entity, DbClusterField.MaximumY));
 		result.setMaximumZ(getLong(entity, DbClusterField.MaximumZ));
-		result.setStars(stars);
 		return result;
 	}
 
@@ -55,7 +54,7 @@ public class RestFactory {
 		List<Cluster> result = new ArrayList<Cluster>();
 		while (entities.hasNext()) {
 			BaseEntity<Key> entity = entities.next();
-			result.add(createCluster(entity, null));
+			result.add(createCluster(entity));
 		}
 		return result;
 	}
@@ -64,7 +63,7 @@ public class RestFactory {
 		return createClusters(new EntityIterator(entities));
 	}
 
-	public Sector createSector(BaseEntity<Key> entity, List<Star> stars) {
+	public Sector createSector(BaseEntity<Key> entity) {
 
 		Sector result = new Sector();
 		result.setKey(DbEntity.Sector.createRestKey(entity.getKey()));
@@ -77,7 +76,6 @@ public class RestFactory {
 		result.setMaximumX(getLong(entity, DbSectorField.MaximumX));
 		result.setMaximumY(getLong(entity, DbSectorField.MaximumY));
 		result.setMaximumZ(getLong(entity, DbSectorField.MaximumZ));
-		result.setStars(stars);
 		return result;
 	}
 
@@ -85,7 +83,7 @@ public class RestFactory {
 		List<Sector> result = new ArrayList<Sector>();
 		while (entities.hasNext()) {
 			BaseEntity<Key> entity = entities.next();
-			result.add(createSector(entity, null));
+			result.add(createSector(entity));
 		}
 		return result;
 	}
@@ -143,12 +141,17 @@ public class RestFactory {
 
 	public List<Star> createStars(Iterator<BaseEntity<Key>> entities) {
 		List<Star> result = new ArrayList<Star>();
-		// int count = 0;
+
+		int count = 0;
 		while (entities.hasNext()) {
 			BaseEntity<Key> entity = entities.next();
 			result.add(createStar(entity));
-			// logger.info("Count = " + (++count));
+
+			if ((++count) % 1000 == 0) {
+				logger.info("createStars count = " + count);
+			}
 		}
+
 		return result;
 	}
 

@@ -103,7 +103,7 @@ public class CrewMemberRestController {
 				.setKind(DbEntity.CrewMember.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
-				.setFilterCriteria(filter)
+				.setFilterCriteria(datastore, filter)
 				.setStartCursor(bookmark)
 				.build();
 

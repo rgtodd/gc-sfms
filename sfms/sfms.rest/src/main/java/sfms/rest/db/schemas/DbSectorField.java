@@ -1,5 +1,6 @@
 package sfms.rest.db.schemas;
 
+import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Value;
 
 import sfms.rest.db.DbFieldSchema;
@@ -60,7 +61,7 @@ public enum DbSectorField implements DbFieldSchema {
 	}
 
 	@Override
-	public Value<?> parseValue(String text) {
+	public Value<?> parseValue(Datastore datastore, String text) {
 		return m_dbValueType.parse(text);
 	}
 }

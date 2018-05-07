@@ -24,8 +24,8 @@ public class FilterCriteria {
 	public static final String LE = "le";
 
 	private static final String EMPTY_STRING = "";
-	private static final String RECORD_DELIMITER = ",";
-	private static final String RECORD_DELIMITER_REGEX = RECORD_DELIMITER;
+	private static final String RECORD_DELIMITER = "|";
+	private static final String RECORD_DELIMITER_REGEX = "\\|";
 	private static final String FIELD_DELIMITER = " ";
 	private static final String FIELD_DELIMITER_REGEX = "\\s";
 

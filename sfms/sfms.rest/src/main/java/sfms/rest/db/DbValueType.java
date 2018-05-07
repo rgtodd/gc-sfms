@@ -9,7 +9,7 @@ import com.google.cloud.datastore.Value;
 public enum DbValueType {
 
 	Double(DbDoubleValueParser.getInstance()),
-	Key(DbKeyValueParser.getInstance()),
+	// Key(DbKeyValueParser.getInstance()),
 	Long(DbLongValueParser.getInstance()),
 	String(DbStringValueParser.getInstance());
 

@@ -1,6 +1,5 @@
 package sfms.rest.controllers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,16 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.cloud.datastore.BaseEntity;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.ProjectionEntity;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
-import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
@@ -35,7 +28,6 @@ import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Cluster;
-import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.ClusterField;
 import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.DbValueFactory;
@@ -44,7 +36,6 @@ import sfms.rest.db.RestQueryBuilder;
 import sfms.rest.db.RestQueryResults;
 import sfms.rest.db.schemas.DbClusterField;
 import sfms.rest.db.schemas.DbEntity;
-import sfms.rest.db.schemas.DbStarField;
 
 /**
  * Controller for the Cluster REST service.
@@ -73,7 +64,6 @@ public class ClusterRestController {
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
 	private static final int MAX_PAGE_SIZE = 100;
-	private static final String DETAIL_STAR = "star";
 
 	@Autowired
 	private Throttle m_throttle;
@@ -91,18 +81,8 @@ public class ClusterRestController {
 
 		Entity dbCluster = datastore.get(dbClusterKey);
 
-		Query<ProjectionEntity> dbStarQuery = Query.newProjectionEntityQueryBuilder()
-				.setKind(DbEntity.Star.getKind())
-				.addProjection(DbStarField.X.getName())
-				.addProjection(DbStarField.Y.getName())
-				.addProjection(DbStarField.Z.getName())
-				.setFilter(PropertyFilter.eq(DbStarField.ClusterKey.getName(), dbClusterKey))
-				.build();
-
-		QueryResults<ProjectionEntity> dbStars = datastore.run(dbStarQuery);
-
 		RestFactory factory = new RestFactory();
-		Cluster cluster = factory.createCluster(dbCluster, factory.createStarsFromProjection(dbStars));
+		Cluster cluster = factory.createCluster(dbCluster);
 
 		return cluster;
 	}
@@ -128,19 +108,14 @@ public class ClusterRestController {
 				.setKind(DbEntity.Cluster.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
-				.setFilterCriteria(filter)
+				.setFilterCriteria(datastore, filter)
 				.setStartCursor(bookmark)
 				.build();
 
 		RestQueryResults dbClusters = dbClusterQuery.run(datastore);
 
-		List<Cluster> clusters;
-		if (detail.isPresent() && detail.get().equals(DETAIL_STAR)) {
-			clusters = getClustersWithDetail(datastore, dbClusters);
-		} else {
-			RestFactory factory = new RestFactory();
-			clusters = factory.createClusters(dbClusters);
-		}
+		RestFactory factory = new RestFactory();
+		List<Cluster> clusters = factory.createClusters(dbClusters);
 
 		SearchResult<Cluster> result = new SearchResult<Cluster>();
 		result.setEntities(clusters);
@@ -209,81 +184,6 @@ public class ClusterRestController {
 		result.setKey(DbEntity.Cluster.createRestKey(dbClusterKey));
 
 		return result;
-	}
-
-	private List<Cluster> getClustersWithDetail(Datastore datastore, RestQueryResults dbClusters) {
-
-		RestFactory factory = new RestFactory();
-
-		Long minimumX = null;
-		Long maximumX = null;
-		Long minimumY = null;
-		Long maximumY = null;
-		Long minimumZ = null;
-		Long maximumZ = null;
-		Map<String, Cluster> clustersByKey = new HashMap<String, Cluster>();
-		while (dbClusters.hasNext()) {
-			BaseEntity<Key> dbCluster = dbClusters.next();
-			Cluster cluster = factory.createCluster(dbCluster, new ArrayList<Star>());
-			if (minimumX == null || cluster.getMinimumX() < minimumX) {
-				minimumX = cluster.getMinimumX();
-			}
-			if (maximumX == null || cluster.getMaximumX() > maximumX) {
-				maximumX = cluster.getMaximumX();
-			}
-			if (minimumY == null || cluster.getMinimumY() < minimumY) {
-				minimumY = cluster.getMinimumY();
-			}
-			if (maximumY == null || cluster.getMaximumY() > maximumY) {
-				maximumY = cluster.getMaximumY();
-			}
-			if (minimumZ == null || cluster.getMinimumZ() < minimumZ) {
-				minimumZ = cluster.getMinimumZ();
-			}
-			if (maximumZ == null || cluster.getMaximumZ() > maximumZ) {
-				maximumZ = cluster.getMaximumZ();
-			}
-			clustersByKey.put(cluster.getKey(), cluster);
-		}
-
-		if (!clustersByKey.isEmpty()) {
-
-			Query<ProjectionEntity> dbStarQuery = Query.newProjectionEntityQueryBuilder()
-					.setKind(DbEntity.Star.getKind())
-					.setFilter(CompositeFilter.and(
-							PropertyFilter.ge(DbStarField.X.getName(), (double) minimumX),
-							PropertyFilter.lt(DbStarField.X.getName(), (double) maximumX),
-							PropertyFilter.ge(DbStarField.Y.getName(), (double) minimumY),
-							PropertyFilter.lt(DbStarField.Y.getName(), (double) maximumY),
-							PropertyFilter.ge(DbStarField.Z.getName(), (double) minimumZ),
-							PropertyFilter.lt(DbStarField.Z.getName(), (double) maximumZ)))
-					.addProjection(DbStarField.ClusterKey.getName())
-					.addProjection(DbStarField.X.getName())
-					.addProjection(DbStarField.Y.getName())
-					.addProjection(DbStarField.Z.getName())
-					.build();
-
-			QueryResults<ProjectionEntity> dbStars = datastore.run(dbStarQuery);
-
-			while (dbStars.hasNext()) {
-				BaseEntity<Key> dbStar = dbStars.next();
-				double y = dbStar.getDouble(DbStarField.Y.getName());
-				double z = dbStar.getDouble(DbStarField.Z.getName());
-				if (minimumY <= y && y < maximumY && minimumZ <= z && z < maximumZ) {
-					Star star = factory.createStar(dbStar);
-					String starClusterKey = star.getClusterKey();
-					if (starClusterKey != null) {
-						Cluster cluster = clustersByKey.get(starClusterKey);
-						if (cluster != null) {
-							cluster.getStars().add(star);
-						}
-					}
-				}
-			}
-		}
-
-		List<Cluster> clusters = new ArrayList<Cluster>(clustersByKey.values());
-		return clusters;
 	}
 
 	private Entity createDbCluster(Cluster cluster, Key dbClusterKey) {

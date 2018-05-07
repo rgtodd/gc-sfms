@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.google.cloud.datastore.Cursor;
+import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.EntityQuery;
 import com.google.cloud.datastore.ProjectionEntityQuery;
 import com.google.cloud.datastore.Query;
@@ -120,23 +121,23 @@ public class RestQueryBuilder {
 		return this;
 	}
 
-	public RestQueryBuilder setFilterCriteria(Optional<String> filterCriteria) {
+	public RestQueryBuilder setFilterCriteria(Datastore datastore, Optional<String> filterCriteria) {
 		if (filterCriteria.isPresent()) {
-			return setFilterCriteria(FilterCriteria.parse(filterCriteria.get()));
+			return setFilterCriteria(datastore, FilterCriteria.parse(filterCriteria.get()));
 		}
 		return this;
 	}
 
-	public RestQueryBuilder setFilterCriteria(FilterCriteria filterCriteria) {
+	public RestQueryBuilder setFilterCriteria(Datastore datastore, FilterCriteria filterCriteria) {
 		if (filterCriteria != null) {
 			Filter queryFilter;
 			if (filterCriteria.size() == 1) {
-				queryFilter = createColumnFilter(filterCriteria, 0);
+				queryFilter = createColumnFilter(datastore, filterCriteria, 0);
 			} else {
-				Filter firstSubfilter = createColumnFilter(filterCriteria, 0);
+				Filter firstSubfilter = createColumnFilter(datastore, filterCriteria, 0);
 				List<Filter> remainingSubfilters = new ArrayList<Filter>();
 				for (int idx = 1; idx < filterCriteria.size(); ++idx) {
-					remainingSubfilters.add(createColumnFilter(filterCriteria, idx));
+					remainingSubfilters.add(createColumnFilter(datastore, filterCriteria, idx));
 				}
 				queryFilter = CompositeFilter.and(firstSubfilter, remainingSubfilters.toArray(new Filter[0]));
 			}
@@ -169,13 +170,13 @@ public class RestQueryBuilder {
 		}
 	}
 
-	private Filter createColumnFilter(FilterCriteria filterCriteria, int idx) {
+	private Filter createColumnFilter(Datastore datastore, FilterCriteria filterCriteria, int idx) {
 		String column = filterCriteria.getColumn(idx);
 		String operator = filterCriteria.getOperator(idx);
 		String valueString = filterCriteria.getValue(idx);
 
 		DbFieldSchema dbField = m_dbFieldMap.get(column);
-		Value<?> value = dbField.parseValue(valueString);
+		Value<?> value = dbField.parseValue(datastore, valueString);
 
 		Filter currentFilter;
 		switch (operator) {

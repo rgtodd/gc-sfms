@@ -17,10 +17,7 @@ public enum DbEntity {
 	// Name Based Entities
 	//
 	Cluster("Cluster", DbClusterField.class, false),
-	ClusterSector("ClusterSector", DbClusterSectorField.class, false),
-	ClusterStar("ClusterStar", DbClusterStarField.class, false),
 	Sector("Sector", DbSectorField.class, false),
-	SectorStar("SectorStar", DbSectorStarField.class, false),
 	Star("Star", DbStarField.class, false);
 
 	private String m_kind;

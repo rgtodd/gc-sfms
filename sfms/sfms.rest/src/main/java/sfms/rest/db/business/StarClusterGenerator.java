@@ -11,7 +11,6 @@ import com.google.cloud.datastore.KeyFactory;
 
 import sfms.common.Constants;
 import sfms.rest.db.schemas.DbClusterField;
-import sfms.rest.db.schemas.DbClusterSectorField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSectorField;
 
@@ -44,12 +43,12 @@ public class StarClusterGenerator {
 			logger.log(Level.SEVERE, "generateClusters exception occurred.", e);
 		}
 
-		logger.info("Generating cluster sectors.");
-		try {
-			generateClusterSectors(clusterRegions, sectorRegions);
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, "generateClusterSectors exception occurred.", e);
-		}
+		// logger.info("Generating cluster sectors.");
+		// try {
+		// generateClusterSectors(clusterRegions, sectorRegions);
+		// } catch (Exception e) {
+		// logger.log(Level.SEVERE, "generateClusterSectors exception occurred.", e);
+		// }
 	}
 
 	private void generateSectors(RegionSet sectorRegions) throws Exception {
@@ -99,34 +98,39 @@ public class StarClusterGenerator {
 		}
 	}
 
-	private void generateClusterSectors(RegionSet clusterRegions, RegionSet sectorRegions) throws Exception {
-
-		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-		KeyFactory sectorKeyFactory = datastore.newKeyFactory().setKind(DbEntity.Sector.getKind());
-		KeyFactory clusterKeyFactory = datastore.newKeyFactory().setKind(DbEntity.Cluster.getKind());
-		KeyFactory clusterSectorKeyFactory = datastore.newKeyFactory().setKind(DbEntity.ClusterSector.getKind());
-
-		try (BatchPut batchPut = new BatchPut(datastore)) {
-
-			for (Region clusterRegion : clusterRegions) {
-				Key clusterKey = clusterKeyFactory.newKey(clusterRegion.getKey());
-				int idx = 0;
-
-				for (Region sectorRegion : sectorRegions) {
-					if (clusterRegion.contains(sectorRegion)) {
-						Key sectorKey = sectorKeyFactory.newKey(sectorRegion.getKey());
-						idx += 1;
-
-						Key clusterSectorKey = clusterSectorKeyFactory.newKey(clusterRegion.getKey() + "-" + idx);
-						Entity clusterSector = Entity.newBuilder(clusterSectorKey)
-								.set(DbClusterSectorField.ClusterKey.getName(), clusterKey)
-								.set(DbClusterSectorField.SectorKey.getName(), sectorKey).build();
-						batchPut.add(clusterSector);
-					}
-				}
-			}
-		}
-	}
+	// private void generateClusterSectors(RegionSet clusterRegions, RegionSet
+	// sectorRegions) throws Exception {
+	//
+	// Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+	// KeyFactory sectorKeyFactory =
+	// datastore.newKeyFactory().setKind(DbEntity.Sector.getKind());
+	// KeyFactory clusterKeyFactory =
+	// datastore.newKeyFactory().setKind(DbEntity.Cluster.getKind());
+	// KeyFactory clusterSectorKeyFactory =
+	// datastore.newKeyFactory().setKind(DbEntity.ClusterSector.getKind());
+	//
+	// try (BatchPut batchPut = new BatchPut(datastore)) {
+	//
+	// for (Region clusterRegion : clusterRegions) {
+	// Key clusterKey = clusterKeyFactory.newKey(clusterRegion.getKey());
+	// int idx = 0;
+	//
+	// for (Region sectorRegion : sectorRegions) {
+	// if (clusterRegion.contains(sectorRegion)) {
+	// Key sectorKey = sectorKeyFactory.newKey(sectorRegion.getKey());
+	// idx += 1;
+	//
+	// Key clusterSectorKey = clusterSectorKeyFactory.newKey(clusterRegion.getKey()
+	// + "-" + idx);
+	// Entity clusterSector = Entity.newBuilder(clusterSectorKey)
+	// .set(DbClusterSectorField.ClusterKey.getName(), clusterKey)
+	// .set(DbClusterSectorField.SectorKey.getName(), sectorKey).build();
+	// batchPut.add(clusterSector);
+	// }
+	// }
+	// }
+	// }
+	// }
 
 	private RegionSet createSectorRegions() {
 		return RegionSet.create(Constants.SECTOR_MINIMUM_BOUNDS, Constants.SECTOR_MAXIMUM_BOUNDS,
