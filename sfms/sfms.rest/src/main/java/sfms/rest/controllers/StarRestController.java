@@ -27,11 +27,15 @@ import sfms.rest.api.DeleteResult;
 import sfms.rest.api.RestDetail;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
+import sfms.rest.api.SelectionCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.StarField;
 import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.DbValueFactory;
+import sfms.rest.db.RestQuery;
+import sfms.rest.db.RestQueryBuilder;
+import sfms.rest.db.RestQueryResults;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
 
@@ -99,29 +103,24 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		RestQuery dbStarQuery;
+		SelectionCriteria selectionCriteria;
 		if (detail.isPresent() && detail.get().equals(RestDetail.MINIMAL)) {
-			dbStarQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap)
-					.setType(RestQueryBuilderType.PROJECTION)
-					.setKind(DbEntity.Star.getKind())
-					.setLimit(limit)
-					.addSortCriteria(sort)
-					.setQueryFilter(filter)
-					.addProjection(StarField.X.getName())
-					.addProjection(StarField.Y.getName())
-					.addProjection(StarField.Z.getName())
-					.setStartCursor(bookmark)
+			selectionCriteria = SelectionCriteria.newBuilder()
+					.select(StarField.X.getName())
+					.select(StarField.Y.getName())
+					.select(StarField.Z.getName())
 					.build();
 		} else {
-			dbStarQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap)
-					.setType(RestQueryBuilderType.ENTITY)
-					.setKind(DbEntity.Star.getKind())
-					.setLimit(limit)
-					.addSortCriteria(sort)
-					.setQueryFilter(filter)
-					.setStartCursor(bookmark)
-					.build();
+			selectionCriteria = null;
 		}
+
+		RestQuery dbStarQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap, selectionCriteria)
+				.setKind(DbEntity.Star.getKind())
+				.setLimit(limit)
+				.addSortCriteria(sort)
+				.setFilterCriteria(filter)
+				.setStartCursor(bookmark)
+				.build();
 
 		RestQueryResults dbStars = dbStarQuery.run(datastore);
 

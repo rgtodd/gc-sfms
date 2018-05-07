@@ -50,6 +50,9 @@ import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.SectorField;
 import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.DbValueFactory;
+import sfms.rest.db.RestQuery;
+import sfms.rest.db.RestQueryBuilder;
+import sfms.rest.db.RestQueryResults;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSectorField;
 import sfms.rest.db.schemas.DbStarField;
@@ -147,12 +150,11 @@ public class SectorRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		RestQuery dbSectorQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap)
-				.setType(RestQueryBuilderType.ENTITY)
+		RestQuery dbSectorQuery = RestQueryBuilder.newEntityQueryBuilder(s_dbFieldMap)
 				.setKind(DbEntity.Sector.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
-				.setQueryFilter(filter)
+				.setFilterCriteria(filter)
 				.setStartCursor(bookmark)
 				.build();
 

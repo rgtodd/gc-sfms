@@ -34,6 +34,9 @@ import sfms.rest.api.models.CrewMember;
 import sfms.rest.api.schemas.CrewMemberField;
 import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.DbValueFactory;
+import sfms.rest.db.RestQuery;
+import sfms.rest.db.RestQueryBuilder;
+import sfms.rest.db.RestQueryResults;
 import sfms.rest.db.schemas.DbCrewMemberField;
 import sfms.rest.db.schemas.DbEntity;
 
@@ -96,12 +99,11 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		RestQuery dbCrewMemberQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap)
-				.setType(RestQueryBuilderType.ENTITY)
+		RestQuery dbCrewMemberQuery = RestQueryBuilder.newEntityQueryBuilder(s_dbFieldMap)
 				.setKind(DbEntity.CrewMember.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
-				.setQueryFilter(filter)
+				.setFilterCriteria(filter)
 				.setStartCursor(bookmark)
 				.build();
 

@@ -1,4 +1,4 @@
-package sfms.rest.controllers;
+package sfms.rest.db;
 
 import java.util.Iterator;
 

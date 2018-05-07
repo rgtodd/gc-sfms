@@ -39,6 +39,9 @@ import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.ClusterField;
 import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.DbValueFactory;
+import sfms.rest.db.RestQuery;
+import sfms.rest.db.RestQueryBuilder;
+import sfms.rest.db.RestQueryResults;
 import sfms.rest.db.schemas.DbClusterField;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbStarField;
@@ -121,12 +124,11 @@ public class ClusterRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		RestQuery dbClusterQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap)
-				.setType(RestQueryBuilderType.ENTITY)
+		RestQuery dbClusterQuery = RestQueryBuilder.newEntityQueryBuilder(s_dbFieldMap)
 				.setKind(DbEntity.Cluster.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
-				.setQueryFilter(filter)
+				.setFilterCriteria(filter)
 				.setStartCursor(bookmark)
 				.build();
 

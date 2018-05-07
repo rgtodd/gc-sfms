@@ -34,6 +34,9 @@ import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.schemas.SpaceshipField;
 import sfms.rest.db.DbFieldSchema;
 import sfms.rest.db.DbValueFactory;
+import sfms.rest.db.RestQuery;
+import sfms.rest.db.RestQueryBuilder;
+import sfms.rest.db.RestQueryResults;
 import sfms.rest.db.schemas.DbEntity;
 import sfms.rest.db.schemas.DbSpaceshipField;
 
@@ -99,12 +102,11 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		RestQuery dbSpaceshipQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap)
-				.setType(RestQueryBuilderType.ENTITY)
+		RestQuery dbSpaceshipQuery = RestQueryBuilder.newEntityQueryBuilder(s_dbFieldMap)
 				.setKind(DbEntity.Spaceship.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
-				.setQueryFilter(filter)
+				.setFilterCriteria(filter)
 				.setStartCursor(bookmark)
 				.build();
 

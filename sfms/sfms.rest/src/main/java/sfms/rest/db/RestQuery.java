@@ -1,4 +1,4 @@
-package sfms.rest.controllers;
+package sfms.rest.db;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
