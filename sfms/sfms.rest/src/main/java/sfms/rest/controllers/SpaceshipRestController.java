@@ -22,8 +22,6 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
 
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
@@ -65,8 +63,8 @@ public class SpaceshipRestController {
 	@Autowired
 	private Throttle m_throttle;
 
-	@GetMapping(value = "/{id}")
-	public Spaceship getLookup(@PathVariable String id) throws Exception {
+	@GetMapping(value = "/{key}")
+	public Spaceship getLookup(@PathVariable String key) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -74,7 +72,7 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbSpaceshipKey = DbEntity.Spaceship.createEntityKey(datastore, id);
+		Key dbSpaceshipKey = DbEntity.Spaceship.createEntityKey(datastore, key);
 
 		Entity dbSpaceship = datastore.get(dbSpaceshipKey);
 
@@ -101,7 +99,8 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> dbSpaceshipQuery = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+		RestQuery dbSpaceshipQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap)
+				.setType(RestQueryBuilderType.ENTITY)
 				.setKind(DbEntity.Spaceship.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
@@ -109,7 +108,7 @@ public class SpaceshipRestController {
 				.setStartCursor(bookmark)
 				.build();
 
-		QueryResults<Entity> dbSpaceships = datastore.run(dbSpaceshipQuery);
+		RestQueryResults dbSpaceships = dbSpaceshipQuery.run(datastore);
 
 		RestFactory factory = new RestFactory();
 		List<Spaceship> spaceships = factory.createSpaceships(dbSpaceships);
@@ -122,8 +121,8 @@ public class SpaceshipRestController {
 		return result;
 	}
 
-	@PutMapping(value = "/{id}")
-	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Spaceship spaceship) throws Exception {
+	@PutMapping(value = "/{key}")
+	public UpdateResult<String> putUpdate(@PathVariable String key, @RequestBody Spaceship spaceship) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -131,7 +130,7 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbSpaceshipKey = DbEntity.Spaceship.createEntityKey(datastore, id);
+		Key dbSpaceshipKey = DbEntity.Spaceship.createEntityKey(datastore, key);
 
 		Entity dbSpaceship = Entity.newBuilder(dbSpaceshipKey)
 				.set(DbSpaceshipField.Name.getName(), DbValueFactory.asValue(spaceship.getName()))
@@ -179,8 +178,8 @@ public class SpaceshipRestController {
 		return result;
 	}
 
-	@DeleteMapping(value = "/{id}")
-	public DeleteResult<String> delete(@PathVariable String id) throws Exception {
+	@DeleteMapping(value = "/{key}")
+	public DeleteResult<String> delete(@PathVariable String key) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -188,7 +187,7 @@ public class SpaceshipRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbSpaceshipKey = DbEntity.Spaceship.createEntityKey(datastore, id);
+		Key dbSpaceshipKey = DbEntity.Spaceship.createEntityKey(datastore, key);
 
 		datastore.delete(dbSpaceshipKey);
 

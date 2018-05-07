@@ -39,7 +39,10 @@ public class SfmsController {
 
 	private MultiValueMap<String, String> createRequestHeaders() {
 		MultiValueMap<String, String> result = new LinkedMultiValueMap<String, String>();
-		result.add(RestHeaders.REST_AUTHORIZATION_TOKEN, Secret.getRestAuthorizationToken());
+
+		if (PropertyFile.INSTANCE.isProduction()) {
+			result.add(RestHeaders.REST_AUTHORIZATION_TOKEN, Secret.getRestAuthorizationToken());
+		}
 
 		return result;
 	}

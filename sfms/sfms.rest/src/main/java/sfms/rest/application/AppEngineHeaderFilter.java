@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.util.StringUtils;
 
 import sfms.common.Constants;
+import sfms.common.PropertyFile;
 import sfms.common.Secret;
 import sfms.rest.api.RestHeaders;
 
@@ -42,32 +43,34 @@ public class AppEngineHeaderFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 
-		String expectedAuthorizationToken = Secret.getRestAuthorizationToken();
-		if (!StringUtils.isEmpty(expectedAuthorizationToken)) {
-			HttpServletRequest httpRequest = (HttpServletRequest) request;
-			String actualAuthorizationToken = httpRequest.getHeader(RestHeaders.REST_AUTHORIZATION_TOKEN);
-			if (actualAuthorizationToken == null || !actualAuthorizationToken.equals(expectedAuthorizationToken)) {
+		if (PropertyFile.INSTANCE.isProduction()) {
+			String expectedAuthorizationToken = Secret.getRestAuthorizationToken();
+			if (!StringUtils.isEmpty(expectedAuthorizationToken)) {
+				HttpServletRequest httpRequest = (HttpServletRequest) request;
+				String actualAuthorizationToken = httpRequest.getHeader(RestHeaders.REST_AUTHORIZATION_TOKEN);
+				if (actualAuthorizationToken == null || !actualAuthorizationToken.equals(expectedAuthorizationToken)) {
 
-				String message = "Invalid authorization token";
+					String message = "Invalid authorization token";
 
-				String prefix = ": ";
-				Enumeration<String> headerNames = httpRequest.getHeaderNames();
-				while (headerNames.hasMoreElements()) {
-					message += prefix;
-					prefix = ", ";
+					String prefix = ": ";
+					Enumeration<String> headerNames = httpRequest.getHeaderNames();
+					while (headerNames.hasMoreElements()) {
+						message += prefix;
+						prefix = ", ";
 
-					String headerName = headerNames.nextElement();
-					message += headerName;
+						String headerName = headerNames.nextElement();
+						message += headerName;
+					}
+					message += ".";
+
+					logger.log(Level.INFO, message);
+
+					HttpServletResponse httpResponse = (HttpServletResponse) response;
+					httpResponse.setContentType("text/plain");
+					httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, message);
+
+					return;
 				}
-				message += ".";
-
-				logger.log(Level.INFO, message);
-
-				HttpServletResponse httpResponse = (HttpServletResponse) response;
-				httpResponse.setContentType("text/plain");
-				httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, message);
-
-				return;
 			}
 		}
 

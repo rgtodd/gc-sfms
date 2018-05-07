@@ -22,8 +22,6 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
 
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
@@ -62,8 +60,8 @@ public class CrewMemberRestController {
 	@Autowired
 	private Throttle m_throttle;
 
-	@GetMapping(value = "/{id}")
-	public CrewMember getLookup(@PathVariable String id) throws Exception {
+	@GetMapping(value = "/{key}")
+	public CrewMember getLookup(@PathVariable String key) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -71,7 +69,7 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbCrewMemberKey = DbEntity.CrewMember.createEntityKey(datastore, id);
+		Key dbCrewMemberKey = DbEntity.CrewMember.createEntityKey(datastore, key);
 
 		Entity dbCrewMember = datastore.get(dbCrewMemberKey);
 
@@ -98,7 +96,8 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> dbCrewMemberQuery = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+		RestQuery dbCrewMemberQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap)
+				.setType(RestQueryBuilderType.ENTITY)
 				.setKind(DbEntity.CrewMember.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
@@ -106,7 +105,7 @@ public class CrewMemberRestController {
 				.setStartCursor(bookmark)
 				.build();
 
-		QueryResults<Entity> dbCrewMembers = datastore.run(dbCrewMemberQuery);
+		RestQueryResults dbCrewMembers = dbCrewMemberQuery.run(datastore);
 
 		RestFactory factory = new RestFactory();
 		List<CrewMember> crewMembers = factory.createCrewMembers(dbCrewMembers);
@@ -119,8 +118,8 @@ public class CrewMemberRestController {
 		return result;
 	}
 
-	@PutMapping(value = "/{id}")
-	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody CrewMember crewMember)
+	@PutMapping(value = "/{key}")
+	public UpdateResult<String> putUpdate(@PathVariable String key, @RequestBody CrewMember crewMember)
 			throws Exception {
 
 		if (!m_throttle.increment()) {
@@ -129,7 +128,7 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbCrewMemberKey = DbEntity.CrewMember.createEntityKey(datastore, id);
+		Key dbCrewMemberKey = DbEntity.CrewMember.createEntityKey(datastore, key);
 
 		Entity dbCrewMember = Entity.newBuilder(dbCrewMemberKey)
 				.set(DbCrewMemberField.FirstName.getName(), DbValueFactory.asValue(crewMember.getFirstName()))
@@ -139,7 +138,7 @@ public class CrewMemberRestController {
 		datastore.update(dbCrewMember);
 
 		UpdateResult<String> result = new UpdateResult<String>();
-		result.setKey(id);
+		result.setKey(key);
 
 		return result;
 	}
@@ -169,8 +168,8 @@ public class CrewMemberRestController {
 		return result;
 	}
 
-	@DeleteMapping(value = "/{id}")
-	public DeleteResult<String> delete(@PathVariable String id) throws Exception {
+	@DeleteMapping(value = "/{key}")
+	public DeleteResult<String> delete(@PathVariable String key) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -178,7 +177,7 @@ public class CrewMemberRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbCrewMemberKey = DbEntity.CrewMember.createEntityKey(datastore, id);
+		Key dbCrewMemberKey = DbEntity.CrewMember.createEntityKey(datastore, key);
 
 		datastore.delete(dbCrewMemberKey);
 

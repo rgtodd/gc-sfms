@@ -8,7 +8,6 @@ public class RestHeaders {
 	public static final String CACHE_ENABLED = "True";
 
 	private RestHeaders() {
-
 	}
 
 }

@@ -143,9 +143,11 @@ public class RestFactory {
 
 	public List<Star> createStars(Iterator<BaseEntity<Key>> entities) {
 		List<Star> result = new ArrayList<Star>();
+		// int count = 0;
 		while (entities.hasNext()) {
 			BaseEntity<Key> entity = entities.next();
 			result.add(createStar(entity));
+			// logger.info("Count = " + (++count));
 		}
 		return result;
 	}

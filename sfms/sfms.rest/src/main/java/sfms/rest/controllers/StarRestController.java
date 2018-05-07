@@ -19,13 +19,12 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
 
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
 import sfms.rest.api.CreateResult;
 import sfms.rest.api.DeleteResult;
+import sfms.rest.api.RestDetail;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.UpdateResult;
@@ -64,8 +63,8 @@ public class StarRestController {
 	@Autowired
 	private Throttle m_throttle;
 
-	@GetMapping(value = "/{id}")
-	public Star getLookup(@PathVariable String id) throws Exception {
+	@GetMapping(value = "/{key}")
+	public Star getLookup(@PathVariable String key) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -73,7 +72,7 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, id);
+		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, key);
 
 		Entity dbStar = datastore.get(dbStarKey);
 
@@ -100,15 +99,31 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> dbStarQuery = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
-				.setKind(DbEntity.Star.getKind())
-				.setLimit(limit)
-				.addSortCriteria(sort)
-				.setQueryFilter(filter)
-				.setStartCursor(bookmark)
-				.build();
+		RestQuery dbStarQuery;
+		if (detail.isPresent() && detail.get().equals(RestDetail.MINIMAL)) {
+			dbStarQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap)
+					.setType(RestQueryBuilderType.PROJECTION)
+					.setKind(DbEntity.Star.getKind())
+					.setLimit(limit)
+					.addSortCriteria(sort)
+					.setQueryFilter(filter)
+					.addProjection(StarField.X.getName())
+					.addProjection(StarField.Y.getName())
+					.addProjection(StarField.Z.getName())
+					.setStartCursor(bookmark)
+					.build();
+		} else {
+			dbStarQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap)
+					.setType(RestQueryBuilderType.ENTITY)
+					.setKind(DbEntity.Star.getKind())
+					.setLimit(limit)
+					.addSortCriteria(sort)
+					.setQueryFilter(filter)
+					.setStartCursor(bookmark)
+					.build();
+		}
 
-		QueryResults<Entity> dbStars = datastore.run(dbStarQuery);
+		RestQueryResults dbStars = dbStarQuery.run(datastore);
 
 		RestFactory factory = new RestFactory();
 		List<Star> stars = factory.createStars(dbStars);
@@ -121,8 +136,8 @@ public class StarRestController {
 		return result;
 	}
 
-	@PutMapping(value = "/{id}")
-	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Star star) throws Exception {
+	@PutMapping(value = "/{key}")
+	public UpdateResult<String> putUpdate(@PathVariable String key, @RequestBody Star star) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -130,7 +145,7 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, id);
+		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, key);
 
 		Entity dbStar = createDbStar(star, datastore, dbStarKey);
 
@@ -163,8 +178,8 @@ public class StarRestController {
 		return result;
 	}
 
-	@DeleteMapping(value = "/{id}")
-	public DeleteResult<String> delete(@PathVariable String id) throws Exception {
+	@DeleteMapping(value = "/{key}")
+	public DeleteResult<String> delete(@PathVariable String key) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -172,7 +187,7 @@ public class StarRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, id);
+		Key dbStarKey = DbEntity.Star.createEntityKey(datastore, key);
 
 		datastore.delete(dbStarKey);
 

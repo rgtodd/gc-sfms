@@ -16,4 +16,7 @@ public class RestParameters {
 	public static final String SORT = "sort";
 	public static final String START = "start";
 
+	private RestParameters() {
+	}
+
 }

@@ -32,16 +32,18 @@
 				<label for="txtSectorKey" class="col-sm-2 col-form-label">Sector
 					Key</label>
 				<div class="col-sm-10">
-					<input type="text" readonly class="form-control-plaintext"
-						id="txtSectorKey" th:field="*{sectorKey}">
+					<a id="txtSectorKey" class="form-control-plaintext"
+						th:href="@{|/sector/*{sectorKey}|}" th:text="*{sectorKey}">Sector
+						Key</a>
 				</div>
 			</div>
 			<div class="form-group row">
 				<label for="txtClusterKey" class="col-sm-2 col-form-label">Cluster
 					Key</label>
 				<div class="col-sm-10">
-					<input type="text" readonly class="form-control-plaintext"
-						id="txtClusterKey" th:field="*{clusterKey}">
+					<a id="txtClusterKey" class="form-control-plaintext"
+						th:href="@{|/cluster/*{clusterKey}|}" th:text="*{clusterKey}">Cluster
+						Key</a>
 				</div>
 			</div>
 			<div class="form-group row">

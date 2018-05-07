@@ -81,25 +81,25 @@ public class SectorRestController {
 		s_dbFieldMap.put(SectorField.MaximumZ.getName(), DbSectorField.MaximumZ);
 	}
 
-	private static final int DEFAULT_PAGE_SIZE = 1000;
-	private static final int MAX_PAGE_SIZE = 1000;
+	private static final int DEFAULT_PAGE_SIZE = 10;
+	private static final int MAX_PAGE_SIZE = 100;
 	private static final String DETAIL_STAR = "star";
 
 	@Autowired
 	private Throttle m_throttle;
 
-	@GetMapping(value = "/{id}", headers = { RestHeaders.CACHE + "!=" + RestHeaders.CACHE_ENABLED })
-	public Sector getLookupUncached(@PathVariable String id) throws Exception {
+	@GetMapping(value = "/{key}", headers = { RestHeaders.CACHE + "!=" + RestHeaders.CACHE_ENABLED })
+	public Sector getLookupUncached(@PathVariable String key) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
 		}
 
-		return retrieveSectorFromDb(id);
+		return retrieveSectorFromDb(key);
 	}
 
-	@GetMapping(value = "/{id}", headers = { RestHeaders.CACHE + "=" + RestHeaders.CACHE_ENABLED })
-	public void getLookupCached(@PathVariable String id, HttpServletResponse response) throws Exception {
+	@GetMapping(value = "/{key}", headers = { RestHeaders.CACHE + "=" + RestHeaders.CACHE_ENABLED })
+	public void getLookupCached(@PathVariable String key, HttpServletResponse response) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -108,7 +108,7 @@ public class SectorRestController {
 		ObjectFactory objectFactory = new ObjectFactory() {
 			@Override
 			public byte[] createObject() throws Exception {
-				Sector result = retrieveSectorFromDb(id);
+				Sector result = retrieveSectorFromDb(key);
 
 				ObjectMapper mapper = new ObjectMapper();
 				ObjectWriter writer = mapper.writerFor(Sector.class);
@@ -118,7 +118,7 @@ public class SectorRestController {
 			}
 		};
 
-		String objectName = "Sector-" + id;
+		String objectName = "Sector-" + key;
 
 		try (ReadableByteChannel readChannel = StorageManagerUtility.getCachedObject(Storage.getManager(), objectName,
 				Constants.CONTENT_TYPE_JSON, objectFactory);
@@ -147,7 +147,8 @@ public class SectorRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Query<Entity> dbSectorQuery = RestQueryBuilder.newRestQueryBuilder(s_dbFieldMap)
+		RestQuery dbSectorQuery = RestQueryBuilder.newQueryBuilder(s_dbFieldMap)
+				.setType(RestQueryBuilderType.ENTITY)
 				.setKind(DbEntity.Sector.getKind())
 				.setLimit(limit)
 				.addSortCriteria(sort)
@@ -155,7 +156,7 @@ public class SectorRestController {
 				.setStartCursor(bookmark)
 				.build();
 
-		QueryResults<Entity> dbSectors = datastore.run(dbSectorQuery);
+		RestQueryResults dbSectors = dbSectorQuery.run(datastore);
 
 		List<Sector> sectors;
 		if (detail.isPresent() && detail.get().equals(DETAIL_STAR)) {
@@ -173,8 +174,8 @@ public class SectorRestController {
 		return result;
 	}
 
-	@PutMapping(value = "/{id}")
-	public UpdateResult<String> putUpdate(@PathVariable String id, @RequestBody Sector sector) throws Exception {
+	@PutMapping(value = "/{key}")
+	public UpdateResult<String> putUpdate(@PathVariable String key, @RequestBody Sector sector) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -182,7 +183,7 @@ public class SectorRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbSectorKey = DbEntity.Sector.createEntityKey(datastore, id);
+		Key dbSectorKey = DbEntity.Sector.createEntityKey(datastore, key);
 
 		Entity dbSector = createDbSector(sector, dbSectorKey);
 
@@ -215,8 +216,8 @@ public class SectorRestController {
 		return result;
 	}
 
-	@DeleteMapping(value = "/{id}")
-	public DeleteResult<String> delete(@PathVariable String id) throws Exception {
+	@DeleteMapping(value = "/{key}")
+	public DeleteResult<String> delete(@PathVariable String key) throws Exception {
 
 		if (!m_throttle.increment()) {
 			throw new Exception("Function is throttled.");
@@ -224,7 +225,7 @@ public class SectorRestController {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbSectorKey = DbEntity.Sector.createEntityKey(datastore, id);
+		Key dbSectorKey = DbEntity.Sector.createEntityKey(datastore, key);
 
 		datastore.delete(dbSectorKey);
 
@@ -234,9 +235,10 @@ public class SectorRestController {
 		return result;
 	}
 
-	private List<Sector> getSectorsWithDetail(Datastore datastore, QueryResults<Entity> dbSectors) {
-		List<Sector> sectors;
+	private List<Sector> getSectorsWithDetail(Datastore datastore, RestQueryResults dbSectors) {
+
 		RestFactory factory = new RestFactory();
+
 		Long minimumX = null;
 		Long maximumX = null;
 		Long minimumY = null;
@@ -272,10 +274,14 @@ public class SectorRestController {
 
 			Query<ProjectionEntity> dbStarQuery = Query.newProjectionEntityQueryBuilder()
 					.setKind(DbEntity.Star.getKind())
-					.setFilter(CompositeFilter.and(PropertyFilter.ge(DbStarField.X.getName(), (double) minimumX),
+					.setFilter(CompositeFilter.and(
+							PropertyFilter.ge(DbStarField.X.getName(), (double) minimumX),
 							PropertyFilter.lt(DbStarField.X.getName(), (double) maximumX)))
-					.addProjection(DbStarField.SectorKey.getName()).addProjection(DbStarField.X.getName())
-					.addProjection(DbStarField.Y.getName()).addProjection(DbStarField.Z.getName()).build();
+					.addProjection(DbStarField.SectorKey.getName())
+					.addProjection(DbStarField.X.getName())
+					.addProjection(DbStarField.Y.getName())
+					.addProjection(DbStarField.Z.getName())
+					.build();
 
 			QueryResults<ProjectionEntity> dbStars = datastore.run(dbStarQuery);
 
@@ -283,7 +289,7 @@ public class SectorRestController {
 				BaseEntity<Key> dbStar = dbStars.next();
 				double y = dbStar.getDouble(DbStarField.Y.getName());
 				double z = dbStar.getDouble(DbStarField.Z.getName());
-				if (y >= minimumY && y < maximumY && z >= minimumZ && z < maximumZ) {
+				if (minimumY <= y && y < maximumY && minimumZ <= z && z < maximumZ) {
 					Star star = factory.createStar(dbStar);
 					String starSectorKey = star.getSectorKey();
 					if (starSectorKey != null) {
@@ -296,7 +302,7 @@ public class SectorRestController {
 			}
 		}
 
-		sectors = new ArrayList<Sector>(sectorsByKey.values());
+		List<Sector> sectors = new ArrayList<Sector>(sectorsByKey.values());
 		return sectors;
 	}
 
