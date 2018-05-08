@@ -1,5 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <datastore-indexes autoGenerate="true">
+
+	<datastore-index kind="Crew" ancestor="false">
+		<property name="fn" direction="asc" />
+		<property name="ln" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Crew" ancestor="false">
+		<property name="ln" direction="asc" />
+		<property name="fn" direction="asc" />
+	</datastore-index>
+
+	<datastore-index kind="Cluster" ancestor="false">
+		<property name="max_x" direction="asc" />
+		<property name="max_y" direction="asc" />
+		<property name="max_z" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Cluster" ancestor="false">
+		<property name="max_x" direction="desc" />
+		<property name="max_y" direction="desc" />
+		<property name="max_z" direction="desc" />
+	</datastore-index>
+	<datastore-index kind="Cluster" ancestor="false">
+		<property name="min_x" direction="asc" />
+		<property name="min_y" direction="asc" />
+		<property name="min_z" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Cluster" ancestor="false">
+		<property name="min_x" direction="desc" />
+		<property name="min_y" direction="desc" />
+		<property name="min_z" direction="desc" />
+	</datastore-index>
+	<datastore-index kind="Cluster" ancestor="false">
+		<property name="x" direction="asc" />
+		<property name="y" direction="asc" />
+		<property name="z" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Cluster" ancestor="false">
+		<property name="x" direction="desc" />
+		<property name="y" direction="desc" />
+		<property name="z" direction="desc" />
+	</datastore-index>
+
+	<datastore-index kind="Sector" ancestor="false">
+		<property name="max_x" direction="asc" />
+		<property name="max_y" direction="asc" />
+		<property name="max_z" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Sector" ancestor="false">
+		<property name="max_x" direction="desc" />
+		<property name="max_y" direction="desc" />
+		<property name="max_z" direction="desc" />
+	</datastore-index>
+	<datastore-index kind="Sector" ancestor="false">
+		<property name="min_x" direction="asc" />
+		<property name="min_y" direction="asc" />
+		<property name="min_z" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Sector" ancestor="false">
+		<property name="min_x" direction="desc" />
+		<property name="min_y" direction="desc" />
+		<property name="min_z" direction="desc" />
+	</datastore-index>
+	<datastore-index kind="Sector" ancestor="false">
+		<property name="x" direction="asc" />
+		<property name="y" direction="asc" />
+		<property name="z" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Sector" ancestor="false">
+		<property name="x" direction="desc" />
+		<property name="y" direction="desc" />
+		<property name="z" direction="desc" />
+	</datastore-index>
+
 	<datastore-index kind="Star" ancestor="false">
 		<property name="cls_k" direction="asc" />
 		<property name="x" direction="asc" />
@@ -7,8 +79,29 @@
 		<property name="z" direction="asc" />
 	</datastore-index>
 	<datastore-index kind="Star" ancestor="false">
+		<property name="cls_k" direction="asc" />
 		<property name="sct_k" direction="asc" />
 		<property name="x" direction="asc" />
+		<property name="y" direction="asc" />
+		<property name="z" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Star" ancestor="false">
+		<property name="sct_k" direction="asc" />
+		<property name="x" direction="asc" />
+		<property name="y" direction="asc" />
+		<property name="z" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Star" ancestor="false">
+		<property name="sct_k" direction="asc" />
+		<property name="cls_k" direction="asc" />
+		<property name="x" direction="asc" />
+		<property name="y" direction="asc" />
+		<property name="z" direction="asc" />
+	</datastore-index>
+	<datastore-index kind="Star" ancestor="false">
+		<property name="x" direction="asc" />
+		<property name="cls_k" direction="asc" />
+		<property name="sct_k" direction="asc" />
 		<property name="y" direction="asc" />
 		<property name="z" direction="asc" />
 	</datastore-index>
@@ -18,12 +111,15 @@
 		<property name="y" direction="asc" />
 		<property name="z" direction="asc" />
 	</datastore-index>
-	<datastore-index kind="Crew" ancestor="false">
-		<property name="ln" direction="asc" />
-		<property name="fn" direction="asc" />
+	<datastore-index kind="Star" ancestor="false">
+		<property name="x" direction="asc" />
+		<property name="y" direction="asc" />
+		<property name="z" direction="asc" />
 	</datastore-index>
-	<datastore-index kind="Crew" ancestor="false">
-		<property name="fn" direction="asc" />
-		<property name="ln" direction="asc" />
+	<datastore-index kind="Star" ancestor="false">
+		<property name="x" direction="desc" />
+		<property name="y" direction="desc" />
+		<property name="z" direction="desc" />
 	</datastore-index>
+
 </datastore-indexes>
