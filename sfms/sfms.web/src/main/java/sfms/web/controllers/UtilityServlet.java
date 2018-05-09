@@ -1,5 +1,6 @@
 package sfms.web.controllers;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -61,11 +62,12 @@ public class UtilityServlet extends HttpServlet {
 					logger.info("Saving to " + blobName);
 
 					try (InputStream inputStream = item.openStream();
+							BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
 							WritableByteChannel writeChannel = Storage.getManager().getWritableByteChannel(bucketName,
 									blobName, contentType)) {
-						byte[] buffer = new byte[1024];
+						byte[] buffer = new byte[Constants.BUFFER_SIZE];
 						int limit;
-						while ((limit = inputStream.read(buffer)) >= 0) {
+						while ((limit = bufferedInputStream.read(buffer)) >= 0) {
 							writeChannel.write(ByteBuffer.wrap(buffer, 0, limit));
 						}
 					}

@@ -16,6 +16,8 @@ public class Constants {
 	public static final int SECTOR_MAXIMUM_BOUNDS = 1000;
 	public static final int SECTOR_BOUNDS_DELTA = 200;
 
+	public static final int BUFFER_SIZE = 1048576; // 1 Meg
+
 	private Constants() {
 
 	}

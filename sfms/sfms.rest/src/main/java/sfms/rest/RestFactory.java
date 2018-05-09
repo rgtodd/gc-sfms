@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.cloud.datastore.BaseEntity;
-import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.ProjectionEntity;
-import com.google.cloud.datastore.QueryResults;
 
 import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
@@ -30,7 +27,6 @@ import sfms.rest.db.schemas.DbStarField;
  */
 public class RestFactory {
 
-	@SuppressWarnings("unused")
 	private final Logger logger = Logger.getLogger(RestFactory.class.getName());
 
 	public Cluster createCluster(BaseEntity<Key> entity) {
@@ -59,10 +55,6 @@ public class RestFactory {
 		return result;
 	}
 
-	public List<Cluster> createClusters(QueryResults<Entity> entities) {
-		return createClusters(new EntityIterator(entities));
-	}
-
 	public Sector createSector(BaseEntity<Key> entity) {
 
 		Sector result = new Sector();
@@ -86,10 +78,6 @@ public class RestFactory {
 			result.add(createSector(entity));
 		}
 		return result;
-	}
-
-	public List<Sector> createSectors(QueryResults<Entity> entities) {
-		return createSectors(new EntityIterator(entities));
 	}
 
 	public Star createStar(BaseEntity<Key> entity) {
@@ -155,14 +143,6 @@ public class RestFactory {
 		return result;
 	}
 
-	public List<Star> createStars(QueryResults<Entity> entities) {
-		return createStars(new EntityIterator(entities));
-	}
-
-	public List<Star> createStarsFromProjection(QueryResults<ProjectionEntity> entities) {
-		return createStars(new ProjectionEntityIterator(entities));
-	}
-
 	public Spaceship createSpaceship(BaseEntity<Key> entity) {
 		Spaceship result = new Spaceship();
 		result.setKey(DbEntity.Spaceship.createRestKey(entity.getKey()));
@@ -184,10 +164,6 @@ public class RestFactory {
 		return result;
 	}
 
-	public List<Spaceship> createSpaceships(QueryResults<Entity> entities) {
-		return createSpaceships(new EntityIterator(entities));
-	}
-
 	public CrewMember createCrewMember(BaseEntity<Key> entity) {
 		CrewMember result = new CrewMember();
 		result.setKey(DbEntity.CrewMember.createRestKey(entity.getKey()));
@@ -203,10 +179,6 @@ public class RestFactory {
 			result.add(createCrewMember(entity));
 		}
 		return result;
-	}
-
-	public List<CrewMember> createCrewMembers(QueryResults<Entity> entities) {
-		return createCrewMembers(new EntityIterator(entities));
 	}
 
 	private Key getKey(BaseEntity<Key> entity, DbFieldSchema field) {
@@ -251,44 +223,5 @@ public class RestFactory {
 			return 0;
 		}
 		return entity.getLong(name);
-	}
-
-	private static class EntityIterator implements Iterator<BaseEntity<Key>> {
-
-		private QueryResults<Entity> m_results;
-
-		public EntityIterator(QueryResults<Entity> results) {
-			m_results = results;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return m_results.hasNext();
-		}
-
-		@Override
-		public BaseEntity<Key> next() {
-			return m_results.next();
-		}
-	}
-
-	private static class ProjectionEntityIterator implements Iterator<BaseEntity<Key>> {
-
-		private QueryResults<ProjectionEntity> m_results;
-
-		public ProjectionEntityIterator(QueryResults<ProjectionEntity> results) {
-			m_results = results;
-		}
-
-		@Override
-		public boolean hasNext() {
-			return m_results.hasNext();
-		}
-
-		@Override
-		public BaseEntity<Key> next() {
-			return m_results.next();
-		}
-
 	}
 }

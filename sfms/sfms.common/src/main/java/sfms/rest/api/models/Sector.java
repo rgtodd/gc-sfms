@@ -1,7 +1,5 @@
 package sfms.rest.api.models;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**

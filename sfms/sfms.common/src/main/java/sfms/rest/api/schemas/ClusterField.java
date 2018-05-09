@@ -20,8 +20,7 @@ public enum ClusterField implements FieldSchema {
 	MinimumZ("MinimumZ"),
 	MaximumX("MaximumX"),
 	MaximumY("MaximumY"),
-	MaximumZ("MaximumZ"),
-	Stars("Stars");
+	MaximumZ("MaximumZ");
 
 	private String m_name;
 

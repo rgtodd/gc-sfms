@@ -27,17 +27,12 @@
 			<plugin>
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>appengine-maven-plugin</artifactId>
-				<version>${appengine.maven.plugin.version}</version>
 				<configuration>
 					<deploy.project>rgt-ssms</deploy.project>
 					<enableJarClasses>false</enableJarClasses>
 					<port>8300</port>
 					<address>0.0.0.0</address>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
