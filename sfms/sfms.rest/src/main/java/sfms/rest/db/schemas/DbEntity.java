@@ -10,15 +10,21 @@ public enum DbEntity {
 
 	// ID Based Entities
 	//
-	CrewMember("Crew", DbCrewMemberField.class, true),
-	Spaceship("Ship", DbSpaceshipField.class, true),
-	SpaceStation("SpaceStation", DbSpaceStationField.class, true),
+	CrewMember("Crw", DbCrewMemberField.class, true),
+	Spaceship("Shp", DbSpaceshipField.class, true),
+	SpaceStation("Stn", DbSpaceStationField.class, true),
 
 	// Name Based Entities
 	//
-	Cluster("Cluster", DbClusterField.class, false),
-	Sector("Sector", DbSectorField.class, false),
-	Star("Star", DbStarField.class, false);
+	Cluster("Cls", DbClusterField.class, false),
+	CrewMemberState("CrwSte", null, false),
+	CrewMemberStateHistory("CrwSteHst", null, false),
+	Mission("Msn", DbMissionField.class, false),
+	MissionState("MsnSte", DbMissionStateField.class, false),
+	Sector("Sct", DbSectorField.class, false),
+	SpaceshipState("ShpSte", null, false),
+	SpaceshipStateHistory("ShpSteHst", null, false),
+	Star("Str", DbStarField.class, false);
 
 	private String m_kind;
 	private Class<?> m_fieldSchema;
