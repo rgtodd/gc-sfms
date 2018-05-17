@@ -20,5 +20,6 @@ public class Objective {
 
 	public void setObjectiveId(int objectiveId) {
 		m_objectiveId = objectiveId;
+
 	}
 }
