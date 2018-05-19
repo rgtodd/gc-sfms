@@ -251,5 +251,6 @@
 		<module>sfms.common</module>
 		<module>sfms.rest</module>
 		<module>sfms.web</module>
+		<module>sfms.docker</module>
 	</modules>
 </project>

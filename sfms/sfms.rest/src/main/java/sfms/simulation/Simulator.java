@@ -19,24 +19,20 @@ public class Simulator {
 
 	public void processActors(Instant now) {
 
-		logger.info("Simulator::processActors - Starting");
-
 		try (ActorIterator actorIterator = m_actorDatasource.getActors()) {
 			while (actorIterator.hasNext()) {
-
 				Actor actor = actorIterator.next();
-				logger.info("Retrieved actor " + actor.getEntityKey().toString());
 
 				Mission mission = m_missionGenerator.createMission(actor);
-				if (mission != null) {
-					actor.assignMission(mission);
-				}
+				// if (mission != null) {
+				// actor.assignMission(mission);
+				// }
+
+				logger.info("Simulation complete:  " + actor.getEntityKey().toString());
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		logger.info("Simulator::processActors - Complete");
 	}
 }

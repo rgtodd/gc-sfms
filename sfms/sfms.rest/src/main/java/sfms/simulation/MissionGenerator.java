@@ -34,7 +34,7 @@ public class MissionGenerator {
 	public Mission createMission(Actor actor) {
 
 		List<Objective> objectives = new ArrayList<Objective>();
-		int stopCount = 1 + m_random.nextInt(5);
+		int stopCount = 1; // 1 + m_random.nextInt(5);
 		int objectiveId = 0;
 		for (int stopIndex = 0; stopIndex < stopCount; ++stopIndex) {
 			String starKey = getRandomStarKey();
@@ -73,19 +73,23 @@ public class MissionGenerator {
 
 		Query<Key> dbStarKeyQuery = Query.newKeyQueryBuilder()
 				.setKind(DbEntity.Star.getKind())
-				.setFilter(PropertyFilter.eq(DbStarField.SectorKey.getName(), DbValueFactory.asValue(dbSectorKey)))
+				.setFilter(PropertyFilter.eq(DbStarField.SectorKey.getName(),
+						DbValueFactory.asValue(dbSectorKey)))
 				.setLimit(1)
 				.build();
 
 		QueryResults<Key> dbStarKeys = m_datastore.run(dbStarKeyQuery);
 
-		if (!dbStarKeys.hasNext()) {
-			return null;
-		}
+		return null;
 
-		Key dbStarKey = dbStarKeys.next();
-
-		String starKey = DbEntity.Star.createRestKey(dbStarKey);
-		return starKey;
+		//
+		// if (!dbStarKeys.hasNext()) {
+		// return null;
+		// }
+		//
+		// Key dbStarKey = dbStarKeys.next();
+		//
+		// String starKey = DbEntity.Star.createRestKey(dbStarKey);
+		// return starKey;
 	}
 }

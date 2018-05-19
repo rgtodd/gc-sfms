@@ -10,9 +10,9 @@ public enum DbEntity {
 
 	// ID Based Entities
 	//
-	CrewMember("Crw", DbCrewMemberField.class, true),
-	Spaceship("Shp", DbSpaceshipField.class, true),
-	SpaceStation("Stn", DbSpaceStationField.class, true),
+	CrewMember("Crew", DbCrewMemberField.class, true),
+	Spaceship("Ship", DbSpaceshipField.class, true),
+	SpaceStation("SpaceStation", DbSpaceStationField.class, true),
 
 	// Name Based Entities
 	//
