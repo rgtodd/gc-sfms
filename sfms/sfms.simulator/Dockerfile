@@ -1,4 +1,5 @@
 FROM openjdk:8-jdk-alpine
+#FROM alpine-java:base
 #ENV DATASTORE_DATASET=rgt-ssms
 #ENV DATASTORE_EMULATOR_HOST=localhost:8081
 #ENV DATASTORE_EMULATOR_HOST_PATH=localhost:8081/datastore

@@ -18,6 +18,10 @@ public class Constants {
 
 	public static final int BUFFER_SIZE = 1048576; // 1 Meg
 
+	public static final String PUBSUB_PROJECT_ID = "rgt-ssms";
+	public static final String PUBSUB_CONTROL_TOPIC = "simulation-control";
+	public static final String PUBSUB_CONTROL_SUBSCRIPTION = "simulation-control";
+
 	private Constants() {
 
 	}
