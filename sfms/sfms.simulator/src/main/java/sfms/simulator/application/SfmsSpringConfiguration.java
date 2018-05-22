@@ -6,6 +6,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import sfms.common.application.AppEngineHeaderFilter;
+
 @Configuration
 public class SfmsSpringConfiguration implements ApplicationContextAware {
 
@@ -22,4 +24,8 @@ public class SfmsSpringConfiguration implements ApplicationContextAware {
 		return new SfmsApplicationStateBean();
 	}
 
+	@Bean
+	public AppEngineHeaderFilter appEngineHeaderFilter() {
+		return new AppEngineHeaderFilter();
+	}
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
+import sfms.simulator.api.models.SimulatorStatus;
 import sfms.web.SfmsController;
 
 @Controller
@@ -21,6 +22,17 @@ public class SimulationController extends SfmsController {
 
 	@GetMapping({ "" })
 	public String simulation(ModelMap modelMap) {
+
+		String url = getSimulatorUrl("admin/status");
+
+		logger.info("Calling " + url);
+
+		RestTemplate restTemplate = createRestTempate();
+		ResponseEntity<SimulatorStatus> response = restTemplate.exchange(url, HttpMethod.GET, createHttpEntity(),
+				new ParameterizedTypeReference<SimulatorStatus>() {
+				});
+
+		modelMap.addAttribute("status", response.getBody());
 
 		return "simulation";
 	}

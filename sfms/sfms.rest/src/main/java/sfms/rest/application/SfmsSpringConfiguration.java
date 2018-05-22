@@ -3,6 +3,7 @@ package sfms.rest.application;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import sfms.common.application.AppEngineHeaderFilter;
 import sfms.rest.Throttle;
 
 /**

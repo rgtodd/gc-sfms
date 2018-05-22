@@ -24,6 +24,7 @@ public class PropertyFile {
 	private static final String SERVER_TYPE_DEFAULT = SERVER_TYPE_DEVELOPMENT;
 
 	public static final String SFMS_REST_HOST = "sfms.rest.host";
+	public static final String SFMS_SIMULATOR_HOST = "sfms.simulator.host";
 
 	public static final PropertyFile INSTANCE = new PropertyFile();
 

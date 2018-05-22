@@ -1,4 +1,4 @@
-package sfms.rest.application;
+package sfms.common.application;
 
 import java.io.IOException;
 import java.util.Enumeration;

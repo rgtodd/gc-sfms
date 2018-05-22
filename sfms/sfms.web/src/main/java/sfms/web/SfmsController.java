@@ -37,6 +37,12 @@ public class SfmsController {
 		return host + "/" + url;
 	}
 
+	protected String getSimulatorUrl(String url) {
+		String host = PropertyFile.INSTANCE.getServerProperty(PropertyFile.APPLICATION,
+				PropertyFile.SFMS_SIMULATOR_HOST);
+		return host + "/" + url;
+	}
+
 	private MultiValueMap<String, String> createRequestHeaders() {
 		MultiValueMap<String, String> result = new LinkedMultiValueMap<String, String>();
 
