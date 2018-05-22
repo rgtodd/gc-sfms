@@ -9,9 +9,9 @@ import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.KeyFactory;
 
+import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbSpaceshipField;
 import sfms.rest.api.test.ValueGenerator;
-import sfms.rest.db.schemas.DbEntity;
-import sfms.rest.db.schemas.DbSpaceshipField;
 
 /**
  * Factory class used to generate test Spaceship entities.

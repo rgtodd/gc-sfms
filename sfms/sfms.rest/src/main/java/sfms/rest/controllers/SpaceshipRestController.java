@@ -23,6 +23,10 @@ import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
 
+import sfms.db.DbFieldSchema;
+import sfms.db.DbValueFactory;
+import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbSpaceshipField;
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
 import sfms.rest.api.CreateResult;
@@ -32,13 +36,9 @@ import sfms.rest.api.SearchResult;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.schemas.SpaceshipField;
-import sfms.rest.db.DbFieldSchema;
-import sfms.rest.db.DbValueFactory;
 import sfms.rest.db.RestQuery;
 import sfms.rest.db.RestQueryBuilder;
 import sfms.rest.db.RestQueryResults;
-import sfms.rest.db.schemas.DbEntity;
-import sfms.rest.db.schemas.DbSpaceshipField;
 
 /**
  * Controller for the Spaceship REST service.

@@ -10,9 +10,11 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
 
 import sfms.common.Constants;
-import sfms.rest.db.schemas.DbClusterField;
-import sfms.rest.db.schemas.DbEntity;
-import sfms.rest.db.schemas.DbSectorField;
+import sfms.db.business.Region;
+import sfms.db.business.RegionSet;
+import sfms.db.schemas.DbClusterField;
+import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbSectorField;
 
 /**
  * Adds Cluster and Sector entities to the data store.

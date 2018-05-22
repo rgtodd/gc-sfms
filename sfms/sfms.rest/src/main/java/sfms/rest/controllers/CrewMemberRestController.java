@@ -23,6 +23,10 @@ import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
 
+import sfms.db.DbFieldSchema;
+import sfms.db.DbValueFactory;
+import sfms.db.schemas.DbCrewMemberField;
+import sfms.db.schemas.DbEntity;
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
 import sfms.rest.api.CreateResult;
@@ -32,13 +36,9 @@ import sfms.rest.api.SearchResult;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.CrewMember;
 import sfms.rest.api.schemas.CrewMemberField;
-import sfms.rest.db.DbFieldSchema;
-import sfms.rest.db.DbValueFactory;
 import sfms.rest.db.RestQuery;
 import sfms.rest.db.RestQueryBuilder;
 import sfms.rest.db.RestQueryResults;
-import sfms.rest.db.schemas.DbCrewMemberField;
-import sfms.rest.db.schemas.DbEntity;
 
 /**
  * Controller for the Crew Member REST service.

@@ -9,9 +9,9 @@ import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.KeyFactory;
 
+import sfms.db.schemas.DbCrewMemberField;
+import sfms.db.schemas.DbEntity;
 import sfms.rest.api.test.ValueGenerator;
-import sfms.rest.db.schemas.DbCrewMemberField;
-import sfms.rest.db.schemas.DbEntity;
 
 /**
  * Factory class used to generate test Crew Member entities.

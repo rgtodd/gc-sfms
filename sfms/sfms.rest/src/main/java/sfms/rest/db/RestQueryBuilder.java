@@ -17,6 +17,7 @@ import com.google.cloud.datastore.StructuredQuery.OrderBy;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Value;
 
+import sfms.db.DbFieldSchema;
 import sfms.rest.api.FilterCriteria;
 import sfms.rest.api.SelectionCriteria;
 import sfms.rest.api.SortCriteria;

@@ -20,6 +20,10 @@ import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 
+import sfms.db.DbFieldSchema;
+import sfms.db.DbValueFactory;
+import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbStarField;
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
 import sfms.rest.api.CreateResult;
@@ -32,13 +36,9 @@ import sfms.rest.api.SelectionCriteria;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.StarField;
-import sfms.rest.db.DbFieldSchema;
-import sfms.rest.db.DbValueFactory;
 import sfms.rest.db.RestQuery;
 import sfms.rest.db.RestQueryBuilder;
 import sfms.rest.db.RestQueryResults;
-import sfms.rest.db.schemas.DbEntity;
-import sfms.rest.db.schemas.DbStarField;
 
 /**
  * Controller for the Star REST service.

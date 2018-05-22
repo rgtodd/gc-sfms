@@ -16,10 +16,12 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
 
-import sfms.rest.db.CsvValue;
-import sfms.rest.db.DbValueFactory;
-import sfms.rest.db.schemas.DbEntity;
-import sfms.rest.db.schemas.DbStarField;
+import sfms.db.CsvValue;
+import sfms.db.DbValueFactory;
+import sfms.db.business.Region;
+import sfms.db.business.RegionSet;
+import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbStarField;
 import sfms.storage.Storage;
 
 /**

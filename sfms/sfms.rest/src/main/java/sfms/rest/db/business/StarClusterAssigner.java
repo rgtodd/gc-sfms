@@ -8,8 +8,10 @@ import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 
-import sfms.rest.db.schemas.DbEntity;
-import sfms.rest.db.schemas.DbStarField;
+import sfms.db.business.Region;
+import sfms.db.business.RegionSet;
+import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbStarField;
 
 /**
  * Iterates over all Star entities and updates the SectorKey and ClusterKey

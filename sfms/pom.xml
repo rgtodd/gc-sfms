@@ -21,10 +21,10 @@
 		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
 		<maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
 		<maven-war-plugin.version>3.2.0</maven-war-plugin.version>
-		<spring-boot-maven-plugin.version>2.0.0.RELEASE</spring-boot-maven-plugin.version>
+		<spring-boot-maven-plugin.version>2.0.2.RELEASE</spring-boot-maven-plugin.version>
 		<versions-maven-plugin.version>2.3</versions-maven-plugin.version>
 
-		<docker.image.prefix>springio</docker.image.prefix>
+		<docker.image.prefix>gcr.io/rgt-ssms</docker.image.prefix>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -55,31 +55,6 @@
 				<version>1.30.0</version>
 			</dependency>
 			<dependency>
-				<groupId>com.google.cloud</groupId>
-				<artifactId>google-cloud-pubsub</artifactId>
-				<version>0.46.0-beta</version>
-			</dependency>
-			<dependency>
-				<groupId>io.grpc</groupId>
-				<artifactId>grpc-core</artifactId>
-				<version>1.11.0</version>
-			</dependency>
-			<dependency>
-				<groupId>io.grpc</groupId>
-				<artifactId>grpc-netty-shaded</artifactId>
-				<version>1.11.0</version>
-			</dependency>
-			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-handler</artifactId>
-				<version>4.1.22.Final</version>
-			</dependency>
-			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-tcnative-boringssl-static</artifactId>
-				<version>2.0.7.Final</version>
-			</dependency>
-			<dependency>
 				<groupId>javax.servlet.jsp</groupId>
 				<artifactId>javax.servlet.jsp-api</artifactId>
 				<version>2.3.1</version>
@@ -94,7 +69,7 @@
 				<!-- Import dependency management from Spring Boot -->
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>2.0.1.RELEASE</version>
+				<version>2.0.2.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -102,7 +77,7 @@
 				<!-- Import dependency management from Spring Boot -->
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-web</artifactId>
-				<version>2.0.1.RELEASE</version>
+				<version>2.0.2.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

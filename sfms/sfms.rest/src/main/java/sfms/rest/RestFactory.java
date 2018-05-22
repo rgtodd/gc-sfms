@@ -8,18 +8,18 @@ import java.util.logging.Logger;
 import com.google.cloud.datastore.BaseEntity;
 import com.google.cloud.datastore.Key;
 
+import sfms.db.DbFieldSchema;
+import sfms.db.schemas.DbClusterField;
+import sfms.db.schemas.DbCrewMemberField;
+import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbSectorField;
+import sfms.db.schemas.DbSpaceshipField;
+import sfms.db.schemas.DbStarField;
 import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
 import sfms.rest.api.models.Sector;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.models.Star;
-import sfms.rest.db.DbFieldSchema;
-import sfms.rest.db.schemas.DbClusterField;
-import sfms.rest.db.schemas.DbCrewMemberField;
-import sfms.rest.db.schemas.DbEntity;
-import sfms.rest.db.schemas.DbSectorField;
-import sfms.rest.db.schemas.DbSpaceshipField;
-import sfms.rest.db.schemas.DbStarField;
 
 /**
  * Factory used to create REST entities from data store entities.
