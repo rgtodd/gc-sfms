@@ -12,16 +12,11 @@ import sfms.common.application.AppEngineHeaderFilter;
 public class SfmsSpringConfiguration implements ApplicationContextAware {
 
 	@SuppressWarnings("unused")
-	private ApplicationContext applicationContext;
+	private ApplicationContext m_applicationContext;
 
 	@Override
 	public void setApplicationContext(final ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
-	}
-
-	@Bean(destroyMethod = "close")
-	public SfmsApplicationStateBean getSfmsApplicationStateBean() {
-		return new SfmsApplicationStateBean();
+		m_applicationContext = applicationContext;
 	}
 
 	@Bean

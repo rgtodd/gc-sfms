@@ -10,7 +10,7 @@ public interface Actor {
 
 	public void assignMission(Mission mission);
 
-	public void updateStatus(Instant now);
+	public void updateState(Instant now);
 
 	public Key getEntityKey();
 }

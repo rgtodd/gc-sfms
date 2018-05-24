@@ -26,6 +26,13 @@ public class SpaceshipActor implements Actor {
 	private Entity m_dbSpaceship;
 
 	public SpaceshipActor(Entity dbSpaceship) {
+		if (dbSpaceship == null) {
+			throw new IllegalArgumentException("dbSpaceship is null.");
+		}
+		if (dbSpaceship.getKey().getKind().equals(DbEntity.Spaceship.getKind())) {
+			throw new IllegalArgumentException("dbSpaceship is not spaceship.");
+		}
+
 		m_dbSpaceship = dbSpaceship;
 	}
 
@@ -83,7 +90,7 @@ public class SpaceshipActor implements Actor {
 	}
 
 	@Override
-	public void updateStatus(Instant now) {
+	public void updateState(Instant now) {
 		// TODO Auto-generated method stub
 
 	}

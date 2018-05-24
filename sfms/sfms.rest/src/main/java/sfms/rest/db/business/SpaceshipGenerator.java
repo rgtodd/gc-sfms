@@ -9,6 +9,7 @@ import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.KeyFactory;
 
+import sfms.db.BatchPut;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbSpaceshipField;
 import sfms.rest.api.test.ValueGenerator;
