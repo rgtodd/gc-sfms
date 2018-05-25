@@ -2,14 +2,23 @@ package sfms.simulator.api.models;
 
 public class SimulatorStatus {
 
-	private String m_status;
+	private String m_jobWorkerStatus;
+	private String m_transactionWorkerStatus;
 
-	public String getStatus() {
-		return m_status;
+	public String getJobWorkerStatus() {
+		return m_jobWorkerStatus;
 	}
 
-	public void setStatus(String status) {
-		m_status = status;
+	public void setJobWorkerStatus(String jobWorkerStatus) {
+		m_jobWorkerStatus = jobWorkerStatus;
+	}
+
+	public String getTransactionWorkerStatus() {
+		return m_transactionWorkerStatus;
+	}
+
+	public void setTransactionWorkerStatus(String transactionWorkerStatus) {
+		m_transactionWorkerStatus = transactionWorkerStatus;
 	}
 
 }

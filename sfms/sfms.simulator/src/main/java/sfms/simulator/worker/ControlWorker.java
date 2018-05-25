@@ -8,6 +8,11 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PreDestroy;
+
+import org.springframework.stereotype.Component;
+
+@Component
 public class ControlWorker {
 
 	private final Logger logger = Logger.getLogger(ControlWorker.class.getName());
@@ -36,10 +41,9 @@ public class ControlWorker {
 	}
 
 	public void stop() {
-
-		logger.info("Stopping control worker.");
-
 		if (m_thread != null) {
+			logger.info("Stopping control worker.");
+
 			try {
 				logger.info("Quiescing worker thread.");
 				quiesce();
@@ -51,37 +55,32 @@ public class ControlWorker {
 				m_threadQuiescedSemaphore = null;
 				m_messageQueue = null;
 			}
-		}
 
-		logger.info("Control worker stopped.");
+			logger.info("Control worker stopped.");
+		}
 	}
 
-	public void quiesce() throws InterruptedException, TimeoutException {
+	public boolean isActive() {
+		return m_thread != null;
+	}
 
-		if (!m_thread.isAlive()) {
-			logger.info("Worker thread is no longer alive.");
-			return;
-		}
+	@PreDestroy
+	public void onPreDestroy() {
+		stop();
+	}
+
+	private void quiesce() throws InterruptedException, TimeoutException {
 
 		logger.info("Sending HALT message to worker thread.");
-		boolean timeout = m_messageQueue.offer(ControlWorkerMessage.HALT, TIMEOUT, TIMEOUT_UNIT);
-		if (timeout) {
-			logger.severe("Could not send HALT message.");
-		}
-
-		if (!m_thread.isAlive()) {
-			logger.info("Worker thread is no longer alive.");
-			return;
+		boolean success = m_messageQueue.offer(ControlWorkerMessage.HALT, TIMEOUT, TIMEOUT_UNIT);
+		if (!success) {
+			throw new TimeoutException("Could not send HALT message to worker thread.");
 		}
 
 		logger.info("Waiting for worker thread to end.");
-		timeout = m_threadQuiescedSemaphore.tryAcquire(1, TIMEOUT, TIMEOUT_UNIT);
-		if (timeout) {
-			if (!m_thread.isAlive()) {
-				logger.severe("Worker thread is no longer alive.");
-				return;
-			}
-			throw new TimeoutException("Thread did not quiesce.");
+		success = m_threadQuiescedSemaphore.tryAcquire(1, TIMEOUT, TIMEOUT_UNIT);
+		if (!success) {
+			throw new TimeoutException("Could not confirm worker thread shutdown.");
 		}
 
 		logger.info("Worker thread quiesced.");

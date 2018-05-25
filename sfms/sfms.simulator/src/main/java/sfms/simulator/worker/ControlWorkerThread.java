@@ -2,15 +2,11 @@ package sfms.simulator.worker;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class ControlWorkerThread extends Thread {
 
 	private final Logger logger = Logger.getLogger(ControlWorkerThread.class.getName());
-
-	private static final int TIMEOUT = 60;
-	private static final TimeUnit TIMEOUT_UNIT = TimeUnit.SECONDS;
 
 	private BlockingQueue<ControlWorkerMessage> m_messageQueue;
 	private Semaphore m_threadQuiescedSemaphore;
@@ -47,7 +43,9 @@ public class ControlWorkerThread extends Thread {
 			logger.info("Control worker thread interrupted.");
 
 		} finally {
+
 			m_threadQuiescedSemaphore.release();
+
 		}
 
 	}
