@@ -8,7 +8,7 @@ import javax.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import sfms.simulator.worker.ControlWorker;
+import sfms.simulator.worker.Worker;
 
 @Component
 public class SfmsApplicationStateBean {
@@ -16,19 +16,24 @@ public class SfmsApplicationStateBean {
 	private final Logger logger = Logger.getLogger(SfmsApplicationStateBean.class.getName());
 
 	@Autowired
-	private ControlWorker m_controlWorker;
+	private Worker controlWorker;
+
+	@Autowired
+	private Worker transactionWorker;
 
 	@PostConstruct
 	public void onPostConstruct() {
 		logger.info("Application starting.");
 
-		m_controlWorker.start();
+		controlWorker.start();
+		transactionWorker.start();
 	}
 
 	@PreDestroy
 	public void onPreDestroy() {
 		logger.info("Application stopping.");
 
-		m_controlWorker.stop();
+		controlWorker.stop();
+		transactionWorker.stop();
 	}
 }

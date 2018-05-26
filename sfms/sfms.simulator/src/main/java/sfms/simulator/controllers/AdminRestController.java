@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import sfms.simulator.api.models.SimulatorStatus;
 import sfms.simulator.api.schemas.WorkerStatus;
-import sfms.simulator.worker.ControlWorker;
+import sfms.simulator.worker.Worker;
 
 /**
  * Controller for the Admin REST service.
@@ -23,10 +23,10 @@ import sfms.simulator.worker.ControlWorker;
 public class AdminRestController {
 
 	@Autowired
-	private ControlWorker m_jobWorker;
+	private Worker controlWorker;
 
 	@Autowired
-	private ControlWorker m_transactionWorker;
+	private Worker transactionWorker;
 
 	@SuppressWarnings("unused")
 	private final Logger logger = Logger.getLogger(AdminRestController.class.getName());
@@ -35,52 +35,52 @@ public class AdminRestController {
 	public SimulatorStatus getStatus() {
 
 		SimulatorStatus response = new SimulatorStatus();
-		response.setJobWorkerStatus(m_jobWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE);
+		response.setJobWorkerStatus(controlWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE);
 		response.setTransactionWorkerStatus(
-				m_transactionWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE);
+				transactionWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE);
 
 		return response;
 	}
 
 	@GetMapping(value = "/worker/job/status")
 	public String getJobWorkerStatus() {
-		return m_jobWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
+		return controlWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
 	}
 
 	@PostMapping(value = "/worker/job/status")
 	public String setJobWorkerStatus(@RequestBody String status) {
 
 		if (status.equals(WorkerStatus.ACTIVE)) {
-			if (!m_jobWorker.isActive()) {
-				m_jobWorker.start();
+			if (!controlWorker.isActive()) {
+				controlWorker.start();
 			}
 		} else if (status.equals(WorkerStatus.INACTIVE)) {
-			if (m_jobWorker.isActive()) {
-				m_jobWorker.stop();
+			if (controlWorker.isActive()) {
+				controlWorker.stop();
 			}
 		}
 
-		return m_jobWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
+		return controlWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
 	}
 
 	@GetMapping(value = "/worker/transaction/status")
 	public String getTransactionWorkerStatus() {
-		return m_transactionWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
+		return transactionWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
 	}
 
 	@PostMapping(value = "/worker/transaction/status")
 	public String setTransactionWorkerStatus(@RequestBody String status) {
 
 		if (status.equals(WorkerStatus.ACTIVE)) {
-			if (!m_transactionWorker.isActive()) {
-				m_transactionWorker.start();
+			if (!transactionWorker.isActive()) {
+				transactionWorker.start();
 			}
 		} else if (status.equals(WorkerStatus.INACTIVE)) {
-			if (m_transactionWorker.isActive()) {
-				m_transactionWorker.stop();
+			if (transactionWorker.isActive()) {
+				transactionWorker.stop();
 			}
 		}
 
-		return m_transactionWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
+		return transactionWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
 	}
 }

@@ -10,45 +10,56 @@ import java.util.logging.Logger;
 
 import javax.annotation.PreDestroy;
 
-import org.springframework.stereotype.Component;
+public class Worker {
 
-@Component
-public class ControlWorker {
-
-	private final Logger logger = Logger.getLogger(ControlWorker.class.getName());
+	private final Logger logger = Logger.getLogger(Worker.class.getName());
 
 	private static final int QUEUE_CAPACITY = 100;
 	private static final int TIMEOUT = 60;
 	private static final TimeUnit TIMEOUT_UNIT = TimeUnit.SECONDS;
 
-	private BlockingQueue<ControlWorkerMessage> m_messageQueue;
+	private String m_name;
+
+	private BlockingQueue<WorkerFunction> m_messageQueue;
 	private Semaphore m_threadQuiescedSemaphore;
-	private ControlWorkerThread m_thread;
+	private WorkerThread m_thread;
+
+	public Worker(String name) {
+		if (name == null) {
+			throw new IllegalArgumentException("Argument name is null.");
+		}
+
+		m_name = name;
+	}
+
+	public String getName() {
+		return m_name;
+	}
 
 	public void start() {
 		if (m_thread != null) {
 			throw new IllegalStateException("Worker already open.");
 		}
 
-		logger.info("Starting control worker.");
+		logInfo("Starting control worker.");
 
-		m_messageQueue = new ArrayBlockingQueue<ControlWorkerMessage>(QUEUE_CAPACITY);
+		m_messageQueue = new ArrayBlockingQueue<WorkerFunction>(QUEUE_CAPACITY);
 		m_threadQuiescedSemaphore = new Semaphore(0);
-		m_thread = new ControlWorkerThread(m_messageQueue, m_threadQuiescedSemaphore);
+		m_thread = new WorkerThread(m_name, m_messageQueue, m_threadQuiescedSemaphore);
 		m_thread.start();
 
-		logger.info("Control worker started.");
+		logInfo("Control worker started.");
 	}
 
 	public void stop() {
 		if (m_thread != null) {
-			logger.info("Stopping control worker.");
+			logInfo("Stopping control worker.");
 
 			try {
-				logger.info("Quiescing worker thread.");
+				logInfo("Quiescing worker thread.");
 				quiesce();
 			} catch (InterruptedException | TimeoutException e) {
-				logger.log(Level.SEVERE, "Error quiescing working thread.", e);
+				logSevere("Error quiescing working thread.", e);
 				m_thread.interrupt();
 			} finally {
 				m_thread = null;
@@ -56,7 +67,7 @@ public class ControlWorker {
 				m_messageQueue = null;
 			}
 
-			logger.info("Control worker stopped.");
+			logInfo("Control worker stopped.");
 		}
 	}
 
@@ -71,19 +82,26 @@ public class ControlWorker {
 
 	private void quiesce() throws InterruptedException, TimeoutException {
 
-		logger.info("Sending HALT message to worker thread.");
-		boolean success = m_messageQueue.offer(ControlWorkerMessage.HALT, TIMEOUT, TIMEOUT_UNIT);
+		logInfo("Sending HALT message to worker thread.");
+		boolean success = m_messageQueue.offer(WorkerThread.HALT, TIMEOUT, TIMEOUT_UNIT);
 		if (!success) {
 			throw new TimeoutException("Could not send HALT message to worker thread.");
 		}
 
-		logger.info("Waiting for worker thread to end.");
+		logInfo("Waiting for worker thread to end.");
 		success = m_threadQuiescedSemaphore.tryAcquire(1, TIMEOUT, TIMEOUT_UNIT);
 		if (!success) {
 			throw new TimeoutException("Could not confirm worker thread shutdown.");
 		}
 
-		logger.info("Worker thread quiesced.");
+		logInfo("Worker thread quiesced.");
 	}
 
+	private void logInfo(String text) {
+		logger.info(m_name + ": " + text);
+	}
+
+	private void logSevere(String text, Throwable t) {
+		logger.log(Level.SEVERE, m_name + ": " + text, t);
+	}
 }
