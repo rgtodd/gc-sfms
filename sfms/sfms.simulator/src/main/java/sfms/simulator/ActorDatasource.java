@@ -15,6 +15,25 @@ import sfms.db.schemas.DbEntity;
 
 public class ActorDatasource {
 
+	public Actor getActor(ActorKey key) {
+		if (key == null) {
+			throw new IllegalArgumentException("Argument key is null.");
+		}
+
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+		Entity dbEntity = datastore.get(key.getKey());
+
+		if (dbEntity.getKey().getKind().equals(DbEntity.CrewMember.getKind())) {
+			return new CrewMemberActor(dbEntity);
+		}
+
+		if (dbEntity.getKey().getKind().equals(DbEntity.Spaceship.getKind())) {
+			return new SpaceshipActor(dbEntity);
+		}
+
+		throw new IllegalArgumentException("Unknown actor key type.");
+	}
+
 	public ActorIterator getActors() {
 
 		List<ActorIterator> iterators = new ArrayList<ActorIterator>();

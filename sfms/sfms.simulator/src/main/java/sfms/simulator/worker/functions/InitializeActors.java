@@ -11,8 +11,9 @@ public class InitializeActors implements WorkerFunction {
 
 	private Worker m_transactionWorker;
 	private Instant m_now;
+	private boolean m_reset;
 
-	public InitializeActors(Worker transactionWorker, Instant now) {
+	public InitializeActors(Worker transactionWorker, Instant now, boolean reset) {
 		if (transactionWorker == null) {
 			throw new IllegalArgumentException("Argument transactionWorker is null.");
 		}
@@ -22,6 +23,7 @@ public class InitializeActors implements WorkerFunction {
 
 		m_transactionWorker = transactionWorker;
 		m_now = now;
+		m_reset = reset;
 	}
 
 	@Override
@@ -29,7 +31,7 @@ public class InitializeActors implements WorkerFunction {
 		ActorDatasource datasource = new ActorDatasource();
 		try (ActorIterator actors = datasource.getActors()) {
 			while (actors.hasNext()) {
-				m_transactionWorker.process(new InitializeActor(actors.next().getKey(), m_now));
+				m_transactionWorker.process(new InitializeActor(actors.next().getKey(), m_now, m_reset));
 			}
 		}
 	}

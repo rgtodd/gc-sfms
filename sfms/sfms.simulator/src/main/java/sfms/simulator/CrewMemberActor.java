@@ -42,4 +42,10 @@ public class CrewMemberActor implements Actor {
 		return m_key;
 	}
 
+	@Override
+	public void initialize(Instant now, boolean reset) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

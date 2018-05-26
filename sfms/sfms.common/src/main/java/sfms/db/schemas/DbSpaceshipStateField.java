@@ -14,15 +14,15 @@ import sfms.db.DbValueType;
 public enum DbSpaceshipStateField implements DbFieldSchema {
 
 	Timestamp("ts", DbValueType.Timestamp, "Timestamp", "Effective date/time for state information."),
-	LocationEntity("dx", DbValueType.Key, "Location Entity", "Key of current location entity."),
+	LocationEntity("le", DbValueType.Key, "Location Entity", "Key of current location entity."),
 	LocationX("x", DbValueType.Double, "X", "X coordinate of ship."),
-	LocationY("x", DbValueType.Double, "Y", "Y coordinate of ship."),
-	LocationZ("x", DbValueType.Double, "Z", "Z coordinate of ship."),
+	LocationY("y", DbValueType.Double, "Y", "Y coordinate of ship."),
+	LocationZ("z", DbValueType.Double, "Z", "Z coordinate of ship."),
 	Speed("s", DbValueType.Double, "Speed", "Speed of ship."),
-	DestinationEntity("dx", DbValueType.Key, "Destination Entity", "Key of destination entity."),
+	DestinationEntity("de", DbValueType.Key, "Destination Entity", "Key of destination entity."),
 	DestinationX("dx", DbValueType.Double, "Destination X", "X coordinate of destination."),
-	DestinationY("dx", DbValueType.Double, "Destination Y", "Y coordinate of destination."),
-	DestinationZ("dx", DbValueType.Double, "Destination Z", "Z coordinate of destination.");
+	DestinationY("dy", DbValueType.Double, "Destination Y", "Y coordinate of destination."),
+	DestinationZ("dz", DbValueType.Double, "Destination Z", "Z coordinate of destination.");
 
 	private String m_name;
 	private DbValueType m_dbValueType;

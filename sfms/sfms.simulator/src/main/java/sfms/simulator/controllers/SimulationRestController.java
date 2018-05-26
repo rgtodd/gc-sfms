@@ -33,6 +33,7 @@ public class SimulationRestController {
 	@PostMapping(value = "/initializeActors")
 	public void initializeActors() throws InterruptedException, TimeoutException {
 		Instant now = Instant.now();
-		controlWorker.process(new InitializeActors(transactionWorker, now));
+		boolean reset = true; // TODO: Pass reset via parameter.
+		controlWorker.process(new InitializeActors(transactionWorker, now, reset));
 	}
 }

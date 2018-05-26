@@ -2,16 +2,18 @@ package sfms.simulator.worker.functions;
 
 import java.time.Instant;
 
+import sfms.simulator.Actor;
+import sfms.simulator.ActorDatasource;
 import sfms.simulator.ActorKey;
 import sfms.simulator.worker.WorkerFunction;
 
 public class InitializeActor implements WorkerFunction {
 
 	private ActorKey m_actorKey;
-	@SuppressWarnings("unused")
 	private Instant m_now;
+	private boolean m_reset;
 
-	public InitializeActor(ActorKey actorKey, Instant now) {
+	public InitializeActor(ActorKey actorKey, Instant now, boolean reset) {
 		if (actorKey == null) {
 			throw new IllegalArgumentException("Argument actorKey is null.");
 		}
@@ -21,11 +23,14 @@ public class InitializeActor implements WorkerFunction {
 
 		m_actorKey = actorKey;
 		m_now = now;
+		m_reset = reset;
 	}
 
 	@Override
 	public void execute() {
-		// logger.info("Processing " + m_actorKey.toString());
+		ActorDatasource datasource = new ActorDatasource();
+		Actor actor = datasource.getActor(m_actorKey);
+		actor.initialize(m_now, m_reset);
 	}
 
 	@Override

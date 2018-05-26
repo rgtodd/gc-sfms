@@ -11,4 +11,6 @@ public interface Actor {
 	public void updateState(Instant now);
 
 	public ActorKey getKey();
+
+	public void initialize(Instant now, boolean reset);
 }

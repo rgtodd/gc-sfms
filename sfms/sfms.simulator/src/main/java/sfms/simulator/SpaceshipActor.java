@@ -1,25 +1,33 @@
 package sfms.simulator;
 
 import java.time.Instant;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.NullValue;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Transaction;
 
+import sfms.db.DbKeyBuilder;
+import sfms.db.DbValueFactory;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbMissionField;
+import sfms.db.schemas.DbSpaceshipStateField;
 import sfms.simulator.json.Mission;
 
 public class SpaceshipActor implements Actor {
+
+	private static final Random RANDOM = new Random();
 
 	private final Logger logger = Logger.getLogger(SpaceshipActor.class.getName());
 
@@ -36,6 +44,11 @@ public class SpaceshipActor implements Actor {
 
 		m_key = new ActorKey(dbSpaceship.getKey());
 		m_dbSpaceship = dbSpaceship;
+	}
+
+	@Override
+	public ActorKey getKey() {
+		return m_key;
 	}
 
 	@Override
@@ -98,8 +111,116 @@ public class SpaceshipActor implements Actor {
 	}
 
 	@Override
-	public ActorKey getKey() {
-		return m_key;
+	public void initialize(Instant now, boolean reset) {
+
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+		//
+		// Check if a state entity exists..
+		//
+		if (reset) {
+			resetHistory(datastore);
+		} else {
+			if (historyExists(datastore)) {
+				return;
+			}
+		}
+
+		//
+		// Create new state entity.
+		//
+
+		String key = DbKeyBuilder.create()
+				.append(m_key.getKey().getId())
+				.appendDescendingSeconds(now)
+				.build();
+
+		Key dbKey = datastore.newKeyFactory()
+				.setKind(DbEntity.SpaceshipState.getKind())
+				.newKey(key);
+
+		Entity dbEntity = Entity.newBuilder(dbKey)
+				.set(DbSpaceshipStateField.Timestamp.getName(),
+						DbValueFactory.asValue(Timestamp.ofTimeSecondsAndNanos(now.getEpochSecond(), now.getNano())))
+				.set(DbSpaceshipStateField.LocationEntity.getName(), NullValue.of())
+				.set(DbSpaceshipStateField.LocationX.getName(), DbValueFactory.asValue(getRandomCoordinate()))
+				.set(DbSpaceshipStateField.LocationY.getName(), DbValueFactory.asValue(getRandomCoordinate()))
+				.set(DbSpaceshipStateField.LocationZ.getName(), DbValueFactory.asValue(getRandomCoordinate()))
+				.set(DbSpaceshipStateField.Speed.getName(), NullValue.of())
+				.set(DbSpaceshipStateField.DestinationEntity.getName(), NullValue.of())
+				.set(DbSpaceshipStateField.DestinationX.getName(), NullValue.of())
+				.set(DbSpaceshipStateField.DestinationY.getName(), NullValue.of())
+				.set(DbSpaceshipStateField.DestinationZ.getName(), NullValue.of())
+				.build();
+
+		datastore.put(dbEntity);
+
+		logger.info("Created initial state for space ship.  Key = " + key);
 	}
 
+	private long getRandomCoordinate() {
+		return RANDOM.nextInt(4000) - 2000;
+	}
+
+	private boolean historyExists(Datastore datastore) {
+
+		String keyPrefix = DbKeyBuilder.create()
+				.append(m_key.getKey().getId())
+				.build();
+
+		Key dbKeyPrefix = datastore.newKeyFactory()
+				.setKind(DbEntity.SpaceshipState.getKind())
+				.newKey(keyPrefix);
+
+		Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
+				.setKind(DbEntity.SpaceshipState.getKind())
+				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
+				.setLimit(1)
+				.build();
+
+		QueryResults<Key> dbKeys = datastore.run(dbKeyQuery);
+		if (dbKeys.hasNext()) {
+			Key dbKey = dbKeys.next();
+			if (dbKey.getName().startsWith(keyPrefix)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private void resetHistory(Datastore datastore) {
+		String keyPrefix = DbKeyBuilder.create()
+				.append(m_key.getKey().getId())
+				.build();
+
+		Key dbKeyPrefix = datastore.newKeyFactory()
+				.setKind(DbEntity.SpaceshipState.getKind())
+				.newKey(keyPrefix);
+
+		Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
+				.setKind(DbEntity.SpaceshipState.getKind())
+				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
+				.setLimit(3)
+				.build();
+
+		boolean historyExists = true;
+		while (historyExists) {
+			QueryResults<Key> dbKeys = datastore.run(dbKeyQuery);
+			if (dbKeys.hasNext()) {
+				historyExists = true; // assume success
+				while (dbKeys.hasNext()) {
+					Key dbKey = dbKeys.next();
+					if (dbKey.getName().startsWith(keyPrefix)) {
+						datastore.delete(dbKey);
+					} else {
+						historyExists = false;
+						break;
+					}
+				}
+			} else {
+				historyExists = false;
+			}
+		}
+	}
 }
