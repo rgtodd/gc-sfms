@@ -1,14 +1,16 @@
 package sfms.simulator.controllers;
 
 import java.time.Instant;
-import java.util.logging.Level;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import sfms.simulator.Simulator;
+import sfms.simulator.worker.Worker;
+import sfms.simulator.worker.functions.InitializeActors;
 
 /**
  * Controller for the Simulation REST service.
@@ -19,24 +21,18 @@ import sfms.simulator.Simulator;
 @RequestMapping("/simulation")
 public class SimulationRestController {
 
+	@SuppressWarnings("unused")
 	private final Logger logger = Logger.getLogger(SimulationRestController.class.getName());
 
-	@PostMapping(value = "/simulate")
-	public String simulate() {
-		try {
-			logger.info("Start - Simulate.");
+	@Autowired
+	private Worker controlWorker;
 
-			Instant now = Instant.now();
+	@Autowired
+	private Worker transactionWorker;
 
-			Simulator simulator = new Simulator();
-			simulator.processActors(now);
-
-			logger.info("End - Simulate.");
-
-			return "Complete.";
-		} catch (Exception ex) {
-			logger.log(Level.SEVERE, "simulate exception occurred.", ex);
-			return ex.getMessage();
-		}
+	@PostMapping(value = "/initializeActors")
+	public void initializeActors() throws InterruptedException, TimeoutException {
+		Instant now = Instant.now();
+		controlWorker.process(new InitializeActors(transactionWorker, now));
 	}
 }

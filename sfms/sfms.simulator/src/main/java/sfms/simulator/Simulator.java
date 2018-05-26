@@ -29,7 +29,7 @@ public class Simulator {
 				// actor.assignMission(mission);
 				// }
 
-				logger.info("Simulation complete:  " + actor.getEntityKey().toString());
+				logger.info("Simulation complete:  " + actor.getKey().toString());
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

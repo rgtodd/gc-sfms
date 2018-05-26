@@ -20,7 +20,7 @@ public class Worker {
 
 	private String m_name;
 
-	private BlockingQueue<WorkerFunction> m_messageQueue;
+	private BlockingQueue<WorkerFunction> m_functionQueue;
 	private Semaphore m_threadQuiescedSemaphore;
 	private WorkerThread m_thread;
 
@@ -43,9 +43,9 @@ public class Worker {
 
 		logInfo("Starting control worker.");
 
-		m_messageQueue = new ArrayBlockingQueue<WorkerFunction>(QUEUE_CAPACITY);
+		m_functionQueue = new ArrayBlockingQueue<WorkerFunction>(QUEUE_CAPACITY);
 		m_threadQuiescedSemaphore = new Semaphore(0);
-		m_thread = new WorkerThread(m_name, m_messageQueue, m_threadQuiescedSemaphore);
+		m_thread = new WorkerThread(m_name, m_functionQueue, m_threadQuiescedSemaphore);
 		m_thread.start();
 
 		logInfo("Control worker started.");
@@ -64,10 +64,17 @@ public class Worker {
 			} finally {
 				m_thread = null;
 				m_threadQuiescedSemaphore = null;
-				m_messageQueue = null;
+				m_functionQueue = null;
 			}
 
 			logInfo("Control worker stopped.");
+		}
+	}
+
+	public void process(WorkerFunction function) throws InterruptedException, TimeoutException {
+		boolean success = m_functionQueue.offer(function, TIMEOUT, TIMEOUT_UNIT);
+		if (!success) {
+			throw new TimeoutException("Could not send function to worker thread.");
 		}
 	}
 
@@ -82,8 +89,8 @@ public class Worker {
 
 	private void quiesce() throws InterruptedException, TimeoutException {
 
-		logInfo("Sending HALT message to worker thread.");
-		boolean success = m_messageQueue.offer(WorkerThread.HALT, TIMEOUT, TIMEOUT_UNIT);
+		logInfo("Sending HALT to worker thread.");
+		boolean success = m_functionQueue.offer(WorkerThread.HALT, TIMEOUT, TIMEOUT_UNIT);
 		if (!success) {
 			throw new TimeoutException("Could not send HALT message to worker thread.");
 		}

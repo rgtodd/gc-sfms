@@ -23,16 +23,18 @@ public class SpaceshipActor implements Actor {
 
 	private final Logger logger = Logger.getLogger(SpaceshipActor.class.getName());
 
+	private ActorKey m_key;
 	private Entity m_dbSpaceship;
 
 	public SpaceshipActor(Entity dbSpaceship) {
 		if (dbSpaceship == null) {
 			throw new IllegalArgumentException("dbSpaceship is null.");
 		}
-		if (dbSpaceship.getKey().getKind().equals(DbEntity.Spaceship.getKind())) {
+		if (!dbSpaceship.getKey().getKind().equals(DbEntity.Spaceship.getKind())) {
 			throw new IllegalArgumentException("dbSpaceship is not spaceship.");
 		}
 
+		m_key = new ActorKey(dbSpaceship.getKey());
 		m_dbSpaceship = dbSpaceship;
 	}
 
@@ -54,7 +56,7 @@ public class SpaceshipActor implements Actor {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbSpaceshipKey = getEntityKey();
+		Key dbSpaceshipKey = m_dbSpaceship.getKey();
 
 		Key dbMissionKey = Key.newBuilder(dbSpaceshipKey, DbEntity.Mission.getKind(), "ACTIVE").build();
 
@@ -96,8 +98,8 @@ public class SpaceshipActor implements Actor {
 	}
 
 	@Override
-	public Key getEntityKey() {
-		return m_dbSpaceship.getKey();
+	public ActorKey getKey() {
+		return m_key;
 	}
 
 }

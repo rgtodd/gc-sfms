@@ -52,7 +52,7 @@ public class SimulatorController extends SfmsController {
 	@GetMapping({ "startJobWorker" })
 	public String startJobWorker() {
 
-		String url = getSimulatorUrl("admin/worker/job/status");
+		String url = getSimulatorUrl("admin/worker/control/status");
 		String status = WorkerStatus.ACTIVE;
 
 		updateWorkerStatus(url, status);
@@ -63,7 +63,7 @@ public class SimulatorController extends SfmsController {
 	@GetMapping({ "stopJobWorker" })
 	public String stopJobWorker() {
 
-		String url = getSimulatorUrl("admin/worker/job/status");
+		String url = getSimulatorUrl("admin/worker/control/status");
 		String status = WorkerStatus.INACTIVE;
 
 		updateWorkerStatus(url, status);
@@ -89,6 +89,21 @@ public class SimulatorController extends SfmsController {
 		String status = WorkerStatus.INACTIVE;
 
 		updateWorkerStatus(url, status);
+
+		return "redirect:/simulator/";
+	}
+
+	@GetMapping({ "initializeActors" })
+	public String initializeActors() {
+
+		String url = getSimulatorUrl("simulation/initializeActors");
+
+		logger.info("Calling " + url);
+
+		RestTemplate restTemplate = createRestTempate();
+		restTemplate.exchange(url, HttpMethod.POST,
+				createHttpEntity(),
+				Object.class);
 
 		return "redirect:/simulator/";
 	}

@@ -3,23 +3,25 @@ package sfms.simulator;
 import java.time.Instant;
 
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.Key;
 
 import sfms.db.schemas.DbEntity;
 import sfms.simulator.json.Mission;
 
 public class CrewMemberActor implements Actor {
 
+	private ActorKey m_key;
+	@SuppressWarnings("unused")
 	private Entity m_dbCrewMember;
 
 	public CrewMemberActor(Entity dbCrewMember) {
 		if (dbCrewMember == null) {
 			throw new IllegalArgumentException("dbCrewMember is null.");
 		}
-		if (dbCrewMember.getKey().getKind().equals(DbEntity.CrewMember.getKind())) {
+		if (!dbCrewMember.getKey().getKind().equals(DbEntity.CrewMember.getKind())) {
 			throw new IllegalArgumentException("dbCrewMember is not CrewMember.");
 		}
 
+		m_key = new ActorKey(dbCrewMember.getKey());
 		m_dbCrewMember = dbCrewMember;
 	}
 
@@ -36,8 +38,8 @@ public class CrewMemberActor implements Actor {
 	}
 
 	@Override
-	public Key getEntityKey() {
-		return m_dbCrewMember.getKey();
+	public ActorKey getKey() {
+		return m_key;
 	}
 
 }

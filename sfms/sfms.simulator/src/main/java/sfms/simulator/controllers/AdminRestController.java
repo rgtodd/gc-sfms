@@ -42,12 +42,12 @@ public class AdminRestController {
 		return response;
 	}
 
-	@GetMapping(value = "/worker/job/status")
+	@GetMapping(value = "/worker/control/status")
 	public String getJobWorkerStatus() {
 		return controlWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
 	}
 
-	@PostMapping(value = "/worker/job/status")
+	@PostMapping(value = "/worker/control/status")
 	public String setJobWorkerStatus(@RequestBody String status) {
 
 		if (status.equals(WorkerStatus.ACTIVE)) {

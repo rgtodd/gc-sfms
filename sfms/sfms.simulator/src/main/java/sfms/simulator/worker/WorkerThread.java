@@ -2,6 +2,7 @@ package sfms.simulator.worker;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class WorkerThread extends Thread {
@@ -39,7 +40,12 @@ public class WorkerThread extends Thread {
 
 			WorkerFunction function = m_functionQueue.take();
 			while (function != HALT) {
-				function.execute();
+				logInfo("Processing: " + function.toString());
+				try {
+					function.execute();
+				} catch (Exception e) {
+					logSevere("Exception occurred.", e);
+				}
 				function = m_functionQueue.take();
 			}
 
@@ -59,6 +65,10 @@ public class WorkerThread extends Thread {
 
 	private void logInfo(String text) {
 		logger.info(m_name + ": " + text);
+	}
+
+	private void logSevere(String text, Throwable e) {
+		logger.log(Level.SEVERE, m_name + ": " + text, e);
 	}
 
 	private static class HaltFunction implements WorkerFunction {
