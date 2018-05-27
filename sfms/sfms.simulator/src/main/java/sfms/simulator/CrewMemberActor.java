@@ -26,7 +26,7 @@ public class CrewMemberActor implements Actor {
 	}
 
 	@Override
-	public void assignMission(Mission mission) {
+	public void assignMission(Instant now, Mission mission) {
 		// TODO Auto-generated method stub
 
 	}
@@ -46,6 +46,12 @@ public class CrewMemberActor implements Actor {
 	public void initialize(Instant now, boolean reset) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public Mission getMission() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

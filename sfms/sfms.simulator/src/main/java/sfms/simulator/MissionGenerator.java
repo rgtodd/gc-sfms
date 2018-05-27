@@ -29,32 +29,44 @@ public class MissionGenerator {
 	private RegionSet m_sectors = RegionSet.loadSectors();
 	private Random m_random = new Random();
 
-	// HACK: Ignore actor type.
-	//
 	public Mission createMission(Actor actor) {
 
+		if (SpaceshipActor.class.isInstance(actor)) {
+			return createSpaceshipMission((SpaceshipActor) actor);
+		}
+
+		if (CrewMemberActor.class.isInstance(actor)) {
+			return createCrewMemberMission((CrewMemberActor) actor);
+		}
+
+		throw new IllegalArgumentException("Unknown actor type.");
+	}
+
+	private Mission createSpaceshipMission(SpaceshipActor actor) {
 		List<Objective> objectives = new ArrayList<Objective>();
-		int stopCount = 1; // 1 + m_random.nextInt(5);
+		int stopCount = 1 + m_random.nextInt(5);
 		int objectiveId = 0;
 		for (int stopIndex = 0; stopIndex < stopCount; ++stopIndex) {
 			String starKey = getRandomStarKey();
-			if (starKey != null) {
-				TravelObjective objective = new TravelObjective();
-				objective.setObjectiveId(++objectiveId);
-				objective.setStarKey(starKey);
-
-				objectives.add(objective);
+			while (starKey == null) {
+				starKey = getRandomStarKey();
 			}
-		}
 
-		if (objectives.isEmpty()) {
-			return null;
+			TravelObjective objective = new TravelObjective();
+			objective.setObjectiveId(++objectiveId);
+			objective.setStarKey(starKey);
+
+			objectives.add(objective);
 		}
 
 		Mission mission = new Mission();
 		mission.setObjectives(objectives);
 
 		return mission;
+	}
+
+	private Mission createCrewMemberMission(CrewMemberActor actor) {
+		return new Mission();
 	}
 
 	// HACK: Return first star in random sector.
@@ -78,19 +90,15 @@ public class MissionGenerator {
 				.setLimit(1)
 				.build();
 
-		@SuppressWarnings("unused")
 		QueryResults<Key> dbStarKeys = m_datastore.run(dbStarKeyQuery);
 
-		return null;
+		if (!dbStarKeys.hasNext()) {
+			return null;
+		}
 
-		//
-		// if (!dbStarKeys.hasNext()) {
-		// return null;
-		// }
-		//
-		// Key dbStarKey = dbStarKeys.next();
-		//
-		// String starKey = DbEntity.Star.createRestKey(dbStarKey);
-		// return starKey;
+		Key dbStarKey = dbStarKeys.next();
+
+		String starKey = DbEntity.Star.createRestKey(dbStarKey);
+		return starKey;
 	}
 }

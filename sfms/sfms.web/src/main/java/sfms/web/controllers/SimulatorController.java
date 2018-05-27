@@ -108,6 +108,21 @@ public class SimulatorController extends SfmsController {
 		return "redirect:/simulator/";
 	}
 
+	@GetMapping({ "createMissions" })
+	public String createMissions() {
+
+		String url = getSimulatorUrl("simulation/createMissions");
+
+		logger.info("Calling " + url);
+
+		RestTemplate restTemplate = createRestTempate();
+		restTemplate.exchange(url, HttpMethod.POST,
+				createHttpEntity(),
+				Object.class);
+
+		return "redirect:/simulator/";
+	}
+
 	private void updateWorkerStatus(String url, String status) {
 		logger.info("Calling " + url);
 

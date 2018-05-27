@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import sfms.simulator.MissionGenerator;
 import sfms.simulator.worker.Worker;
+import sfms.simulator.worker.functions.CreateMissions;
 import sfms.simulator.worker.functions.InitializeActors;
 
 /**
@@ -35,5 +37,13 @@ public class SimulationRestController {
 		Instant now = Instant.now();
 		boolean reset = true; // TODO: Pass reset via parameter.
 		controlWorker.process(new InitializeActors(transactionWorker, now, reset));
+	}
+
+	@PostMapping(value = "/createMissions")
+	public void createMissions() throws InterruptedException, TimeoutException {
+		Instant now = Instant.now();
+		MissionGenerator missionGenerator = new MissionGenerator();
+		boolean reset = true; // TODO: Pass reset via parameter.
+		controlWorker.process(new CreateMissions(transactionWorker, now, missionGenerator, reset));
 	}
 }

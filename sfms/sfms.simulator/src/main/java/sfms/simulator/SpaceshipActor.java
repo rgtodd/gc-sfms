@@ -4,9 +4,6 @@ import java.time.Instant;
 import java.util.Random;
 import java.util.logging.Logger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
@@ -16,12 +13,12 @@ import com.google.cloud.datastore.NullValue;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
-import com.google.cloud.datastore.Transaction;
 
 import sfms.db.DbKeyBuilder;
 import sfms.db.DbValueFactory;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbMissionField;
+import sfms.db.schemas.DbMissionStatusValues;
 import sfms.db.schemas.DbSpaceshipStateField;
 import sfms.simulator.json.Mission;
 
@@ -32,6 +29,7 @@ public class SpaceshipActor implements Actor {
 	private final Logger logger = Logger.getLogger(SpaceshipActor.class.getName());
 
 	private ActorKey m_key;
+	@SuppressWarnings("unused")
 	private Entity m_dbSpaceship;
 
 	public SpaceshipActor(Entity dbSpaceship) {
@@ -52,56 +50,69 @@ public class SpaceshipActor implements Actor {
 	}
 
 	@Override
-	public void assignMission(Mission mission) {
+	public Mission getMission() {
 
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectWriter writer = mapper.writerFor(Mission.class);
-		String jsonMission;
-		try {
-			jsonMission = writer.writeValueAsString(mission);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+		String keyPrefix = DbKeyBuilder.create()
+				.append(DbEntity.Spaceship.getKind())
+				.append(m_key.getKey().getId())
+				.build();
+
+		Key dbKeyPrefix = datastore.newKeyFactory()
+				.setKind(DbEntity.Mission.getKind())
+				.newKey(keyPrefix);
+
+		Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
+				.setKind(DbEntity.Mission.getKind())
+				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
+				.setLimit(1)
+				.build();
+
+		QueryResults<Key> dbKeys = datastore.run(dbKeyQuery);
+		if (dbKeys.hasNext()) {
+			Key dbKey = dbKeys.next();
+			if (dbKey.getName().startsWith(keyPrefix)) {
+				Entity dbMission = datastore.get(dbKey);
+				String jsonMission = dbMission.getString(DbMissionField.Mission.getName());
+				return Mission.fromJson(jsonMission);
+			}
 		}
+
+		return null;
+	}
+
+	@Override
+	public void assignMission(Instant now, Mission mission) {
+
+		String jsonMission = mission.toJson();
 
 		logger.info("Mission JSON = " + jsonMission);
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Key dbSpaceshipKey = m_dbSpaceship.getKey();
+		//
+		// Create new state entity.
+		//
 
-		Key dbMissionKey = Key.newBuilder(dbSpaceshipKey, DbEntity.Mission.getKind(), "ACTIVE").build();
-
-		Entity dbMission = Entity.newBuilder(dbMissionKey)
-				.set(DbMissionField.Mission.getName(), jsonMission)
-				.set(DbMissionField.MissionStatus.getName(), "ACTIVE")
+		String key = DbKeyBuilder.create()
+				.append(DbEntity.Spaceship.getKind())
+				.append(m_key.getKey().getId())
+				.appendDescendingSeconds(now)
 				.build();
 
-		Transaction txn = datastore.newTransaction();
-		try {
+		Key dbKey = datastore.newKeyFactory()
+				.setKind(DbEntity.Mission.getKind())
+				.newKey(key);
 
-			Query<Key> dbMissionQuery = Query.newKeyQueryBuilder()
-					.setKind(DbEntity.Mission.getKind())
-					.setFilter(PropertyFilter.hasAncestor(dbSpaceshipKey))
-					.build();
+		Entity dbEntity = Entity.newBuilder(dbKey)
+				.set(DbMissionField.Mission.getName(), jsonMission)
+				.set(DbMissionField.MissionStatus.getName(), DbMissionStatusValues.ACTIVE)
+				.build();
 
-			QueryResults<Key> dbMissions = txn.run(dbMissionQuery);
-			if (dbMissions.hasNext()) {
-				// TODO: Mission already exists.
-			} else {
-				logger.info("Putting new mission entity.");
-				txn.put(dbMission);
-			}
+		datastore.put(dbEntity);
 
-			logger.info("Committing transaction.");
-			txn.commit();
-		} finally {
-			if (txn.isActive()) {
-				logger.info("Rolling back transaction.");
-				txn.rollback();
-			}
-		}
+		logger.info("Created mission for space ship.  Key = " + key);
 	}
 
 	@Override
