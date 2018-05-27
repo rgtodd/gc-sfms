@@ -6,113 +6,42 @@ import java.util.logging.Logger;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.NullValue;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 import sfms.db.DbKeyBuilder;
 import sfms.db.DbValueFactory;
 import sfms.db.schemas.DbEntity;
-import sfms.db.schemas.DbMissionField;
-import sfms.db.schemas.DbMissionStatusValues;
 import sfms.db.schemas.DbSpaceshipStateField;
 import sfms.simulator.json.Mission;
 
-public class SpaceshipActor implements Actor {
+public class SpaceshipActor extends ActorBase implements Actor {
 
 	private static final Random RANDOM = new Random();
 
 	private final Logger logger = Logger.getLogger(SpaceshipActor.class.getName());
 
-	private ActorKey m_key;
-	@SuppressWarnings("unused")
-	private Entity m_dbSpaceship;
+	public SpaceshipActor(Datastore datastore, Entity dbEntity) {
+		super(datastore, dbEntity);
 
-	public SpaceshipActor(Entity dbSpaceship) {
-		if (dbSpaceship == null) {
-			throw new IllegalArgumentException("dbSpaceship is null.");
+		if (!dbEntity.getKey().getKind().equals(DbEntity.Spaceship.getKind())) {
+			throw new IllegalArgumentException("dbEntity is not spaceship.");
 		}
-		if (!dbSpaceship.getKey().getKind().equals(DbEntity.Spaceship.getKind())) {
-			throw new IllegalArgumentException("dbSpaceship is not spaceship.");
-		}
-
-		m_key = new ActorKey(dbSpaceship.getKey());
-		m_dbSpaceship = dbSpaceship;
 	}
 
 	@Override
-	public ActorKey getKey() {
-		return m_key;
+	public ActorKey getActorKey() {
+		return getActorKeyBase();
 	}
 
 	@Override
 	public Mission getMission() {
-
-		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-
-		String keyPrefix = DbKeyBuilder.create()
-				.append(DbEntity.Spaceship.getKind())
-				.append(m_key.getKey().getId())
-				.build();
-
-		Key dbKeyPrefix = datastore.newKeyFactory()
-				.setKind(DbEntity.Mission.getKind())
-				.newKey(keyPrefix);
-
-		Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
-				.setKind(DbEntity.Mission.getKind())
-				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
-				.setLimit(1)
-				.build();
-
-		QueryResults<Key> dbKeys = datastore.run(dbKeyQuery);
-		if (dbKeys.hasNext()) {
-			Key dbKey = dbKeys.next();
-			if (dbKey.getName().startsWith(keyPrefix)) {
-				Entity dbMission = datastore.get(dbKey);
-				String jsonMission = dbMission.getString(DbMissionField.Mission.getName());
-				return Mission.fromJson(jsonMission);
-			}
-		}
-
-		return null;
+		return getMissionBase();
 	}
 
 	@Override
 	public void assignMission(Instant now, Mission mission) {
-
-		String jsonMission = mission.toJson();
-
-		logger.info("Mission JSON = " + jsonMission);
-
-		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-
-		//
-		// Create new state entity.
-		//
-
-		String key = DbKeyBuilder.create()
-				.append(DbEntity.Spaceship.getKind())
-				.append(m_key.getKey().getId())
-				.appendDescendingSeconds(now)
-				.build();
-
-		Key dbKey = datastore.newKeyFactory()
-				.setKind(DbEntity.Mission.getKind())
-				.newKey(key);
-
-		Entity dbEntity = Entity.newBuilder(dbKey)
-				.set(DbMissionField.Mission.getName(), jsonMission)
-				.set(DbMissionField.MissionStatus.getName(), DbMissionStatusValues.ACTIVE)
-				.build();
-
-		datastore.put(dbEntity);
-
-		logger.info("Created mission for space ship.  Key = " + key);
+		assignMissionBase(now, mission);
 	}
 
 	@Override
@@ -124,15 +53,13 @@ public class SpaceshipActor implements Actor {
 	@Override
 	public void initialize(Instant now, boolean reset) {
 
-		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-
 		//
 		// Check if a state entity exists..
 		//
 		if (reset) {
-			resetHistory(datastore);
+			resetHistory();
 		} else {
-			if (historyExists(datastore)) {
+			if (historyExists()) {
 				return;
 			}
 		}
@@ -141,97 +68,155 @@ public class SpaceshipActor implements Actor {
 		// Create new state entity.
 		//
 
+		State state = generateRandomState(now);
+
 		String key = DbKeyBuilder.create()
-				.append(m_key.getKey().getId())
+				.append(getActorKeyBase().getKey().getId())
 				.appendDescendingSeconds(now)
 				.build();
 
-		Key dbKey = datastore.newKeyFactory()
+		Key dbKey = getDatastoreBase().newKeyFactory()
 				.setKind(DbEntity.SpaceshipState.getKind())
 				.newKey(key);
 
 		Entity dbEntity = Entity.newBuilder(dbKey)
 				.set(DbSpaceshipStateField.Timestamp.getName(),
-						DbValueFactory.asValue(Timestamp.ofTimeSecondsAndNanos(now.getEpochSecond(), now.getNano())))
-				.set(DbSpaceshipStateField.LocationEntity.getName(), NullValue.of())
-				.set(DbSpaceshipStateField.LocationX.getName(), DbValueFactory.asValue(getRandomCoordinate()))
-				.set(DbSpaceshipStateField.LocationY.getName(), DbValueFactory.asValue(getRandomCoordinate()))
-				.set(DbSpaceshipStateField.LocationZ.getName(), DbValueFactory.asValue(getRandomCoordinate()))
-				.set(DbSpaceshipStateField.Speed.getName(), NullValue.of())
-				.set(DbSpaceshipStateField.DestinationEntity.getName(), NullValue.of())
-				.set(DbSpaceshipStateField.DestinationX.getName(), NullValue.of())
-				.set(DbSpaceshipStateField.DestinationY.getName(), NullValue.of())
-				.set(DbSpaceshipStateField.DestinationZ.getName(), NullValue.of())
+						DbValueFactory.asValue(Timestamp.ofTimeSecondsAndNanos(state.getTimestamp().getEpochSecond(),
+								state.getTimestamp().getNano())))
+				.set(DbSpaceshipStateField.LocationEntity.getName(), DbValueFactory.asValue(state.getLocationKey()))
+				.set(DbSpaceshipStateField.LocationX.getName(), DbValueFactory.asValue(state.getLocationX()))
+				.set(DbSpaceshipStateField.LocationY.getName(), DbValueFactory.asValue(state.getLocationY()))
+				.set(DbSpaceshipStateField.LocationZ.getName(), DbValueFactory.asValue(state.getLocationZ()))
+				.set(DbSpaceshipStateField.Speed.getName(), DbValueFactory.asValue(state.getSpeed()))
+				.set(DbSpaceshipStateField.DestinationEntity.getName(),
+						DbValueFactory.asValue(state.getDestinationKey()))
+				.set(DbSpaceshipStateField.DestinationX.getName(), DbValueFactory.asValue(state.getDestinationX()))
+				.set(DbSpaceshipStateField.DestinationY.getName(), DbValueFactory.asValue(state.getDestinationY()))
+				.set(DbSpaceshipStateField.DestinationZ.getName(), DbValueFactory.asValue(state.getDestinationZ()))
 				.build();
 
-		datastore.put(dbEntity);
+		getDatastoreBase().put(dbEntity);
 
 		logger.info("Created initial state for space ship.  Key = " + key);
 	}
 
-	private long getRandomCoordinate() {
-		return RANDOM.nextInt(4000) - 2000;
+	private State generateRandomState(Instant now) {
+		State state = new State();
+		state.setTimestamp(now);
+		state.setLocationX(getRandomCoordinate());
+		state.setLocationY(getRandomCoordinate());
+		state.setLocationZ(getRandomCoordinate());
+		return state;
 	}
 
-	private boolean historyExists(Datastore datastore) {
+	private Double getRandomCoordinate() {
+		return (double) (RANDOM.nextInt(4000) - 2000);
+	}
 
+	private boolean historyExists() {
 		String keyPrefix = DbKeyBuilder.create()
-				.append(m_key.getKey().getId())
+				.append(getActorKeyBase().getKey().getId())
 				.build();
+		return getFirstEntityKey(DbEntity.SpaceshipState.getKind(), keyPrefix) != null;
+	}
 
-		Key dbKeyPrefix = datastore.newKeyFactory()
-				.setKind(DbEntity.SpaceshipState.getKind())
-				.newKey(keyPrefix);
-
-		Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
-				.setKind(DbEntity.SpaceshipState.getKind())
-				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
-				.setLimit(1)
+	private void resetHistory() {
+		String keyPrefix = DbKeyBuilder.create()
+				.append(getActorKeyBase().getKey().getId())
 				.build();
+		deleteEntities(DbEntity.SpaceshipState.getKind(), keyPrefix);
+	}
 
-		QueryResults<Key> dbKeys = datastore.run(dbKeyQuery);
-		if (dbKeys.hasNext()) {
-			Key dbKey = dbKeys.next();
-			if (dbKey.getName().startsWith(keyPrefix)) {
-				return true;
-			}
+	public static class State {
+		private Instant m_timestamp;
+		private Key m_locationKey;
+		private Double m_locationX;
+		private Double m_locationY;
+		private Double m_locationZ;
+		private Double m_speed;
+		private Key m_destinationKey;
+		private Double m_destinationX;
+		private Double m_destinationY;
+		private double m_destinationZ;
+
+		public Instant getTimestamp() {
+			return m_timestamp;
 		}
 
-		return false;
-	}
+		public void setTimestamp(Instant timestamp) {
+			m_timestamp = timestamp;
+		}
 
-	private void resetHistory(Datastore datastore) {
-		String keyPrefix = DbKeyBuilder.create()
-				.append(m_key.getKey().getId())
-				.build();
+		public Key getLocationKey() {
+			return m_locationKey;
+		}
 
-		Key dbKeyPrefix = datastore.newKeyFactory()
-				.setKind(DbEntity.SpaceshipState.getKind())
-				.newKey(keyPrefix);
+		public void setLocationKey(Key locationKey) {
+			m_locationKey = locationKey;
+		}
 
-		Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
-				.setKind(DbEntity.SpaceshipState.getKind())
-				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
-				.setLimit(3)
-				.build();
+		public Double getLocationX() {
+			return m_locationX;
+		}
 
-		boolean historyExists = true;
-		while (historyExists) {
-			QueryResults<Key> dbKeys = datastore.run(dbKeyQuery);
-			if (dbKeys.hasNext()) {
-				historyExists = true; // assume success
-				while (dbKeys.hasNext()) {
-					Key dbKey = dbKeys.next();
-					if (dbKey.getName().startsWith(keyPrefix)) {
-						datastore.delete(dbKey);
-					} else {
-						historyExists = false;
-						break;
-					}
-				}
-			} else {
-				historyExists = false;
-			}
+		public void setLocationX(Double locationX) {
+			m_locationX = locationX;
+		}
+
+		public Double getLocationY() {
+			return m_locationY;
+		}
+
+		public void setLocationY(Double locationY) {
+			m_locationY = locationY;
+		}
+
+		public Double getLocationZ() {
+			return m_locationZ;
+		}
+
+		public void setLocationZ(Double locationZ) {
+			m_locationZ = locationZ;
+		}
+
+		public Double getSpeed() {
+			return m_speed;
+		}
+
+		public void setSpeed(Double speed) {
+			m_speed = speed;
+		}
+
+		public Key getDestinationKey() {
+			return m_destinationKey;
+		}
+
+		public void setDestinationKey(Key destinationKey) {
+			m_destinationKey = destinationKey;
+		}
+
+		public Double getDestinationX() {
+			return m_destinationX;
+		}
+
+		public void setDestinationX(Double destinationX) {
+			m_destinationX = destinationX;
+		}
+
+		public Double getDestinationY() {
+			return m_destinationY;
+		}
+
+		public void setDestinationY(Double destinationY) {
+			m_destinationY = destinationY;
+		}
+
+		public double getDestinationZ() {
+			return m_destinationZ;
+		}
+
+		public void setDestinationZ(double destinationZ) {
+			m_destinationZ = destinationZ;
 		}
 	}
 }

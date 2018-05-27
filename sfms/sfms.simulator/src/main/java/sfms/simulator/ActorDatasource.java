@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.EntityQuery;
 import com.google.cloud.datastore.Query;
@@ -15,20 +14,29 @@ import sfms.db.schemas.DbEntity;
 
 public class ActorDatasource {
 
+	private Datastore m_datastore;
+
+	public ActorDatasource(Datastore datastore) {
+		if (datastore == null) {
+			throw new IllegalArgumentException("Argument datastore is null");
+		}
+
+		m_datastore = datastore;
+	}
+
 	public Actor getActor(ActorKey key) {
 		if (key == null) {
 			throw new IllegalArgumentException("Argument key is null.");
 		}
 
-		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-		Entity dbEntity = datastore.get(key.getKey());
+		Entity dbEntity = m_datastore.get(key.getKey());
 
 		if (dbEntity.getKey().getKind().equals(DbEntity.CrewMember.getKind())) {
-			return new CrewMemberActor(dbEntity);
+			return new CrewMemberActor(m_datastore, dbEntity);
 		}
 
 		if (dbEntity.getKey().getKind().equals(DbEntity.Spaceship.getKind())) {
-			return new SpaceshipActor(dbEntity);
+			return new SpaceshipActor(m_datastore, dbEntity);
 		}
 
 		throw new IllegalArgumentException("Unknown actor key type.");
@@ -38,17 +46,15 @@ public class ActorDatasource {
 
 		List<ActorIterator> iterators = new ArrayList<ActorIterator>();
 
-		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-
 		// Retrieve spaceships.
 		{
 			EntityQuery dbSpaceshipQuery = Query.newEntityQueryBuilder()
 					.setKind(DbEntity.Spaceship.getKind())
 					.build();
 
-			QueryResults<Entity> dbSpaceships = datastore.run(dbSpaceshipQuery);
+			QueryResults<Entity> dbSpaceships = m_datastore.run(dbSpaceshipQuery);
 
-			iterators.add(new SpaceshipActorIterator(dbSpaceships));
+			iterators.add(new SpaceshipActorIterator(m_datastore, dbSpaceships));
 		}
 
 		// Retrieve crew members.
@@ -57,9 +63,9 @@ public class ActorDatasource {
 					.setKind(DbEntity.CrewMember.getKind())
 					.build();
 
-			QueryResults<Entity> dbCrewMembers = datastore.run(dbCrewMemberQuery);
+			QueryResults<Entity> dbCrewMembers = m_datastore.run(dbCrewMemberQuery);
 
-			iterators.add(new CrewMemberActorIterator(dbCrewMembers));
+			iterators.add(new CrewMemberActorIterator(m_datastore, dbCrewMembers));
 		}
 
 		return new CompositeActorIterator(iterators);
@@ -110,9 +116,11 @@ public class ActorDatasource {
 
 	private static class SpaceshipActorIterator implements ActorIterator {
 
+		private Datastore m_datastore;
 		private QueryResults<Entity> m_dbSpaceships;
 
-		public SpaceshipActorIterator(QueryResults<Entity> dbSpaceships) {
+		public SpaceshipActorIterator(Datastore datastore, QueryResults<Entity> dbSpaceships) {
+			m_datastore = datastore;
 			m_dbSpaceships = dbSpaceships;
 		}
 
@@ -123,7 +131,7 @@ public class ActorDatasource {
 
 		@Override
 		public Actor next() {
-			return new SpaceshipActor(m_dbSpaceships.next());
+			return new SpaceshipActor(m_datastore, m_dbSpaceships.next());
 		}
 
 		@Override
@@ -134,9 +142,11 @@ public class ActorDatasource {
 
 	private static class CrewMemberActorIterator implements ActorIterator {
 
+		private Datastore m_datastore;
 		private QueryResults<Entity> m_dbCrewMembers;
 
-		public CrewMemberActorIterator(QueryResults<Entity> dbCrewMembers) {
+		public CrewMemberActorIterator(Datastore datastore, QueryResults<Entity> dbCrewMembers) {
+			m_datastore = datastore;
 			m_dbCrewMembers = dbCrewMembers;
 		}
 
@@ -147,7 +157,7 @@ public class ActorDatasource {
 
 		@Override
 		public Actor next() {
-			return new CrewMemberActor(m_dbCrewMembers.next());
+			return new CrewMemberActor(m_datastore, m_dbCrewMembers.next());
 		}
 
 		@Override

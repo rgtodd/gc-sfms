@@ -3,17 +3,23 @@ package sfms.simulator;
 import java.time.Instant;
 import java.util.logging.Logger;
 
+import com.google.cloud.datastore.Datastore;
+
 import sfms.simulator.json.Mission;
 
 public class Simulator {
 
 	private final Logger logger = Logger.getLogger(Simulator.class.getName());
 
+	private Datastore m_datastore;
+
 	private ActorDatasource m_actorDatasource;
 	private MissionGenerator m_missionGenerator;
 
-	public Simulator() {
-		m_actorDatasource = new ActorDatasource();
+	public Simulator(Datastore datastore) {
+		m_datastore = datastore;
+
+		m_actorDatasource = new ActorDatasource(m_datastore);
 		m_missionGenerator = new MissionGenerator();
 	}
 
@@ -29,7 +35,7 @@ public class Simulator {
 				// actor.assignMission(mission);
 				// }
 
-				logger.info("Simulation complete:  " + actor.getKey().toString());
+				logger.info("Simulation complete:  " + actor.getActorKey().toString());
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

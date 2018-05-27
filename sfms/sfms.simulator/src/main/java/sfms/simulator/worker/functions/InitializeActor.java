@@ -2,6 +2,8 @@ package sfms.simulator.worker.functions;
 
 import java.time.Instant;
 
+import com.google.cloud.datastore.Datastore;
+
 import sfms.simulator.Actor;
 import sfms.simulator.ActorDatasource;
 import sfms.simulator.ActorKey;
@@ -9,11 +11,15 @@ import sfms.simulator.worker.WorkerFunction;
 
 public class InitializeActor implements WorkerFunction {
 
+	private Datastore m_datastore;
 	private ActorKey m_actorKey;
 	private Instant m_now;
 	private boolean m_reset;
 
-	public InitializeActor(ActorKey actorKey, Instant now, boolean reset) {
+	public InitializeActor(Datastore datastore, ActorKey actorKey, Instant now, boolean reset) {
+		if (datastore == null) {
+			throw new IllegalArgumentException("Argument datastore is null.");
+		}
 		if (actorKey == null) {
 			throw new IllegalArgumentException("Argument actorKey is null.");
 		}
@@ -21,6 +27,7 @@ public class InitializeActor implements WorkerFunction {
 			throw new IllegalArgumentException("Argument now is null.");
 		}
 
+		m_datastore = datastore;
 		m_actorKey = actorKey;
 		m_now = now;
 		m_reset = reset;
@@ -28,7 +35,7 @@ public class InitializeActor implements WorkerFunction {
 
 	@Override
 	public void execute() {
-		ActorDatasource datasource = new ActorDatasource();
+		ActorDatasource datasource = new ActorDatasource(m_datastore);
 		Actor actor = datasource.getActor(m_actorKey);
 		actor.initialize(m_now, m_reset);
 	}

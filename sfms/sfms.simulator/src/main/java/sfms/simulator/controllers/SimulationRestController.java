@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreOptions;
+
 import sfms.simulator.MissionGenerator;
 import sfms.simulator.worker.Worker;
 import sfms.simulator.worker.functions.CreateMissions;
@@ -34,16 +37,18 @@ public class SimulationRestController {
 
 	@PostMapping(value = "/initializeActors")
 	public void initializeActors() throws InterruptedException, TimeoutException {
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 		Instant now = Instant.now();
 		boolean reset = true; // TODO: Pass reset via parameter.
-		controlWorker.process(new InitializeActors(transactionWorker, now, reset));
+		controlWorker.process(new InitializeActors(datastore, transactionWorker, now, reset));
 	}
 
 	@PostMapping(value = "/createMissions")
 	public void createMissions() throws InterruptedException, TimeoutException {
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 		Instant now = Instant.now();
 		MissionGenerator missionGenerator = new MissionGenerator();
 		boolean reset = true; // TODO: Pass reset via parameter.
-		controlWorker.process(new CreateMissions(transactionWorker, now, missionGenerator, reset));
+		controlWorker.process(new CreateMissions(datastore, transactionWorker, now, missionGenerator, reset));
 	}
 }

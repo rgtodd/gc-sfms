@@ -2,33 +2,25 @@ package sfms.simulator;
 
 import java.time.Instant;
 
+import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
 
 import sfms.db.schemas.DbEntity;
 import sfms.simulator.json.Mission;
 
-public class CrewMemberActor implements Actor {
+public class CrewMemberActor extends ActorBase implements Actor {
 
-	private ActorKey m_key;
-	@SuppressWarnings("unused")
-	private Entity m_dbCrewMember;
+	public CrewMemberActor(Datastore datastore, Entity dbCrewMember) {
+		super(datastore, dbCrewMember);
 
-	public CrewMemberActor(Entity dbCrewMember) {
-		if (dbCrewMember == null) {
-			throw new IllegalArgumentException("dbCrewMember is null.");
-		}
 		if (!dbCrewMember.getKey().getKind().equals(DbEntity.CrewMember.getKind())) {
 			throw new IllegalArgumentException("dbCrewMember is not CrewMember.");
 		}
-
-		m_key = new ActorKey(dbCrewMember.getKey());
-		m_dbCrewMember = dbCrewMember;
 	}
 
 	@Override
 	public void assignMission(Instant now, Mission mission) {
-		// TODO Auto-generated method stub
-
+		assignMissionBase(now, mission);
 	}
 
 	@Override
@@ -38,8 +30,8 @@ public class CrewMemberActor implements Actor {
 	}
 
 	@Override
-	public ActorKey getKey() {
-		return m_key;
+	public ActorKey getActorKey() {
+		return getActorKeyBase();
 	}
 
 	@Override

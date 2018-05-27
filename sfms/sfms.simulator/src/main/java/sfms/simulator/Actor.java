@@ -12,7 +12,7 @@ public interface Actor {
 
 	public void updateState(Instant now);
 
-	public ActorKey getKey();
+	public ActorKey getActorKey();
 
 	public void initialize(Instant now, boolean reset);
 }
