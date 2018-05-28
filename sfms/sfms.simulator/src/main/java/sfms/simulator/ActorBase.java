@@ -16,7 +16,7 @@ import sfms.db.schemas.DbMissionField;
 import sfms.db.schemas.DbMissionStatusValues;
 import sfms.simulator.json.Mission;
 
-public abstract class ActorBase {
+public abstract class ActorBase implements Actor {
 
 	private final Logger logger = Logger.getLogger(ActorBase.class.getName());
 
@@ -37,26 +37,15 @@ public abstract class ActorBase {
 		m_actorKey = new ActorKey(dbEntity.getKey());
 	}
 
-	protected Datastore getDatastoreBase() {
-		return m_datastore;
-	}
-
-	protected Entity getEntityBase() {
-		return m_dbEntity;
-	}
-
-	protected ActorKey getActorKeyBase() {
+	@Override
+	public ActorKey getActorKey() {
 		return m_actorKey;
 	}
 
-	protected Mission getMissionBase() {
+	@Override
+	public Mission getMission() {
 
-		String keyPrefix = DbKeyBuilder.create()
-				.append(m_actorKey.getKey().getKind())
-				.append(m_actorKey.getKey().getId())
-				.build();
-
-		Entity dbMission = getFirstEntity(DbEntity.Mission.getKind(), keyPrefix);
+		Entity dbMission = getMissionEntity();
 		if (dbMission != null) {
 			String jsonMission = dbMission.getString(DbMissionField.Mission.getName());
 			return Mission.fromJson(jsonMission);
@@ -65,7 +54,8 @@ public abstract class ActorBase {
 		return null;
 	}
 
-	protected void assignMissionBase(Instant now, Mission mission) {
+	@Override
+	public void assignMission(Instant now, Mission mission) {
 
 		String jsonMission = mission.toJson();
 
@@ -93,6 +83,32 @@ public abstract class ActorBase {
 		m_datastore.put(dbEntity);
 
 		logger.info("Created mission for entity.  Key = " + key);
+	}
+
+	@Override
+	public abstract void updateState(Instant now);
+
+	@Override
+	public abstract void initialize(Instant now, boolean reset);
+
+	protected Datastore getDatastore() {
+		return m_datastore;
+	}
+
+	protected Entity getEntity() {
+		return m_dbEntity;
+	}
+
+	protected Entity getMissionEntity() {
+
+		String keyPrefix = DbKeyBuilder.create()
+				.append(m_actorKey.getKey().getKind())
+				.append(m_actorKey.getKey().getId())
+				.build();
+
+		Entity dbMission = getFirstEntity(DbEntity.Mission.getKind(), keyPrefix);
+
+		return dbMission;
 	}
 
 	protected Key getFirstEntityKey(String kind, String keyPrefix) {
@@ -125,7 +141,7 @@ public abstract class ActorBase {
 				.newKey(keyPrefix);
 
 		Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
-				.setKind(DbEntity.Mission.getKind())
+				.setKind(kind)
 				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
 				.setLimit(1)
 				.build();

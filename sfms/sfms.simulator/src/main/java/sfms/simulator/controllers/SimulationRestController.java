@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,9 +14,11 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 
 import sfms.simulator.MissionGenerator;
+import sfms.simulator.api.models.SimulatorOptions;
 import sfms.simulator.worker.Worker;
 import sfms.simulator.worker.functions.CreateMissions;
 import sfms.simulator.worker.functions.InitializeActors;
+import sfms.simulator.worker.functions.UpdateActors;
 
 /**
  * Controller for the Simulation REST service.
@@ -36,19 +39,62 @@ public class SimulationRestController {
 	private Worker transactionWorker;
 
 	@PostMapping(value = "/initializeActors")
-	public void initializeActors() throws InterruptedException, TimeoutException {
+	public void initializeActors(@RequestBody SimulatorOptions simulatorOptions)
+			throws InterruptedException, TimeoutException {
+
+		Instant now;
+		if (simulatorOptions != null && simulatorOptions.getNow() != null) {
+			now = simulatorOptions.getNow();
+		} else {
+			now = Instant.now();
+		}
+
+		boolean reset;
+		if (simulatorOptions != null && simulatorOptions.getReset() != null) {
+			reset = simulatorOptions.getReset();
+		} else {
+			reset = false;
+		}
+
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-		Instant now = Instant.now();
-		boolean reset = true; // TODO: Pass reset via parameter.
 		controlWorker.process(new InitializeActors(datastore, transactionWorker, now, reset));
 	}
 
-	@PostMapping(value = "/createMissions")
-	public void createMissions() throws InterruptedException, TimeoutException {
+	@PostMapping(value = "/updateActors")
+	public void updateActors(@RequestBody SimulatorOptions simulatorOptions)
+			throws InterruptedException, TimeoutException {
+
+		Instant now;
+		if (simulatorOptions != null && simulatorOptions.getNow() != null) {
+			now = simulatorOptions.getNow();
+		} else {
+			now = Instant.now();
+		}
+
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-		Instant now = Instant.now();
+		controlWorker.process(new UpdateActors(datastore, transactionWorker, now));
+	}
+
+	@PostMapping(value = "/createMissions")
+	public void createMissions(@RequestBody SimulatorOptions simulatorOptions)
+			throws InterruptedException, TimeoutException {
+
+		Instant now;
+		if (simulatorOptions != null && simulatorOptions.getNow() != null) {
+			now = simulatorOptions.getNow();
+		} else {
+			now = Instant.now();
+		}
+
+		boolean reset;
+		if (simulatorOptions != null && simulatorOptions.getReset() != null) {
+			reset = simulatorOptions.getReset();
+		} else {
+			reset = false;
+		}
+
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 		MissionGenerator missionGenerator = new MissionGenerator();
-		boolean reset = true; // TODO: Pass reset via parameter.
 		controlWorker.process(new CreateMissions(datastore, transactionWorker, now, missionGenerator, reset));
 	}
 }

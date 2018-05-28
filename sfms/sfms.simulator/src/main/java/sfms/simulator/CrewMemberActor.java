@@ -6,9 +6,8 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
 
 import sfms.db.schemas.DbEntity;
-import sfms.simulator.json.Mission;
 
-public class CrewMemberActor extends ActorBase implements Actor {
+public class CrewMemberActor extends ActorBase {
 
 	public CrewMemberActor(Datastore datastore, Entity dbCrewMember) {
 		super(datastore, dbCrewMember);
@@ -19,31 +18,15 @@ public class CrewMemberActor extends ActorBase implements Actor {
 	}
 
 	@Override
-	public void assignMission(Instant now, Mission mission) {
-		assignMissionBase(now, mission);
-	}
-
-	@Override
-	public void updateState(Instant now) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public ActorKey getActorKey() {
-		return getActorKeyBase();
-	}
-
-	@Override
 	public void initialize(Instant now, boolean reset) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public Mission getMission() {
+	public void updateState(Instant now) {
 		// TODO Auto-generated method stub
-		return null;
+
 	}
 
 }

@@ -1,5 +1,7 @@
 package sfms.db;
 
+import java.time.Instant;
+
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.DoubleValue;
 import com.google.cloud.datastore.Key;
@@ -67,6 +69,14 @@ public class DbValueFactory {
 			return NullValue.of();
 		}
 		return TimestampValue.of(value);
+	}
+
+	public static Value<?> asValue(Instant value) {
+		if (value == null) {
+			return NullValue.of();
+		}
+		return TimestampValue.of(Timestamp.ofTimeSecondsAndNanos(value.getEpochSecond(),
+				value.getNano()));
 	}
 
 	public static Value<?> asValue(Key value) {

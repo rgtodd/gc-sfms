@@ -6,6 +6,8 @@ package sfms.db.business;
  */
 public class Coordinates {
 
+	public static final Coordinates ORIGIN = new Coordinates(0, 0, 0);
+
 	private double m_x;
 	private double m_y;
 	private double m_z;
@@ -23,8 +25,37 @@ public class Coordinates {
 		return Math.sqrt(dx * dx + dy * dy + dz * dz);
 	}
 
+	public static Coordinates getVector(Coordinates from, Coordinates to) {
+		double dx = to.getX() - from.getX();
+		double dy = to.getY() - from.getY();
+		double dz = to.getZ() - from.getZ();
+		return new Coordinates(dx, dy, dz);
+	}
+
+	public static Coordinates add(Coordinates from, Coordinates delta) {
+		return new Coordinates(
+				from.getX() + delta.getX(),
+				from.getY() + delta.getY(),
+				from.getZ() + delta.getY());
+	}
+
 	public double getDistanceTo(Coordinates to) {
 		return getDistance(this, to);
+	}
+
+	public Coordinates normalize() {
+		double distance = getDistanceTo(ORIGIN);
+		return new Coordinates(
+				m_x / distance,
+				m_y / distance,
+				m_z / distance);
+	}
+
+	public Coordinates scale(Double scale) {
+		return new Coordinates(
+				m_x * scale,
+				m_y * scale,
+				m_z * scale);
 	}
 
 	public double getX() {

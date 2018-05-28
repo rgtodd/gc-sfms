@@ -1,5 +1,8 @@
 package sfms.web.controllers;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.logging.Logger;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -8,12 +11,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
+import sfms.simulator.api.models.SimulatorOptions;
 import sfms.simulator.api.models.SimulatorStatus;
 import sfms.simulator.api.schemas.WorkerStatus;
 import sfms.web.SfmsController;
+import sfms.web.models.SimulatorOptionsModel;
 import sfms.web.models.SimulatorStatusModel;
 
 @Controller
@@ -44,7 +51,12 @@ public class SimulatorController extends SfmsController {
 		statusModel.setCanStartTransactionWorker(status.getTransactionWorkerStatus().equals(WorkerStatus.INACTIVE));
 		statusModel.setCanStopTransactionWorker(status.getTransactionWorkerStatus().equals(WorkerStatus.ACTIVE));
 
+		SimulatorOptionsModel optionsModel = new SimulatorOptionsModel();
+		optionsModel.setReset(false);
+		optionsModel.setNow(LocalDateTime.now());
+
 		modelMap.addAttribute("status", statusModel);
+		modelMap.addAttribute("options", optionsModel);
 
 		return "simulator";
 	}
@@ -108,7 +120,7 @@ public class SimulatorController extends SfmsController {
 		return "redirect:/simulator/";
 	}
 
-	@GetMapping({ "createMissions" })
+	@GetMapping("createMissions")
 	public String createMissions() {
 
 		String url = getSimulatorUrl("simulation/createMissions");
@@ -118,6 +130,48 @@ public class SimulatorController extends SfmsController {
 		RestTemplate restTemplate = createRestTempate();
 		restTemplate.exchange(url, HttpMethod.POST,
 				createHttpEntity(),
+				Object.class);
+
+		return "redirect:/simulator/";
+	}
+
+	@PostMapping(value = "runPost", params = "action=initialize")
+	public String runPostInitialize(@ModelAttribute SimulatorOptionsModel optionsModel) {
+
+		SimulatorOptions options = new SimulatorOptions();
+		if (optionsModel != null) {
+			options.setNow(Instant.ofEpochSecond(optionsModel.getNow().toEpochSecond(ZoneOffset.UTC)));
+			options.setReset(optionsModel.getReset());
+		}
+
+		String url = getSimulatorUrl("simulation/initializeActors");
+
+		logger.info("Calling " + url);
+
+		RestTemplate restTemplate = createRestTempate();
+		restTemplate.exchange(url, HttpMethod.POST,
+				createHttpEntity(options),
+				Object.class);
+
+		return "redirect:/simulator/";
+	}
+
+	@PostMapping(value = "runPost", params = "action=update")
+	public String runPostUpdate(@ModelAttribute SimulatorOptionsModel optionsModel) {
+
+		SimulatorOptions options = new SimulatorOptions();
+		if (optionsModel != null) {
+			options.setNow(Instant.ofEpochSecond(optionsModel.getNow().toEpochSecond(ZoneOffset.UTC)));
+			options.setReset(optionsModel.getReset());
+		}
+
+		String url = getSimulatorUrl("simulation/updateActors");
+
+		logger.info("Calling " + url);
+
+		RestTemplate restTemplate = createRestTempate();
+		restTemplate.exchange(url, HttpMethod.POST,
+				createHttpEntity(options),
 				Object.class);
 
 		return "redirect:/simulator/";

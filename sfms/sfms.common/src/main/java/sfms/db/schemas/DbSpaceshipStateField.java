@@ -14,15 +14,25 @@ import sfms.db.DbValueType;
 public enum DbSpaceshipStateField implements DbFieldSchema {
 
 	Timestamp("ts", DbValueType.Timestamp, "Timestamp", "Effective date/time for state information."),
-	LocationEntity("le", DbValueType.Key, "Location Entity", "Key of current location entity."),
+
+	// Intrinsic properties
+	//
 	LocationX("x", DbValueType.Double, "X", "X coordinate of ship."),
 	LocationY("y", DbValueType.Double, "Y", "Y coordinate of ship."),
 	LocationZ("z", DbValueType.Double, "Z", "Z coordinate of ship."),
 	Speed("s", DbValueType.Double, "Speed", "Speed of ship."),
-	DestinationEntity("de", DbValueType.Key, "Destination Entity", "Key of destination entity."),
+	LocationKey("lk", DbValueType.Key, "Location Key", "Key of current location entity."),
+	LocationArrival("la", DbValueType.Timestamp, "Location Arrival", "Arrival date/time for current location."),
+
+	// Mission properties
+	//
+	MissionKey("mk", DbValueType.Key, "Mission", "Key of current mission."),
+	ObjectiveIndex("oi", DbValueType.Long, "Objective", "Index of current mission objective."),
+	DestinationKey("dk", DbValueType.Key, "Destination Key", "Key of destination entity."),
 	DestinationX("dx", DbValueType.Double, "Destination X", "X coordinate of destination."),
 	DestinationY("dy", DbValueType.Double, "Destination Y", "Y coordinate of destination."),
-	DestinationZ("dz", DbValueType.Double, "Destination Z", "Z coordinate of destination.");
+	DestinationZ("dz", DbValueType.Double, "Destination Z", "Z coordinate of destination."),
+	WaitDayCount("wd", DbValueType.Long, "Wait Duration", "Wait duraing in days.");
 
 	private String m_name;
 	private DbValueType m_dbValueType;

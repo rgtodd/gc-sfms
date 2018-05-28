@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import com.google.cloud.datastore.BaseEntity;
 import com.google.cloud.datastore.Key;
 
-import sfms.db.DbFieldSchema;
+import sfms.db.DbEntityWrapper;
 import sfms.db.schemas.DbClusterField;
 import sfms.db.schemas.DbCrewMemberField;
 import sfms.db.schemas.DbEntity;
@@ -31,18 +31,20 @@ public class RestFactory {
 
 	public Cluster createCluster(BaseEntity<Key> entity) {
 
+		DbEntityWrapper wrapper = new DbEntityWrapper(entity);
+
 		Cluster result = new Cluster();
 		result.setKey(DbEntity.Cluster.createRestKey(entity.getKey()));
-		result.setClusterPartition(getLong(entity, DbClusterField.ClusterPartition));
-		result.setClusterX(getLong(entity, DbClusterField.ClusterX));
-		result.setClusterY(getLong(entity, DbClusterField.ClusterY));
-		result.setClusterZ(getLong(entity, DbClusterField.ClusterZ));
-		result.setMinimumX(getLong(entity, DbClusterField.MinimumX));
-		result.setMinimumY(getLong(entity, DbClusterField.MinimumY));
-		result.setMinimumZ(getLong(entity, DbClusterField.MinimumZ));
-		result.setMaximumX(getLong(entity, DbClusterField.MaximumX));
-		result.setMaximumY(getLong(entity, DbClusterField.MaximumY));
-		result.setMaximumZ(getLong(entity, DbClusterField.MaximumZ));
+		result.setClusterPartition(wrapper.getLong(DbClusterField.ClusterPartition));
+		result.setClusterX(wrapper.getLong(DbClusterField.ClusterX));
+		result.setClusterY(wrapper.getLong(DbClusterField.ClusterY));
+		result.setClusterZ(wrapper.getLong(DbClusterField.ClusterZ));
+		result.setMinimumX(wrapper.getLong(DbClusterField.MinimumX));
+		result.setMinimumY(wrapper.getLong(DbClusterField.MinimumY));
+		result.setMinimumZ(wrapper.getLong(DbClusterField.MinimumZ));
+		result.setMaximumX(wrapper.getLong(DbClusterField.MaximumX));
+		result.setMaximumY(wrapper.getLong(DbClusterField.MaximumY));
+		result.setMaximumZ(wrapper.getLong(DbClusterField.MaximumZ));
 		return result;
 	}
 
@@ -57,17 +59,19 @@ public class RestFactory {
 
 	public Sector createSector(BaseEntity<Key> entity) {
 
+		DbEntityWrapper wrapper = new DbEntityWrapper(entity);
+
 		Sector result = new Sector();
 		result.setKey(DbEntity.Sector.createRestKey(entity.getKey()));
-		result.setSectorX(getLong(entity, DbSectorField.SectorX));
-		result.setSectorY(getLong(entity, DbSectorField.SectorY));
-		result.setSectorZ(getLong(entity, DbSectorField.SectorZ));
-		result.setMinimumX(getLong(entity, DbSectorField.MinimumX));
-		result.setMinimumY(getLong(entity, DbSectorField.MinimumY));
-		result.setMinimumZ(getLong(entity, DbSectorField.MinimumZ));
-		result.setMaximumX(getLong(entity, DbSectorField.MaximumX));
-		result.setMaximumY(getLong(entity, DbSectorField.MaximumY));
-		result.setMaximumZ(getLong(entity, DbSectorField.MaximumZ));
+		result.setSectorX(wrapper.getLong(DbSectorField.SectorX));
+		result.setSectorY(wrapper.getLong(DbSectorField.SectorY));
+		result.setSectorZ(wrapper.getLong(DbSectorField.SectorZ));
+		result.setMinimumX(wrapper.getLong(DbSectorField.MinimumX));
+		result.setMinimumY(wrapper.getLong(DbSectorField.MinimumY));
+		result.setMinimumZ(wrapper.getLong(DbSectorField.MinimumZ));
+		result.setMaximumX(wrapper.getLong(DbSectorField.MaximumX));
+		result.setMaximumY(wrapper.getLong(DbSectorField.MaximumY));
+		result.setMaximumZ(wrapper.getLong(DbSectorField.MaximumZ));
 		return result;
 	}
 
@@ -82,47 +86,49 @@ public class RestFactory {
 
 	public Star createStar(BaseEntity<Key> entity) {
 
+		DbEntityWrapper wrapper = new DbEntityWrapper(entity);
+
 		Star result = new Star();
 		result.setKey(DbEntity.Star.createRestKey(entity.getKey()));
-		result.setCatalogId(getString(entity, DbStarField.CatalogId));
-		result.setClusterKey(DbEntity.Cluster.createRestKey(getKey(entity, DbStarField.ClusterKey)));
-		result.setSectorKey(DbEntity.Sector.createRestKey(getKey(entity, DbStarField.SectorKey)));
-		result.setHipparcosId(getString(entity, DbStarField.HipparcosId));
-		result.setHenryDraperId(getString(entity, DbStarField.HenryDraperId));
-		result.setHarvardRevisedId(getString(entity, DbStarField.HarvardRevisedId));
-		result.setGlieseId(getString(entity, DbStarField.GlieseId));
-		result.setBayerFlamsteedId(getString(entity, DbStarField.BayerFlamsteedId));
-		result.setProperName(getString(entity, DbStarField.ProperName));
-		result.setRightAscension(getDouble(entity, DbStarField.RightAscension));
-		result.setDeclination(getDouble(entity, DbStarField.Declination));
-		result.setDistance(getDouble(entity, DbStarField.Distance));
-		result.setProperMotionRightAscension(getDouble(entity, DbStarField.ProperMotionRightAscension));
-		result.setProperMotionDeclination(getDouble(entity, DbStarField.ProperMotionDeclination));
-		result.setRadialVelocity(getDouble(entity, DbStarField.RadialVelocity));
-		result.setMagnitude(getDouble(entity, DbStarField.Magnitude));
-		result.setAbsoluteMagnitude(getDouble(entity, DbStarField.AbsoluteMagnitude));
-		result.setSpectrum(getString(entity, DbStarField.Spectrum));
-		result.setColorIndex(getDouble(entity, DbStarField.ColorIndex));
-		result.setX(getDouble(entity, DbStarField.X));
-		result.setY(getDouble(entity, DbStarField.Y));
-		result.setZ(getDouble(entity, DbStarField.Z));
-		result.setVX(getDouble(entity, DbStarField.VX));
-		result.setVY(getDouble(entity, DbStarField.VY));
-		result.setVZ(getDouble(entity, DbStarField.VZ));
-		result.setRightAcensionRadians(getDouble(entity, DbStarField.RightAcensionRadians));
-		result.setDeclinationRadians(getDouble(entity, DbStarField.DeclinationRadians));
-		result.setProperMotionRightAscensionRadians(getDouble(entity, DbStarField.ProperMotionRightAscensionRadians));
-		result.setProperMotionDeclinationRadians(getDouble(entity, DbStarField.ProperMotionDeclinationRadians));
-		result.setBayerId(getString(entity, DbStarField.BayerId));
-		result.setFlamsteed(getString(entity, DbStarField.Flamsteed));
-		result.setConstellation(getString(entity, DbStarField.Constellation));
-		result.setCompanionStarId(getString(entity, DbStarField.CompanionStarId));
-		result.setPrimaryStarId(getString(entity, DbStarField.PrimaryStarId));
-		result.setMultipleStarId(getString(entity, DbStarField.MultipleStarId));
-		result.setLuminosity(getDouble(entity, DbStarField.Luminosity));
-		result.setVariableStarDesignation(getString(entity, DbStarField.VariableStarDesignation));
-		result.setVariableMinimum(getDouble(entity, DbStarField.VariableMinimum));
-		result.setVariableMaximum(getDouble(entity, DbStarField.VariableMaximum));
+		result.setCatalogId(wrapper.getString(DbStarField.CatalogId));
+		result.setClusterKey(DbEntity.Cluster.createRestKey(wrapper.getKey(DbStarField.ClusterKey)));
+		result.setSectorKey(DbEntity.Sector.createRestKey(wrapper.getKey(DbStarField.SectorKey)));
+		result.setHipparcosId(wrapper.getString(DbStarField.HipparcosId));
+		result.setHenryDraperId(wrapper.getString(DbStarField.HenryDraperId));
+		result.setHarvardRevisedId(wrapper.getString(DbStarField.HarvardRevisedId));
+		result.setGlieseId(wrapper.getString(DbStarField.GlieseId));
+		result.setBayerFlamsteedId(wrapper.getString(DbStarField.BayerFlamsteedId));
+		result.setProperName(wrapper.getString(DbStarField.ProperName));
+		result.setRightAscension(wrapper.getDouble(DbStarField.RightAscension));
+		result.setDeclination(wrapper.getDouble(DbStarField.Declination));
+		result.setDistance(wrapper.getDouble(DbStarField.Distance));
+		result.setProperMotionRightAscension(wrapper.getDouble(DbStarField.ProperMotionRightAscension));
+		result.setProperMotionDeclination(wrapper.getDouble(DbStarField.ProperMotionDeclination));
+		result.setRadialVelocity(wrapper.getDouble(DbStarField.RadialVelocity));
+		result.setMagnitude(wrapper.getDouble(DbStarField.Magnitude));
+		result.setAbsoluteMagnitude(wrapper.getDouble(DbStarField.AbsoluteMagnitude));
+		result.setSpectrum(wrapper.getString(DbStarField.Spectrum));
+		result.setColorIndex(wrapper.getDouble(DbStarField.ColorIndex));
+		result.setX(wrapper.getDouble(DbStarField.X));
+		result.setY(wrapper.getDouble(DbStarField.Y));
+		result.setZ(wrapper.getDouble(DbStarField.Z));
+		result.setVX(wrapper.getDouble(DbStarField.VX));
+		result.setVY(wrapper.getDouble(DbStarField.VY));
+		result.setVZ(wrapper.getDouble(DbStarField.VZ));
+		result.setRightAcensionRadians(wrapper.getDouble(DbStarField.RightAcensionRadians));
+		result.setDeclinationRadians(wrapper.getDouble(DbStarField.DeclinationRadians));
+		result.setProperMotionRightAscensionRadians(wrapper.getDouble(DbStarField.ProperMotionRightAscensionRadians));
+		result.setProperMotionDeclinationRadians(wrapper.getDouble(DbStarField.ProperMotionDeclinationRadians));
+		result.setBayerId(wrapper.getString(DbStarField.BayerId));
+		result.setFlamsteed(wrapper.getString(DbStarField.Flamsteed));
+		result.setConstellation(wrapper.getString(DbStarField.Constellation));
+		result.setCompanionStarId(wrapper.getString(DbStarField.CompanionStarId));
+		result.setPrimaryStarId(wrapper.getString(DbStarField.PrimaryStarId));
+		result.setMultipleStarId(wrapper.getString(DbStarField.MultipleStarId));
+		result.setLuminosity(wrapper.getDouble(DbStarField.Luminosity));
+		result.setVariableStarDesignation(wrapper.getString(DbStarField.VariableStarDesignation));
+		result.setVariableMinimum(wrapper.getDouble(DbStarField.VariableMinimum));
+		result.setVariableMaximum(wrapper.getDouble(DbStarField.VariableMaximum));
 
 		return result;
 	}
@@ -144,13 +150,16 @@ public class RestFactory {
 	}
 
 	public Spaceship createSpaceship(BaseEntity<Key> entity) {
+
+		DbEntityWrapper wrapper = new DbEntityWrapper(entity);
+
 		Spaceship result = new Spaceship();
 		result.setKey(DbEntity.Spaceship.createRestKey(entity.getKey()));
-		result.setName(getString(entity, DbSpaceshipField.Name));
-		result.setX(getLong(entity, DbSpaceshipField.X));
-		result.setY(getLong(entity, DbSpaceshipField.Y));
-		result.setX(getLong(entity, DbSpaceshipField.Z));
-		result.setStarKey(DbEntity.Star.createRestKey(getKey(entity, DbSpaceshipField.StarKey)));
+		result.setName(wrapper.getString(DbSpaceshipField.Name));
+		result.setX(wrapper.getLong(DbSpaceshipField.X));
+		result.setY(wrapper.getLong(DbSpaceshipField.Y));
+		result.setX(wrapper.getLong(DbSpaceshipField.Z));
+		result.setStarKey(DbEntity.Star.createRestKey(wrapper.getKey(DbSpaceshipField.StarKey)));
 
 		return result;
 	}
@@ -165,10 +174,13 @@ public class RestFactory {
 	}
 
 	public CrewMember createCrewMember(BaseEntity<Key> entity) {
+
+		DbEntityWrapper wrapper = new DbEntityWrapper(entity);
+
 		CrewMember result = new CrewMember();
 		result.setKey(DbEntity.CrewMember.createRestKey(entity.getKey()));
-		result.setFirstName(getString(entity, DbCrewMemberField.FirstName));
-		result.setLastName(getString(entity, DbCrewMemberField.LastName));
+		result.setFirstName(wrapper.getString(DbCrewMemberField.FirstName));
+		result.setLastName(wrapper.getString(DbCrewMemberField.LastName));
 		return result;
 	}
 
@@ -179,49 +191,5 @@ public class RestFactory {
 			result.add(createCrewMember(entity));
 		}
 		return result;
-	}
-
-	private Key getKey(BaseEntity<Key> entity, DbFieldSchema field) {
-		String name = field.getName();
-		if (!entity.contains(name)) {
-			return null;
-		}
-		if (entity.isNull(name)) {
-			return null;
-		}
-		return entity.getKey(name);
-	}
-
-	private String getString(BaseEntity<Key> entity, DbFieldSchema field) {
-		String name = field.getName();
-		if (!entity.contains(name)) {
-			return null;
-		}
-		if (entity.isNull(name)) {
-			return null;
-		}
-		return entity.getString(name);
-	}
-
-	private Double getDouble(BaseEntity<Key> entity, DbFieldSchema field) {
-		String name = field.getName();
-		if (!entity.contains(name)) {
-			return null;
-		}
-		if (entity.isNull(name)) {
-			return null;
-		}
-		return entity.getDouble(name);
-	}
-
-	private long getLong(BaseEntity<Key> entity, DbFieldSchema field) {
-		String name = field.getName();
-		if (!entity.contains(name)) {
-			return 0;
-		}
-		if (entity.isNull(name)) {
-			return 0;
-		}
-		return entity.getLong(name);
 	}
 }
