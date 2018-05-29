@@ -10,8 +10,24 @@ public class DbEntityWrapper {
 
 	private BaseEntity<Key> m_entity;
 
-	public DbEntityWrapper(BaseEntity<Key> entity) {
+	private DbEntityWrapper(BaseEntity<Key> entity) {
+		if (entity == null) {
+			throw new IllegalArgumentException("Argument entity is null.");
+		}
+
 		m_entity = entity;
+	}
+
+	public BaseEntity<Key> getEntity() {
+		return m_entity;
+	}
+
+	public static DbEntityWrapper wrap(BaseEntity<Key> entity) {
+		if (entity == null) {
+			return null;
+		}
+
+		return new DbEntityWrapper(entity);
 	}
 
 	public Key getKey(DbFieldSchema field) {

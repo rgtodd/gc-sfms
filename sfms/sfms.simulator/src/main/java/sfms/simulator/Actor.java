@@ -6,7 +6,7 @@ import sfms.simulator.json.Mission;
 
 public interface Actor {
 	
-	public Mission getMission();
+	public ActorMission getMission();
 
 	public void assignMission(Instant now, Mission mission);
 

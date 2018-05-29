@@ -19,14 +19,13 @@ public class CrewMemberActor extends ActorBase {
 
 	@Override
 	public void initialize(Instant now, boolean reset) {
-		// TODO Auto-generated method stub
+		// TODO: Implement CrewMemberActor::initialize
 
 	}
 
 	@Override
 	public void updateState(Instant now) {
-		// TODO Auto-generated method stub
-
+		// TODO: Implement CrewMemberActor::updateStatus
 	}
 
 }

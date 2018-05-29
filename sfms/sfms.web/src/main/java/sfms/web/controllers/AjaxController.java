@@ -202,7 +202,7 @@ public class AjaxController extends SfmsController {
 
 			return result;
 		case MapItemTypes.SHIP:
-			// TODO
+			// TODO: Extract properties for ship.
 
 			return null;
 		default:

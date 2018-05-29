@@ -1,22 +1,28 @@
 package sfms.db;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
-public class DbKeyBuilder {
+public class CompositeKeyBuilder {
 
-	private static final String DELIMITER = "-";
+	private static final String[] PROTOTYPE = new String[0];
 
-	private StringBuilder m_sb;
+	private List<String> m_fields;
 
-	private DbKeyBuilder() {
+	private CompositeKeyBuilder() {
 
 	}
 
-	public static DbKeyBuilder create() {
-		return new DbKeyBuilder();
+	public static CompositeKeyBuilder create() {
+		return new CompositeKeyBuilder();
 	}
 
-	public DbKeyBuilder append(String value) {
+	public static long getSerialNumber(Instant instant) {
+		return Long.MAX_VALUE - instant.getEpochSecond();
+	}
+
+	public CompositeKeyBuilder append(String value) {
 		if (value == null) {
 			throw new IllegalArgumentException("Argument value is null.");
 		}
@@ -26,7 +32,7 @@ public class DbKeyBuilder {
 		return this;
 	}
 
-	public DbKeyBuilder append(String value, int length) {
+	public CompositeKeyBuilder append(String value, int length) {
 		if (value == null) {
 			throw new IllegalArgumentException("Argument value is null.");
 		}
@@ -42,7 +48,7 @@ public class DbKeyBuilder {
 		return this;
 	}
 
-	public DbKeyBuilder append(long value, int length) {
+	public CompositeKeyBuilder append(long value, int length) {
 		if (value < 0) {
 			throw new IllegalArgumentException("Argument value is less than zero.");
 		}
@@ -57,50 +63,53 @@ public class DbKeyBuilder {
 		return this;
 	}
 
-	public DbKeyBuilder append(int value) {
+	public CompositeKeyBuilder append(int value) {
 		append(value, 10);
 
 		return this;
 	}
 
-	public DbKeyBuilder append(long value) {
+	public CompositeKeyBuilder append(long value) {
 		append(value, 19);
 
 		return this;
 	}
 
-	public DbKeyBuilder appendSeconds(Instant value) {
+	public CompositeKeyBuilder appendSeconds(Instant value) {
 		append(value.getEpochSecond());
 
 		return this;
 	}
 
-	public DbKeyBuilder appendDescendingSeconds(Instant value) {
+	public CompositeKeyBuilder appendDescendingSeconds(Instant value) {
 		append(Long.MAX_VALUE - value.getEpochSecond());
 
 		return this;
 	}
 
-	public String build() {
-		if (m_sb == null) {
-			return "";
-		} else {
-			return m_sb.toString();
+	public CompositeKeyBuilder appendSerialNumber(Instant value) {
+		append(getSerialNumber(value));
+
+		return this;
+	}
+
+	public CompositeKey build() {
+		if (m_fields == null) {
+			return null;
 		}
+		return new CompositeKey(m_fields.toArray(PROTOTYPE));
 	}
 
 	@Override
 	public String toString() {
-		return build();
+		return build().toString();
 	}
 
 	private void appendValue(String value) {
-		if (m_sb == null) {
-			m_sb = new StringBuilder();
-		} else {
-			m_sb.append(DELIMITER);
+		if (m_fields == null) {
+			m_fields = new ArrayList<String>();
 		}
-		m_sb.append(value);
+		m_fields.add(value);
 	}
 
 }

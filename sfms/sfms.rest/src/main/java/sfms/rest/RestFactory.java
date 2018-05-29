@@ -31,7 +31,7 @@ public class RestFactory {
 
 	public Cluster createCluster(BaseEntity<Key> entity) {
 
-		DbEntityWrapper wrapper = new DbEntityWrapper(entity);
+		DbEntityWrapper wrapper = DbEntityWrapper.wrap(entity);
 
 		Cluster result = new Cluster();
 		result.setKey(DbEntity.Cluster.createRestKey(entity.getKey()));
@@ -59,7 +59,7 @@ public class RestFactory {
 
 	public Sector createSector(BaseEntity<Key> entity) {
 
-		DbEntityWrapper wrapper = new DbEntityWrapper(entity);
+		DbEntityWrapper wrapper = DbEntityWrapper.wrap(entity);
 
 		Sector result = new Sector();
 		result.setKey(DbEntity.Sector.createRestKey(entity.getKey()));
@@ -86,7 +86,7 @@ public class RestFactory {
 
 	public Star createStar(BaseEntity<Key> entity) {
 
-		DbEntityWrapper wrapper = new DbEntityWrapper(entity);
+		DbEntityWrapper wrapper = DbEntityWrapper.wrap(entity);
 
 		Star result = new Star();
 		result.setKey(DbEntity.Star.createRestKey(entity.getKey()));
@@ -151,7 +151,7 @@ public class RestFactory {
 
 	public Spaceship createSpaceship(BaseEntity<Key> entity) {
 
-		DbEntityWrapper wrapper = new DbEntityWrapper(entity);
+		DbEntityWrapper wrapper = DbEntityWrapper.wrap(entity);
 
 		Spaceship result = new Spaceship();
 		result.setKey(DbEntity.Spaceship.createRestKey(entity.getKey()));
@@ -175,7 +175,7 @@ public class RestFactory {
 
 	public CrewMember createCrewMember(BaseEntity<Key> entity) {
 
-		DbEntityWrapper wrapper = new DbEntityWrapper(entity);
+		DbEntityWrapper wrapper = DbEntityWrapper.wrap(entity);
 
 		CrewMember result = new CrewMember();
 		result.setKey(DbEntity.CrewMember.createRestKey(entity.getKey()));

@@ -23,7 +23,7 @@ public class Simulator {
 		m_missionGenerator = new MissionGenerator();
 	}
 
-	public void processActors(Instant now) {
+	public void processActors(Instant now) throws Exception {
 
 		try (ActorIterator actorIterator = m_actorDatasource.getActors()) {
 			while (actorIterator.hasNext()) {
@@ -37,9 +37,6 @@ public class Simulator {
 
 				logger.info("Simulation complete:  " + actor.getActorKey().toString());
 			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 }

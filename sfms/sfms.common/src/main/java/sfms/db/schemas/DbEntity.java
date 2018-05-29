@@ -17,13 +17,11 @@ public enum DbEntity {
 	// Name Based Entities
 	//
 	Cluster("Cluster", DbClusterField.class, false),
-	CrewMemberState("CrwSte", null, false),
-	CrewMemberStateHistory("CrwSteHst", null, false),
+	CrewMemberState("CrwSte", DbCrewMemberStateField.class, false),
 	Mission("Msn", DbMissionField.class, false),
 	MissionState("MsnSte", DbMissionStateField.class, false),
 	Sector("Sector", DbSectorField.class, false),
-	SpaceshipState("ShpSte", null, false),
-	SpaceshipStateHistory("ShpSteHst", null, false),
+	SpaceshipState("ShpSte", DbSpaceshipStateField.class, false),
 	Star("Star", DbStarField.class, false);
 
 	private String m_kind;

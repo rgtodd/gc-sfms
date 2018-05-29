@@ -11,27 +11,24 @@ import sfms.db.DbValueType;
  * 
  * @see DbEntity#CrewMemberMission
  */
-public enum DbMissionStateField implements DbFieldSchema {
+public enum DbCrewMemberStateField implements DbFieldSchema {
 
-	Timestamp("ts", DbValueType.Timestamp, "Timestamp", "Effective date/time for state information."),
-	ObjectiveIndex("ms", DbValueType.String, "Objective Index", "Current mission objective index."),
-	StartTimestamp("ms", DbValueType.Timestamp, "Start Date/Time", "Objective start date/time."),
-	EndTimestamp("ms", DbValueType.Timestamp, "End Date/Time", "Objective end date/time.");
+	Timestamp("ts", DbValueType.Timestamp, "Timestamp", "Effective date/time for state information.");
 
 	private String m_name;
 	private DbValueType m_dbValueType;
 	private String m_title;
 	private String m_description;
 
-	private DbMissionStateField(String name, DbValueType dbValueType, String title, String description) {
+	private DbCrewMemberStateField(String name, DbValueType dbValueType, String title, String description) {
 		m_name = name;
 		m_dbValueType = dbValueType;
 		m_title = title;
 		m_description = description;
 	}
 
-	public static DbMissionStateField parseName(String name) {
-		for (DbMissionStateField property : DbMissionStateField.values()) {
+	public static DbCrewMemberStateField parseName(String name) {
+		for (DbCrewMemberStateField property : DbCrewMemberStateField.values()) {
 			if (property.getName().equals(name)) {
 				return property;
 			}
