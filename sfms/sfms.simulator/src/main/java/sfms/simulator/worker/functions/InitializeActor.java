@@ -3,20 +3,20 @@ package sfms.simulator.worker.functions;
 import java.time.Instant;
 
 import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.Key;
 
 import sfms.simulator.Actor;
 import sfms.simulator.ActorDatasource;
-import sfms.simulator.ActorKey;
 import sfms.simulator.worker.WorkerFunction;
 
 public class InitializeActor implements WorkerFunction {
 
 	private Datastore m_datastore;
-	private ActorKey m_actorKey;
+	private Key m_actorKey;
 	private Instant m_now;
 	private boolean m_reset;
 
-	public InitializeActor(Datastore datastore, ActorKey actorKey, Instant now, boolean reset) {
+	public InitializeActor(Datastore datastore, Key actorKey, Instant now, boolean reset) {
 		if (datastore == null) {
 			throw new IllegalArgumentException("Argument datastore is null.");
 		}

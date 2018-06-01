@@ -3,10 +3,10 @@ package sfms.simulator.worker.functions;
 import java.time.Instant;
 
 import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.Key;
 
 import sfms.simulator.Actor;
 import sfms.simulator.ActorDatasource;
-import sfms.simulator.ActorKey;
 import sfms.simulator.MissionGenerator;
 import sfms.simulator.json.Mission;
 import sfms.simulator.worker.WorkerFunction;
@@ -14,13 +14,13 @@ import sfms.simulator.worker.WorkerFunction;
 public class CreateMission implements WorkerFunction {
 
 	private Datastore m_datastore;
-	private ActorKey m_actorKey;
+	private Key m_actorKey;
 	private Instant m_now;
 	private MissionGenerator m_missionGenerator;
 	@SuppressWarnings("unused")
 	private boolean m_reset;
 
-	public CreateMission(Datastore datastore, ActorKey actorKey, Instant now, MissionGenerator missionGenerator,
+	public CreateMission(Datastore datastore, Key actorKey, Instant now, MissionGenerator missionGenerator,
 			boolean reset) {
 		if (datastore == null) {
 			throw new IllegalArgumentException("Argument datastore is null.");

@@ -7,18 +7,20 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 
-import sfms.db.Db;
-import sfms.db.DbEntityWrapper;
 import sfms.db.CompositeKey;
 import sfms.db.CompositeKeyBuilder;
+import sfms.db.Db;
+import sfms.db.DbEntityWrapper;
+import sfms.db.DbValueFactory;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbMissionField;
-import sfms.db.schemas.DbMissionStatusValues;
 import sfms.simulator.json.Mission;
 
 public class ActorMission {
 
 	private final Logger logger = Logger.getLogger(ActorMission.class.getName());
+
+	public static final ActorMission NULL = new ActorMission();
 
 	// Key fields
 	//
@@ -29,6 +31,10 @@ public class ActorMission {
 	// Properties
 	//
 	private Mission m_mission;
+	private String m_status;
+
+	private ActorMission() {
+	}
 
 	public ActorMission(String actorKind, long actorId, Instant serialInstant) {
 		if (actorKind == null) {
@@ -61,13 +67,18 @@ public class ActorMission {
 		Instant serialInstant = compositeKey.getFromSecondsDescending(2);
 
 		ActorMission result = new ActorMission(actorKind, actorId, serialInstant);
-
-		String jsonMission = entity.getString(DbMissionField.Mission);
-		if (jsonMission != null) {
-			result.setMission(Mission.fromJson(jsonMission));
-		}
+		result.setMission(createMissionFromJson(entity.getString(DbMissionField.Mission)));
+		result.setStatus(entity.getString(DbMissionField.MissionStatus));
 
 		return result;
+	}
+
+	private static Mission createMissionFromJson(String jsonMission) {
+		if (jsonMission == null) {
+			return null;
+		}
+
+		return Mission.fromJson(jsonMission);
 	}
 
 	public String getActorKind() {
@@ -90,6 +101,14 @@ public class ActorMission {
 		m_mission = mission;
 	}
 
+	public String getStatus() {
+		return m_status;
+	}
+
+	public void setStatus(String status) {
+		m_status = status;
+	}
+
 	public void save(Datastore datastore) {
 
 		String jsonMission = getMission().toJson();
@@ -107,8 +126,8 @@ public class ActorMission {
 				.newKey(key);
 
 		Entity dbEntity = Entity.newBuilder(dbKey)
-				.set(DbMissionField.Mission.getName(), jsonMission)
-				.set(DbMissionField.MissionStatus.getName(), DbMissionStatusValues.ACTIVE)
+				.set(DbMissionField.Mission.getName(), DbValueFactory.asValue(jsonMission))
+				.set(DbMissionField.MissionStatus.getName(), DbValueFactory.asValue(getStatus()))
 				.build();
 
 		datastore.put(dbEntity);

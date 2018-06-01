@@ -4,14 +4,15 @@ import java.time.Instant;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.Key;
 
+import sfms.db.schemas.DbMissionStatusValues;
 import sfms.simulator.json.Mission;
 
 public abstract class ActorBase implements Actor {
 
 	private Datastore m_datastore;
 	private Entity m_dbEntity;
-	private ActorKey m_actorKey;
 
 	protected ActorBase(Datastore datastore, Entity dbEntity) {
 		if (datastore == null) {
@@ -23,12 +24,11 @@ public abstract class ActorBase implements Actor {
 
 		m_datastore = datastore;
 		m_dbEntity = dbEntity;
-		m_actorKey = new ActorKey(dbEntity.getKey());
 	}
 
 	@Override
-	public ActorKey getActorKey() {
-		return m_actorKey;
+	public Key getKey() {
+		return m_dbEntity.getKey();
 	}
 
 	@Override
@@ -45,6 +45,7 @@ public abstract class ActorBase implements Actor {
 		ActorMission actorMission = new ActorMission(getActorKind(), getActorId(), now);
 
 		actorMission.setMission(mission);
+		actorMission.setStatus(DbMissionStatusValues.ACTIVE);
 
 		actorMission.save(m_datastore);
 	}
@@ -64,10 +65,10 @@ public abstract class ActorBase implements Actor {
 	}
 
 	protected String getActorKind() {
-		return getActorKey().getKey().getKind();
+		return getKey().getKind();
 	}
 
 	protected long getActorId() {
-		return getActorKey().getKey().getId();
+		return getKey().getId();
 	}
 }

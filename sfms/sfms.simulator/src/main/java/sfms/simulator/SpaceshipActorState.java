@@ -34,16 +34,13 @@ class SpaceshipActorState {
 	private Double m_locationX;
 	private Double m_locationY;
 	private Double m_locationZ;
-	private Double m_speed;
 	private Key m_locationKey;
 	private Instant m_locationArrival;
-	private Key m_missionKey;
-	private Long m_objectiveIndex;
-	private Key m_destinationKey;
+	private Double m_speed;
 	private Double m_destinationX;
 	private Double m_destinationY;
 	private Double m_destinationZ;
-	private Long m_waitDayCount;
+	private Key m_destinationKey;
 
 	public SpaceshipActorState(long actorId, Instant serialInstant) {
 		if (serialInstant == null) {
@@ -92,16 +89,13 @@ class SpaceshipActorState {
 		state.setLocationX(entity.getDouble(DbSpaceshipStateField.LocationX));
 		state.setLocationY(entity.getDouble(DbSpaceshipStateField.LocationY));
 		state.setLocationZ(entity.getDouble(DbSpaceshipStateField.LocationZ));
-		state.setSpeed(entity.getDouble(DbSpaceshipStateField.Speed));
 		state.setLocationKey(entity.getKey(DbSpaceshipStateField.LocationKey));
 		state.setLocationArrival(entity.getInstant(DbSpaceshipStateField.LocationArrival));
-		state.setMissionKey(entity.getKey(DbSpaceshipStateField.MissionKey));
-		state.setObjectiveIndex(entity.getLong(DbSpaceshipStateField.ObjectiveIndex));
-		state.setDestinationKey(entity.getKey(DbSpaceshipStateField.DestinationKey));
+		state.setSpeed(entity.getDouble(DbSpaceshipStateField.Speed));
 		state.setDestinationX(entity.getDouble(DbSpaceshipStateField.DestinationX));
 		state.setDestinationY(entity.getDouble(DbSpaceshipStateField.DestinationY));
 		state.setDestinationZ(entity.getDouble(DbSpaceshipStateField.DestinationZ));
-		state.setWaitDayCount(entity.getLong(DbSpaceshipStateField.WaitDayCount));
+		state.setDestinationKey(entity.getKey(DbSpaceshipStateField.DestinationKey));
 
 		return state;
 	}
@@ -186,22 +180,6 @@ class SpaceshipActorState {
 		m_locationArrival = locationArrival;
 	}
 
-	public Key getMissionKey() {
-		return m_missionKey;
-	}
-
-	public void setMissionKey(Key missionKey) {
-		m_missionKey = missionKey;
-	}
-
-	public Long getObjectiveIndex() {
-		return m_objectiveIndex;
-	}
-
-	public void setObjectiveIndex(Long objectiveIndex) {
-		m_objectiveIndex = objectiveIndex;
-	}
-
 	public Key getDestinationKey() {
 		return m_destinationKey;
 	}
@@ -234,14 +212,6 @@ class SpaceshipActorState {
 		m_destinationZ = destinationZ;
 	}
 
-	public Long getWaitDayCount() {
-		return m_waitDayCount;
-	}
-
-	public void setWaitDayCount(Long waitDayCount) {
-		m_waitDayCount = waitDayCount;
-	}
-
 	public SpaceshipActorState apply(Duration duration) {
 
 		//
@@ -252,16 +222,13 @@ class SpaceshipActorState {
 		Double locationX = m_locationX;
 		Double locationY = m_locationY;
 		Double locationZ = m_locationZ;
-		Double speed = m_speed;
 		Key locationKey = m_locationKey;
 		Instant locationArrival = m_locationArrival;
-		Key missionKey = m_missionKey;
-		Long objectiveIndex = m_objectiveIndex;
-		Key destinationKey = m_destinationKey;
+		Double speed = m_speed;
 		Double destinationX = m_destinationX;
 		Double destinationY = m_destinationY;
 		Double destinationZ = m_destinationZ;
-		Long waitDayCount = m_waitDayCount;
+		Key destinationKey = m_destinationKey;
 
 		boolean hasLocation = locationX != null && locationY != null && locationZ != null;
 		boolean hasSpeed = speed != null;
@@ -288,7 +255,11 @@ class SpaceshipActorState {
 					// We've arrived at our destination.
 					//
 					location = destination;
+					locationArrival = timestamp;
+					locationKey = destinationKey;
 					speed = 0.0;
+					destination = null;
+					destinationKey = null;
 
 				} else {
 
@@ -297,6 +268,7 @@ class SpaceshipActorState {
 					Coordinates delta = Coordinates.getVector(location, destination).normalize()
 							.scale(distanceTraveled);
 					location = Coordinates.add(location, delta);
+					locationArrival = timestamp;
 				}
 			} else {
 
@@ -305,37 +277,49 @@ class SpaceshipActorState {
 				Coordinates delta = Coordinates.getVector(location, destination).normalize()
 						.scale(distanceTraveled);
 				location = Coordinates.add(location, delta);
+				locationArrival = timestamp;
 			}
 		}
 
-		if (location != null) {
+		if (location == null) {
+			locationX = null;
+			locationY = null;
+			locationZ = null;
+		} else {
 			locationX = location.getX();
 			locationY = location.getY();
 			locationZ = location.getZ();
+		}
+
+		if (destination == null) {
+			destinationX = null;
+			destinationY = null;
+			destinationZ = null;
+		} else {
+			destinationX = destination.getX();
+			destinationY = destination.getY();
+			destinationZ = destination.getZ();
 		}
 
 		//
 		// Create new state
 		//
 
-		SpaceshipActorState state = new SpaceshipActorState(getActorId(), timestamp);
+		SpaceshipActorState updatedState = new SpaceshipActorState(getActorId(), timestamp);
 
-		state.setTimestamp(timestamp);
-		state.setLocationX(locationX);
-		state.setLocationY(locationY);
-		state.setLocationZ(locationZ);
-		state.setSpeed(speed);
-		state.setLocationKey(locationKey);
-		state.setLocationArrival(locationArrival);
-		state.setMissionKey(missionKey);
-		state.setObjectiveIndex(objectiveIndex);
-		state.setDestinationKey(destinationKey);
-		state.setDestinationX(destinationX);
-		state.setDestinationY(destinationY);
-		state.setDestinationZ(destinationZ);
-		state.setWaitDayCount(waitDayCount);
+		updatedState.setTimestamp(timestamp);
+		updatedState.setLocationX(locationX);
+		updatedState.setLocationY(locationY);
+		updatedState.setLocationZ(locationZ);
+		updatedState.setLocationKey(locationKey);
+		updatedState.setLocationArrival(locationArrival);
+		updatedState.setSpeed(speed);
+		updatedState.setDestinationX(destinationX);
+		updatedState.setDestinationY(destinationY);
+		updatedState.setDestinationZ(destinationZ);
+		updatedState.setDestinationKey(destinationKey);
 
-		return state;
+		return updatedState;
 	}
 
 	public String save(Datastore datastore) {
@@ -355,17 +339,14 @@ class SpaceshipActorState {
 				.set(DbSpaceshipStateField.LocationX.getName(), DbValueFactory.asValue(getLocationX()))
 				.set(DbSpaceshipStateField.LocationY.getName(), DbValueFactory.asValue(getLocationY()))
 				.set(DbSpaceshipStateField.LocationZ.getName(), DbValueFactory.asValue(getLocationZ()))
-				.set(DbSpaceshipStateField.Speed.getName(), DbValueFactory.asValue(getSpeed()))
 				.set(DbSpaceshipStateField.LocationKey.getName(), DbValueFactory.asValue(getLocationKey()))
 				.set(DbSpaceshipStateField.LocationArrival.getName(),
 						DbValueFactory.asValue(getLocationArrival()))
-				.set(DbSpaceshipStateField.MissionKey.getName(), DbValueFactory.asValue(getMissionKey()))
-				.set(DbSpaceshipStateField.ObjectiveIndex.getName(), DbValueFactory.asValue(getObjectiveIndex()))
-				.set(DbSpaceshipStateField.DestinationKey.getName(), DbValueFactory.asValue(getDestinationKey()))
+				.set(DbSpaceshipStateField.Speed.getName(), DbValueFactory.asValue(getSpeed()))
 				.set(DbSpaceshipStateField.DestinationX.getName(), DbValueFactory.asValue(getDestinationX()))
 				.set(DbSpaceshipStateField.DestinationY.getName(), DbValueFactory.asValue(getDestinationY()))
 				.set(DbSpaceshipStateField.DestinationZ.getName(), DbValueFactory.asValue(getDestinationZ()))
-				.set(DbSpaceshipStateField.WaitDayCount.getName(), DbValueFactory.asValue(getWaitDayCount()))
+				.set(DbSpaceshipStateField.DestinationKey.getName(), DbValueFactory.asValue(getDestinationKey()))
 				.build();
 
 		datastore.put(dbEntity);

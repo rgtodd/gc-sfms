@@ -39,7 +39,7 @@ public class InitializeActors implements WorkerFunction {
 		try (ActorIterator actors = datasource.getActors()) {
 			while (actors.hasNext()) {
 				m_transactionWorker
-						.process(new InitializeActor(m_datastore, actors.next().getActorKey(), m_now, m_reset));
+						.process(new InitializeActor(m_datastore, actors.next().getKey(), m_now, m_reset));
 			}
 		}
 	}

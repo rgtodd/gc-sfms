@@ -46,7 +46,7 @@ public class CreateMissions implements WorkerFunction {
 		try (ActorIterator actors = datasource.getActors()) {
 			while (actors.hasNext()) {
 				m_transactionWorker
-						.process(new CreateMission(m_datastore, actors.next().getActorKey(), m_now, m_missionGenerator,
+						.process(new CreateMission(m_datastore, actors.next().getKey(), m_now, m_missionGenerator,
 								m_reset));
 			}
 		}

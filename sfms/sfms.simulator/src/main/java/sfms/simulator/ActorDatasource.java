@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.EntityQuery;
+import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 
@@ -24,12 +25,12 @@ public class ActorDatasource {
 		m_datastore = datastore;
 	}
 
-	public Actor getActor(ActorKey key) {
+	public Actor getActor(Key key) {
 		if (key == null) {
 			throw new IllegalArgumentException("Argument key is null.");
 		}
 
-		Entity dbEntity = m_datastore.get(key.getKey());
+		Entity dbEntity = m_datastore.get(key);
 
 		if (dbEntity.getKey().getKind().equals(DbEntity.CrewMember.getKind())) {
 			return new CrewMemberActor(m_datastore, dbEntity);

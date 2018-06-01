@@ -120,8 +120,14 @@ public class SimulatorController extends SfmsController {
 		return "redirect:/simulator/";
 	}
 
-	@GetMapping("createMissions")
-	public String createMissions() {
+	@PostMapping(value = "runPost", params = "action=createMissions")
+	public String createMissions(@ModelAttribute SimulatorOptionsModel optionsModel) {
+
+		SimulatorOptions options = new SimulatorOptions();
+		if (optionsModel != null) {
+			options.setNow(Instant.ofEpochSecond(optionsModel.getNow().toEpochSecond(ZoneOffset.UTC)));
+			options.setReset(optionsModel.getReset());
+		}
 
 		String url = getSimulatorUrl("simulation/createMissions");
 
@@ -129,7 +135,7 @@ public class SimulatorController extends SfmsController {
 
 		RestTemplate restTemplate = createRestTempate();
 		restTemplate.exchange(url, HttpMethod.POST,
-				createHttpEntity(),
+				createHttpEntity(options),
 				Object.class);
 
 		return "redirect:/simulator/";

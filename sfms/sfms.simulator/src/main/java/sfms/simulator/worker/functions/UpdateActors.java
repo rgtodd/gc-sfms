@@ -37,7 +37,7 @@ public class UpdateActors implements WorkerFunction {
 		try (ActorIterator actors = datasource.getActors()) {
 			while (actors.hasNext()) {
 				m_transactionWorker
-						.process(new UpdateActor(m_datastore, actors.next().getActorKey(), m_now));
+						.process(new UpdateActor(m_datastore, actors.next().getKey(), m_now));
 			}
 		}
 	}

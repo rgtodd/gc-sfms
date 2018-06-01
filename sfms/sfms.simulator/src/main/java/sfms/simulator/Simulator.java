@@ -35,7 +35,7 @@ public class Simulator {
 				// actor.assignMission(mission);
 				// }
 
-				logger.info("Simulation complete:  " + actor.getActorKey().toString());
+				logger.info("Simulation complete:  " + actor.getKey().toString());
 			}
 		}
 	}
