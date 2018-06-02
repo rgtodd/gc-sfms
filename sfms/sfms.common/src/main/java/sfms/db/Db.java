@@ -14,17 +14,28 @@ public class Db {
 
 	public static Key getFirstEntityKey(Datastore datastore, String kind, String keyPrefix) {
 
-		Key dbKeyPrefix = datastore.newKeyFactory()
-				.setKind(kind)
-				.newKey(keyPrefix);
+		QueryResults<Key> dbKeys;
+		if (keyPrefix == null) {
+			Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
+					.setKind(kind)
+					.setLimit(1)
+					.build();
 
-		Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
-				.setKind(kind)
-				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
-				.setLimit(1)
-				.build();
+			dbKeys = datastore.run(dbKeyQuery);
+		} else {
+			Key dbKeyPrefix = datastore.newKeyFactory()
+					.setKind(kind)
+					.newKey(keyPrefix);
 
-		QueryResults<Key> dbKeys = datastore.run(dbKeyQuery);
+			Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
+					.setKind(kind)
+					.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
+					.setLimit(1)
+					.build();
+
+			dbKeys = datastore.run(dbKeyQuery);
+		}
+
 		if (dbKeys.hasNext()) {
 			Key dbKey = dbKeys.next();
 			if (dbKey.getName().startsWith(keyPrefix)) {
@@ -37,17 +48,28 @@ public class Db {
 
 	public static Entity getFirstEntity(Datastore datastore, String kind, String keyPrefix) {
 
-		Key dbKeyPrefix = datastore.newKeyFactory()
-				.setKind(kind)
-				.newKey(keyPrefix);
+		QueryResults<Key> dbKeys;
+		if (keyPrefix == null) {
+			Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
+					.setKind(kind)
+					.setLimit(1)
+					.build();
 
-		Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
-				.setKind(kind)
-				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
-				.setLimit(1)
-				.build();
+			dbKeys = datastore.run(dbKeyQuery);
+		} else {
+			Key dbKeyPrefix = datastore.newKeyFactory()
+					.setKind(kind)
+					.newKey(keyPrefix);
 
-		QueryResults<Key> dbKeys = datastore.run(dbKeyQuery);
+			Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
+					.setKind(kind)
+					.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
+					.setLimit(1)
+					.build();
+
+			dbKeys = datastore.run(dbKeyQuery);
+		}
+
 		if (dbKeys.hasNext()) {
 			Key dbKey = dbKeys.next();
 			if (dbKey.getName().startsWith(keyPrefix)) {

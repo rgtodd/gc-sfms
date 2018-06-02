@@ -3,6 +3,7 @@ package sfms.web.controllers;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.logging.Logger;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -44,16 +45,24 @@ public class SimulatorController extends SfmsController {
 		SimulatorStatus status = response.getBody();
 
 		SimulatorStatusModel statusModel = new SimulatorStatusModel();
-		statusModel.setJobWorkerStatus(status.getJobWorkerStatus());
-		statusModel.setCanStartJobWorker(status.getJobWorkerStatus().equals(WorkerStatus.INACTIVE));
-		statusModel.setCanStopJobWorker(status.getJobWorkerStatus().equals(WorkerStatus.ACTIVE));
+		statusModel.setJobWorkerStatus(status.getControlWorkerStatus());
+		statusModel.setCanStartJobWorker(status.getControlWorkerStatus().equals(WorkerStatus.INACTIVE));
+		statusModel.setCanStopJobWorker(status.getControlWorkerStatus().equals(WorkerStatus.ACTIVE));
 		statusModel.setTransactionWorkerStatus(status.getTransactionWorkerStatus());
 		statusModel.setCanStartTransactionWorker(status.getTransactionWorkerStatus().equals(WorkerStatus.INACTIVE));
 		statusModel.setCanStopTransactionWorker(status.getTransactionWorkerStatus().equals(WorkerStatus.ACTIVE));
 
+		LocalDateTime now;
+		if (status.getSimulationInstant() != null) {
+			Instant nextInstant = status.getSimulationInstant().plus(1, ChronoUnit.DAYS);
+			now = LocalDateTime.ofInstant(nextInstant, ZoneOffset.UTC);
+		} else {
+			now = LocalDateTime.now();
+		}
+
 		SimulatorOptionsModel optionsModel = new SimulatorOptionsModel();
 		optionsModel.setReset(false);
-		optionsModel.setNow(LocalDateTime.now());
+		optionsModel.setNow(now);
 
 		modelMap.addAttribute("status", statusModel);
 		modelMap.addAttribute("options", optionsModel);

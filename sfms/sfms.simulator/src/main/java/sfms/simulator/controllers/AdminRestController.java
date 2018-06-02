@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreOptions;
+
+import sfms.simulator.Simulation;
 import sfms.simulator.api.models.SimulatorStatus;
 import sfms.simulator.api.schemas.WorkerStatus;
 import sfms.simulator.worker.Worker;
@@ -34,21 +38,27 @@ public class AdminRestController {
 	@GetMapping(value = "/status")
 	public SimulatorStatus getStatus() {
 
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+		Simulation simulation = Simulation.getCurrentSimulation(datastore);
+
 		SimulatorStatus response = new SimulatorStatus();
-		response.setJobWorkerStatus(controlWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE);
-		response.setTransactionWorkerStatus(
-				transactionWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE);
+		response.setControlWorkerStatus(getControlWorkerStatus());
+		response.setTransactionWorkerStatus(getTransactionWorkerStatus());
+		if (simulation != null) {
+			response.setSimulationInstant(simulation.getTimestamp());
+		}
 
 		return response;
 	}
 
 	@GetMapping(value = "/worker/control/status")
-	public String getJobWorkerStatus() {
+	public String getControlWorkerStatus() {
 		return controlWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
 	}
 
 	@PostMapping(value = "/worker/control/status")
-	public String setJobWorkerStatus(@RequestBody String status) {
+	public String setControlWorkerStatus(@RequestBody String status) {
 
 		if (status.equals(WorkerStatus.ACTIVE)) {
 			if (!controlWorker.isActive()) {
@@ -60,7 +70,7 @@ public class AdminRestController {
 			}
 		}
 
-		return controlWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
+		return getControlWorkerStatus();
 	}
 
 	@GetMapping(value = "/worker/transaction/status")
@@ -81,6 +91,6 @@ public class AdminRestController {
 			}
 		}
 
-		return transactionWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
+		return getTransactionWorkerStatus();
 	}
 }

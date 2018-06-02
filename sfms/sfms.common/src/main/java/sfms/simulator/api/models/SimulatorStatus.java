@@ -1,16 +1,19 @@
 package sfms.simulator.api.models;
 
+import java.time.Instant;
+
 public class SimulatorStatus {
 
-	private String m_jobWorkerStatus;
+	private String m_controlWorkerStatus;
 	private String m_transactionWorkerStatus;
+	private Instant m_simulationInstant;
 
-	public String getJobWorkerStatus() {
-		return m_jobWorkerStatus;
+	public String getControlWorkerStatus() {
+		return m_controlWorkerStatus;
 	}
 
-	public void setJobWorkerStatus(String jobWorkerStatus) {
-		m_jobWorkerStatus = jobWorkerStatus;
+	public void setControlWorkerStatus(String controlWorkerStatus) {
+		m_controlWorkerStatus = controlWorkerStatus;
 	}
 
 	public String getTransactionWorkerStatus() {
@@ -19,6 +22,14 @@ public class SimulatorStatus {
 
 	public void setTransactionWorkerStatus(String transactionWorkerStatus) {
 		m_transactionWorkerStatus = transactionWorkerStatus;
+	}
+
+	public Instant getSimulationInstant() {
+		return m_simulationInstant;
+	}
+
+	public void setSimulationInstant(Instant simulationInstant) {
+		m_simulationInstant = simulationInstant;
 	}
 
 }

@@ -14,6 +14,7 @@ import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 
 import sfms.simulator.MissionGenerator;
+import sfms.simulator.Simulation;
 import sfms.simulator.api.models.SimulatorOptions;
 import sfms.simulator.worker.Worker;
 import sfms.simulator.worker.functions.CreateMissions;
@@ -72,6 +73,10 @@ public class SimulationRestController {
 		}
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+		Simulation simulation = new Simulation(now);
+		simulation.save(datastore);
+
 		controlWorker.process(new UpdateActors(datastore, transactionWorker, now));
 	}
 

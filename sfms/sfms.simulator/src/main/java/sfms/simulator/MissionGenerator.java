@@ -3,7 +3,6 @@ package sfms.simulator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
@@ -22,8 +21,6 @@ import sfms.simulator.json.Objective;
 import sfms.simulator.json.TravelObjective;
 
 public class MissionGenerator {
-
-	private final Logger logger = Logger.getLogger(MissionGenerator.class.getName());
 
 	private Datastore m_datastore = DatastoreOptions.getDefaultInstance().getService();
 	private RegionSet m_sectors = RegionSet.loadSectors();
@@ -81,7 +78,6 @@ public class MissionGenerator {
 		Key dbSectorKey = m_datastore.newKeyFactory()
 				.setKind(DbEntity.Sector.getKind())
 				.newKey(sector.getKey());
-		logger.info("dbSectorKey = " + dbSectorKey.toString());
 
 		Query<Key> dbStarKeyQuery = Query.newKeyQueryBuilder()
 				.setKind(DbEntity.Star.getKind())

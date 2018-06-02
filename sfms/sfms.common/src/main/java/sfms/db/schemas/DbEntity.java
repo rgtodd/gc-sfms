@@ -21,6 +21,7 @@ public enum DbEntity {
 	Mission("Msn", DbMissionField.class, false),
 	MissionState("MsnSte", DbMissionStateField.class, false),
 	Sector("Sector", DbSectorField.class, false),
+	Simulation("Simulation", DbSimulationField.class, false),
 	SpaceshipState("ShpSte", DbSpaceshipStateField.class, false),
 	Star("Star", DbStarField.class, false);
 

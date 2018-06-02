@@ -1,7 +1,6 @@
 package sfms.simulator;
 
 import java.time.Instant;
-import java.util.logging.Logger;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
@@ -16,8 +15,6 @@ import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbMissionStateField;
 
 public class ActorMissionState {
-
-	private final Logger logger = Logger.getLogger(ActorMissionState.class.getName());
 
 	public static final ActorMissionState NULL = new ActorMissionState();
 
@@ -154,8 +151,6 @@ public class ActorMissionState {
 				.build();
 
 		datastore.put(dbEntity);
-
-		logger.info("Created mission state.  Key = " + key);
 	}
 
 }

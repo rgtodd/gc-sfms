@@ -1,7 +1,6 @@
 package sfms.simulator;
 
 import java.time.Instant;
-import java.util.logging.Logger;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
@@ -17,8 +16,6 @@ import sfms.db.schemas.DbMissionField;
 import sfms.simulator.json.Mission;
 
 public class ActorMission {
-
-	private final Logger logger = Logger.getLogger(ActorMission.class.getName());
 
 	public static final ActorMission NULL = new ActorMission();
 
@@ -112,7 +109,6 @@ public class ActorMission {
 	public void save(Datastore datastore) {
 
 		String jsonMission = getMission().toJson();
-		logger.info("Mission JSON = " + jsonMission);
 
 		String key = CompositeKeyBuilder.create()
 				.append(getActorKind())
@@ -131,8 +127,6 @@ public class ActorMission {
 				.build();
 
 		datastore.put(dbEntity);
-
-		logger.info("Created mission for entity.  Key = " + key);
 	}
 
 }
