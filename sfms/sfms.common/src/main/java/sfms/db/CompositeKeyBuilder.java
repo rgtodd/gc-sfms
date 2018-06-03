@@ -8,6 +8,9 @@ public class CompositeKeyBuilder {
 
 	private static final String[] PROTOTYPE = new String[0];
 
+	public static final int DEFAULT_INTEGER_DIGITS = 10;
+	public static final int DEFAULT_LONG_DIGITS = 19;
+
 	private List<String> m_fields;
 
 	private CompositeKeyBuilder() {
@@ -64,33 +67,27 @@ public class CompositeKeyBuilder {
 	}
 
 	public CompositeKeyBuilder append(int value) {
-		append(value, 10);
-
-		return this;
+		return append(value, DEFAULT_INTEGER_DIGITS);
 	}
 
 	public CompositeKeyBuilder append(long value) {
-		append(value, 19);
-
-		return this;
+		return append(value, DEFAULT_LONG_DIGITS);
 	}
 
 	public CompositeKeyBuilder appendSeconds(Instant value) {
-		append(value.getEpochSecond());
-
-		return this;
+		return append(value.getEpochSecond());
 	}
 
 	public CompositeKeyBuilder appendDescendingSeconds(Instant value) {
-		append(Long.MAX_VALUE - value.getEpochSecond());
-
-		return this;
+		return append(Long.MAX_VALUE - value.getEpochSecond());
 	}
 
 	public CompositeKeyBuilder appendSerialNumber(Instant value) {
-		append(getSerialNumber(value));
+		return append(getSerialNumber(value));
+	}
 
-		return this;
+	public CompositeKeyBuilder appendHash2(int value) {
+		return append(getHash2(value));
 	}
 
 	public CompositeKey build() {
@@ -105,11 +102,26 @@ public class CompositeKeyBuilder {
 		return build().toString();
 	}
 
+	private String getHash2(int value) {
+		value = generateHash(value) % 100;
+		return String.format("%02d", value);
+	}
+
 	private void appendValue(String value) {
 		if (m_fields == null) {
 			m_fields = new ArrayList<String>();
 		}
 		m_fields.add(value);
+	}
+
+	private int generateHash(int key) {
+		key = ~key + (key << 15); // key = (key << 15) - key - 1;
+		key = key ^ (key >>> 12);
+		key = key + (key << 2);
+		key = key ^ (key >>> 4);
+		key = key * 2057; // key = (key + (key << 3)) + (key << 11);
+		key = key ^ (key >>> 16);
+		return Math.abs(key);
 	}
 
 }

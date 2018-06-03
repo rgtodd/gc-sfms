@@ -137,7 +137,7 @@ public class StarClusterGenerator {
 
 	private RegionSet createSectorRegions() {
 		return RegionSet.create(Constants.SECTOR_MINIMUM_BOUNDS, Constants.SECTOR_MAXIMUM_BOUNDS,
-				Constants.SECTOR_BOUNDS_DELTA, 0);
+				Constants.SECTOR_BOUNDS_DELTA);
 	}
 
 	private RegionSet createClusterRegions() {

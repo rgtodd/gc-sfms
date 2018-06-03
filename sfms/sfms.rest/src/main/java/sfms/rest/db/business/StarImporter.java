@@ -17,6 +17,8 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
 
 import sfms.db.BatchPut;
+import sfms.db.CompositeKey;
+import sfms.db.CompositeKeyBuilder;
 import sfms.db.CsvValue;
 import sfms.db.DbValueFactory;
 import sfms.db.business.Region;
@@ -92,7 +94,8 @@ public class StarImporter {
 		m_sectors = RegionSet.loadSectors();
 	}
 
-	public void process(String bucketName, String blobName, int startIndex, int recordLimit) throws Exception {
+	public void process(String bucketName, String blobName, String catalogName, int startIndex, int recordLimit)
+			throws Exception {
 
 		logger.log(Level.INFO, "Processing {0} / {1} / {2} / {3}.",
 				new Object[] { bucketName, blobName, startIndex, recordLimit });
@@ -103,11 +106,12 @@ public class StarImporter {
 				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
 				Stream<String> lineStream = bufferedReader.lines()) {
 
-			processStarFileData(lineStream, startIndex, recordLimit);
+			processStarFileData(lineStream, catalogName, startIndex, recordLimit);
 		}
 	}
 
-	private void processStarFileData(Stream<String> lineStream, int startIndex, int recordLimit) throws Exception {
+	private void processStarFileData(Stream<String> lineStream, String catalogName, int startIndex, int recordLimit)
+			throws Exception {
 
 		Iterator<String> iterator = lineStream.iterator();
 
@@ -145,7 +149,7 @@ public class StarImporter {
 				}
 
 				String line = iterator.next();
-				processStarFileDataLine(batchPut, line);
+				processStarFileDataLine(batchPut, line, catalogName);
 			}
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Error during import.", e);
@@ -153,11 +157,11 @@ public class StarImporter {
 		}
 	}
 
-	private void processStarFileDataLine(BatchPut batchPut, String line) throws Exception {
+	private void processStarFileDataLine(BatchPut batchPut, String line, String catalogName) throws Exception {
 
 		String[] fields = line.split(FIELD_DELIMITER_REXEX);
 
-		Long catalogId = CsvValue.getLong(fields, FIELD_CatalogId);
+		int catalogId = CsvValue.getInteger(fields, FIELD_CatalogId);
 		String hipparcosId = CsvValue.getString(fields, FIELD_HipparcosId, "0");
 		String henryDraperId = CsvValue.getString(fields, FIELD_HenryDraperId);
 		String harvardRevisedId = CsvValue.getString(fields, FIELD_HarvardRevisedId);
@@ -195,9 +199,6 @@ public class StarImporter {
 		Double variableMinimum = CsvValue.getOptionalDouble(fields, FIELD_VariableMinimum);
 		Double variableMaximum = CsvValue.getOptionalDouble(fields, FIELD_VariableMaximum);
 
-		int catalogIdHash = generateHash(catalogId.hashCode());
-		String keyValue = String.valueOf(catalogIdHash) + "-" + String.valueOf(catalogId);
-
 		Region cluster = m_clusters.findClosestRegion(x, y, z);
 		Key clusterKey = cluster != null ? m_clusterKeyFactory.newKey(cluster.getKey()) : null;
 
@@ -209,11 +210,18 @@ public class StarImporter {
 			throw new Exception("Inconsistent cluster/sector membership.");
 		}
 
-		Key key = DbEntity.Star.createEntityKey(m_datastore, keyValue);
+		CompositeKey keyValue = CompositeKeyBuilder.create()
+				.appendHash2(catalogId)
+				.append(catalogName)
+				.append(catalogId)
+				.build();
+
+		Key key = DbEntity.Star.createEntityKey(m_datastore, keyValue.toString());
 
 		Entity entity = Entity.newBuilder(key)
 				// Indexed columns
-				.set(DbStarField.CatalogId.getName(), DbValueFactory.asValue(catalogId.toString()))
+				.set(DbStarField.CatalogName.getName(), DbValueFactory.asValue(catalogName))
+				.set(DbStarField.CatalogId.getName(), DbValueFactory.asValue(catalogId))
 				.set(DbStarField.ClusterKey.getName(), DbValueFactory.asValue(clusterKey))
 				.set(DbStarField.SectorKey.getName(), DbValueFactory.asValue(sectorKey))
 				.set(DbStarField.X.getName(), DbValueFactory.asValue(x))
@@ -260,16 +268,6 @@ public class StarImporter {
 				.set(DbStarField.VariableMaximum.getName(), DbValueFactory.asValue(variableMaximum)).build();
 
 		batchPut.add(entity);
-	}
-
-	private int generateHash(int key) {
-		key = ~key + (key << 15); // key = (key << 15) - key - 1;
-		key = key ^ (key >>> 12);
-		key = key + (key << 2);
-		key = key ^ (key >>> 4);
-		key = key * 2057; // key = (key + (key << 3)) + (key << 11);
-		key = key ^ (key >>> 16);
-		return Math.abs(key);
 	}
 
 }

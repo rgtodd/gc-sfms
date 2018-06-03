@@ -10,6 +10,8 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 
+import sfms.db.CompositeKey;
+import sfms.db.CompositeKeyBuilder;
 import sfms.db.schemas.DbClusterField;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbSectorField;
@@ -42,14 +44,53 @@ public class RegionSet implements Iterable<Region> {
 				for (int z = minimum; z < maximum; z += delta) {
 					++regionZ;
 
-					String key = Integer.toString(regionX) + "," + Integer.toString(regionY) + ","
-							+ Integer.toString(regionZ);
-					if (regionPartition > 0) {
-						key = key + "-" + Integer.toString(regionPartition);
-					}
+					CompositeKey key = CompositeKeyBuilder.create()
+							.append(regionX, 2)
+							.append(regionY, 2)
+							.append(regionZ, 2)
+							.append(regionPartition, 2)
+							.build();
 
-					Region region = new Region(key, regionPartition, regionX, regionY, regionZ, x, y, z, x + delta,
-							y + delta, z + delta);
+					Region region = new Region(key.toString(),
+							regionPartition,
+							regionX, regionY, regionZ,
+							x, y, z,
+							x + delta, y + delta, z + delta);
+					regions.add(region);
+				}
+			}
+		}
+
+		return new RegionSet(regions);
+	}
+
+	public static RegionSet create(int minimum, int maximum, int delta) {
+
+		Set<Region> regions = new HashSet<Region>();
+
+		int regionX = -1;
+		for (int x = minimum; x < maximum; x += delta) {
+			++regionX;
+
+			int regionY = -1;
+			for (int y = minimum; y < maximum; y += delta) {
+				++regionY;
+
+				int regionZ = -1;
+				for (int z = minimum; z < maximum; z += delta) {
+					++regionZ;
+
+					CompositeKey key = CompositeKeyBuilder.create()
+							.append(regionX, 2)
+							.append(regionY, 2)
+							.append(regionZ, 2)
+							.build();
+
+					Region region = new Region(key.toString(),
+							0,
+							regionX, regionY, regionZ,
+							x, y, z,
+							x + delta, y + delta, z + delta);
 					regions.add(region);
 				}
 			}

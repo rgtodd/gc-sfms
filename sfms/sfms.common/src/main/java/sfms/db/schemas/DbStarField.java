@@ -14,6 +14,7 @@ import sfms.db.DbValueType;
  */
 public enum DbStarField implements DbFieldSchema {
 
+	CatalogName("cat_name", DbValueType.Long, "Catalog Name", "Name of source catalog."),
 	CatalogId("cat_id", DbValueType.Long, "Catalog ID", "ID of star in source catalog."),
 	ClusterKey("cls_k", DbEntity.Cluster, "Cluster Key", "Key of parent Cluster entity."),
 	SectorKey("sct_k", DbEntity.Sector, "Sector Key", "Key of parent Sector entity."),

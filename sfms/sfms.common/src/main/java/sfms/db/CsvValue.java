@@ -22,6 +22,10 @@ public class CsvValue {
 		return processDouble(getValue(values, index));
 	}
 
+	public static int getInteger(String[] values, int index) {
+		return processInteger(getValue(values, index));
+	}
+
 	public static long getLong(String[] values, int index) {
 		return processLong(getValue(values, index));
 	}
@@ -54,6 +58,10 @@ public class CsvValue {
 
 	private static long processLong(String value) {
 		return Long.parseLong(value);
+	}
+
+	public static int processInteger(String value) {
+		return Integer.parseInt(value);
 	}
 
 	private static Double processOptionalDouble(String value) {

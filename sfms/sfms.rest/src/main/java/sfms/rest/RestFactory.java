@@ -90,7 +90,7 @@ public class RestFactory {
 
 		Star result = new Star();
 		result.setKey(DbEntity.Star.createRestKey(entity.getKey()));
-		result.setCatalogId(wrapper.getString(DbStarField.CatalogId));
+		result.setCatalogId(String.valueOf(wrapper.getLong(DbStarField.CatalogId)));
 		result.setClusterKey(DbEntity.Cluster.createRestKey(wrapper.getKey(DbStarField.ClusterKey)));
 		result.setSectorKey(DbEntity.Sector.createRestKey(wrapper.getKey(DbStarField.SectorKey)));
 		result.setHipparcosId(wrapper.getString(DbStarField.HipparcosId));

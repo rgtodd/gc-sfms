@@ -57,6 +57,13 @@ public class DbValueFactory {
 		return LongValue.of(value);
 	}
 
+	public static Value<?> asValue(Integer value) {
+		if (value == null) {
+			return NullValue.of();
+		}
+		return LongValue.of(value.intValue());
+	}
+
 	public static Value<?> asUnindexedValue(Long value) {
 		if (value == null) {
 			return NullValue.newBuilder().setExcludeFromIndexes(true).build();

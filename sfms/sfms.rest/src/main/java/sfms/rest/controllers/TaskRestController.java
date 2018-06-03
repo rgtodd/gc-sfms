@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import sfms.common.Constants;
+import sfms.db.schemas.DbStarCatalogNameValues;
 import sfms.rest.api.RestParameters;
 import sfms.rest.db.business.StarImporter;
 
@@ -38,6 +39,6 @@ public class TaskRestController {
 
 		StarImporter importer = new StarImporter();
 		importer.initialize();
-		importer.process(bucketName, blobName, start, count);
+		importer.process(bucketName, blobName, DbStarCatalogNameValues.HYG, start, count);
 	}
 }
