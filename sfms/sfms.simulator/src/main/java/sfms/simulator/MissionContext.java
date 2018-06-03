@@ -45,10 +45,6 @@ public class MissionContext {
 		return m_actorMission;
 	}
 
-	public void invalidateActorMission() {
-		m_actorMission = null;
-	}
-
 	public ActorMissionState getActorMissionState() {
 		if (m_actorMissionState == null) {
 			ActorMission actorMission = getActorMission();
@@ -60,17 +56,21 @@ public class MissionContext {
 				}
 			}
 		}
-
+	
 		if (m_actorMissionState == ActorMissionState.NULL) {
 			return null;
 		}
-
+	
 		return m_actorMissionState;
+	}
+
+	public void invalidateActorMission() {
+		m_actorMission = null;
+		m_actorMissionState = null;
 	}
 
 	public void invalidateActorMissionState() {
 		m_actorMissionState = null;
-		invalidateActorMissionState();
 	}
 
 	public Mission getMission() {

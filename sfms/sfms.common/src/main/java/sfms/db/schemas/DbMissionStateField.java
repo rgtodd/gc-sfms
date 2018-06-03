@@ -14,9 +14,9 @@ import sfms.db.DbValueType;
 public enum DbMissionStateField implements DbFieldSchema {
 
 	Timestamp("ts", DbValueType.Timestamp, "Timestamp", "Effective date/time for state information."),
-	ObjectiveIndex("ms", DbValueType.String, "Objective Index", "Current mission objective index."),
-	StartTimestamp("ms", DbValueType.Timestamp, "Start Date/Time", "Objective start date/time."),
-	EndTimestamp("ms", DbValueType.Timestamp, "End Date/Time", "Objective end date/time.");
+	ObjectiveIndex("oi", DbValueType.String, "Objective Index", "Current mission objective index."),
+	StartTimestamp("st", DbValueType.Timestamp, "Start Date/Time", "Objective start date/time."),
+	EndTimestamp("et", DbValueType.Timestamp, "End Date/Time", "Objective end date/time.");
 
 	private String m_name;
 	private DbValueType m_dbValueType;

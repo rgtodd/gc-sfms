@@ -75,6 +75,7 @@ public class SimulationRestController {
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 		Simulation simulation = new Simulation(now);
+		simulation.setTimestamp(now);
 		simulation.save(datastore);
 
 		controlWorker.process(new UpdateActors(datastore, transactionWorker, now));

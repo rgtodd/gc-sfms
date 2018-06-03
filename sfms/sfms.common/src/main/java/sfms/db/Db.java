@@ -15,14 +15,7 @@ public class Db {
 	public static Key getFirstEntityKey(Datastore datastore, String kind, String keyPrefix) {
 
 		QueryResults<Key> dbKeys;
-		if (keyPrefix == null) {
-			Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
-					.setKind(kind)
-					.setLimit(1)
-					.build();
-
-			dbKeys = datastore.run(dbKeyQuery);
-		} else {
+		if (keyPrefix != null) {
 			Key dbKeyPrefix = datastore.newKeyFactory()
 					.setKind(kind)
 					.newKey(keyPrefix);
@@ -34,11 +27,22 @@ public class Db {
 					.build();
 
 			dbKeys = datastore.run(dbKeyQuery);
+		} else {
+			Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
+					.setKind(kind)
+					.setLimit(1)
+					.build();
+
+			dbKeys = datastore.run(dbKeyQuery);
 		}
 
 		if (dbKeys.hasNext()) {
 			Key dbKey = dbKeys.next();
-			if (dbKey.getName().startsWith(keyPrefix)) {
+			if (keyPrefix != null) {
+				if (dbKey.getName().startsWith(keyPrefix)) {
+					return dbKey;
+				}
+			} else {
 				return dbKey;
 			}
 		}
@@ -49,14 +53,7 @@ public class Db {
 	public static Entity getFirstEntity(Datastore datastore, String kind, String keyPrefix) {
 
 		QueryResults<Key> dbKeys;
-		if (keyPrefix == null) {
-			Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
-					.setKind(kind)
-					.setLimit(1)
-					.build();
-
-			dbKeys = datastore.run(dbKeyQuery);
-		} else {
+		if (keyPrefix != null) {
 			Key dbKeyPrefix = datastore.newKeyFactory()
 					.setKind(kind)
 					.newKey(keyPrefix);
@@ -68,11 +65,23 @@ public class Db {
 					.build();
 
 			dbKeys = datastore.run(dbKeyQuery);
+		} else {
+			Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
+					.setKind(kind)
+					.setLimit(1)
+					.build();
+
+			dbKeys = datastore.run(dbKeyQuery);
 		}
 
 		if (dbKeys.hasNext()) {
 			Key dbKey = dbKeys.next();
-			if (dbKey.getName().startsWith(keyPrefix)) {
+			if (keyPrefix != null) {
+				if (dbKey.getName().startsWith(keyPrefix)) {
+					Entity dbEntity = datastore.get(dbKey);
+					return dbEntity;
+				}
+			} else {
 				Entity dbEntity = datastore.get(dbKey);
 				return dbEntity;
 			}

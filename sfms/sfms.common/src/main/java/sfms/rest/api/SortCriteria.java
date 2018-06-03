@@ -34,8 +34,9 @@ public class SortCriteria {
 	}
 
 	public static SortCriteria parse(String text) {
-		if (text == null)
+		if (text == null) {
 			return null;
+		}
 
 		String[] fields = text.split(DELIMITER_REGEX);
 
@@ -64,9 +65,9 @@ public class SortCriteria {
 	public int size() {
 		if (m_columns == null) {
 			return 0;
-		} else {
-			return m_columns.size();
 		}
+
+		return m_columns.size();
 	}
 
 	public String getColumn(int index) {
@@ -89,21 +90,21 @@ public class SortCriteria {
 	public String toString() {
 		if (m_columns == null || m_columns.isEmpty()) {
 			return EMPTY_STRING;
-		} else {
-			StringBuilder sb = new StringBuilder();
-
-			String prefix = EMPTY_STRING;
-			for (int idx = 0; idx < size(); ++idx) {
-				sb.append(prefix);
-				prefix = DELIMITER;
-
-				sb.append(getColumn(idx));
-				sb.append(SPACE);
-				sb.append(getDirection(idx));
-			}
-
-			return sb.toString();
 		}
+
+		StringBuilder sb = new StringBuilder();
+
+		String prefix = EMPTY_STRING;
+		for (int idx = 0; idx < size(); ++idx) {
+			sb.append(prefix);
+			prefix = DELIMITER;
+
+			sb.append(getColumn(idx));
+			sb.append(SPACE);
+			sb.append(getDirection(idx));
+		}
+
+		return sb.toString();
 	}
 
 	public static Builder newBuilder() {
