@@ -91,15 +91,24 @@ public class Db {
 	}
 
 	public static void deleteEntities(Datastore datastore, String kind, String keyPrefix) {
-		Key dbKeyPrefix = datastore.newKeyFactory()
-				.setKind(kind)
-				.newKey(keyPrefix);
 
-		Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
-				.setKind(kind)
-				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
-				.setLimit(3)
-				.build();
+		Query<Key> dbKeyQuery;
+		if (keyPrefix != null) {
+			Key dbKeyPrefix = datastore.newKeyFactory()
+					.setKind(kind)
+					.newKey(keyPrefix);
+
+			dbKeyQuery = Query.newKeyQueryBuilder()
+					.setKind(kind)
+					.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
+					.setLimit(3)
+					.build();
+		} else {
+			dbKeyQuery = Query.newKeyQueryBuilder()
+					.setKind(kind)
+					.setLimit(100)
+					.build();
+		}
 
 		boolean historyExists = true;
 		while (historyExists) {
@@ -108,11 +117,15 @@ public class Db {
 				historyExists = true; // assume success
 				while (dbKeys.hasNext()) {
 					Key dbKey = dbKeys.next();
-					if (dbKey.getName().startsWith(keyPrefix)) {
-						datastore.delete(dbKey);
+					if (keyPrefix != null) {
+						if (dbKey.getName().startsWith(keyPrefix)) {
+							datastore.delete(dbKey);
+						} else {
+							historyExists = false;
+							break;
+						}
 					} else {
-						historyExists = false;
-						break;
+						datastore.delete(dbKey);
 					}
 				}
 			} else {

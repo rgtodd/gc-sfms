@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 
 import sfms.simulator.api.models.SimulatorOptions;
 import sfms.simulator.api.models.SimulatorStatus;
-import sfms.simulator.api.schemas.WorkerStatus;
+import sfms.simulator.api.models.WorkerStatus;
 import sfms.web.SfmsController;
 import sfms.web.models.SimulatorOptionsModel;
 import sfms.web.models.SimulatorStatusModel;
@@ -43,14 +43,20 @@ public class SimulatorController extends SfmsController {
 				});
 
 		SimulatorStatus status = response.getBody();
+		WorkerStatus controlStatus = status.getControlWorkerStatus();
+		WorkerStatus transactionStatus = status.getTransactionWorkerStatus();
 
 		SimulatorStatusModel statusModel = new SimulatorStatusModel();
-		statusModel.setJobWorkerStatus(status.getControlWorkerStatus());
-		statusModel.setCanStartJobWorker(status.getControlWorkerStatus().equals(WorkerStatus.INACTIVE));
-		statusModel.setCanStopJobWorker(status.getControlWorkerStatus().equals(WorkerStatus.ACTIVE));
-		statusModel.setTransactionWorkerStatus(status.getTransactionWorkerStatus());
-		statusModel.setCanStartTransactionWorker(status.getTransactionWorkerStatus().equals(WorkerStatus.INACTIVE));
-		statusModel.setCanStopTransactionWorker(status.getTransactionWorkerStatus().equals(WorkerStatus.ACTIVE));
+
+		statusModel.setControlWorkerStatus(controlStatus.getStatus());
+		statusModel.setControlWorkerRequestCount(controlStatus.getRequestCount());
+		statusModel.setCanStartControlWorker(controlStatus.getStatus().equals(WorkerStatus.INACTIVE));
+		statusModel.setCanStopControlWorker(controlStatus.getStatus().equals(WorkerStatus.ACTIVE));
+
+		statusModel.setTransactionWorkerStatus(transactionStatus.getStatus());
+		statusModel.setTransactionWorkerRequestCount(transactionStatus.getRequestCount());
+		statusModel.setCanStartTransactionWorker(transactionStatus.getStatus().equals(WorkerStatus.INACTIVE));
+		statusModel.setCanStopTransactionWorker(transactionStatus.getStatus().equals(WorkerStatus.ACTIVE));
 
 		LocalDateTime now;
 		if (status.getSimulationInstant() != null) {
@@ -70,8 +76,8 @@ public class SimulatorController extends SfmsController {
 		return "simulator";
 	}
 
-	@GetMapping({ "startJobWorker" })
-	public String startJobWorker() {
+	@GetMapping({ "startControlWorker" })
+	public String startControlWorker() {
 
 		String url = getSimulatorUrl("admin/worker/control/status");
 		String status = WorkerStatus.ACTIVE;
@@ -81,8 +87,8 @@ public class SimulatorController extends SfmsController {
 		return "redirect:/simulator/";
 	}
 
-	@GetMapping({ "stopJobWorker" })
-	public String stopJobWorker() {
+	@GetMapping({ "stopControlWorker" })
+	public String stopControlWorker() {
 
 		String url = getSimulatorUrl("admin/worker/control/status");
 		String status = WorkerStatus.INACTIVE;
@@ -114,10 +120,10 @@ public class SimulatorController extends SfmsController {
 		return "redirect:/simulator/";
 	}
 
-	@GetMapping({ "initializeActors" })
-	public String initializeActors() {
+	@GetMapping({ "resetSimulation" })
+	public String resetSimulation() {
 
-		String url = getSimulatorUrl("simulation/initializeActors");
+		String url = getSimulatorUrl("admin/resetSimulation");
 
 		logger.info("Calling " + url);
 
@@ -130,7 +136,7 @@ public class SimulatorController extends SfmsController {
 	}
 
 	@PostMapping(value = "runPost", params = "action=createMissions")
-	public String createMissions(@ModelAttribute SimulatorOptionsModel optionsModel) {
+	public String runPostCreateMissions(@ModelAttribute SimulatorOptionsModel optionsModel) {
 
 		SimulatorOptions options = new SimulatorOptions();
 		if (optionsModel != null) {

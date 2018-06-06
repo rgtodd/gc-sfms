@@ -4,23 +4,23 @@ import java.time.Instant;
 
 public class SimulatorStatus {
 
-	private String m_controlWorkerStatus;
-	private String m_transactionWorkerStatus;
+	private WorkerStatus m_controlWorkerStatus;
+	private WorkerStatus m_transactionWorkerStatus;
 	private Instant m_simulationInstant;
 
-	public String getControlWorkerStatus() {
+	public WorkerStatus getControlWorkerStatus() {
 		return m_controlWorkerStatus;
 	}
 
-	public void setControlWorkerStatus(String controlWorkerStatus) {
+	public void setControlWorkerStatus(WorkerStatus controlWorkerStatus) {
 		m_controlWorkerStatus = controlWorkerStatus;
 	}
 
-	public String getTransactionWorkerStatus() {
+	public WorkerStatus getTransactionWorkerStatus() {
 		return m_transactionWorkerStatus;
 	}
 
-	public void setTransactionWorkerStatus(String transactionWorkerStatus) {
+	public void setTransactionWorkerStatus(WorkerStatus transactionWorkerStatus) {
 		m_transactionWorkerStatus = transactionWorkerStatus;
 	}
 

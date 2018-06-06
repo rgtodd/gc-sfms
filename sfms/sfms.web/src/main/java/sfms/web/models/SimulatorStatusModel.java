@@ -2,27 +2,61 @@ package sfms.web.models;
 
 public class SimulatorStatusModel {
 
-	private String m_jobWorkerStatus;
+	private String m_controlWorkerStatus;
+	private int m_controlWorkerRequestCount;
 	private String m_transactionWorkerStatus;
-	private boolean m_canStartJobWorker;
-	private boolean m_canStopJobWorker;
+	private int m_transactionWorkerRequestCount;
+	private boolean m_canStartControlWorker;
+	private boolean m_canStopControlWorker;
 	private boolean m_canStartTransactionWorker;
 	private boolean m_canStopTransactionWorker;
 
-	public boolean isCanStartJobWorker() {
-		return m_canStartJobWorker;
+	public String getControlWorkerStatus() {
+		return m_controlWorkerStatus;
 	}
 
-	public void setCanStartJobWorker(boolean canStartJobWorker) {
-		m_canStartJobWorker = canStartJobWorker;
+	public void setControlWorkerStatus(String controlWorkerStatus) {
+		m_controlWorkerStatus = controlWorkerStatus;
 	}
 
-	public boolean isCanStopJobWorker() {
-		return m_canStopJobWorker;
+	public int getControlWorkerRequestCount() {
+		return m_controlWorkerRequestCount;
 	}
 
-	public void setCanStopJobWorker(boolean canStopJobWorker) {
-		m_canStopJobWorker = canStopJobWorker;
+	public void setControlWorkerRequestCount(int controlWorkerRequestCount) {
+		m_controlWorkerRequestCount = controlWorkerRequestCount;
+	}
+
+	public String getTransactionWorkerStatus() {
+		return m_transactionWorkerStatus;
+	}
+
+	public void setTransactionWorkerStatus(String transactionWorkerStatus) {
+		m_transactionWorkerStatus = transactionWorkerStatus;
+	}
+
+	public int getTransactionWorkerRequestCount() {
+		return m_transactionWorkerRequestCount;
+	}
+
+	public void setTransactionWorkerRequestCount(int transactionWorkerRequestCount) {
+		m_transactionWorkerRequestCount = transactionWorkerRequestCount;
+	}
+
+	public boolean isCanStartControlWorker() {
+		return m_canStartControlWorker;
+	}
+
+	public void setCanStartControlWorker(boolean canStartControlWorker) {
+		m_canStartControlWorker = canStartControlWorker;
+	}
+
+	public boolean isCanStopControlWorker() {
+		return m_canStopControlWorker;
+	}
+
+	public void setCanStopControlWorker(boolean canStopControlWorker) {
+		m_canStopControlWorker = canStopControlWorker;
 	}
 
 	public boolean isCanStartTransactionWorker() {
@@ -41,19 +75,4 @@ public class SimulatorStatusModel {
 		m_canStopTransactionWorker = canStopTransactionWorker;
 	}
 
-	public String getJobWorkerStatus() {
-		return m_jobWorkerStatus;
-	}
-
-	public void setJobWorkerStatus(String jobWorkerStatus) {
-		m_jobWorkerStatus = jobWorkerStatus;
-	}
-
-	public String getTransactionWorkerStatus() {
-		return m_transactionWorkerStatus;
-	}
-
-	public void setTransactionWorkerStatus(String transactionWorkerStatus) {
-		m_transactionWorkerStatus = transactionWorkerStatus;
-	}
 }

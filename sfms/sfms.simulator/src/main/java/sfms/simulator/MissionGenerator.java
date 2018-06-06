@@ -26,20 +26,20 @@ public class MissionGenerator {
 	private RegionSet m_sectors = RegionSet.loadSectors();
 	private Random m_random = new Random();
 
-	public Mission createMission(Actor actor) {
+	public Mission createMission(String actorKind) {
 
-		if (SpaceshipActor.class.isInstance(actor)) {
-			return createSpaceshipMission((SpaceshipActor) actor);
+		if (actorKind.equals(DbEntity.Spaceship.getKind())) {
+			return createSpaceshipMission();
 		}
 
-		if (CrewMemberActor.class.isInstance(actor)) {
-			return createCrewMemberMission((CrewMemberActor) actor);
+		if (actorKind.equals(DbEntity.CrewMember.getKind())) {
+			return createCrewMemberMission();
 		}
 
 		throw new IllegalArgumentException("Unknown actor type.");
 	}
 
-	private Mission createSpaceshipMission(SpaceshipActor actor) {
+	private Mission createSpaceshipMission() {
 		List<Objective> objectives = new ArrayList<Objective>();
 		int stopCount = 1 + m_random.nextInt(5);
 		int objectiveId = 0;
@@ -62,7 +62,7 @@ public class MissionGenerator {
 		return mission;
 	}
 
-	private Mission createCrewMemberMission(CrewMemberActor actor) {
+	private Mission createCrewMemberMission() {
 		return new Mission();
 	}
 

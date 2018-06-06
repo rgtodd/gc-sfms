@@ -13,12 +13,17 @@
 				<li class="breadcrumb-item active" aria-current="page">Simulation</li>
 			</ol>
 		</nav>
+		<h2>Workers</h2>
 		<p>
-			Job Worker Status: <span th:text="${status.jobWorkerStatus}">Status</span>
-			<a class="btn btn-primary" th:href="@{/simulator/startJobWorker}"
-				th:if="${status.canStartJobWorker}">Start</a> <a
-				class="btn btn-primary" th:href="@{/simulator/stopJobWorker}"
-				th:if="${status.canStopJobWorker}">Stop</a>
+			Control Worker Status: <span th:text="${status.controlWorkerStatus}">Status</span>
+			<a class="btn btn-primary" th:href="@{/simulator/startControlWorker}"
+				th:if="${status.canStartControlWorker}">Start</a> <a
+				class="btn btn-primary" th:href="@{/simulator/stopControlWorker}"
+				th:if="${status.canStopControlWorker}">Stop</a>
+		</p>
+		<p>
+			Control Worker Request Count: <span
+				th:text="${status.controlWorkerRequestCount}">Status</span>
 		</p>
 		<p>
 			Transaction Worker Status: <span
@@ -31,8 +36,13 @@
 				th:if="${status.canStopTransactionWorker}">Stop</a>
 		</p>
 		<p>
-			<a class="btn btn-primary" th:href="@{/simulator/initializeActors}">Initialize
-				Actors</a>
+			Transaction Worker Request Count: <span
+				th:text="${status.transactionWorkerRequestCount}">Status</span>
+		</p>
+		<h2>Simulation</h2>
+		<p>
+			<a class="btn btn-primary" th:href="@{/simulator/resetSimulation}">Reset
+				Simulation</a>
 		</p>
 		<form th:action="@{/simulator/runPost}" th:object="${options}"
 			method="post">

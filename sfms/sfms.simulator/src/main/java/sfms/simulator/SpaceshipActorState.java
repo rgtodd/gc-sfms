@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
@@ -19,6 +20,9 @@ import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbSpaceshipStateField;
 
 class SpaceshipActorState {
+
+	@SuppressWarnings("unused")
+	private final Logger logger = Logger.getLogger(SpaceshipActorState.class.getName());
 
 	private static final Random RANDOM = new Random();
 	private static final int SECONDS_PER_DAY = 60 * 60 * 24;
@@ -243,41 +247,33 @@ class SpaceshipActorState {
 
 		timestamp = timestamp.plus(duration.getSeconds(), ChronoUnit.SECONDS);
 
-		if (hasLocation && hasSpeed) {
+		if (hasLocation && hasDestination && hasSpeed) {
 
 			double distanceTraveled = speed * duration.getSeconds() / SECONDS_PER_DAY;
+			double distanceToDestination = Coordinates.getDistance(location, destination);
 
-			if (hasDestination) {
+			if (distanceTraveled >= distanceToDestination) {
 
-				double distanceToDestination = Coordinates.getDistance(location, destination);
-				if (distanceTraveled >= distanceToDestination) {
+				// We've arrived at our destination.
+				//
+				location = destination;
+				locationArrival = timestamp;
+				locationKey = destinationKey;
+				speed = 0.0;
+				destination = null;
+				destinationKey = null;
 
-					// We've arrived at our destination.
-					//
-					location = destination;
-					locationArrival = timestamp;
-					locationKey = destinationKey;
-					speed = 0.0;
-					destination = null;
-					destinationKey = null;
-
-				} else {
-
-					// Keep traveling.
-					//
-					Coordinates delta = Coordinates.getVector(location, destination).normalize()
-							.scale(distanceTraveled);
-					location = Coordinates.add(location, delta);
-					locationArrival = timestamp;
-				}
 			} else {
 
 				// Keep traveling.
 				//
-				Coordinates delta = Coordinates.getVector(location, destination).normalize()
-						.scale(distanceTraveled);
+				// logger.info("Location: " + location.toString());
+				Coordinates delta = Coordinates.getVector(location, destination).normalize().scale(distanceTraveled);
+				// logger.info("Delta: " + delta.toString());
 				location = Coordinates.add(location, delta);
+				// logger.info("Location + Delta: " + location.toString());
 				locationArrival = timestamp;
+				locationKey = null;
 			}
 		}
 

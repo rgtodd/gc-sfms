@@ -11,9 +11,7 @@ import com.google.cloud.datastore.Key;
 
 import sfms.db.DbEntityWrapper;
 import sfms.db.schemas.DbEntity;
-import sfms.db.schemas.DbMissionStatusValues;
 import sfms.db.schemas.DbStarField;
-import sfms.simulator.json.Mission;
 import sfms.simulator.json.Objective;
 import sfms.simulator.json.TravelObjective;
 import sfms.simulator.json.WaitObjective;
@@ -21,6 +19,7 @@ import sfms.simulator.json.WaitObjective;
 public class SpaceshipActor extends ActorBase implements Actor {
 
 	private final Logger logger = Logger.getLogger(SpaceshipActor.class.getName());
+
 	private static final Random RANDOM = new Random();
 
 	public SpaceshipActor(Datastore datastore, Entity dbEntity) {
@@ -54,7 +53,7 @@ public class SpaceshipActor extends ActorBase implements Actor {
 
 		String key = state.save(getDatastore());
 
-		logger.info("Created initial state for space ship.  Key = " + key);
+		logger.info("  Created initial state for space ship.  Key = " + key);
 	}
 
 	@Override
@@ -71,31 +70,20 @@ public class SpaceshipActor extends ActorBase implements Actor {
 
 		MissionContext missionContext = new MissionContext(getDatastore(), getActorKind(), getActorId());
 
-		boolean missionComplete;
+		boolean updateState;
 		Objective objective = missionContext.getObjective();
-		if (objective != null && isObjectiveComplete(objective, updatedState)) {
-			missionComplete = missionContext.markCurrentObjectiveComplete(now);
+		if (objective == null) {
+			missionContext.createMission(now);
+			updateState = true;
+		} else if (isObjectiveComplete(objective, updatedState)) {
+			missionContext.markCurrentObjectiveComplete(now);
+			updateState = true;
 		} else {
-			missionComplete = true;
+			updateState = false;
 		}
 
-		if (missionComplete) {
-			MissionGenerator generator = new MissionGenerator();
-			Mission mission = generator.createMission(this);
-
-			ActorMission actorMission = new ActorMission(getActorKind(), getActorId(), now);
-			actorMission.setMission(mission);
-			actorMission.setStatus(DbMissionStatusValues.ACTIVE);
-			actorMission.save(getDatastore());
-
-			ActorMissionState actorMissionState = new ActorMissionState(getActorKind(), getActorId(),
-					actorMission.getSerialInstant(), now);
-			actorMissionState.setTimestamp(now);
-			actorMissionState.setStartTimestamp(now);
-			actorMissionState.setObjectiveIndex(0L);
-			actorMissionState.save(getDatastore());
-
-			objective = mission.getObjectives().get(0);
+		if (updateState) {
+			objective = missionContext.getObjective();
 			if (objective instanceof WaitObjective) {
 				updatedState.setSpeed(0.0);
 			} else if (objective instanceof TravelObjective) {
@@ -140,12 +128,12 @@ public class SpaceshipActor extends ActorBase implements Actor {
 	}
 
 	private boolean isTravelObjectiveComplete(TravelObjective travelObjective, SpaceshipActorState state) {
-		Key destinationKey = state.getDestinationKey();
-		if (destinationKey == null) {
+		Key locationKey = state.getLocationKey();
+		if (locationKey == null) {
 			return false;
 		}
 
-		return destinationKey.getName().equals(travelObjective.getStarKey());
+		return locationKey.getName().equals(travelObjective.getStarKey());
 	}
 
 }

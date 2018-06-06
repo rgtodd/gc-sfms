@@ -36,7 +36,7 @@ public class Coordinates {
 		return new Coordinates(
 				from.getX() + delta.getX(),
 				from.getY() + delta.getY(),
-				from.getZ() + delta.getY());
+				from.getZ() + delta.getZ());
 	}
 
 	public double getDistanceTo(Coordinates to) {

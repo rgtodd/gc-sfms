@@ -46,7 +46,7 @@ public class CreateMission implements WorkerFunction {
 	public void execute() {
 		ActorDatasource datasource = new ActorDatasource(m_datastore);
 		Actor actor = datasource.getActor(m_actorKey);
-		Mission mission = m_missionGenerator.createMission(actor);
+		Mission mission = m_missionGenerator.createMission(actor.getKey().getKind());
 		actor.assignMission(m_now, mission);
 	}
 

@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 
+import sfms.db.Db;
+import sfms.db.schemas.DbEntity;
 import sfms.simulator.Simulation;
 import sfms.simulator.api.models.SimulatorStatus;
-import sfms.simulator.api.schemas.WorkerStatus;
+import sfms.simulator.api.models.WorkerStatus;
 import sfms.simulator.worker.Worker;
 
 /**
@@ -53,12 +55,17 @@ public class AdminRestController {
 	}
 
 	@GetMapping(value = "/worker/control/status")
-	public String getControlWorkerStatus() {
-		return controlWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
+	public WorkerStatus getControlWorkerStatus() {
+
+		WorkerStatus response = new WorkerStatus();
+		response.setStatus(controlWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE);
+		response.setRequestCount(controlWorker.getRequestCount());
+
+		return response;
 	}
 
 	@PostMapping(value = "/worker/control/status")
-	public String setControlWorkerStatus(@RequestBody String status) {
+	public WorkerStatus setControlWorkerStatus(@RequestBody String status) {
 
 		if (status.equals(WorkerStatus.ACTIVE)) {
 			if (!controlWorker.isActive()) {
@@ -74,12 +81,17 @@ public class AdminRestController {
 	}
 
 	@GetMapping(value = "/worker/transaction/status")
-	public String getTransactionWorkerStatus() {
-		return transactionWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE;
+	public WorkerStatus getTransactionWorkerStatus() {
+
+		WorkerStatus response = new WorkerStatus();
+		response.setStatus(transactionWorker.isActive() ? WorkerStatus.ACTIVE : WorkerStatus.INACTIVE);
+		response.setRequestCount(transactionWorker.getRequestCount());
+
+		return response;
 	}
 
 	@PostMapping(value = "/worker/transaction/status")
-	public String setTransactionWorkerStatus(@RequestBody String status) {
+	public WorkerStatus setTransactionWorkerStatus(@RequestBody String status) {
 
 		if (status.equals(WorkerStatus.ACTIVE)) {
 			if (!transactionWorker.isActive()) {
@@ -92,5 +104,18 @@ public class AdminRestController {
 		}
 
 		return getTransactionWorkerStatus();
+	}
+
+	@PostMapping(value = "/resetSimulation")
+	public void resetSimulation() {
+
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+		Db.deleteEntities(datastore, DbEntity.MissionState.getKind(), null);
+		Db.deleteEntities(datastore, DbEntity.Mission.getKind(), null);
+		Db.deleteEntities(datastore, DbEntity.SpaceshipState.getKind(), null);
+		Db.deleteEntities(datastore, DbEntity.CrewMemberState.getKind(), null);
+		Db.deleteEntities(datastore, DbEntity.Simulation.getKind(), null);
+
 	}
 }

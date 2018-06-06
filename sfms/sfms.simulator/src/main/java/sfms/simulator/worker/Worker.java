@@ -71,15 +71,19 @@ public class Worker {
 		}
 	}
 
+	public boolean isActive() {
+		return m_thread != null;
+	}
+
+	public int getRequestCount() {
+		return m_functionQueue.size();
+	}
+
 	public void process(WorkerFunction function) throws InterruptedException, TimeoutException {
 		boolean success = m_functionQueue.offer(function, TIMEOUT, TIMEOUT_UNIT);
 		if (!success) {
 			throw new TimeoutException("Could not send function to worker thread.");
 		}
-	}
-
-	public boolean isActive() {
-		return m_thread != null;
 	}
 
 	@PreDestroy
