@@ -1,5 +1,7 @@
 package sfms.rest.api.models;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
@@ -11,10 +13,8 @@ public class Spaceship {
 
 	private String m_key;
 	private String m_name;
-	private Long m_x;
-	private Long m_y;
-	private Long m_z;
-	private String m_starKey;
+	private List<Mission> m_missions;
+	private List<SpaceshipState> m_states;
 
 	public String getKey() {
 		return m_key;
@@ -32,36 +32,20 @@ public class Spaceship {
 		m_name = name;
 	}
 
-	public Long getX() {
-		return m_x;
+	public List<Mission> getMissions() {
+		return m_missions;
 	}
 
-	public void setX(Long x) {
-		m_x = x;
+	public void setMissions(List<Mission> missions) {
+		m_missions = missions;
 	}
 
-	public Long getY() {
-		return m_y;
+	public List<SpaceshipState> getStates() {
+		return m_states;
 	}
 
-	public void setY(Long y) {
-		m_y = y;
-	}
-
-	public Long getZ() {
-		return m_z;
-	}
-
-	public void setZ(Long z) {
-		m_z = z;
-	}
-
-	public String getStarKey() {
-		return m_starKey;
-	}
-
-	public void setStarKey(String starKey) {
-		m_starKey = starKey;
+	public void setStates(List<SpaceshipState> states) {
+		m_states = states;
 	}
 
 	@Override

@@ -8,7 +8,7 @@ import com.google.cloud.datastore.Key;
 import sfms.simulator.Actor;
 import sfms.simulator.ActorDatasource;
 import sfms.simulator.MissionGenerator;
-import sfms.simulator.json.Mission;
+import sfms.simulator.json.MissionDefinition;
 import sfms.simulator.worker.WorkerFunction;
 
 public class CreateMission implements WorkerFunction {
@@ -46,7 +46,7 @@ public class CreateMission implements WorkerFunction {
 	public void execute() {
 		ActorDatasource datasource = new ActorDatasource(m_datastore);
 		Actor actor = datasource.getActor(m_actorKey);
-		Mission mission = m_missionGenerator.createMission(actor.getKey().getKind());
+		MissionDefinition mission = m_missionGenerator.createMission(actor.getKey().getKind());
 		actor.assignMission(m_now, mission);
 	}
 

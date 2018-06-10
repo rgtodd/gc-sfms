@@ -14,11 +14,7 @@ import sfms.db.DbValueType;
  */
 public enum DbSpaceshipField implements DbFieldSchema {
 
-	Name("n", DbValueType.String, "Name", "Name of spaceship."),
-	X("x", DbValueType.Long, "X", "X coordinate of spaceship."),
-	Y("y", DbValueType.Long, "Y", "Y coordinate of spaceship."),
-	Z("z", DbValueType.Long, "Z", "Z coordinate of spaceship."),
-	StarKey("str_k", DbEntity.Star, "Star Key", "Key of Star entity locating the spaceship.");
+	Name("n", DbValueType.String, "Name", "Name of spaceship.");
 
 	private String m_name;
 	private String m_title;

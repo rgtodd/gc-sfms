@@ -12,9 +12,9 @@ import com.google.cloud.datastore.Key;
 import sfms.db.DbEntityWrapper;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbStarField;
-import sfms.simulator.json.Objective;
-import sfms.simulator.json.TravelObjective;
-import sfms.simulator.json.WaitObjective;
+import sfms.simulator.json.ObjectiveDefinition;
+import sfms.simulator.json.TravelObjectiveDefinition;
+import sfms.simulator.json.WaitObjectiveDefinition;
 
 public class SpaceshipActor extends ActorBase implements Actor {
 
@@ -71,7 +71,7 @@ public class SpaceshipActor extends ActorBase implements Actor {
 		MissionContext missionContext = new MissionContext(getDatastore(), getActorKind(), getActorId());
 
 		boolean updateState;
-		Objective objective = missionContext.getObjective();
+		ObjectiveDefinition objective = missionContext.getObjective();
 		if (objective == null) {
 			missionContext.createMission(now);
 			updateState = true;
@@ -84,10 +84,10 @@ public class SpaceshipActor extends ActorBase implements Actor {
 
 		if (updateState) {
 			objective = missionContext.getObjective();
-			if (objective instanceof WaitObjective) {
+			if (objective instanceof WaitObjectiveDefinition) {
 				updatedState.setSpeed(0.0);
-			} else if (objective instanceof TravelObjective) {
-				TravelObjective travelObjective = (TravelObjective) objective;
+			} else if (objective instanceof TravelObjectiveDefinition) {
+				TravelObjectiveDefinition travelObjective = (TravelObjectiveDefinition) objective;
 				Key dbStarKey = getDatastore().newKeyFactory()
 						.setKind(DbEntity.Star.getKind())
 						.newKey(travelObjective.getStarKey());
@@ -103,20 +103,20 @@ public class SpaceshipActor extends ActorBase implements Actor {
 		updatedState.save(getDatastore());
 	}
 
-	private boolean isObjectiveComplete(Objective objective, SpaceshipActorState state) {
+	private boolean isObjectiveComplete(ObjectiveDefinition objective, SpaceshipActorState state) {
 
-		if (objective instanceof WaitObjective) {
-			return isWaitObjectiveComplete((WaitObjective) objective, state);
+		if (objective instanceof WaitObjectiveDefinition) {
+			return isWaitObjectiveComplete((WaitObjectiveDefinition) objective, state);
 		}
 
-		if (objective instanceof TravelObjective) {
-			return isTravelObjectiveComplete((TravelObjective) objective, state);
+		if (objective instanceof TravelObjectiveDefinition) {
+			return isTravelObjectiveComplete((TravelObjectiveDefinition) objective, state);
 		}
 
 		throw new IllegalArgumentException("Illegal objective type " + objective.getClass().getName());
 	}
 
-	private boolean isWaitObjectiveComplete(WaitObjective waitObjective, SpaceshipActorState state) {
+	private boolean isWaitObjectiveComplete(WaitObjectiveDefinition waitObjective, SpaceshipActorState state) {
 		Instant locationArrival = state.getLocationArrival();
 		if (locationArrival == null) {
 			return false;
@@ -127,7 +127,7 @@ public class SpaceshipActor extends ActorBase implements Actor {
 
 	}
 
-	private boolean isTravelObjectiveComplete(TravelObjective travelObjective, SpaceshipActorState state) {
+	private boolean isTravelObjectiveComplete(TravelObjectiveDefinition travelObjective, SpaceshipActorState state) {
 		Key locationKey = state.getLocationKey();
 		if (locationKey == null) {
 			return false;

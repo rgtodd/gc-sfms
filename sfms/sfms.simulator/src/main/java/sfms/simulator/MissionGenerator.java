@@ -16,9 +16,9 @@ import sfms.db.business.Region;
 import sfms.db.business.RegionSet;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbStarField;
-import sfms.simulator.json.Mission;
-import sfms.simulator.json.Objective;
-import sfms.simulator.json.TravelObjective;
+import sfms.simulator.json.MissionDefinition;
+import sfms.simulator.json.ObjectiveDefinition;
+import sfms.simulator.json.TravelObjectiveDefinition;
 
 public class MissionGenerator {
 
@@ -26,7 +26,7 @@ public class MissionGenerator {
 	private RegionSet m_sectors = RegionSet.loadSectors();
 	private Random m_random = new Random();
 
-	public Mission createMission(String actorKind) {
+	public MissionDefinition createMission(String actorKind) {
 
 		if (actorKind.equals(DbEntity.Spaceship.getKind())) {
 			return createSpaceshipMission();
@@ -39,8 +39,8 @@ public class MissionGenerator {
 		throw new IllegalArgumentException("Unknown actor type.");
 	}
 
-	private Mission createSpaceshipMission() {
-		List<Objective> objectives = new ArrayList<Objective>();
+	private MissionDefinition createSpaceshipMission() {
+		List<ObjectiveDefinition> objectives = new ArrayList<ObjectiveDefinition>();
 		int stopCount = 1 + m_random.nextInt(5);
 		int objectiveId = 0;
 		for (int stopIndex = 0; stopIndex < stopCount; ++stopIndex) {
@@ -49,21 +49,21 @@ public class MissionGenerator {
 				starKey = getRandomStarKey();
 			}
 
-			TravelObjective objective = new TravelObjective();
+			TravelObjectiveDefinition objective = new TravelObjectiveDefinition();
 			objective.setObjectiveId(++objectiveId);
 			objective.setStarKey(starKey);
 
 			objectives.add(objective);
 		}
 
-		Mission mission = new Mission();
+		MissionDefinition mission = new MissionDefinition();
 		mission.setObjectives(objectives);
 
 		return mission;
 	}
 
-	private Mission createCrewMemberMission() {
-		return new Mission();
+	private MissionDefinition createCrewMemberMission() {
+		return new MissionDefinition();
 	}
 
 	// HACK: Return first star in random sector.

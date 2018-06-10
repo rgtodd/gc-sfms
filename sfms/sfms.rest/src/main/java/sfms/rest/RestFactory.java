@@ -156,10 +156,6 @@ public class RestFactory {
 		Spaceship result = new Spaceship();
 		result.setKey(DbEntity.Spaceship.createRestKey(entity.getKey()));
 		result.setName(wrapper.getString(DbSpaceshipField.Name));
-		result.setX(wrapper.getLong(DbSpaceshipField.X));
-		result.setY(wrapper.getLong(DbSpaceshipField.Y));
-		result.setX(wrapper.getLong(DbSpaceshipField.Z));
-		result.setStarKey(DbEntity.Star.createRestKey(wrapper.getKey(DbSpaceshipField.StarKey)));
 
 		return result;
 	}

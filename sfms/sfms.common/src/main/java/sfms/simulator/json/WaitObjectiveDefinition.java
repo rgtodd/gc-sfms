@@ -2,7 +2,7 @@ package sfms.simulator.json;
 
 import java.time.Duration;
 
-public class WaitObjective extends Objective {
+public class WaitObjectiveDefinition extends ObjectiveDefinition {
 
 	private Duration m_waitDuration;
 
@@ -13,4 +13,10 @@ public class WaitObjective extends Objective {
 	public void setWaitDuration(Duration waitDuration) {
 		m_waitDuration = waitDuration;
 	}
+
+	@Override
+	public String toString() {
+		return "Wait " + m_waitDuration.toString();
+	}
+
 }

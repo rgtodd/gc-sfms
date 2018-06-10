@@ -83,10 +83,6 @@ public class RestFactory {
 		Spaceship result = new Spaceship();
 		result.setKey(spaceshipModel.getKey());
 		result.setName(spaceshipModel.getName());
-		result.setX(spaceshipModel.getX());
-		result.setY(spaceshipModel.getY());
-		result.setZ(spaceshipModel.getZ());
-		result.setStarKey(spaceshipModel.getStarKey());
 		return result;
 	}
 

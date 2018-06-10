@@ -13,7 +13,7 @@ import sfms.db.DbEntityWrapper;
 import sfms.db.DbValueFactory;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbMissionField;
-import sfms.simulator.json.Mission;
+import sfms.simulator.json.MissionDefinition;
 
 public class ActorMission {
 
@@ -27,7 +27,7 @@ public class ActorMission {
 
 	// Properties
 	//
-	private Mission m_mission;
+	private MissionDefinition m_mission;
 	private String m_status;
 
 	private ActorMission() {
@@ -70,12 +70,12 @@ public class ActorMission {
 		return result;
 	}
 
-	private static Mission createMissionFromJson(String jsonMission) {
+	private static MissionDefinition createMissionFromJson(String jsonMission) {
 		if (jsonMission == null) {
 			return null;
 		}
 
-		return Mission.fromJson(jsonMission);
+		return MissionDefinition.fromJson(jsonMission);
 	}
 
 	public String getActorKind() {
@@ -90,11 +90,11 @@ public class ActorMission {
 		return m_serialInstant;
 	}
 
-	public Mission getMission() {
+	public MissionDefinition getMission() {
 		return m_mission;
 	}
 
-	public void setMission(Mission mission) {
+	public void setMission(MissionDefinition mission) {
 		m_mission = mission;
 	}
 

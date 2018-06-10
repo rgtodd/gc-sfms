@@ -2,6 +2,7 @@ package sfms.db;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.EntityQuery;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
@@ -132,5 +133,21 @@ public class Db {
 				historyExists = false;
 			}
 		}
+	}
+
+	public static DbEntityIterator getEntities(Datastore datastore, String kind, String keyPrefix) {
+
+		Key dbKeyPrefix = datastore.newKeyFactory()
+				.setKind(kind)
+				.newKey(keyPrefix);
+
+		EntityQuery dbMissionQuery = Query.newEntityQueryBuilder()
+				.setKind(kind)
+				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
+				.build();
+
+		QueryResults<Entity> dbMissions = datastore.run(dbMissionQuery);
+
+		return new DbEntityIterator(dbMissions, keyPrefix);
 	}
 }

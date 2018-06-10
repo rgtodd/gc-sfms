@@ -1,6 +1,6 @@
 package sfms.simulator.json;
 
-public class TravelObjective extends Objective {
+public class TravelObjectiveDefinition extends ObjectiveDefinition {
 
 	private String m_starKey;
 
@@ -12,4 +12,8 @@ public class TravelObjective extends Objective {
 		m_starKey = starKey;
 	}
 
+	@Override
+	public String toString() {
+		return "Travel to star " + m_starKey;
+	}
 }

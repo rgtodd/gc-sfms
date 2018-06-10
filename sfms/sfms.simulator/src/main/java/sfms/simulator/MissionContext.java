@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 import com.google.cloud.datastore.Datastore;
 
 import sfms.db.schemas.DbMissionStatusValues;
-import sfms.simulator.json.Mission;
-import sfms.simulator.json.Objective;
+import sfms.simulator.json.MissionDefinition;
+import sfms.simulator.json.ObjectiveDefinition;
 
 public class MissionContext {
 
@@ -68,7 +68,7 @@ public class MissionContext {
 		return m_actorMissionState;
 	}
 
-	public Mission getMission() {
+	public MissionDefinition getMission() {
 		ActorMission actorMission = getActorMission();
 		if (actorMission == null) {
 			logger.info("    getMission: ActorMission does not exist.");
@@ -88,8 +88,8 @@ public class MissionContext {
 		return actorMissionState.getObjectiveIndex();
 	}
 
-	public Objective getObjective() {
-		Mission mission = getMission();
+	public ObjectiveDefinition getObjective() {
+		MissionDefinition mission = getMission();
 		if (mission == null) {
 			logger.info("    getObjective: Mission does not exist.");
 			return null;
@@ -180,7 +180,7 @@ public class MissionContext {
 	private ActorMission createActorMission(Instant now) {
 
 		MissionGenerator generator = new MissionGenerator();
-		Mission mission = generator.createMission(m_actorKind);
+		MissionDefinition mission = generator.createMission(m_actorKind);
 
 		ActorMission actorMission = new ActorMission(m_actorKind, m_actorId, now);
 		actorMission.setMission(mission);

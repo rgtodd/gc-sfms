@@ -5,11 +5,15 @@ import java.util.List;
 
 import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
+import sfms.rest.api.models.Mission;
+import sfms.rest.api.models.MissionObjective;
 import sfms.rest.api.models.Sector;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.models.Star;
 import sfms.web.models.ClusterModel;
 import sfms.web.models.CrewMemberModel;
+import sfms.web.models.MissionModel;
+import sfms.web.models.MissionObjectiveModel;
 import sfms.web.models.SectorModel;
 import sfms.web.models.SpaceshipModel;
 import sfms.web.models.StarModel;
@@ -109,10 +113,7 @@ public class ModelFactory {
 		SpaceshipModel result = new SpaceshipModel();
 		result.setKey(spaceship.getKey());
 		result.setName(spaceship.getName());
-		result.setX(spaceship.getX());
-		result.setY(spaceship.getY());
-		result.setZ(spaceship.getZ());
-		result.setStarKey(spaceship.getStarKey());
+		result.setMissions(createMissions(spaceship.getMissions()));
 		return result;
 	}
 
@@ -179,6 +180,40 @@ public class ModelFactory {
 		if (stars != null) {
 			for (Star star : stars) {
 				result.add(createStar(star));
+			}
+		}
+		return result;
+	}
+
+	public MissionObjectiveModel createMissionObjective(MissionObjective missionObjective) {
+		MissionObjectiveModel result = new MissionObjectiveModel();
+		result.setDescription(missionObjective.getDescription());
+		return result;
+	}
+
+	public List<MissionObjectiveModel> createMissionObjectives(Iterable<MissionObjective> missionObjectives) {
+		List<MissionObjectiveModel> result = new ArrayList<MissionObjectiveModel>();
+		if (missionObjectives != null) {
+			for (MissionObjective missionObjective : missionObjectives) {
+				result.add(createMissionObjective(missionObjective));
+			}
+		}
+		return result;
+	}
+
+	public MissionModel createMission(Mission mission) {
+		MissionModel result = new MissionModel();
+		result.setKey(mission.getKey());
+		result.setStatus(mission.getStatus());
+		result.setObjectives(createMissionObjectives(mission.getObjectives()));
+		return result;
+	}
+
+	public List<MissionModel> createMissions(Iterable<Mission> missions) {
+		List<MissionModel> result = new ArrayList<MissionModel>();
+		if (missions != null) {
+			for (Mission mission : missions) {
+				result.add(createMission(mission));
 			}
 		}
 		return result;

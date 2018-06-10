@@ -7,7 +7,7 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 
 import sfms.db.schemas.DbMissionStatusValues;
-import sfms.simulator.json.Mission;
+import sfms.simulator.json.MissionDefinition;
 
 public abstract class ActorBase implements Actor {
 
@@ -40,7 +40,7 @@ public abstract class ActorBase implements Actor {
 	}
 
 	@Override
-	public void assignMission(Instant now, Mission mission) {
+	public void assignMission(Instant now, MissionDefinition mission) {
 
 		ActorMission actorMission = new ActorMission(getActorKind(), getActorId(), now);
 

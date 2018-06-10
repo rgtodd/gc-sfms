@@ -1,6 +1,8 @@
 package sfms.rest.controllers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,9 +25,13 @@ import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
 
+import sfms.db.CompositeKeyBuilder;
+import sfms.db.Db;
+import sfms.db.DbEntityWrapper;
 import sfms.db.DbFieldSchema;
 import sfms.db.DbValueFactory;
 import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbMissionField;
 import sfms.db.schemas.DbSpaceshipField;
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
@@ -34,11 +40,15 @@ import sfms.rest.api.DeleteResult;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.UpdateResult;
+import sfms.rest.api.models.Mission;
+import sfms.rest.api.models.MissionObjective;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.schemas.SpaceshipField;
 import sfms.rest.db.RestQuery;
 import sfms.rest.db.RestQueryBuilder;
 import sfms.rest.db.RestQueryResults;
+import sfms.simulator.json.MissionDefinition;
+import sfms.simulator.json.ObjectiveDefinition;
 
 /**
  * Controller for the Spaceship REST service.
@@ -54,10 +64,6 @@ public class SpaceshipRestController {
 	static {
 		s_dbFieldMap = new HashMap<String, DbFieldSchema>();
 		s_dbFieldMap.put(SpaceshipField.Name.getName(), DbSpaceshipField.Name);
-		s_dbFieldMap.put(SpaceshipField.X.getName(), DbSpaceshipField.X);
-		s_dbFieldMap.put(SpaceshipField.Y.getName(), DbSpaceshipField.Y);
-		s_dbFieldMap.put(SpaceshipField.Z.getName(), DbSpaceshipField.Z);
-		s_dbFieldMap.put(SpaceshipField.StarKey.getName(), DbSpaceshipField.StarKey);
 	}
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
@@ -81,6 +87,8 @@ public class SpaceshipRestController {
 
 		RestFactory factory = new RestFactory();
 		Spaceship spaceship = factory.createSpaceship(dbSpaceship);
+
+		spaceship.setMissions(getMissions(datastore, dbSpaceshipKey.getId()));
 
 		return spaceship;
 	}
@@ -136,11 +144,6 @@ public class SpaceshipRestController {
 
 		Entity dbSpaceship = Entity.newBuilder(dbSpaceshipKey)
 				.set(DbSpaceshipField.Name.getName(), DbValueFactory.asValue(spaceship.getName()))
-				.set(DbSpaceshipField.X.getName(), DbValueFactory.asValue(spaceship.getX()))
-				.set(DbSpaceshipField.Y.getName(), DbValueFactory.asValue(spaceship.getY()))
-				.set(DbSpaceshipField.Z.getName(), DbValueFactory.asValue(spaceship.getZ()))
-				.set(DbSpaceshipField.StarKey.getName(), DbValueFactory.asValue(
-						DbEntity.Star.createEntityKey(datastore, spaceship.getStarKey())))
 				.build();
 
 		datastore.update(dbSpaceship);
@@ -165,11 +168,6 @@ public class SpaceshipRestController {
 
 		FullEntity<IncompleteKey> dbSpaceship = FullEntity.newBuilder(dbSpaceshipIncompleteKey)
 				.set(DbSpaceshipField.Name.getName(), DbValueFactory.asValue(spaceship.getName()))
-				.set(DbSpaceshipField.X.getName(), DbValueFactory.asValue(spaceship.getX()))
-				.set(DbSpaceshipField.Y.getName(), DbValueFactory.asValue(spaceship.getY()))
-				.set(DbSpaceshipField.Z.getName(), DbValueFactory.asValue(spaceship.getZ()))
-				.set(DbSpaceshipField.StarKey.getName(),
-						DbEntity.Star.createEntityKey(datastore, spaceship.getStarKey()))
 				.build();
 
 		Key dbSpaceshipKey = datastore.put(dbSpaceship).getKey();
@@ -197,5 +195,39 @@ public class SpaceshipRestController {
 		result.setKey(DbEntity.Spaceship.createRestKey(dbSpaceshipKey));
 
 		return result;
+	}
+
+	private List<Mission> getMissions(Datastore datastore, Long shipId) {
+
+		String keyPrefix = CompositeKeyBuilder.create()
+				.append(DbEntity.Spaceship.getKind())
+				.append(shipId)
+				.build()
+				.toString();
+
+		Iterator<Entity> dbMissions = Db.getEntities(datastore, DbEntity.Mission.getKind(), keyPrefix);
+
+		List<Mission> missions = new ArrayList<Mission>();
+		while (dbMissions.hasNext()) {
+			DbEntityWrapper dbMission = DbEntityWrapper.wrap(dbMissions.next());
+			String jsonMission = dbMission.getString(DbMissionField.Mission);
+			MissionDefinition missionDefinition = MissionDefinition.fromJson(jsonMission);
+
+			List<MissionObjective> objectives = new ArrayList<MissionObjective>();
+			for (ObjectiveDefinition objectiveDefinition : missionDefinition.getObjectives()) {
+				MissionObjective objective = new MissionObjective();
+				objective.setDescription(objectiveDefinition.toString());
+				objectives.add(objective);
+			}
+
+			Mission mission = new Mission();
+			mission.setKey(dbMission.getEntity().getKey().getName());
+			mission.setStatus(dbMission.getString(DbMissionField.MissionStatus));
+			mission.setObjectives(objectives);
+
+			missions.add(mission);
+		}
+
+		return missions;
 	}
 }

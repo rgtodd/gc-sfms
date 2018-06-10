@@ -7,10 +7,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type")
 @JsonSubTypes({
-		@JsonSubTypes.Type(value = TravelObjective.class, name = "travelObjective"),
-		@JsonSubTypes.Type(value = WaitObjective.class, name = "waitObjective")
+		@JsonSubTypes.Type(value = TravelObjectiveDefinition.class, name = "travelObjective"),
+		@JsonSubTypes.Type(value = WaitObjectiveDefinition.class, name = "waitObjective")
 })
-public class Objective {
+public class ObjectiveDefinition {
 
 	private int m_objectiveId;
 

@@ -8,17 +8,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-public class Mission {
+public class MissionDefinition {
 
-	private static final TypeReference<Mission> TYPE_REFERENCE = new TypeReference<Mission>() {
+	private static final TypeReference<MissionDefinition> TYPE_REFERENCE = new TypeReference<MissionDefinition>() {
 	};
 
-	private List<Objective> m_objectives;
+	private List<ObjectiveDefinition> m_objectives;
 
-	public static Mission fromJson(String json) {
+	public static MissionDefinition fromJson(String json) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			Mission mission = mapper.readValue(json, TYPE_REFERENCE);
+			MissionDefinition mission = mapper.readValue(json, TYPE_REFERENCE);
 			return mission;
 		} catch (IOException e) {
 			throw new IllegalArgumentException("Cannot deserialize value.", e);
@@ -27,7 +27,7 @@ public class Mission {
 
 	public String toJson() {
 		ObjectMapper mapper = new ObjectMapper();
-		ObjectWriter writer = mapper.writerFor(Mission.class);
+		ObjectWriter writer = mapper.writerFor(MissionDefinition.class);
 		try {
 			String json = writer.writeValueAsString(this);
 			return json;
@@ -36,11 +36,11 @@ public class Mission {
 		}
 	}
 
-	public List<Objective> getObjectives() {
+	public List<ObjectiveDefinition> getObjectives() {
 		return m_objectives;
 	}
 
-	public void setObjectives(List<Objective> objectives) {
+	public void setObjectives(List<ObjectiveDefinition> objectives) {
 		m_objectives = objectives;
 	}
 }
