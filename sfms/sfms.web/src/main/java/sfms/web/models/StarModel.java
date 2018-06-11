@@ -369,7 +369,7 @@ public class StarModel {
 	}
 
 	public String getXYZ() {
-		return ModuleUtility.formatCoordinates(m_x, m_y, m_z);
+		return ModelUtility.formatCoordinates(m_x, m_y, m_z);
 	}
 
 }

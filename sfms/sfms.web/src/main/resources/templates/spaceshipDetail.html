@@ -54,6 +54,57 @@
 				</tbody>
 			</table>
 		</th:block>
+		<h3>Mission States</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Key</th>
+					<th>Date/Time</th>
+					<th>Objective Index</th>
+					<th>Start Date/Time</th>
+					<th>End Date/Time</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="missionState: ${spaceship.missionStates}">
+					<td th:text="${missionState.key}">Key</td>
+					<td th:text="${missionState.dateTime}">Date/Time</td>
+					<td th:text="${missionState.objectiveIndex}">Objective Index</td>
+					<td th:text="${missionState.startDateTime}">Start Date/Time</td>
+					<td th:text="${missionState.endDateTime}">End Date/Time</td>
+				</tr>
+			</tbody>
+		</table>
+		<h3>Spaceship States</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Key</th>
+					<th>Date/Time</th>
+					<th>Location Coordinate</th>
+					<th>Location Key</th>
+					<th>Location Arrival Date/Time</th>
+					<th>Speed</th>
+					<th>Destination Coordinate</th>
+					<th>Destination Key</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="spaceshipState: ${spaceship.states}">
+					<td th:text="${spaceshipState.key}">Key</td>
+					<td th:text="${spaceshipState.dateTime}">Date/Time</td>
+					<td th:text="${spaceshipState.locationXYZ}">Location
+						Coordinate</td>
+					<td th:text="${spaceshipState.locationKey}">Location Key</td>
+					<td th:text="${spaceshipState.locationArrivalDateTime}">Location
+						Arrival Date/Time</td>
+					<td th:text="${spaceshipState.speed}">Speed</td>
+					<td th:text="${spaceshipState.destinationXYZ}">Destination
+						Coordinate</td>
+					<td th:text="${spaceshipState.destinationKey}">Destination Key</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 </body>
 </html>

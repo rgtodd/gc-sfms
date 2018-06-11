@@ -117,14 +117,14 @@ public class ClusterModel {
 	}
 
 	public String getClusterXYZ() {
-		return ModuleUtility.formatCoordinates(m_clusterX, m_clusterY, m_clusterZ);
+		return ModelUtility.formatCoordinates(m_clusterX, m_clusterY, m_clusterZ);
 	}
 
 	public String getMinimumXYZ() {
-		return ModuleUtility.formatCoordinates(m_minimumX, m_minimumY, m_minimumZ);
+		return ModelUtility.formatCoordinates(m_minimumX, m_minimumY, m_minimumZ);
 	}
 
 	public String getMaximumXYZ() {
-		return ModuleUtility.formatCoordinates(m_maximumX, m_maximumY, m_maximumZ);
+		return ModelUtility.formatCoordinates(m_maximumX, m_maximumY, m_maximumZ);
 	}
 }

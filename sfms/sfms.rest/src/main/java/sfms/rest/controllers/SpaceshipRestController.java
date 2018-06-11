@@ -32,7 +32,9 @@ import sfms.db.DbFieldSchema;
 import sfms.db.DbValueFactory;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbMissionField;
+import sfms.db.schemas.DbMissionStateField;
 import sfms.db.schemas.DbSpaceshipField;
+import sfms.db.schemas.DbSpaceshipStateField;
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
 import sfms.rest.api.CreateResult;
@@ -42,7 +44,9 @@ import sfms.rest.api.SearchResult;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Mission;
 import sfms.rest.api.models.MissionObjective;
+import sfms.rest.api.models.MissionState;
 import sfms.rest.api.models.Spaceship;
+import sfms.rest.api.models.SpaceshipState;
 import sfms.rest.api.schemas.SpaceshipField;
 import sfms.rest.db.RestQuery;
 import sfms.rest.db.RestQueryBuilder;
@@ -89,6 +93,8 @@ public class SpaceshipRestController {
 		Spaceship spaceship = factory.createSpaceship(dbSpaceship);
 
 		spaceship.setMissions(getMissions(datastore, dbSpaceshipKey.getId()));
+		spaceship.setMissionStates(getMissionStates(datastore, dbSpaceshipKey.getId()));
+		spaceship.setStates(getSpaceshipStates(datastore, dbSpaceshipKey.getId()));
 
 		return spaceship;
 	}
@@ -229,5 +235,83 @@ public class SpaceshipRestController {
 		}
 
 		return missions;
+	}
+
+	private List<MissionState> getMissionStates(Datastore datastore, Long shipId) {
+
+		String keyPrefix = CompositeKeyBuilder.create()
+				.append(DbEntity.Spaceship.getKind())
+				.append(shipId)
+				.build()
+				.toString();
+
+		Iterator<Entity> dbMissionStates = Db.getEntities(datastore, DbEntity.MissionState.getKind(), keyPrefix);
+
+		List<MissionState> missionStates = new ArrayList<MissionState>();
+		while (dbMissionStates.hasNext()) {
+			DbEntityWrapper dbMissionState = DbEntityWrapper.wrap(dbMissionStates.next());
+
+			MissionState missionState = new MissionState();
+			missionState.setKey(dbMissionState.getEntity().getKey().getName());
+			missionState.setTimestamp(dbMissionState.getInstant(DbMissionStateField.Timestamp));
+			missionState.setObjectiveIndex(dbMissionState.getLong(DbMissionStateField.ObjectiveIndex));
+			missionState.setStartTimestamp(dbMissionState.getInstant(DbMissionStateField.StartTimestamp));
+			missionState.setEndTimestamp(dbMissionState.getInstant(DbMissionStateField.EndTimestamp));
+
+			missionStates.add(missionState);
+		}
+
+		return missionStates;
+	}
+
+	private List<SpaceshipState> getSpaceshipStates(Datastore datastore, Long shipId) {
+
+		String keyPrefix = CompositeKeyBuilder.create()
+				.append(shipId)
+				.build()
+				.toString();
+
+		Iterator<Entity> dbSpaceshipStates = Db.getEntities(datastore, DbEntity.SpaceshipState.getKind(), keyPrefix);
+
+		List<SpaceshipState> spaceshipStates = new ArrayList<SpaceshipState>();
+		while (dbSpaceshipStates.hasNext()) {
+			DbEntityWrapper dbSpaceshipState = DbEntityWrapper.wrap(dbSpaceshipStates.next());
+
+			Key dbLocationKey = dbSpaceshipState.getKey(DbSpaceshipStateField.LocationKey);
+			Key dbDestinationKey = dbSpaceshipState.getKey(DbSpaceshipStateField.DestinationKey);
+
+			SpaceshipState spaceshipState = new SpaceshipState();
+			spaceshipState.setKey(dbSpaceshipState.getEntity().getKey().getName());
+			spaceshipState.setTimestamp(dbSpaceshipState.getInstant(DbSpaceshipStateField.Timestamp));
+			spaceshipState.setLocationX(dbSpaceshipState.getDouble(DbSpaceshipStateField.LocationX));
+			spaceshipState.setLocationY(dbSpaceshipState.getDouble(DbSpaceshipStateField.LocationY));
+			spaceshipState.setLocationZ(dbSpaceshipState.getDouble(DbSpaceshipStateField.LocationZ));
+			if (dbLocationKey != null) {
+				spaceshipState.setLocationKeyKind(dbLocationKey.getKind());
+				spaceshipState.setLocationKeyValue(getKeyValue(dbLocationKey));
+			}
+			spaceshipState.setLocationArrival(dbSpaceshipState.getInstant(DbSpaceshipStateField.LocationArrival));
+			spaceshipState.setSpeed(dbSpaceshipState.getDouble(DbSpaceshipStateField.Speed));
+			spaceshipState.setDestinationX(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationX));
+			spaceshipState.setDestinationY(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationY));
+			spaceshipState.setDestinationZ(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationZ));
+			if (dbDestinationKey != null) {
+				spaceshipState.setDestinationKeyKind(dbDestinationKey.getKind());
+				spaceshipState.setDestinationKeyValue(getKeyValue(dbDestinationKey));
+			}
+			spaceshipStates.add(spaceshipState);
+		}
+
+		return spaceshipStates;
+	}
+
+	private String getKeyValue(Key dbKey) {
+		if (dbKey.hasId()) {
+			return dbKey.getId().toString();
+		}
+		if (dbKey.hasName()) {
+			return dbKey.getName();
+		}
+		return null;
 	}
 }

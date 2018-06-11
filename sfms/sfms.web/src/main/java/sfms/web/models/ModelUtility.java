@@ -1,8 +1,8 @@
 package sfms.web.models;
 
-public class ModuleUtility {
+public class ModelUtility {
 
-	private ModuleUtility() {
+	private ModelUtility() {
 
 	}
 
@@ -57,4 +57,23 @@ public class ModuleUtility {
 
 		return sb.toString();
 	}
+
+	public static String formatKey(String name, String value) {
+		StringBuilder sb = new StringBuilder();
+
+		if (name == null) {
+			sb.append('-');
+		} else {
+			sb.append(name);
+		}
+		sb.append('/');
+		if (value == null) {
+			sb.append('-');
+		} else {
+			sb.append(value);
+		}
+
+		return sb.toString();
+	}
+
 }

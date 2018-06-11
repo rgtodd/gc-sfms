@@ -1,5 +1,8 @@
 package sfms.web;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,15 +10,19 @@ import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
 import sfms.rest.api.models.Mission;
 import sfms.rest.api.models.MissionObjective;
+import sfms.rest.api.models.MissionState;
 import sfms.rest.api.models.Sector;
 import sfms.rest.api.models.Spaceship;
+import sfms.rest.api.models.SpaceshipState;
 import sfms.rest.api.models.Star;
 import sfms.web.models.ClusterModel;
 import sfms.web.models.CrewMemberModel;
 import sfms.web.models.MissionModel;
 import sfms.web.models.MissionObjectiveModel;
+import sfms.web.models.MissionStateModel;
 import sfms.web.models.SectorModel;
 import sfms.web.models.SpaceshipModel;
+import sfms.web.models.SpaceshipStateModel;
 import sfms.web.models.StarModel;
 
 public class ModelFactory {
@@ -114,6 +121,8 @@ public class ModelFactory {
 		result.setKey(spaceship.getKey());
 		result.setName(spaceship.getName());
 		result.setMissions(createMissions(spaceship.getMissions()));
+		result.setMissionStates(createMissionStates(spaceship.getMissionStates()));
+		result.setStates(createSpaceshipStates(spaceship.getStates()));
 		return result;
 	}
 
@@ -217,5 +226,62 @@ public class ModelFactory {
 			}
 		}
 		return result;
+	}
+
+	public MissionStateModel createMissionState(MissionState missionState) {
+		MissionStateModel result = new MissionStateModel();
+		result.setKey(missionState.getKey());
+		result.setDateTime(toZonedDateTime(missionState.getTimestamp()));
+		result.setObjectiveIndex(missionState.getObjectiveIndex());
+		result.setStartDateTime(toZonedDateTime(missionState.getStartTimestamp()));
+		result.setEndDateTime(toZonedDateTime(missionState.getEndTimestamp()));
+		return result;
+	}
+
+	public List<MissionStateModel> createMissionStates(Iterable<MissionState> missionStates) {
+		List<MissionStateModel> result = new ArrayList<MissionStateModel>();
+		if (missionStates != null) {
+			for (MissionState missionState : missionStates) {
+				result.add(createMissionState(missionState));
+			}
+		}
+		return result;
+	}
+
+	public SpaceshipStateModel createSpaceshipState(SpaceshipState spaceshipState) {
+		SpaceshipStateModel result = new SpaceshipStateModel();
+		result.setKey(spaceshipState.getKey());
+		result.setDateTime(toZonedDateTime(spaceshipState.getTimestamp()));
+		result.setLocationX(spaceshipState.getLocationX());
+		result.setLocationY(spaceshipState.getLocationY());
+		result.setLocationZ(spaceshipState.getLocationZ());
+		result.setLocationKeyKind(spaceshipState.getLocationKeyKind());
+		result.setLocationKeyValue(spaceshipState.getLocationKeyValue());
+		result.setLocationArrivalDateTime(toZonedDateTime(spaceshipState.getLocationArrival()));
+		result.setSpeed(spaceshipState.getSpeed());
+		result.setDestinationX(spaceshipState.getDestinationX());
+		result.setDestinationY(spaceshipState.getDestinationY());
+		result.setDestinationZ(spaceshipState.getDestinationZ());
+		result.setDestinationKeyKind(spaceshipState.getDestinationKeyKind());
+		result.setDestinationKeyValue(spaceshipState.getDestinationKeyValue());
+		return result;
+	}
+
+	public List<SpaceshipStateModel> createSpaceshipStates(Iterable<SpaceshipState> spaceshipStates) {
+		List<SpaceshipStateModel> result = new ArrayList<SpaceshipStateModel>();
+		if (spaceshipStates != null) {
+			for (SpaceshipState spaceshipState : spaceshipStates) {
+				result.add(createSpaceshipState(spaceshipState));
+			}
+		}
+		return result;
+	}
+
+	private ZonedDateTime toZonedDateTime(Instant instant) {
+		if (instant == null) {
+			return null;
+		}
+
+		return ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
 	}
 }

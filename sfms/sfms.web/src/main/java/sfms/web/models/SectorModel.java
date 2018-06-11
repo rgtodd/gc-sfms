@@ -108,14 +108,14 @@ public class SectorModel {
 	}
 
 	public String getSectorXYZ() {
-		return ModuleUtility.formatCoordinates(m_sectorX, m_sectorY, m_sectorZ);
+		return ModelUtility.formatCoordinates(m_sectorX, m_sectorY, m_sectorZ);
 	}
 
 	public String getMinimumXYZ() {
-		return ModuleUtility.formatCoordinates(m_minimumX, m_minimumY, m_minimumZ);
+		return ModelUtility.formatCoordinates(m_minimumX, m_minimumY, m_minimumZ);
 	}
 
 	public String getMaximumXYZ() {
-		return ModuleUtility.formatCoordinates(m_maximumX, m_maximumY, m_maximumZ);
+		return ModelUtility.formatCoordinates(m_maximumX, m_maximumY, m_maximumZ);
 	}
 }

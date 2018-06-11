@@ -7,6 +7,8 @@ public class SpaceshipModel {
 	private String m_key;
 	private String m_name;
 	private List<MissionModel> m_missions;
+	private List<MissionStateModel> m_missionStates;
+	private List<SpaceshipStateModel> m_states;
 
 	public String getName() {
 		return m_name;
@@ -35,5 +37,21 @@ public class SpaceshipModel {
 
 	public void setMissions(List<MissionModel> missions) {
 		m_missions = missions;
+	}
+
+	public List<MissionStateModel> getMissionStates() {
+		return m_missionStates;
+	}
+
+	public void setMissionStates(List<MissionStateModel> missionStates) {
+		m_missionStates = missionStates;
+	}
+
+	public List<SpaceshipStateModel> getStates() {
+		return m_states;
+	}
+
+	public void setStates(List<SpaceshipStateModel> states) {
+		m_states = states;
 	}
 }
