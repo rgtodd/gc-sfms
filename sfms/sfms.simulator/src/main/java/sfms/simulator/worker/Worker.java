@@ -76,6 +76,9 @@ public class Worker {
 	}
 
 	public int getRequestCount() {
+		if (m_functionQueue == null) {
+			return 0;
+		}
 		return m_functionQueue.size();
 	}
 

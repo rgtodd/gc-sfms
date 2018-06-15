@@ -1,6 +1,7 @@
 package sfms.simulator.controllers;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
@@ -65,20 +66,42 @@ public class SimulationRestController {
 	public void updateActors(@RequestBody SimulatorOptions simulatorOptions)
 			throws InterruptedException, TimeoutException {
 
+		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+		Simulation currentSimulation = Simulation.getCurrentSimulation(datastore);
+
+		Instant minimumNow;
+		if (currentSimulation == null) {
+			minimumNow = Instant.now();
+		} else {
+			minimumNow = currentSimulation.getTimestamp().plus(1, ChronoUnit.DAYS);
+		}
+
 		Instant now;
 		if (simulatorOptions != null && simulatorOptions.getNow() != null) {
 			now = simulatorOptions.getNow();
+			if (now.isBefore(minimumNow)) {
+				now = minimumNow;
+			}
 		} else {
 			now = Instant.now();
 		}
 
-		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+		int count;
+		if (simulatorOptions.getCount() == null) {
+			count = 1;
+		} else {
+			count = simulatorOptions.getCount();
+		}
 
-		Simulation simulation = new Simulation(now);
-		simulation.setTimestamp(now);
-		simulation.save(datastore);
+		for (int idx = 0; idx < count; ++idx) {
+			Simulation simulation = new Simulation(now);
+			simulation.setTimestamp(now);
+			simulation.save(datastore);
 
-		controlWorker.process(new UpdateActors(datastore, transactionWorker, now));
+			controlWorker.process(new UpdateActors(datastore, transactionWorker, now));
+
+			now = now.plus(1, ChronoUnit.DAYS);
+		}
 	}
 
 	@PostMapping(value = "/createMissions")

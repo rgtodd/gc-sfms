@@ -6,6 +6,7 @@ public class SimulatorOptions {
 
 	private Instant m_now;
 	private Boolean m_reset;
+	private Integer m_count;
 
 	public Instant getNow() {
 		return m_now;
@@ -21,6 +22,14 @@ public class SimulatorOptions {
 
 	public void setReset(Boolean reset) {
 		m_reset = reset;
+	}
+
+	public Integer getCount() {
+		return m_count;
+	}
+
+	public void setCount(Integer count) {
+		m_count = count;
 	}
 
 }

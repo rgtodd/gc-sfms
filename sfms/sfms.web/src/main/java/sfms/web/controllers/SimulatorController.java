@@ -138,11 +138,7 @@ public class SimulatorController extends SfmsController {
 	@PostMapping(value = "runPost", params = "action=createMissions")
 	public String runPostCreateMissions(@ModelAttribute SimulatorOptionsModel optionsModel) {
 
-		SimulatorOptions options = new SimulatorOptions();
-		if (optionsModel != null) {
-			options.setNow(Instant.ofEpochSecond(optionsModel.getNow().toEpochSecond(ZoneOffset.UTC)));
-			options.setReset(optionsModel.getReset());
-		}
+		SimulatorOptions options = createSimulatorOptions(optionsModel);
 
 		String url = getSimulatorUrl("simulation/createMissions");
 
@@ -159,11 +155,7 @@ public class SimulatorController extends SfmsController {
 	@PostMapping(value = "runPost", params = "action=initialize")
 	public String runPostInitialize(@ModelAttribute SimulatorOptionsModel optionsModel) {
 
-		SimulatorOptions options = new SimulatorOptions();
-		if (optionsModel != null) {
-			options.setNow(Instant.ofEpochSecond(optionsModel.getNow().toEpochSecond(ZoneOffset.UTC)));
-			options.setReset(optionsModel.getReset());
-		}
+		SimulatorOptions options = createSimulatorOptions(optionsModel);
 
 		String url = getSimulatorUrl("simulation/initializeActors");
 
@@ -180,11 +172,7 @@ public class SimulatorController extends SfmsController {
 	@PostMapping(value = "runPost", params = "action=update")
 	public String runPostUpdate(@ModelAttribute SimulatorOptionsModel optionsModel) {
 
-		SimulatorOptions options = new SimulatorOptions();
-		if (optionsModel != null) {
-			options.setNow(Instant.ofEpochSecond(optionsModel.getNow().toEpochSecond(ZoneOffset.UTC)));
-			options.setReset(optionsModel.getReset());
-		}
+		SimulatorOptions options = createSimulatorOptions(optionsModel);
 
 		String url = getSimulatorUrl("simulation/updateActors");
 
@@ -196,6 +184,16 @@ public class SimulatorController extends SfmsController {
 				Object.class);
 
 		return "redirect:/simulator/";
+	}
+
+	private SimulatorOptions createSimulatorOptions(SimulatorOptionsModel optionsModel) {
+		SimulatorOptions options = new SimulatorOptions();
+		if (optionsModel != null) {
+			options.setNow(Instant.ofEpochSecond(optionsModel.getNow().toEpochSecond(ZoneOffset.UTC)));
+			options.setCount(optionsModel.getCount());
+			options.setReset(optionsModel.getReset());
+		}
+		return options;
 	}
 
 	private void updateWorkerStatus(String url, String status) {
