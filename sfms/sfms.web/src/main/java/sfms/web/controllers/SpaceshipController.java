@@ -66,6 +66,7 @@ public class SpaceshipController extends SfmsController {
 		SpaceshipModel spaceshipModel = factory.createSpaceship(restResponse.getBody());
 
 		modelMap.addAttribute("spaceship", spaceshipModel);
+		modelMap.addAttribute("dateTimeFormat", "yyyy-M-d hh:mm a z");
 
 		return "spaceshipDetail";
 	}

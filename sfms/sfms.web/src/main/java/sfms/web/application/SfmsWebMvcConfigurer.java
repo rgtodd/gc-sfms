@@ -1,16 +1,34 @@
 package sfms.web.application;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import sfms.web.conversion.DateFormatter;
+import sfms.web.conversion.LocalDateTimeFormatter;
+import sfms.web.conversion.ZonedDateTimeFormatter;
 
+@Configuration
 public class SfmsWebMvcConfigurer implements WebMvcConfigurer {
 
+	// @Autowired
+	// private SfmsDateFormatAnnotationFormatterFactory
+	// sfmsDateFormatAnnotationFormatterFactory;
+	//
+	// @Autowired
+	// private SfmsNumberFormatAnnotationFormatterFactory
+	// sfmsNumberFormatAnnotationFormatterFactory;
+
 	@Autowired
-	private DateFormatter m_sfmsDateFormatter;
+	private DateFormatter sfmsDateFormatter;
+
+	@Autowired
+	private LocalDateTimeFormatter sfmsLocalDateTimeFormatter;
+
+	@Autowired
+	private ZonedDateTimeFormatter sfmsZonedDateTimeFormatter;
 
 	/*
 	 * Dispatcher configuration for serving static resources
@@ -29,7 +47,11 @@ public class SfmsWebMvcConfigurer implements WebMvcConfigurer {
 	 */
 	@Override
 	public void addFormatters(final FormatterRegistry registry) {
-		registry.addFormatter(m_sfmsDateFormatter);
+		registry.addFormatter(sfmsDateFormatter);
+		registry.addFormatter(sfmsLocalDateTimeFormatter);
+		registry.addFormatter(sfmsZonedDateTimeFormatter);
+		// registry.addFormatterForFieldAnnotation(sfmsNumberFormatAnnotationFormatterFactory);
+		// registry.addFormatterForFieldAnnotation(sfmsDateFormatAnnotationFormatterFactory);
 	}
 
 }

@@ -10,7 +10,7 @@
 		<web-resource-collection>
 			<web-resource-name>admin</web-resource-name>
 			<url-pattern>/utility*</url-pattern>
-			<url-pattern>/simulation*</url-pattern>
+			<url-pattern>/simulator*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>admin</role-name>

@@ -2,6 +2,8 @@ package sfms.web.models;
 
 import java.time.ZonedDateTime;
 
+import org.springframework.format.annotation.NumberFormat;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -86,6 +88,7 @@ public class SpaceshipStateModel {
 		m_locationArrivalDateTime = locationArrivalDateTime;
 	}
 
+	@NumberFormat(pattern = "#.00")
 	public Double getSpeed() {
 		return m_speed;
 	}

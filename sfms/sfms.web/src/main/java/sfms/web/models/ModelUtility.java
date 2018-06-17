@@ -1,6 +1,10 @@
 package sfms.web.models;
 
+import java.text.DecimalFormat;
+
 public class ModelUtility {
+
+	private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("#.00");
 
 	private ModelUtility() {
 
@@ -39,19 +43,19 @@ public class ModelUtility {
 		if (x == null) {
 			sb.append('-');
 		} else {
-			sb.append(x);
+			sb.append(DOUBLE_FORMAT.format(x));
 		}
 		sb.append(',');
 		if (y == null) {
 			sb.append('-');
 		} else {
-			sb.append(y);
+			sb.append(DOUBLE_FORMAT.format(y));
 		}
 		sb.append(',');
 		if (z == null) {
 			sb.append('-');
 		} else {
-			sb.append(z);
+			sb.append(DOUBLE_FORMAT.format(z));
 		}
 		sb.append(')');
 

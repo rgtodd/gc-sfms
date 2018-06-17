@@ -1,5 +1,6 @@
 package sfms.simulator.controllers;
 
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 
-import sfms.db.Db;
-import sfms.db.schemas.DbEntity;
 import sfms.simulator.Simulation;
 import sfms.simulator.api.models.SimulatorStatus;
 import sfms.simulator.api.models.WorkerStatus;
 import sfms.simulator.worker.Worker;
+import sfms.simulator.worker.functions.ResetSimulation;
 
 /**
  * Controller for the Admin REST service.
@@ -107,15 +107,10 @@ public class AdminRestController {
 	}
 
 	@PostMapping(value = "/resetSimulation")
-	public void resetSimulation() {
+	public void resetSimulation() throws InterruptedException, TimeoutException {
 
 		Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-		Db.deleteEntities(datastore, DbEntity.MissionState.getKind(), null);
-		Db.deleteEntities(datastore, DbEntity.Mission.getKind(), null);
-		Db.deleteEntities(datastore, DbEntity.SpaceshipState.getKind(), null);
-		Db.deleteEntities(datastore, DbEntity.CrewMemberState.getKind(), null);
-		Db.deleteEntities(datastore, DbEntity.Simulation.getKind(), null);
-
+		controlWorker.process(new ResetSimulation(datastore));
 	}
 }
