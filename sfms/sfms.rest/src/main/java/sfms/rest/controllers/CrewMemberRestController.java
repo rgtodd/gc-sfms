@@ -58,7 +58,7 @@ public class CrewMemberRestController {
 	}
 
 	private static final int DEFAULT_PAGE_SIZE = 10;
-	private static final int MAX_PAGE_SIZE = 100;
+	private static final int MAX_PAGE_SIZE = 100000;
 
 	@Autowired
 	private Throttle m_throttle;

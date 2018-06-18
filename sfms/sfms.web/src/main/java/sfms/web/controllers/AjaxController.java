@@ -34,6 +34,7 @@ import sfms.rest.api.RestDetail;
 import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.SortCriteria;
+import sfms.rest.api.models.Sector;
 import sfms.rest.api.models.Star;
 import sfms.rest.api.schemas.StarField;
 import sfms.storage.Storage;
@@ -63,10 +64,44 @@ public class AjaxController extends SfmsController {
 	@GetMapping({ "/getSectors" })
 	public GetSectorsResponse getSectors() {
 
+		String uri = UriComponentsBuilder.newInstance().path("sector")
+				.queryParam(RestParameters.PAGE_SIZE, "999999")
+				.build().toUriString();
+
+		RestTemplate restTemplate = createRestTempate();
+		ResponseEntity<SearchResult<Sector>> restResponse = restTemplate.exchange(getRestUrl(uri), HttpMethod.GET,
+				createHttpEntity(), new ParameterizedTypeReference<SearchResult<Sector>>() {
+				});
+		SearchResult<Sector> sectors = restResponse.getBody();
+
+		List<SectorModel> sectorModels = new ArrayList<SectorModel>();
+		for (Sector sector : sectors.getEntities()) {
+			SectorModel sectorModel = new SectorModel();
+			sectorModel.setKey(sector.getKey());
+			sectorModel.setSx(asInteger(sector.getSectorX()));
+			sectorModel.setSy(asInteger(sector.getSectorY()));
+			sectorModel.setSz(asInteger(sector.getSectorZ()));
+			sectorModel.setMinimumX(asInteger(sector.getMinimumX()));
+			sectorModel.setMinimumY(asInteger(sector.getMinimumY()));
+			sectorModel.setMinimumZ(asInteger(sector.getMinimumZ()));
+			sectorModel.setMaximumX(asInteger(sector.getMaximumX()));
+			sectorModel.setMaximumY(asInteger(sector.getMaximumY()));
+			sectorModel.setMaximumZ(asInteger(sector.getMaximumZ()));
+			sectorModels.add(sectorModel);
+		}
+
 		GetSectorsResponse response = new GetSectorsResponse();
-		response.setSectors(m_mockSpaceData.getSectors());
+		response.setSectors(sectorModels);
 
 		return response;
+	}
+
+	private Integer asInteger(Long value) {
+		if (value == null) {
+			return null;
+		}
+
+		return (int) (long) value;
 	}
 
 	@GetMapping({ "/getSectorByLocation" })
