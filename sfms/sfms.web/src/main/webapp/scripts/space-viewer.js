@@ -758,7 +758,7 @@ var SpaceViewer = (function() {
 	var populateWorkQueue = function() {
 		for (var rank = 0; rank < 10; ++rank) {
 			m_workQueue.push({
-				percent : rank * 10,
+				percent : 100 - (rank * 10),
 				rank : rank
 			});
 		}
