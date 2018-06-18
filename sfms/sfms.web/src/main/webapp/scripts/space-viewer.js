@@ -136,6 +136,7 @@ var SpaceViewer = (function() {
 	var m_getSectorByKeyHandler = null;
 	var m_getMapItemsBySectorHandler = null;
 	var m_getMapItemsByRankHandler = null;
+	var m_loadingProgressHandler = null;
 	var m_loadingCompleteHandler = null;
 	var m_onSectorClickHandler = null;
 	var m_onMapItemClickHandler = null;
@@ -551,6 +552,16 @@ var SpaceViewer = (function() {
 		}
 	}
 
+	var registerLoadingProgressHandler = function(handler) {
+		m_loadingProgressHandler = handler;
+	}
+
+	var raiseLoadingProgress = function(percent) {
+		if (m_loadingProgressHandler !== null) {
+			m_loadingProgressHandler(percent);
+		}
+	}
+
 	var registerLoadingCompleteHandler = function(handler) {
 		m_loadingCompleteHandler = handler;
 	}
@@ -747,6 +758,7 @@ var SpaceViewer = (function() {
 	var populateWorkQueue = function() {
 		for (var rank = 0; rank < 10; ++rank) {
 			m_workQueue.push({
+				percent : rank * 10,
 				rank : rank
 			});
 		}
@@ -761,6 +773,8 @@ var SpaceViewer = (function() {
 			raiseLoadingComplete();
 			return;
 		}
+
+		raiseLoadingProgress(entry.percent);
 
 		raiseGetMapItemsByRank(entry.rank, function(mapItemSets) {
 			mapItemSets.forEach(function(mapItemSet) {
@@ -1012,6 +1026,15 @@ var SpaceViewer = (function() {
 		//
 		RegisterGetMapItemsByRankHandler : function(handler) {
 			registerGetMapItemsByRankHandler(handler);
+		},
+
+		// RegisterLoadingProgressHandler - raised as map item data is being
+		// loaded.
+		//
+		// handler = function(percent)
+		//
+		RegisterLoadingProgressHandler : function(handler) {
+			registerLoadingProgressHandler(handler);
 		},
 
 		// RegisterLoadingCompleteHandler - raised when all map item data has

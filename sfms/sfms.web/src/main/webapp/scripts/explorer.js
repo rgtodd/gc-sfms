@@ -72,15 +72,19 @@ var Explorer = (function() {
 		SpaceViewer
 				.RegisterGetMapItemsByRankHandler(SpaceViewerRestHandler.GetMapItemsByRank);
 
+		SpaceViewer.RegisterLoadingProgressHandler(function(percent) {
+			$(".loading__text").html("Loading...  " + percent + "% complete.");
+		});
+
 		SpaceViewer.RegisterLoadingCompleteHandler(function() {
 			$(".loading").hide();
 		});
 
 		SpaceViewer.RegisterOnSectorClickHandler(function(sectorKey) {
-			var coordinates = sectorKey.split(",");
-			$('#spanSectorX').html(coordinates[0]);
-			$('#spanSectorY').html(coordinates[1]);
-			$('#spanSectorZ').html(coordinates[2]);
+			var coordinates = sectorKey.split("-");
+			$('#spanSectorX').html(Number.parseInt(coordinates[0]));
+			$('#spanSectorY').html(Number.parseInt(coordinates[1]));
+			$('#spanSectorZ').html(Number.parseInt(coordinates[2]));
 		});
 
 		SpaceViewer.RegisterOnMapItemClickHandler(onMapItemClick);
