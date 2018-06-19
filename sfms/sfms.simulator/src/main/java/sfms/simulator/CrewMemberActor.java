@@ -18,13 +18,13 @@ public class CrewMemberActor extends ActorBase {
 	}
 
 	@Override
-	public void initialize(Instant now, boolean reset) {
+	public void initialize(Instant now, boolean reset) throws Exception {
 		// TODO: Implement CrewMemberActor::initialize
 
 	}
 
 	@Override
-	public void updateState(Instant now) {
+	public void updateState(Instant now) throws Exception {
 		// TODO: Implement CrewMemberActor::updateStatus
 	}
 

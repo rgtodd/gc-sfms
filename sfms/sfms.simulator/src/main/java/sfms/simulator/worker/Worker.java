@@ -12,7 +12,7 @@ import javax.annotation.PreDestroy;
 
 public class Worker {
 
-	private final Logger logger = Logger.getLogger(Worker.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(Worker.class.getName());
 
 	private static final int QUEUE_CAPACITY = 100;
 	private static final int TIMEOUT = 60;
@@ -112,10 +112,10 @@ public class Worker {
 	}
 
 	private void logInfo(String text) {
-		logger.info(m_name + ": " + text);
+		LOGGER.info(m_name + ": " + text);
 	}
 
 	private void logSevere(String text, Throwable t) {
-		logger.log(Level.SEVERE, m_name + ": " + text, t);
+		LOGGER.log(Level.SEVERE, m_name + ": " + text, t);
 	}
 }

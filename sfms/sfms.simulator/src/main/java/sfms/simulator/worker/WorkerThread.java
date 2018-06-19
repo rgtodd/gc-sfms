@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 public class WorkerThread extends Thread {
 
-	private final Logger logger = Logger.getLogger(WorkerThread.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(WorkerThread.class.getName());
 
 	public static final WorkerFunction HALT = new HaltFunction();
 
@@ -64,11 +64,11 @@ public class WorkerThread extends Thread {
 	}
 
 	private void logInfo(String text) {
-		logger.info(m_name + ": " + text);
+		LOGGER.info(m_name + ": " + text);
 	}
 
 	private void logSevere(String text, Throwable e) {
-		logger.log(Level.SEVERE, m_name + ": " + text, e);
+		LOGGER.log(Level.SEVERE, m_name + ": " + text, e);
 	}
 
 	private static class HaltFunction implements WorkerFunction {

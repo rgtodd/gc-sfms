@@ -32,7 +32,7 @@ public class UpdateActor implements WorkerFunction {
 	}
 
 	@Override
-	public void execute() {
+	public void execute() throws Exception {
 		ActorDatasource datasource = new ActorDatasource(m_datastore);
 		Actor actor = datasource.getActor(m_actorKey);
 		actor.updateState(m_now);

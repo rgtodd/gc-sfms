@@ -14,9 +14,9 @@ import sfms.db.DbValueFactory;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbMissionStateField;
 
-public class ActorMissionState {
+public class MissionState {
 
-	public static final ActorMissionState NULL = new ActorMissionState();
+	public static final MissionState NULL = new MissionState();
 
 	// Key fields
 	//
@@ -32,10 +32,10 @@ public class ActorMissionState {
 	private Instant m_startTimestamp;
 	private Instant m_endTimestamp;
 
-	private ActorMissionState() {
+	private MissionState() {
 	}
 
-	public ActorMissionState(String actorKind, long actorId, Instant missionSerialInstant, Instant stateSerialInstant) {
+	public MissionState(String actorKind, long actorId, Instant missionSerialInstant, Instant stateSerialInstant) {
 		if (actorKind == null) {
 			throw new IllegalArgumentException("Argument actorKind is null.");
 		}
@@ -52,7 +52,7 @@ public class ActorMissionState {
 		m_stateSerialInstant = stateSerialInstant;
 	}
 
-	public static ActorMissionState getCurrentMission(Datastore datastore, String actorKind, long actorId,
+	public static MissionState getCurrentMission(Datastore datastore, String actorKind, long actorId,
 			Instant missionSerialInstant) {
 
 		String keyPrefix = CompositeKeyBuilder.create()
@@ -71,7 +71,7 @@ public class ActorMissionState {
 		CompositeKey compositeKey = CompositeKey.parse(entity.getEntity().getKey().getName());
 		Instant stateSerialInstant = compositeKey.getFromSecondsDescending(3);
 
-		ActorMissionState result = new ActorMissionState(actorKind, actorId, missionSerialInstant, stateSerialInstant);
+		MissionState result = new MissionState(actorKind, actorId, missionSerialInstant, stateSerialInstant);
 
 		result.setTimestamp(entity.getInstant(DbMissionStateField.Timestamp));
 		result.setObjectiveIndex(entity.getLong(DbMissionStateField.ObjectiveIndex));

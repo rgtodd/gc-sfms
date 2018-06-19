@@ -90,6 +90,6 @@ public class DbEntityWrapper {
 		if (timestamp == null) {
 			return null;
 		}
-		return Instant.ofEpochSecond(timestamp.getSeconds());
+		return Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
 	}
 }

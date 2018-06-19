@@ -14,7 +14,6 @@ import org.thymeleaf.templatemode.TemplateMode;
 
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 import sfms.web.conversion.DateFormatter;
-import sfms.web.conversion.LocalDateTimeFormatter;
 import sfms.web.conversion.ZonedDateTimeFormatter;
 import sfms.web.mock.MockSpaceData;
 
@@ -52,10 +51,10 @@ public class SfmsSpringConfiguration implements ApplicationContextAware {
 		return new DateFormatter();
 	}
 
-	@Bean
-	public LocalDateTimeFormatter sfmsLocalDateTimeFormatter() {
-		return new LocalDateTimeFormatter();
-	}
+	// @Bean
+	// public LocalDateTimeFormatter sfmsLocalDateTimeFormatter() {
+	// return new LocalDateTimeFormatter();
+	// }
 
 	@Bean
 	public ZonedDateTimeFormatter sfmsZonedDateTimeFormatter() {

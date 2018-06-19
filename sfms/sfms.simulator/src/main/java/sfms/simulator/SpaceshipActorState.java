@@ -19,10 +19,10 @@ import sfms.db.business.Coordinates;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbSpaceshipStateField;
 
-class SpaceshipActorState {
+public class SpaceshipActorState {
 
 	@SuppressWarnings("unused")
-	private final Logger logger = Logger.getLogger(SpaceshipActorState.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(SpaceshipActorState.class.getName());
 
 	private static final Random RANDOM = new Random();
 	private static final int SECONDS_PER_DAY = 60 * 60 * 24;
@@ -267,11 +267,8 @@ class SpaceshipActorState {
 
 				// Keep traveling.
 				//
-				// logger.info("Location: " + location.toString());
 				Coordinates delta = Coordinates.getVector(location, destination).normalize().scale(distanceTraveled);
-				// logger.info("Delta: " + delta.toString());
 				location = Coordinates.add(location, delta);
-				// logger.info("Location + Delta: " + location.toString());
 				locationArrival = timestamp;
 				locationKey = null;
 			}

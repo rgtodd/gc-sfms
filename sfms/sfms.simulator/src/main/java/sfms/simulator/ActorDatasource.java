@@ -30,14 +30,14 @@ public class ActorDatasource {
 			throw new IllegalArgumentException("Argument key is null.");
 		}
 
-		Entity dbEntity = m_datastore.get(key);
+		Entity dbActor = m_datastore.get(key);
 
-		if (dbEntity.getKey().getKind().equals(DbEntity.CrewMember.getKind())) {
-			return new CrewMemberActor(m_datastore, dbEntity);
+		if (dbActor.getKey().getKind().equals(DbEntity.CrewMember.getKind())) {
+			return new CrewMemberActor(m_datastore, dbActor);
 		}
 
-		if (dbEntity.getKey().getKind().equals(DbEntity.Spaceship.getKind())) {
-			return new SpaceshipActor(m_datastore, dbEntity);
+		if (dbActor.getKey().getKind().equals(DbEntity.Spaceship.getKind())) {
+			return new SpaceshipActor(m_datastore, dbActor);
 		}
 
 		throw new IllegalArgumentException("Unknown actor key type.");

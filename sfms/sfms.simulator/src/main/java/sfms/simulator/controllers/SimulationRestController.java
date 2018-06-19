@@ -32,7 +32,7 @@ import sfms.simulator.worker.functions.UpdateActors;
 public class SimulationRestController {
 
 	@SuppressWarnings("unused")
-	private final Logger logger = Logger.getLogger(SimulationRestController.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(SimulationRestController.class.getName());
 
 	@Autowired
 	private Worker controlWorker;

@@ -35,7 +35,7 @@ public class AdminRestController {
 	private Worker transactionWorker;
 
 	@SuppressWarnings("unused")
-	private final Logger logger = Logger.getLogger(AdminRestController.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(AdminRestController.class.getName());
 
 	@GetMapping(value = "/status")
 	public SimulatorStatus getStatus() {

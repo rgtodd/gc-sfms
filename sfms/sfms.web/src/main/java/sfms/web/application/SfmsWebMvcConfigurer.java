@@ -7,7 +7,6 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import sfms.web.conversion.DateFormatter;
-import sfms.web.conversion.LocalDateTimeFormatter;
 import sfms.web.conversion.ZonedDateTimeFormatter;
 
 @Configuration
@@ -24,8 +23,8 @@ public class SfmsWebMvcConfigurer implements WebMvcConfigurer {
 	@Autowired
 	private DateFormatter sfmsDateFormatter;
 
-	@Autowired
-	private LocalDateTimeFormatter sfmsLocalDateTimeFormatter;
+	// @Autowired
+	// private LocalDateTimeFormatter sfmsLocalDateTimeFormatter;
 
 	@Autowired
 	private ZonedDateTimeFormatter sfmsZonedDateTimeFormatter;
@@ -48,8 +47,8 @@ public class SfmsWebMvcConfigurer implements WebMvcConfigurer {
 	@Override
 	public void addFormatters(final FormatterRegistry registry) {
 		registry.addFormatter(sfmsDateFormatter);
-		registry.addFormatter(sfmsLocalDateTimeFormatter);
 		registry.addFormatter(sfmsZonedDateTimeFormatter);
+		// registry.addFormatter(sfmsLocalDateTimeFormatter);
 		// registry.addFormatterForFieldAnnotation(sfmsNumberFormatAnnotationFormatterFactory);
 		// registry.addFormatterForFieldAnnotation(sfmsDateFormatAnnotationFormatterFactory);
 	}

@@ -1,21 +1,18 @@
 package sfms.web.models;
 
-import java.time.LocalDateTime;
-
-import org.springframework.format.annotation.DateTimeFormat;
+import java.time.ZonedDateTime;
 
 public class SimulatorOptionsModel {
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-	private LocalDateTime m_now;
+	private ZonedDateTime m_now;
 	private Integer m_count;
 	private Boolean m_reset;
 
-	public LocalDateTime getNow() {
+	public ZonedDateTime getNow() {
 		return m_now;
 	}
 
-	public void setNow(LocalDateTime now) {
+	public void setNow(ZonedDateTime now) {
 		m_now = now;
 	}
 

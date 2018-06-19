@@ -216,7 +216,7 @@ public class SpaceshipRestController {
 		List<Mission> missions = new ArrayList<Mission>();
 		while (dbMissions.hasNext()) {
 			DbEntityWrapper dbMission = DbEntityWrapper.wrap(dbMissions.next());
-			String jsonMission = dbMission.getString(DbMissionField.Mission);
+			String jsonMission = dbMission.getString(DbMissionField.MissionDefinition);
 			MissionDefinition missionDefinition = MissionDefinition.fromJson(jsonMission);
 
 			List<MissionObjective> objectives = new ArrayList<MissionObjective>();

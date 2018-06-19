@@ -1,8 +1,8 @@
 package sfms.web.controllers;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.logging.Logger;
 
@@ -58,12 +58,12 @@ public class SimulatorController extends SfmsController {
 		statusModel.setCanStartTransactionWorker(transactionStatus.getStatus().equals(WorkerStatus.INACTIVE));
 		statusModel.setCanStopTransactionWorker(transactionStatus.getStatus().equals(WorkerStatus.ACTIVE));
 
-		LocalDateTime now;
+		ZonedDateTime now;
 		if (status.getSimulationInstant() != null) {
 			Instant nextInstant = status.getSimulationInstant().plus(1, ChronoUnit.DAYS);
-			now = LocalDateTime.ofInstant(nextInstant, ZoneOffset.UTC);
+			now = ZonedDateTime.ofInstant(nextInstant, ZoneId.systemDefault());
 		} else {
-			now = LocalDateTime.now();
+			now = ZonedDateTime.now();
 		}
 
 		SimulatorOptionsModel optionsModel = new SimulatorOptionsModel();
@@ -189,7 +189,7 @@ public class SimulatorController extends SfmsController {
 	private SimulatorOptions createSimulatorOptions(SimulatorOptionsModel optionsModel) {
 		SimulatorOptions options = new SimulatorOptions();
 		if (optionsModel != null) {
-			options.setNow(Instant.ofEpochSecond(optionsModel.getNow().toEpochSecond(ZoneOffset.UTC)));
+			options.setNow(optionsModel.getNow().toInstant());
 			options.setCount(optionsModel.getCount());
 			options.setReset(optionsModel.getReset());
 		}

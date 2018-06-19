@@ -13,7 +13,7 @@ import sfms.simulator.worker.Worker;
 @Component
 public class SfmsApplicationStateBean {
 
-	private final Logger logger = Logger.getLogger(SfmsApplicationStateBean.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(SfmsApplicationStateBean.class.getName());
 
 	@Autowired
 	private Worker controlWorker;
@@ -23,7 +23,7 @@ public class SfmsApplicationStateBean {
 
 	@PostConstruct
 	public void onPostConstruct() {
-		logger.info("Application starting.");
+		LOGGER.info("Application starting.");
 
 		controlWorker.start();
 		transactionWorker.start();
@@ -31,7 +31,7 @@ public class SfmsApplicationStateBean {
 
 	@PreDestroy
 	public void onPreDestroy() {
-		logger.info("Application stopping.");
+		LOGGER.info("Application stopping.");
 
 		controlWorker.stop();
 		transactionWorker.stop();

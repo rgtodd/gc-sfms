@@ -12,14 +12,14 @@ import sfms.simulator.json.ObjectiveDefinition;
 
 public class MissionContext {
 
-	private final Logger logger = Logger.getLogger(MissionContext.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(MissionContext.class.getName());
 
 	private Datastore m_datastore;
 	private String m_actorKind;
 	private long m_actorId;
 
-	private ActorMission m_actorMission;
-	private ActorMissionState m_actorMissionState;
+	private Mission m_mission;
+	private MissionState m_missionState;
 
 	public MissionContext(Datastore datastore, String actorKind, long actorId) {
 		if (datastore == null) {
@@ -34,70 +34,16 @@ public class MissionContext {
 		m_actorId = actorId;
 	}
 
-	public ActorMission getActorMission() {
-		if (m_actorMission == null) {
-			m_actorMission = ActorMission.getCurrentMission(m_datastore, m_actorKind, m_actorId);
-			if (m_actorMission == null) {
-				m_actorMission = ActorMission.NULL;
-			}
-		}
-
-		if (m_actorMission == ActorMission.NULL) {
-			return null;
-		}
-
-		return m_actorMission;
-	}
-
-	public ActorMissionState getActorMissionState() {
-		if (m_actorMissionState == null) {
-			ActorMission actorMission = getActorMission();
-			if (actorMission != null) {
-				m_actorMissionState = ActorMissionState.getCurrentMission(m_datastore, m_actorKind,
-						m_actorId, actorMission.getSerialInstant());
-				if (m_actorMissionState == null) {
-					m_actorMissionState = ActorMissionState.NULL;
-				}
-			}
-		}
-
-		if (m_actorMissionState == ActorMissionState.NULL) {
-			return null;
-		}
-
-		return m_actorMissionState;
-	}
-
-	public MissionDefinition getMission() {
-		ActorMission actorMission = getActorMission();
-		if (actorMission == null) {
-			logger.info("    getMission: ActorMission does not exist.");
-			return null;
-		}
-
-		return actorMission.getMission();
-	}
-
-	public Long getObjectiveIndex() {
-		ActorMissionState actorMissionState = getActorMissionState();
-		if (actorMissionState == null) {
-			logger.info("    getObjectiveIndex: ActorMissionState does not exist.");
-			return null;
-		}
-
-		return actorMissionState.getObjectiveIndex();
-	}
-
 	public ObjectiveDefinition getObjective() {
-		MissionDefinition mission = getMission();
+		MissionDefinition mission = getMissionDefinition();
 		if (mission == null) {
-			logger.info("    getObjective: Mission does not exist.");
+			LOGGER.info("    getObjective: Mission does not exist.");
 			return null;
 		}
 
 		Long objectiveIndex = getObjectiveIndex();
 		if (objectiveIndex == null) {
-			logger.info("    getObjective: ObjectiveIndex does not exist.");
+			LOGGER.info("    getObjective: ObjectiveIndex does not exist.");
 			return null;
 		}
 
@@ -106,52 +52,76 @@ public class MissionContext {
 
 	public void createMission(Instant now) {
 
-		invalidateActorMission();
+		MissionGenerator generator = new MissionGenerator();
+		MissionDefinition missionDefinition = generator.createMission(m_actorKind);
 
-		m_actorMission = createActorMission(now);
-		m_actorMissionState = createActorMissionState(now);
+		Mission mission = new Mission(m_actorKind, m_actorId, now);
+		mission.setMissionDefinition(missionDefinition);
+		mission.setStatus(DbMissionStatusValues.ACTIVE);
+		mission.save(m_datastore);
+		LOGGER.log(Level.INFO, "  Creating mission: {0} / {1} / {2}",
+				new Object[] {
+						mission.getActorKind(),
+						mission.getActorId(),
+						mission.getSerialInstant() });
+
+		MissionState missionState = new MissionState(m_actorKind, m_actorId,
+				mission.getSerialInstant(), now);
+		missionState.setTimestamp(now);
+		missionState.setStartTimestamp(now);
+		missionState.setObjectiveIndex(0L);
+		missionState.save(m_datastore);
+		LOGGER.log(Level.INFO, "  Create mission state for objective {4}: {0} / {1} / {2} / {3}",
+				new Object[] {
+						missionState.getActorKind(),
+						missionState.getActorId(),
+						missionState.getMissionSerialInstant(),
+						missionState.getStateSerialInstant(),
+						missionState.getObjectiveIndex() });
+
+		invalidateMission();
 	}
 
 	public boolean markCurrentObjectiveComplete(Instant now) {
 
 		// Update current mission state.
 		//
-		ActorMissionState actorMissionState = getActorMissionState();
-		actorMissionState.setTimestamp(now);
-		actorMissionState.setEndTimestamp(now);
-		actorMissionState.save(m_datastore);
-		logger.log(Level.INFO, "  Mark mission state complete for objective {4}: {0} / {1} / {2} / {3}",
+		MissionState missionState = getMissionState();
+		missionState.setTimestamp(now);
+		missionState.setEndTimestamp(now);
+		missionState.save(m_datastore);
+		LOGGER.log(Level.INFO, "  Mark mission state complete for objective {4}: {0} / {1} / {2} / {3}",
 				new Object[] {
-						actorMissionState.getActorKind(),
-						actorMissionState.getActorId(),
-						actorMissionState.getMissionSerialInstant(),
-						actorMissionState.getStateSerialInstant(),
-						actorMissionState.getObjectiveIndex() });
+						missionState.getActorKind(),
+						missionState.getActorId(),
+						missionState.getMissionSerialInstant(),
+						missionState.getStateSerialInstant(),
+						missionState.getObjectiveIndex() });
 
-		Long nextObjectiveIndex = actorMissionState.getObjectiveIndex() + 1;
+		Long nextObjectiveIndex = missionState.getObjectiveIndex() + 1;
 
-		if (nextObjectiveIndex < getMission().getObjectives().size()) {
+		if (nextObjectiveIndex < getMissionDefinition().getObjectives().size()) {
 
 			// Create new mission state for next objective.
 			//
-			actorMissionState = new ActorMissionState(
+			missionState = new MissionState(
 					m_actorKind,
 					m_actorId,
-					getActorMission().getSerialInstant(),
+					getMission().getSerialInstant(),
 					now);
-			actorMissionState.setTimestamp(now);
-			actorMissionState.setObjectiveIndex(nextObjectiveIndex);
-			actorMissionState.setStartTimestamp(now);
-			actorMissionState.save(m_datastore);
-			logger.log(Level.INFO, "  Create mission state for objective {4}: {0} / {1} / {2} / {3}",
+			missionState.setTimestamp(now);
+			missionState.setObjectiveIndex(nextObjectiveIndex);
+			missionState.setStartTimestamp(now);
+			missionState.save(m_datastore);
+			LOGGER.log(Level.INFO, "  Create mission state for objective {4}: {0} / {1} / {2} / {3}",
 					new Object[] {
-							actorMissionState.getActorKind(),
-							actorMissionState.getActorId(),
-							actorMissionState.getMissionSerialInstant(),
-							actorMissionState.getStateSerialInstant(),
-							actorMissionState.getObjectiveIndex() });
+							missionState.getActorKind(),
+							missionState.getActorId(),
+							missionState.getMissionSerialInstant(),
+							missionState.getStateSerialInstant(),
+							missionState.getObjectiveIndex() });
 
-			invalidateActorMissionState();
+			invalidateMissionState();
 
 			return false;
 
@@ -159,67 +129,81 @@ public class MissionContext {
 
 			// Update current mission.
 			//
-			ActorMission actorMission = getActorMission();
-			actorMission.setStatus(DbMissionStatusValues.COMPLETE);
-			actorMission.save(m_datastore);
-			logger.log(Level.INFO, "  Mark mission complete: {0} / {1} / {2}",
+			Mission mission = getMission();
+			mission.setStatus(DbMissionStatusValues.COMPLETE);
+			mission.save(m_datastore);
+			LOGGER.log(Level.INFO, "  Mark mission complete: {0} / {1} / {2}",
 					new Object[] {
-							actorMission.getActorKind(),
-							actorMission.getActorId(),
-							actorMission.getSerialInstant() });
+							mission.getActorKind(),
+							mission.getActorId(),
+							mission.getSerialInstant() });
 
-			invalidateActorMission();
-
-			m_actorMission = createActorMission(now);
-			m_actorMissionState = createActorMissionState(now);
+			createMission(now);
 
 			return true;
 		}
 	}
 
-	private ActorMission createActorMission(Instant now) {
+	private Mission getMission() {
+		if (m_mission == null) {
+			m_mission = Mission.getCurrentMission(m_datastore, m_actorKind, m_actorId);
+			if (m_mission == null) {
+				m_mission = Mission.NULL;
+			}
+		}
 
-		MissionGenerator generator = new MissionGenerator();
-		MissionDefinition mission = generator.createMission(m_actorKind);
+		if (m_mission == Mission.NULL) {
+			return null;
+		}
 
-		ActorMission actorMission = new ActorMission(m_actorKind, m_actorId, now);
-		actorMission.setMission(mission);
-		actorMission.setStatus(DbMissionStatusValues.ACTIVE);
-		actorMission.save(m_datastore);
-		logger.log(Level.INFO, "  Creating mission: {0} / {1} / {2}",
-				new Object[] {
-						actorMission.getActorKind(),
-						actorMission.getActorId(),
-						actorMission.getSerialInstant() });
-
-		return actorMission;
+		return m_mission;
 	}
 
-	private ActorMissionState createActorMissionState(Instant now) {
+	private MissionState getMissionState() {
+		if (m_missionState == null) {
+			Mission mission = getMission();
+			if (mission != null) {
+				m_missionState = MissionState.getCurrentMission(m_datastore, m_actorKind,
+						m_actorId, mission.getSerialInstant());
+				if (m_missionState == null) {
+					m_missionState = MissionState.NULL;
+				}
+			}
+		}
 
-		ActorMissionState actorMissionState = new ActorMissionState(m_actorKind, m_actorId,
-				getActorMission().getSerialInstant(), now);
-		actorMissionState.setTimestamp(now);
-		actorMissionState.setStartTimestamp(now);
-		actorMissionState.setObjectiveIndex(0L);
-		actorMissionState.save(m_datastore);
-		logger.log(Level.INFO, "  Create mission state for objective {4}: {0} / {1} / {2} / {3}",
-				new Object[] {
-						actorMissionState.getActorKind(),
-						actorMissionState.getActorId(),
-						actorMissionState.getMissionSerialInstant(),
-						actorMissionState.getStateSerialInstant(),
-						actorMissionState.getObjectiveIndex() });
+		if (m_missionState == MissionState.NULL) {
+			return null;
+		}
 
-		return actorMissionState;
+		return m_missionState;
 	}
 
-	private void invalidateActorMission() {
-		m_actorMission = null;
-		m_actorMissionState = null;
+	private MissionDefinition getMissionDefinition() {
+		Mission mission = getMission();
+		if (mission == null) {
+			LOGGER.info("    getMissionDefinition: Mission does not exist.");
+			return null;
+		}
+
+		return mission.getMissionDefinition();
 	}
 
-	private void invalidateActorMissionState() {
-		m_actorMissionState = null;
+	private Long getObjectiveIndex() {
+		MissionState missionState = getMissionState();
+		if (missionState == null) {
+			LOGGER.info("    getObjectiveIndex: ActorMissionState does not exist.");
+			return null;
+		}
+
+		return missionState.getObjectiveIndex();
+	}
+
+	private void invalidateMission() {
+		m_mission = null;
+		m_missionState = null;
+	}
+
+	private void invalidateMissionState() {
+		m_missionState = null;
 	}
 }

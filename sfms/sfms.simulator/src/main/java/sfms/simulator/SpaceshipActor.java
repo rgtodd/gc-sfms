@@ -18,7 +18,7 @@ import sfms.simulator.json.WaitObjectiveDefinition;
 
 public class SpaceshipActor extends ActorBase implements Actor {
 
-	private final Logger logger = Logger.getLogger(SpaceshipActor.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(SpaceshipActor.class.getName());
 
 	private static final Random RANDOM = new Random();
 
@@ -31,7 +31,7 @@ public class SpaceshipActor extends ActorBase implements Actor {
 	}
 
 	@Override
-	public void initialize(Instant now, boolean reset) {
+	public void initialize(Instant now, boolean reset) throws Exception {
 
 		//
 		// Check if a state entity exists..
@@ -53,15 +53,15 @@ public class SpaceshipActor extends ActorBase implements Actor {
 
 		String key = state.save(getDatastore());
 
-		logger.info("  Created initial state for space ship.  Key = " + key);
+		LOGGER.info("  Created initial state for space ship.  Key = " + key);
 	}
 
 	@Override
-	public void updateState(Instant now) {
+	public void updateState(Instant now) throws Exception {
 
 		SpaceshipActorState currentState = SpaceshipActorState.getCurrentState(getDatastore(), getActorId());
 		if (currentState == null) {
-			return;
+			throw new Exception("Current state does not exist.");
 		}
 
 		Duration duration = Duration.between(currentState.getTimestamp(), now);
@@ -70,27 +70,26 @@ public class SpaceshipActor extends ActorBase implements Actor {
 
 		MissionContext missionContext = new MissionContext(getDatastore(), getActorKind(), getActorId());
 
-		boolean updateState;
 		ObjectiveDefinition objective = missionContext.getObjective();
 		if (objective == null) {
 			missionContext.createMission(now);
-			updateState = true;
 		} else if (isObjectiveComplete(objective, updatedState)) {
 			missionContext.markCurrentObjectiveComplete(now);
-			updateState = true;
-		} else {
-			updateState = false;
 		}
 
-		if (updateState) {
-			objective = missionContext.getObjective();
-			if (objective instanceof WaitObjectiveDefinition) {
-				updatedState.setSpeed(0.0);
-			} else if (objective instanceof TravelObjectiveDefinition) {
-				TravelObjectiveDefinition travelObjective = (TravelObjectiveDefinition) objective;
-				Key dbStarKey = getDatastore().newKeyFactory()
-						.setKind(DbEntity.Star.getKind())
-						.newKey(travelObjective.getStarKey());
+		objective = missionContext.getObjective();
+		if (objective == null) {
+			throw new Exception("Objective does not exist.");
+		}
+
+		if (objective instanceof WaitObjectiveDefinition) {
+			updatedState.setSpeed(0.0);
+		} else if (objective instanceof TravelObjectiveDefinition) {
+			TravelObjectiveDefinition travelObjective = (TravelObjectiveDefinition) objective;
+			Key dbStarKey = getDatastore().newKeyFactory()
+					.setKind(DbEntity.Star.getKind())
+					.newKey(travelObjective.getStarKey());
+			if (updatedState.getDestinationKey() == null || !updatedState.getDestinationKey().equals(dbStarKey)) {
 				DbEntityWrapper dbStar = DbEntityWrapper.wrap(getDatastore().get(dbStarKey));
 				updatedState.setSpeed(RANDOM.nextDouble() * 100 + 100);
 				updatedState.setDestinationX(dbStar.getDouble(DbStarField.X));
@@ -98,6 +97,8 @@ public class SpaceshipActor extends ActorBase implements Actor {
 				updatedState.setDestinationZ(dbStar.getDouble(DbStarField.Z));
 				updatedState.setDestinationKey(dbStarKey);
 			}
+		} else {
+			throw new Exception("Unknown objective " + objective);
 		}
 
 		updatedState.save(getDatastore());
