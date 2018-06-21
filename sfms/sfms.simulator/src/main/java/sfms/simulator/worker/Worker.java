@@ -14,7 +14,7 @@ public class Worker {
 
 	private static final Logger LOGGER = Logger.getLogger(Worker.class.getName());
 
-	private static final int QUEUE_CAPACITY = 100;
+	private static final int QUEUE_CAPACITY = 1000;
 	private static final int TIMEOUT = 60;
 	private static final TimeUnit TIMEOUT_UNIT = TimeUnit.SECONDS;
 

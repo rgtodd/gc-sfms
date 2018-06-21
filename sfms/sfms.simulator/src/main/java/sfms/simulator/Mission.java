@@ -125,7 +125,7 @@ public class Mission {
 		if (jsonMission == null) {
 			return null;
 		}
-	
+
 		return MissionDefinition.fromJson(jsonMission);
 	}
 

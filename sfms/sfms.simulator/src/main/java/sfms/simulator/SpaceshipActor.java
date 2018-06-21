@@ -22,11 +22,11 @@ public class SpaceshipActor extends ActorBase implements Actor {
 
 	private static final Random RANDOM = new Random();
 
-	public SpaceshipActor(Datastore datastore, Entity dbEntity) {
-		super(datastore, dbEntity);
+	public SpaceshipActor(Datastore datastore, Entity dbActor) {
+		super(datastore, dbActor);
 
-		if (!dbEntity.getKey().getKind().equals(DbEntity.Spaceship.getKind())) {
-			throw new IllegalArgumentException("dbEntity is not spaceship.");
+		if (!dbActor.getKey().getKind().equals(DbEntity.Spaceship.getKind())) {
+			throw new IllegalArgumentException("dbActor is not spaceship.");
 		}
 	}
 
@@ -53,7 +53,7 @@ public class SpaceshipActor extends ActorBase implements Actor {
 
 		String key = state.save(getDatastore());
 
-		LOGGER.info("  Created initial state for space ship.  Key = " + key);
+		LOGGER.info("  Created initial state for spaceship.  Key = " + key);
 	}
 
 	@Override
@@ -86,16 +86,23 @@ public class SpaceshipActor extends ActorBase implements Actor {
 			updatedState.setSpeed(0.0);
 		} else if (objective instanceof TravelObjectiveDefinition) {
 			TravelObjectiveDefinition travelObjective = (TravelObjectiveDefinition) objective;
-			Key dbStarKey = getDatastore().newKeyFactory()
-					.setKind(DbEntity.Star.getKind())
-					.newKey(travelObjective.getStarKey());
-			if (updatedState.getDestinationKey() == null || !updatedState.getDestinationKey().equals(dbStarKey)) {
-				DbEntityWrapper dbStar = DbEntityWrapper.wrap(getDatastore().get(dbStarKey));
-				updatedState.setSpeed(RANDOM.nextDouble() * 100 + 100);
-				updatedState.setDestinationX(dbStar.getDouble(DbStarField.X));
-				updatedState.setDestinationY(dbStar.getDouble(DbStarField.Y));
-				updatedState.setDestinationZ(dbStar.getDouble(DbStarField.Z));
-				updatedState.setDestinationKey(dbStarKey);
+			String destinationKeyKind = travelObjective.getDestinationKeyKind();
+			String destinationKeyValue = travelObjective.getDestinationKeyValue();
+			Key dbDestinationKey = getDatastore().newKeyFactory()
+					.setKind(destinationKeyKind)
+					.newKey(destinationKeyValue);
+			if (updatedState.getDestinationKey() == null
+					|| !updatedState.getDestinationKey().equals(dbDestinationKey)) {
+				if (destinationKeyKind.equals(DbEntity.Star.getKind())) {
+					DbEntityWrapper dbStar = DbEntityWrapper.wrap(getDatastore().get(dbDestinationKey));
+					updatedState.setSpeed(RANDOM.nextDouble() * 100 + 100);
+					updatedState.setDestinationX(dbStar.getDouble(DbStarField.X));
+					updatedState.setDestinationY(dbStar.getDouble(DbStarField.Y));
+					updatedState.setDestinationZ(dbStar.getDouble(DbStarField.Z));
+					updatedState.setDestinationKey(dbDestinationKey);
+				} else {
+					throw new Exception("Unknown destination kind " + destinationKeyKind);
+				}
 			}
 		} else {
 			throw new Exception("Unknown objective " + objective);
@@ -134,7 +141,7 @@ public class SpaceshipActor extends ActorBase implements Actor {
 			return false;
 		}
 
-		return locationKey.getName().equals(travelObjective.getStarKey());
+		return locationKey.getName().equals(travelObjective.getDestinationKeyValue());
 	}
 
 }

@@ -4,25 +4,21 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Random;
-import java.util.logging.Logger;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 
-import sfms.db.Db;
-import sfms.db.DbEntityWrapper;
 import sfms.db.CompositeKey;
 import sfms.db.CompositeKeyBuilder;
+import sfms.db.Db;
+import sfms.db.DbEntityWrapper;
 import sfms.db.DbValueFactory;
 import sfms.db.business.Coordinates;
 import sfms.db.schemas.DbEntity;
 import sfms.db.schemas.DbSpaceshipStateField;
 
 public class SpaceshipActorState {
-
-	@SuppressWarnings("unused")
-	private static final Logger LOGGER = Logger.getLogger(SpaceshipActorState.class.getName());
 
 	private static final Random RANDOM = new Random();
 	private static final int SECONDS_PER_DAY = 60 * 60 * 24;
@@ -333,8 +329,7 @@ public class SpaceshipActorState {
 				.set(DbSpaceshipStateField.LocationY.getName(), DbValueFactory.asValue(getLocationY()))
 				.set(DbSpaceshipStateField.LocationZ.getName(), DbValueFactory.asValue(getLocationZ()))
 				.set(DbSpaceshipStateField.LocationKey.getName(), DbValueFactory.asValue(getLocationKey()))
-				.set(DbSpaceshipStateField.LocationArrival.getName(),
-						DbValueFactory.asValue(getLocationArrival()))
+				.set(DbSpaceshipStateField.LocationArrival.getName(), DbValueFactory.asValue(getLocationArrival()))
 				.set(DbSpaceshipStateField.Speed.getName(), DbValueFactory.asValue(getSpeed()))
 				.set(DbSpaceshipStateField.DestinationX.getName(), DbValueFactory.asValue(getDestinationX()))
 				.set(DbSpaceshipStateField.DestinationY.getName(), DbValueFactory.asValue(getDestinationY()))

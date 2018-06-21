@@ -7,9 +7,9 @@ import sfms.db.DbFieldSchema;
 import sfms.db.DbValueType;
 
 /**
- * Defines the fields used by the Crew Member Mission entity.
+ * Defines the fields used by the Spaceship State entity.
  * 
- * @see DbEntity#CrewMemberMission
+ * @see DbEntity#SpaceshipState
  */
 public enum DbSpaceshipStateField implements DbFieldSchema {
 
@@ -23,7 +23,7 @@ public enum DbSpaceshipStateField implements DbFieldSchema {
 	LocationKey("lk", DbValueType.Key, "Location Entity", "Key of entity associated with current location."),
 	LocationArrival("la", DbValueType.Timestamp, "Location Arrival", "Arrival date/time for current location."),
 
-	// Ship movement properties
+	// Spaceship movement properties
 	//
 	Speed("s", DbValueType.Double, "Speed", "Speed of ship."),
 	DestinationX("dx", DbValueType.Double, "Destination X", "X coordinate of destination."),

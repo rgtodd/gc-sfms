@@ -47,6 +47,64 @@
 				</div>
 			</div>
 		</form>
+		<h3>Missions</h3>
+		<th:block th:each="mission : ${crewMember.missions}">
+			<h4 th:text="${mission.key}">#</h4>
+			<table>
+				<thead>
+					<tr>
+						<th>Objective</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="objective : ${mission.objectives}">
+						<td th:text="${objective.description}">#</td>
+					</tr>
+				</tbody>
+			</table>
+		</th:block>
+		<h3>Mission States</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Key</th>
+					<th>Date/Time</th>
+					<th>Objective Index</th>
+					<th>Start Date/Time</th>
+					<th>End Date/Time</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="missionState: ${crewMember.missionStates}">
+					<td th:text="${missionState.key}">#</td>
+					<td th:text="${{missionState.dateTime}}">#</td>
+					<td th:text="${missionState.objectiveIndex}">#</td>
+					<td th:text="${{missionState.startDateTime}}">#</td>
+					<td th:text="${{missionState.endDateTime}}">#</td>
+				</tr>
+			</tbody>
+		</table>
+		<h3>Crew Member States</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Key</th>
+					<th>Date/Time</th>
+					<th>Location Key</th>
+					<th>Location Arrival Date/Time</th>
+					<th>Destination Key</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="crewMemberState: ${crewMember.states}">
+					<td th:text="${{crewMemberState.key}}">#</td>
+					<td th:text="${{crewMemberState.dateTime}}">#</td>
+					<td th:text="${{crewMemberState.locationKey}}">#</td>
+					<td th:text="${{crewMemberState.locationArrivalDateTime}}">#</td>
+					<td th:text="${{crewMemberState.destinationKey}}">#</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 </body>
 </html>

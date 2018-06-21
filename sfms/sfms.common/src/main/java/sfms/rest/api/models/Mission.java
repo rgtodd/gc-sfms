@@ -4,6 +4,11 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * Defines a Mission entity exposed by the Crew Member and Spaceship REST
+ * services.
+ *
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Mission {
 

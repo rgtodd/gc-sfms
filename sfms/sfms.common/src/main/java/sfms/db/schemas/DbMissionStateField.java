@@ -7,9 +7,9 @@ import sfms.db.DbFieldSchema;
 import sfms.db.DbValueType;
 
 /**
- * Defines the fields used by the Crew Member Mission entity.
+ * Defines the fields used by the Mission State entity.
  * 
- * @see DbEntity#CrewMemberMission
+ * @see DbEntity#MissionState
  */
 public enum DbMissionStateField implements DbFieldSchema {
 

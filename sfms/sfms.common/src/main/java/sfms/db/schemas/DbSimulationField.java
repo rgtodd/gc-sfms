@@ -7,9 +7,9 @@ import sfms.db.DbFieldSchema;
 import sfms.db.DbValueType;
 
 /**
- * Defines the fields used by the Sector entity.
+ * Defines the fields used by the Simulation entity.
  * 
- * @see DbEntity#Sector
+ * @see DbEntity#Simulation
  */
 public enum DbSimulationField implements DbFieldSchema {
 

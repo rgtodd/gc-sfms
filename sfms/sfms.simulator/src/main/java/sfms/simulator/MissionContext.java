@@ -50,7 +50,7 @@ public class MissionContext {
 		return mission.getObjectives().get((int) (long) objectiveIndex);
 	}
 
-	public void createMission(Instant now) {
+	public void createMission(Instant now) throws Exception {
 
 		MissionGenerator generator = new MissionGenerator();
 		MissionDefinition missionDefinition = generator.createMission(m_actorKind);
@@ -82,7 +82,7 @@ public class MissionContext {
 		invalidateMission();
 	}
 
-	public boolean markCurrentObjectiveComplete(Instant now) {
+	public boolean markCurrentObjectiveComplete(Instant now) throws Exception {
 
 		// Update current mission state.
 		//

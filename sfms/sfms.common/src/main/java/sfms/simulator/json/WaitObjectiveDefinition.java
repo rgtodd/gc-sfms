@@ -16,7 +16,12 @@ public class WaitObjectiveDefinition extends ObjectiveDefinition {
 
 	@Override
 	public String toString() {
-		return "Wait " + m_waitDuration.toString();
+		long days = m_waitDuration.toDays();
+		if (days == 1) {
+			return "Wait 1 day";
+		} else {
+			return "Wait " + days + " days";
+		}
 	}
 
 }

@@ -11,7 +11,7 @@ import sfms.db.DbValueType;
  * 
  * Mission keys are of the form:
  * 
- *    <EntityType>#<EntityKey>#<ReverseTimestamp>
+ * <EntityType>#<EntityKey>#<ReverseTimestamp>
  * 
  * @see DbEntity#Mission
  */

@@ -6,20 +6,32 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import com.google.cloud.datastore.BaseEntity;
+import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 
 import sfms.db.DbEntityWrapper;
 import sfms.db.schemas.DbClusterField;
 import sfms.db.schemas.DbCrewMemberField;
+import sfms.db.schemas.DbCrewMemberStateField;
 import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbMissionField;
+import sfms.db.schemas.DbMissionStateField;
 import sfms.db.schemas.DbSectorField;
 import sfms.db.schemas.DbSpaceshipField;
+import sfms.db.schemas.DbSpaceshipStateField;
 import sfms.db.schemas.DbStarField;
 import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
+import sfms.rest.api.models.CrewMemberState;
+import sfms.rest.api.models.Mission;
+import sfms.rest.api.models.MissionObjective;
+import sfms.rest.api.models.MissionState;
 import sfms.rest.api.models.Sector;
 import sfms.rest.api.models.Spaceship;
+import sfms.rest.api.models.SpaceshipState;
 import sfms.rest.api.models.Star;
+import sfms.simulator.json.MissionDefinition;
+import sfms.simulator.json.ObjectiveDefinition;
 
 /**
  * Factory used to create REST entities from data store entities.
@@ -188,4 +200,120 @@ public class RestFactory {
 		}
 		return result;
 	}
+
+	public List<Mission> createMissions(Iterator<Entity> dbMissions) {
+
+		List<Mission> missions = new ArrayList<Mission>();
+		while (dbMissions.hasNext()) {
+			DbEntityWrapper dbMission = DbEntityWrapper.wrap(dbMissions.next());
+			String jsonMission = dbMission.getString(DbMissionField.MissionDefinition);
+			MissionDefinition missionDefinition = MissionDefinition.fromJson(jsonMission);
+
+			List<MissionObjective> objectives = new ArrayList<MissionObjective>();
+			for (ObjectiveDefinition objectiveDefinition : missionDefinition.getObjectives()) {
+				MissionObjective objective = new MissionObjective();
+				objective.setDescription(objectiveDefinition.toString());
+				objectives.add(objective);
+			}
+
+			Mission mission = new Mission();
+			mission.setKey(dbMission.getEntity().getKey().getName());
+			mission.setStatus(dbMission.getString(DbMissionField.MissionStatus));
+			mission.setObjectives(objectives);
+
+			missions.add(mission);
+		}
+
+		return missions;
+	}
+
+	public List<MissionState> createMissionStates(Iterator<Entity> dbMissionStates) {
+
+		List<MissionState> missionStates = new ArrayList<MissionState>();
+		while (dbMissionStates.hasNext()) {
+			DbEntityWrapper dbMissionState = DbEntityWrapper.wrap(dbMissionStates.next());
+
+			MissionState missionState = new MissionState();
+			missionState.setKey(dbMissionState.getEntity().getKey().getName());
+			missionState.setTimestamp(dbMissionState.getInstant(DbMissionStateField.Timestamp));
+			missionState.setObjectiveIndex(dbMissionState.getLong(DbMissionStateField.ObjectiveIndex));
+			missionState.setStartTimestamp(dbMissionState.getInstant(DbMissionStateField.StartTimestamp));
+			missionState.setEndTimestamp(dbMissionState.getInstant(DbMissionStateField.EndTimestamp));
+
+			missionStates.add(missionState);
+		}
+		return missionStates;
+	}
+
+	public List<SpaceshipState> createSpaceshipStates(Iterator<Entity> dbSpaceshipStates) {
+
+		List<SpaceshipState> spaceshipStates = new ArrayList<SpaceshipState>();
+		while (dbSpaceshipStates.hasNext()) {
+			DbEntityWrapper dbSpaceshipState = DbEntityWrapper.wrap(dbSpaceshipStates.next());
+
+			Key dbLocationKey = dbSpaceshipState.getKey(DbSpaceshipStateField.LocationKey);
+			Key dbDestinationKey = dbSpaceshipState.getKey(DbSpaceshipStateField.DestinationKey);
+
+			SpaceshipState spaceshipState = new SpaceshipState();
+			spaceshipState.setKey(dbSpaceshipState.getEntity().getKey().getName());
+			spaceshipState.setTimestamp(dbSpaceshipState.getInstant(DbSpaceshipStateField.Timestamp));
+			spaceshipState.setLocationX(dbSpaceshipState.getDouble(DbSpaceshipStateField.LocationX));
+			spaceshipState.setLocationY(dbSpaceshipState.getDouble(DbSpaceshipStateField.LocationY));
+			spaceshipState.setLocationZ(dbSpaceshipState.getDouble(DbSpaceshipStateField.LocationZ));
+			if (dbLocationKey != null) {
+				spaceshipState.setLocationKeyKind(dbLocationKey.getKind());
+				spaceshipState.setLocationKeyValue(getKeyValue(dbLocationKey));
+			}
+			spaceshipState.setLocationArrival(dbSpaceshipState.getInstant(DbSpaceshipStateField.LocationArrival));
+			spaceshipState.setSpeed(dbSpaceshipState.getDouble(DbSpaceshipStateField.Speed));
+			spaceshipState.setDestinationX(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationX));
+			spaceshipState.setDestinationY(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationY));
+			spaceshipState.setDestinationZ(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationZ));
+			if (dbDestinationKey != null) {
+				spaceshipState.setDestinationKeyKind(dbDestinationKey.getKind());
+				spaceshipState.setDestinationKeyValue(getKeyValue(dbDestinationKey));
+			}
+			spaceshipStates.add(spaceshipState);
+		}
+
+		return spaceshipStates;
+	}
+
+	public List<CrewMemberState> createCrewMemberStates(Iterator<Entity> dbCrewMemberStates) {
+
+		List<CrewMemberState> crewMemberStates = new ArrayList<CrewMemberState>();
+		while (dbCrewMemberStates.hasNext()) {
+			DbEntityWrapper dbCrewMemberState = DbEntityWrapper.wrap(dbCrewMemberStates.next());
+
+			Key dbLocationKey = dbCrewMemberState.getKey(DbCrewMemberStateField.LocationKey);
+			Key dbDestinationKey = dbCrewMemberState.getKey(DbCrewMemberStateField.DestinationKey);
+
+			CrewMemberState crewMemberState = new CrewMemberState();
+			crewMemberState.setKey(dbCrewMemberState.getEntity().getKey().getName());
+			crewMemberState.setTimestamp(dbCrewMemberState.getInstant(DbCrewMemberStateField.Timestamp));
+			if (dbLocationKey != null) {
+				crewMemberState.setLocationKeyKind(dbLocationKey.getKind());
+				crewMemberState.setLocationKeyValue(getKeyValue(dbLocationKey));
+			}
+			crewMemberState.setLocationArrival(dbCrewMemberState.getInstant(DbCrewMemberStateField.LocationArrival));
+			if (dbDestinationKey != null) {
+				crewMemberState.setDestinationKeyKind(dbDestinationKey.getKind());
+				crewMemberState.setDestinationKeyValue(getKeyValue(dbDestinationKey));
+			}
+			crewMemberStates.add(crewMemberState);
+		}
+
+		return crewMemberStates;
+	}
+
+	private String getKeyValue(Key dbKey) {
+		if (dbKey.hasId()) {
+			return dbKey.getId().toString();
+		}
+		if (dbKey.hasName()) {
+			return dbKey.getName();
+		}
+		return null;
+	}
+
 }

@@ -1,6 +1,5 @@
 package sfms.rest.controllers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,14 +26,10 @@ import com.google.cloud.datastore.Key;
 
 import sfms.db.CompositeKeyBuilder;
 import sfms.db.Db;
-import sfms.db.DbEntityWrapper;
 import sfms.db.DbFieldSchema;
 import sfms.db.DbValueFactory;
 import sfms.db.schemas.DbEntity;
-import sfms.db.schemas.DbMissionField;
-import sfms.db.schemas.DbMissionStateField;
 import sfms.db.schemas.DbSpaceshipField;
-import sfms.db.schemas.DbSpaceshipStateField;
 import sfms.rest.RestFactory;
 import sfms.rest.Throttle;
 import sfms.rest.api.CreateResult;
@@ -43,7 +38,6 @@ import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Mission;
-import sfms.rest.api.models.MissionObjective;
 import sfms.rest.api.models.MissionState;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.models.SpaceshipState;
@@ -51,8 +45,6 @@ import sfms.rest.api.schemas.SpaceshipField;
 import sfms.rest.db.RestQuery;
 import sfms.rest.db.RestQueryBuilder;
 import sfms.rest.db.RestQueryResults;
-import sfms.simulator.json.MissionDefinition;
-import sfms.simulator.json.ObjectiveDefinition;
 
 /**
  * Controller for the Spaceship REST service.
@@ -92,9 +84,9 @@ public class SpaceshipRestController {
 		RestFactory factory = new RestFactory();
 		Spaceship spaceship = factory.createSpaceship(dbSpaceship);
 
-		spaceship.setMissions(getMissions(datastore, dbSpaceshipKey.getId()));
-		spaceship.setMissionStates(getMissionStates(datastore, dbSpaceshipKey.getId()));
-		spaceship.setStates(getSpaceshipStates(datastore, dbSpaceshipKey.getId()));
+		spaceship.setMissions(getMissions(datastore, dbSpaceshipKey.getId(), factory));
+		spaceship.setMissionStates(getMissionStates(datastore, dbSpaceshipKey.getId(), factory));
+		spaceship.setStates(getSpaceshipStates(datastore, dbSpaceshipKey.getId(), factory));
 
 		return spaceship;
 	}
@@ -203,7 +195,7 @@ public class SpaceshipRestController {
 		return result;
 	}
 
-	private List<Mission> getMissions(Datastore datastore, Long shipId) {
+	private List<Mission> getMissions(Datastore datastore, Long shipId, RestFactory factory) {
 
 		String keyPrefix = CompositeKeyBuilder.create()
 				.append(DbEntity.Spaceship.getKind())
@@ -213,31 +205,10 @@ public class SpaceshipRestController {
 
 		Iterator<Entity> dbMissions = Db.getEntities(datastore, DbEntity.Mission.getKind(), keyPrefix);
 
-		List<Mission> missions = new ArrayList<Mission>();
-		while (dbMissions.hasNext()) {
-			DbEntityWrapper dbMission = DbEntityWrapper.wrap(dbMissions.next());
-			String jsonMission = dbMission.getString(DbMissionField.MissionDefinition);
-			MissionDefinition missionDefinition = MissionDefinition.fromJson(jsonMission);
-
-			List<MissionObjective> objectives = new ArrayList<MissionObjective>();
-			for (ObjectiveDefinition objectiveDefinition : missionDefinition.getObjectives()) {
-				MissionObjective objective = new MissionObjective();
-				objective.setDescription(objectiveDefinition.toString());
-				objectives.add(objective);
-			}
-
-			Mission mission = new Mission();
-			mission.setKey(dbMission.getEntity().getKey().getName());
-			mission.setStatus(dbMission.getString(DbMissionField.MissionStatus));
-			mission.setObjectives(objectives);
-
-			missions.add(mission);
-		}
-
-		return missions;
+		return factory.createMissions(dbMissions);
 	}
 
-	private List<MissionState> getMissionStates(Datastore datastore, Long shipId) {
+	private List<MissionState> getMissionStates(Datastore datastore, Long shipId, RestFactory factory) {
 
 		String keyPrefix = CompositeKeyBuilder.create()
 				.append(DbEntity.Spaceship.getKind())
@@ -247,24 +218,10 @@ public class SpaceshipRestController {
 
 		Iterator<Entity> dbMissionStates = Db.getEntities(datastore, DbEntity.MissionState.getKind(), keyPrefix);
 
-		List<MissionState> missionStates = new ArrayList<MissionState>();
-		while (dbMissionStates.hasNext()) {
-			DbEntityWrapper dbMissionState = DbEntityWrapper.wrap(dbMissionStates.next());
-
-			MissionState missionState = new MissionState();
-			missionState.setKey(dbMissionState.getEntity().getKey().getName());
-			missionState.setTimestamp(dbMissionState.getInstant(DbMissionStateField.Timestamp));
-			missionState.setObjectiveIndex(dbMissionState.getLong(DbMissionStateField.ObjectiveIndex));
-			missionState.setStartTimestamp(dbMissionState.getInstant(DbMissionStateField.StartTimestamp));
-			missionState.setEndTimestamp(dbMissionState.getInstant(DbMissionStateField.EndTimestamp));
-
-			missionStates.add(missionState);
-		}
-
-		return missionStates;
+		return factory.createMissionStates(dbMissionStates);
 	}
 
-	private List<SpaceshipState> getSpaceshipStates(Datastore datastore, Long shipId) {
+	private List<SpaceshipState> getSpaceshipStates(Datastore datastore, Long shipId, RestFactory factory) {
 
 		String keyPrefix = CompositeKeyBuilder.create()
 				.append(shipId)
@@ -273,45 +230,6 @@ public class SpaceshipRestController {
 
 		Iterator<Entity> dbSpaceshipStates = Db.getEntities(datastore, DbEntity.SpaceshipState.getKind(), keyPrefix);
 
-		List<SpaceshipState> spaceshipStates = new ArrayList<SpaceshipState>();
-		while (dbSpaceshipStates.hasNext()) {
-			DbEntityWrapper dbSpaceshipState = DbEntityWrapper.wrap(dbSpaceshipStates.next());
-
-			Key dbLocationKey = dbSpaceshipState.getKey(DbSpaceshipStateField.LocationKey);
-			Key dbDestinationKey = dbSpaceshipState.getKey(DbSpaceshipStateField.DestinationKey);
-
-			SpaceshipState spaceshipState = new SpaceshipState();
-			spaceshipState.setKey(dbSpaceshipState.getEntity().getKey().getName());
-			spaceshipState.setTimestamp(dbSpaceshipState.getInstant(DbSpaceshipStateField.Timestamp));
-			spaceshipState.setLocationX(dbSpaceshipState.getDouble(DbSpaceshipStateField.LocationX));
-			spaceshipState.setLocationY(dbSpaceshipState.getDouble(DbSpaceshipStateField.LocationY));
-			spaceshipState.setLocationZ(dbSpaceshipState.getDouble(DbSpaceshipStateField.LocationZ));
-			if (dbLocationKey != null) {
-				spaceshipState.setLocationKeyKind(dbLocationKey.getKind());
-				spaceshipState.setLocationKeyValue(getKeyValue(dbLocationKey));
-			}
-			spaceshipState.setLocationArrival(dbSpaceshipState.getInstant(DbSpaceshipStateField.LocationArrival));
-			spaceshipState.setSpeed(dbSpaceshipState.getDouble(DbSpaceshipStateField.Speed));
-			spaceshipState.setDestinationX(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationX));
-			spaceshipState.setDestinationY(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationY));
-			spaceshipState.setDestinationZ(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationZ));
-			if (dbDestinationKey != null) {
-				spaceshipState.setDestinationKeyKind(dbDestinationKey.getKind());
-				spaceshipState.setDestinationKeyValue(getKeyValue(dbDestinationKey));
-			}
-			spaceshipStates.add(spaceshipState);
-		}
-
-		return spaceshipStates;
-	}
-
-	private String getKeyValue(Key dbKey) {
-		if (dbKey.hasId()) {
-			return dbKey.getId().toString();
-		}
-		if (dbKey.hasName()) {
-			return dbKey.getName();
-		}
-		return null;
+		return factory.createSpaceshipStates(dbSpaceshipStates);
 	}
 }

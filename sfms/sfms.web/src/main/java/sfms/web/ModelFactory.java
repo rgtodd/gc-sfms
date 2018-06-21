@@ -8,6 +8,7 @@ import java.util.List;
 
 import sfms.rest.api.models.Cluster;
 import sfms.rest.api.models.CrewMember;
+import sfms.rest.api.models.CrewMemberState;
 import sfms.rest.api.models.Mission;
 import sfms.rest.api.models.MissionObjective;
 import sfms.rest.api.models.MissionState;
@@ -17,6 +18,7 @@ import sfms.rest.api.models.SpaceshipState;
 import sfms.rest.api.models.Star;
 import sfms.web.models.ClusterModel;
 import sfms.web.models.CrewMemberModel;
+import sfms.web.models.CrewMemberStateModel;
 import sfms.web.models.MissionModel;
 import sfms.web.models.MissionObjectiveModel;
 import sfms.web.models.MissionStateModel;
@@ -69,6 +71,9 @@ public class ModelFactory {
 		result.setKey(crewMember.getKey());
 		result.setFirstName(crewMember.getFirstName());
 		result.setLastName(crewMember.getLastName());
+		result.setMissions(createMissions(crewMember.getMissions()));
+		result.setMissionStates(createMissionStates(crewMember.getMissionStates()));
+		result.setStates(createCrewMemberStates(crewMember.getStates()));
 		return result;
 	}
 
@@ -272,6 +277,28 @@ public class ModelFactory {
 		if (spaceshipStates != null) {
 			for (SpaceshipState spaceshipState : spaceshipStates) {
 				result.add(createSpaceshipState(spaceshipState));
+			}
+		}
+		return result;
+	}
+
+	public CrewMemberStateModel createCrewMemberState(CrewMemberState crewMemberState) {
+		CrewMemberStateModel result = new CrewMemberStateModel();
+		result.setKey(crewMemberState.getKey());
+		result.setDateTime(toZonedDateTime(crewMemberState.getTimestamp()));
+		result.setLocationKeyKind(crewMemberState.getLocationKeyKind());
+		result.setLocationKeyValue(crewMemberState.getLocationKeyValue());
+		result.setLocationArrivalDateTime(toZonedDateTime(crewMemberState.getLocationArrival()));
+		result.setDestinationKeyKind(crewMemberState.getDestinationKeyKind());
+		result.setDestinationKeyValue(crewMemberState.getDestinationKeyValue());
+		return result;
+	}
+
+	public List<CrewMemberStateModel> createCrewMemberStates(Iterable<CrewMemberState> crewMemberStates) {
+		List<CrewMemberStateModel> result = new ArrayList<CrewMemberStateModel>();
+		if (crewMemberStates != null) {
+			for (CrewMemberState crewMemberState : crewMemberStates) {
+				result.add(createCrewMemberState(crewMemberState));
 			}
 		}
 		return result;

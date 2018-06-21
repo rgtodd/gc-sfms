@@ -4,6 +4,11 @@ import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * Defines a Mission State entity exposed by the Crew Member and Spaceship REST
+ * services.
+ *
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MissionState {
 

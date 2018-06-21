@@ -7,13 +7,22 @@ import sfms.db.DbFieldSchema;
 import sfms.db.DbValueType;
 
 /**
- * Defines the fields used by the Crew Member Mission entity.
+ * Defines the fields used by the Crew Member State entity.
  * 
- * @see DbEntity#CrewMemberMission
+ * @see DbEntity#CrewMemberState
  */
 public enum DbCrewMemberStateField implements DbFieldSchema {
 
-	Timestamp("ts", DbValueType.Timestamp, "Timestamp", "Effective date/time for state information.");
+	Timestamp("ts", DbValueType.Timestamp, "Timestamp", "Effective date/time for state information."),
+
+	// Intrinsic properties
+	//
+	LocationKey("lk", DbValueType.Key, "Location Entity", "Key of entity associated with current location."),
+	LocationArrival("la", DbValueType.Timestamp, "Location Arrival", "Arrival date/time for current location."),
+
+	// Crew member movement properties
+	//
+	DestinationKey("dk", DbValueType.Key, "Destination Entity", "Key of entity associated with destination.");
 
 	private String m_name;
 	private DbValueType m_dbValueType;

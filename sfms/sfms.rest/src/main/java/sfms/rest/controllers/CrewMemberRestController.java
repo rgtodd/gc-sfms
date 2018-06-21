@@ -1,6 +1,7 @@
 package sfms.rest.controllers;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +24,8 @@ import com.google.cloud.datastore.FullEntity;
 import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Key;
 
+import sfms.db.CompositeKeyBuilder;
+import sfms.db.Db;
 import sfms.db.DbFieldSchema;
 import sfms.db.DbValueFactory;
 import sfms.db.schemas.DbCrewMemberField;
@@ -35,6 +38,9 @@ import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.CrewMember;
+import sfms.rest.api.models.CrewMemberState;
+import sfms.rest.api.models.Mission;
+import sfms.rest.api.models.MissionState;
 import sfms.rest.api.schemas.CrewMemberField;
 import sfms.rest.db.RestQuery;
 import sfms.rest.db.RestQueryBuilder;
@@ -78,6 +84,10 @@ public class CrewMemberRestController {
 
 		RestFactory factory = new RestFactory();
 		CrewMember crewMember = factory.createCrewMember(dbCrewMember);
+
+		crewMember.setMissions(getMissions(datastore, dbCrewMemberKey.getId(), factory));
+		crewMember.setMissionStates(getMissionStates(datastore, dbCrewMemberKey.getId(), factory));
+		crewMember.setStates(getCrewMemberStates(datastore, dbCrewMemberKey.getId(), factory));
 
 		return crewMember;
 	}
@@ -187,5 +197,43 @@ public class CrewMemberRestController {
 		result.setKey(DbEntity.CrewMember.createRestKey(dbCrewMemberKey));
 
 		return result;
+	}
+
+	private List<Mission> getMissions(Datastore datastore, Long crewMemberId, RestFactory factory) {
+
+		String keyPrefix = CompositeKeyBuilder.create()
+				.append(DbEntity.CrewMember.getKind())
+				.append(crewMemberId)
+				.build()
+				.toString();
+
+		Iterator<Entity> dbMissions = Db.getEntities(datastore, DbEntity.Mission.getKind(), keyPrefix);
+
+		return factory.createMissions(dbMissions);
+	}
+
+	private List<MissionState> getMissionStates(Datastore datastore, Long crewMemberId, RestFactory factory) {
+
+		String keyPrefix = CompositeKeyBuilder.create()
+				.append(DbEntity.CrewMember.getKind())
+				.append(crewMemberId)
+				.build()
+				.toString();
+
+		Iterator<Entity> dbMissionStates = Db.getEntities(datastore, DbEntity.MissionState.getKind(), keyPrefix);
+
+		return factory.createMissionStates(dbMissionStates);
+	}
+
+	private List<CrewMemberState> getCrewMemberStates(Datastore datastore, Long crewMemberId, RestFactory factory) {
+
+		String keyPrefix = CompositeKeyBuilder.create()
+				.append(crewMemberId)
+				.build()
+				.toString();
+
+		Iterator<Entity> dbCrewMemberStates = Db.getEntities(datastore, DbEntity.CrewMemberState.getKind(), keyPrefix);
+
+		return factory.createCrewMemberStates(dbCrewMemberStates);
 	}
 }
