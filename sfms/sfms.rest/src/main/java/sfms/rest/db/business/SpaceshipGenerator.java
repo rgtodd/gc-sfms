@@ -29,7 +29,7 @@ public class SpaceshipGenerator {
 
 		try (BatchPut batchPut = new BatchPut(datastore)) {
 			for (int idx = 0; idx < count; ++idx) {
-				String name = "USS " + ValueGenerator.getRandomAdjective() + " " + ValueGenerator.getRandomNoun();
+				String name = ValueGenerator.getRandomSpaceshipName();
 
 				IncompleteKey clusterKey = clusterKeyFactory.newKey();
 				FullEntity<IncompleteKey> cluster = FullEntity.newBuilder(clusterKey)

@@ -153,4 +153,8 @@ public class ValueGenerator {
 		return DEPARTMENTS[RANDOM.nextInt(DEPARTMENTS.length)];
 	}
 
+	public static String getRandomSpaceshipName() {
+		return "USS " + getRandomAdjective() + " " + getRandomNoun();
+	}
+
 }

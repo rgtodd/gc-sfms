@@ -63,20 +63,30 @@ public class CrewMemberActor extends ActorBase {
 
 		CrewMemberActorState updatedState = currentState.apply(duration);
 
-		MissionContext missionContext = new MissionContext(getDatastore(), getActorKind(), getActorId());
-
-		ObjectiveDefinition objective = missionContext.getObjective();
-		if (objective == null) {
-			missionContext.createMission(now);
-		} else if (isObjectiveComplete(objective, updatedState)) {
-			missionContext.markCurrentObjectiveComplete(now);
+		MissionContext context = new MissionContext(getDatastore(), getActorKind(), getActorId());
+		if (context.hasMissionState()) {
+			ObjectiveDefinition objective = context.getObjective();
+			if (isObjectiveComplete(objective, updatedState)) {
+				context.markCurrentObjectiveComplete(now);
+			}
 		}
 
-		objective = missionContext.getObjective();
-		if (objective == null) {
-			throw new Exception("Objective does not exist.");
+		if (!context.hasMission() || context.isMissionComplete()) {
+			context.createMission(now);
 		}
 
+		if (context.hasMissionState()) {
+			ObjectiveDefinition objective = context.getObjective();
+			updateStateForObjective(updatedState, objective);
+		}
+
+		if (!equals(updatedState, currentState)) {
+			updatedState.save(getDatastore());
+		}
+	}
+
+	private void updateStateForObjective(CrewMemberActorState state, ObjectiveDefinition objective)
+			throws Exception {
 		if (objective instanceof WaitObjectiveDefinition) {
 			// No action required.
 		} else if (objective instanceof TravelObjectiveDefinition) {
@@ -86,15 +96,13 @@ public class CrewMemberActor extends ActorBase {
 			Key dbDestinationKey = getDatastore().newKeyFactory()
 					.setKind(destinationKeyKind)
 					.newKey(destinationKeyValue);
-			if (updatedState.getDestinationKey() == null
-					|| !updatedState.getDestinationKey().equals(dbDestinationKey)) {
-				updatedState.setDestinationKey(dbDestinationKey);
+			if (state.getDestinationKey() == null
+					|| !state.getDestinationKey().equals(dbDestinationKey)) {
+				state.setDestinationKey(dbDestinationKey);
 			}
 		} else {
 			throw new Exception("Unknown objective " + objective);
 		}
-
-		updatedState.save(getDatastore());
 	}
 
 	private boolean isObjectiveComplete(ObjectiveDefinition objective, CrewMemberActorState state) {
@@ -128,5 +136,35 @@ public class CrewMemberActor extends ActorBase {
 		}
 
 		return locationKey.getName().equals(travelObjective.getDestinationKeyValue());
+	}
+
+	private boolean equals(CrewMemberActorState lhs, CrewMemberActorState rhs) {
+		return equals(lhs.getLocationKey(), rhs.getLocationKey())
+				&& equals(lhs.getLocationArrival(), rhs.getLocationArrival())
+				&& equals(lhs.getDestinationKey(), rhs.getDestinationKey());
+	}
+
+	private boolean equals(Key lhs, Key rhs) {
+		if (lhs == null && rhs == null) {
+			return true;
+		}
+
+		if (lhs == null || rhs == null) {
+			return false;
+		}
+
+		return lhs.equals(rhs);
+	}
+
+	private boolean equals(Instant lhs, Instant rhs) {
+		if (lhs == null && rhs == null) {
+			return true;
+		}
+
+		if (lhs == null || rhs == null) {
+			return false;
+		}
+
+		return lhs.equals(rhs);
 	}
 }

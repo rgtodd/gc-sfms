@@ -18,7 +18,9 @@ import sfms.db.DbValueFactory;
 import sfms.db.business.Region;
 import sfms.db.business.RegionSet;
 import sfms.db.schemas.DbEntity;
+import sfms.db.schemas.DbSpaceshipField;
 import sfms.db.schemas.DbStarField;
+import sfms.rest.api.test.ValueGenerator;
 import sfms.simulator.json.MissionDefinition;
 import sfms.simulator.json.ObjectiveDefinition;
 import sfms.simulator.json.TravelObjectiveDefinition;
@@ -132,15 +134,9 @@ public class MissionGenerator {
 
 	private Long getRandomShipKey() throws Exception {
 
-		long randomShipId = m_random.nextLong();
-
-		Key dbKeyPrefix = m_datastore.newKeyFactory()
-				.setKind(DbEntity.Spaceship.getKind())
-				.newKey(randomShipId);
-
 		Query<Key> dbKeyQuery = Query.newKeyQueryBuilder()
 				.setKind(DbEntity.Spaceship.getKind())
-				.setFilter(PropertyFilter.ge("__key__", dbKeyPrefix))
+				.setFilter(PropertyFilter.ge(DbSpaceshipField.Name.getName(), ValueGenerator.getRandomSpaceshipName()))
 				.setLimit(1)
 				.build();
 

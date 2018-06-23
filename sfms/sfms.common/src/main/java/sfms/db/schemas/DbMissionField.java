@@ -18,6 +18,8 @@ import sfms.db.DbValueType;
 public enum DbMissionField implements DbFieldSchema {
 
 	MissionDefinition("m", DbValueType.String, "Mission", "Mission definition in JSON format."),
+	StartTimestamp("st", DbValueType.Timestamp, "Start Date/Time", "Mission start date/time."),
+	EndTimestamp("et", DbValueType.Timestamp, "End Date/Time", "Mission end date/time."),
 	MissionStatus("ms", DbValueType.String, "Mission Status", "Indicates if mission is active or complete.");
 
 	private String m_name;

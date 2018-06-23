@@ -52,7 +52,7 @@ public class MissionState {
 		m_stateSerialInstant = stateSerialInstant;
 	}
 
-	public static MissionState getCurrentMission(Datastore datastore, String actorKind, long actorId,
+	public static MissionState getCurrentMissionState(Datastore datastore, String actorKind, long actorId,
 			Instant missionSerialInstant) {
 
 		String keyPrefix = CompositeKeyBuilder.create()

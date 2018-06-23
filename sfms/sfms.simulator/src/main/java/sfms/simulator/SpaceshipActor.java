@@ -68,22 +68,30 @@ public class SpaceshipActor extends ActorBase implements Actor {
 
 		SpaceshipActorState updatedState = currentState.apply(duration);
 
-		MissionContext missionContext = new MissionContext(getDatastore(), getActorKind(), getActorId());
-
-		ObjectiveDefinition objective = missionContext.getObjective();
-		if (objective == null) {
-			missionContext.createMission(now);
-		} else if (isObjectiveComplete(objective, updatedState)) {
-			missionContext.markCurrentObjectiveComplete(now);
+		MissionContext context = new MissionContext(getDatastore(), getActorKind(), getActorId());
+		if (context.hasMissionState()) {
+			ObjectiveDefinition objective = context.getObjective();
+			if (isObjectiveComplete(objective, updatedState)) {
+				context.markCurrentObjectiveComplete(now);
+			}
 		}
 
-		objective = missionContext.getObjective();
-		if (objective == null) {
-			throw new Exception("Objective does not exist.");
+		if (!context.hasMission() || context.isMissionComplete()) {
+			context.createMission(now);
 		}
 
+		if (context.hasMissionState()) {
+			ObjectiveDefinition objective = context.getObjective();
+			updateStateForObjective(updatedState, objective);
+		}
+
+		updatedState.save(getDatastore());
+	}
+
+	private void updateStateForObjective(SpaceshipActorState state, ObjectiveDefinition objective)
+			throws Exception {
 		if (objective instanceof WaitObjectiveDefinition) {
-			updatedState.setSpeed(0.0);
+			state.setSpeed(0.0);
 		} else if (objective instanceof TravelObjectiveDefinition) {
 			TravelObjectiveDefinition travelObjective = (TravelObjectiveDefinition) objective;
 			String destinationKeyKind = travelObjective.getDestinationKeyKind();
@@ -91,15 +99,15 @@ public class SpaceshipActor extends ActorBase implements Actor {
 			Key dbDestinationKey = getDatastore().newKeyFactory()
 					.setKind(destinationKeyKind)
 					.newKey(destinationKeyValue);
-			if (updatedState.getDestinationKey() == null
-					|| !updatedState.getDestinationKey().equals(dbDestinationKey)) {
+			if (state.getDestinationKey() == null
+					|| !state.getDestinationKey().equals(dbDestinationKey)) {
 				if (destinationKeyKind.equals(DbEntity.Star.getKind())) {
 					DbEntityWrapper dbStar = DbEntityWrapper.wrap(getDatastore().get(dbDestinationKey));
-					updatedState.setSpeed(RANDOM.nextDouble() * 100 + 100);
-					updatedState.setDestinationX(dbStar.getDouble(DbStarField.X));
-					updatedState.setDestinationY(dbStar.getDouble(DbStarField.Y));
-					updatedState.setDestinationZ(dbStar.getDouble(DbStarField.Z));
-					updatedState.setDestinationKey(dbDestinationKey);
+					state.setSpeed(RANDOM.nextDouble() * 100 + 100);
+					state.setDestinationX(dbStar.getDouble(DbStarField.X));
+					state.setDestinationY(dbStar.getDouble(DbStarField.Y));
+					state.setDestinationZ(dbStar.getDouble(DbStarField.Z));
+					state.setDestinationKey(dbDestinationKey);
 				} else {
 					throw new Exception("Unknown destination kind " + destinationKeyKind);
 				}
@@ -107,8 +115,6 @@ public class SpaceshipActor extends ActorBase implements Actor {
 		} else {
 			throw new Exception("Unknown objective " + objective);
 		}
-
-		updatedState.save(getDatastore());
 	}
 
 	private boolean isObjectiveComplete(ObjectiveDefinition objective, SpaceshipActorState state) {
