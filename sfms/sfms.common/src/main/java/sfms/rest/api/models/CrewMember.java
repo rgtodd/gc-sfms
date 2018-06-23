@@ -15,7 +15,6 @@ public class CrewMember {
 	private String m_firstName;
 	private String m_lastName;
 	private List<Mission> m_missions;
-	private List<MissionState> m_missionStates;
 	private List<CrewMemberState> m_states;
 
 	public CrewMember() {
@@ -51,14 +50,6 @@ public class CrewMember {
 
 	public void setMissions(List<Mission> missions) {
 		m_missions = missions;
-	}
-
-	public List<MissionState> getMissionStates() {
-		return m_missionStates;
-	}
-
-	public void setMissionStates(List<MissionState> missionStates) {
-		m_missionStates = missionStates;
 	}
 
 	public List<CrewMemberState> getStates() {

@@ -68,7 +68,7 @@ public class CrewMemberActorState {
 
 		state.setTimestamp(entity.getInstant(DbCrewMemberStateField.Timestamp));
 		state.setLocationKey(entity.getKey(DbCrewMemberStateField.LocationKey));
-		state.setLocationArrival(entity.getInstant(DbCrewMemberStateField.LocationArrival));
+		state.setLocationArrival(entity.getInstant(DbCrewMemberStateField.LocationArrivalTimestamp));
 		state.setDestinationKey(entity.getKey(DbCrewMemberStateField.DestinationKey));
 
 		return state;
@@ -177,7 +177,7 @@ public class CrewMemberActorState {
 		Entity dbEntity = Entity.newBuilder(dbKey)
 				.set(DbCrewMemberStateField.Timestamp.getName(), DbValueFactory.asValue(getTimestamp()))
 				.set(DbCrewMemberStateField.LocationKey.getName(), DbValueFactory.asValue(getLocationKey()))
-				.set(DbCrewMemberStateField.LocationArrival.getName(), DbValueFactory.asValue(getLocationArrival()))
+				.set(DbCrewMemberStateField.LocationArrivalTimestamp.getName(), DbValueFactory.asValue(getLocationArrival()))
 				.set(DbCrewMemberStateField.DestinationKey.getName(), DbValueFactory.asValue(getDestinationKey()))
 				.build();
 

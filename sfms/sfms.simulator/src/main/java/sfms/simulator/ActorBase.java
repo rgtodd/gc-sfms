@@ -46,6 +46,7 @@ public abstract class ActorBase implements Actor {
 
 		actorMission.setMissionDefinition(mission);
 		actorMission.setStatus(DbMissionStatusValues.ACTIVE);
+		actorMission.setStartTimestamp(now);
 
 		actorMission.save(m_datastore);
 	}

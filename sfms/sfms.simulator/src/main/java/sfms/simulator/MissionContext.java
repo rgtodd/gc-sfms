@@ -95,6 +95,7 @@ public class MissionContext {
 		Mission mission = new Mission(m_actorKind, m_actorId, now);
 		mission.setMissionDefinition(missionDefinition);
 		mission.setStatus(DbMissionStatusValues.ACTIVE);
+		mission.setStartTimestamp(now);
 		mission.save(m_datastore);
 
 		LOGGER.log(Level.INFO, "  Creating mission: {0} / {1} / {2}",
@@ -171,6 +172,7 @@ public class MissionContext {
 			//
 			Mission mission = getMission();
 			mission.setStatus(DbMissionStatusValues.COMPLETE);
+			mission.setEndTimestamp(now);
 			mission.save(m_datastore);
 
 			LOGGER.log(Level.INFO, "  Mark mission complete: {0} / {1} / {2}",

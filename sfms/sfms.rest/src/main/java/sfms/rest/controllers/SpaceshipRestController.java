@@ -38,7 +38,6 @@ import sfms.rest.api.RestParameters;
 import sfms.rest.api.SearchResult;
 import sfms.rest.api.UpdateResult;
 import sfms.rest.api.models.Mission;
-import sfms.rest.api.models.MissionState;
 import sfms.rest.api.models.Spaceship;
 import sfms.rest.api.models.SpaceshipState;
 import sfms.rest.api.schemas.SpaceshipField;
@@ -85,7 +84,6 @@ public class SpaceshipRestController {
 		Spaceship spaceship = factory.createSpaceship(dbSpaceship);
 
 		spaceship.setMissions(getMissions(datastore, dbSpaceshipKey.getId(), factory));
-		spaceship.setMissionStates(getMissionStates(datastore, dbSpaceshipKey.getId(), factory));
 		spaceship.setStates(getSpaceshipStates(datastore, dbSpaceshipKey.getId(), factory));
 
 		return spaceship;
@@ -197,28 +195,24 @@ public class SpaceshipRestController {
 
 	private List<Mission> getMissions(Datastore datastore, Long shipId, RestFactory factory) {
 
-		String keyPrefix = CompositeKeyBuilder.create()
+		String missionKeyPrefix = CompositeKeyBuilder.create()
 				.append(DbEntity.Spaceship.getKind())
 				.append(shipId)
 				.build()
 				.toString();
 
-		Iterator<Entity> dbMissions = Db.getEntities(datastore, DbEntity.Mission.getKind(), keyPrefix);
+		Iterator<Entity> dbMissions = Db.getEntities(datastore, DbEntity.Mission.getKind(), missionKeyPrefix);
 
-		return factory.createMissions(dbMissions);
-	}
-
-	private List<MissionState> getMissionStates(Datastore datastore, Long shipId, RestFactory factory) {
-
-		String keyPrefix = CompositeKeyBuilder.create()
+		String missionStateKeyPrefix = CompositeKeyBuilder.create()
 				.append(DbEntity.Spaceship.getKind())
 				.append(shipId)
 				.build()
 				.toString();
 
-		Iterator<Entity> dbMissionStates = Db.getEntities(datastore, DbEntity.MissionState.getKind(), keyPrefix);
+		Iterator<Entity> dbMissionStates = Db.getEntities(datastore, DbEntity.MissionState.getKind(),
+				missionStateKeyPrefix);
 
-		return factory.createMissionStates(dbMissionStates);
+		return factory.createMissions(dbMissions, dbMissionStates);
 	}
 
 	private List<SpaceshipState> getSpaceshipStates(Datastore datastore, Long shipId, RestFactory factory) {

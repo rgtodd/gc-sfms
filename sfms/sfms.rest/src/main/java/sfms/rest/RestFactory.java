@@ -201,9 +201,12 @@ public class RestFactory {
 		return result;
 	}
 
-	public List<Mission> createMissions(Iterator<Entity> dbMissions) {
+	public List<Mission> createMissions(Iterator<Entity> dbMissions, Iterator<Entity> dbMissionStates) {
 
 		List<Mission> missions = new ArrayList<Mission>();
+
+		// Load missions.
+		//
 		while (dbMissions.hasNext()) {
 			DbEntityWrapper dbMission = DbEntityWrapper.wrap(dbMissions.next());
 			String jsonMission = dbMission.getString(DbMissionField.MissionDefinition);
@@ -219,30 +222,39 @@ public class RestFactory {
 			Mission mission = new Mission();
 			mission.setKey(dbMission.getEntity().getKey().getName());
 			mission.setStatus(dbMission.getString(DbMissionField.MissionStatus));
+			mission.setStartTimestamp(dbMission.getInstant(DbMissionField.StartTimestamp));
+			mission.setEndTimestamp(dbMission.getInstant(DbMissionField.EndTimestamp));
+			mission.setMissionStates(new ArrayList<MissionState>());
 			mission.setObjectives(objectives);
 
 			missions.add(mission);
 		}
 
-		return missions;
-	}
+		// Load mission states. It is assumed that mission states are returned in the
+		// same order as the associated missions.
+		{
+			int idxMission = -1;
+			Mission mission = null;
 
-	public List<MissionState> createMissionStates(Iterator<Entity> dbMissionStates) {
+			while (dbMissionStates.hasNext()) {
+				DbEntityWrapper dbMissionState = DbEntityWrapper.wrap(dbMissionStates.next());
 
-		List<MissionState> missionStates = new ArrayList<MissionState>();
-		while (dbMissionStates.hasNext()) {
-			DbEntityWrapper dbMissionState = DbEntityWrapper.wrap(dbMissionStates.next());
+				MissionState missionState = new MissionState();
+				missionState.setKey(dbMissionState.getEntity().getKey().getName());
+				missionState.setTimestamp(dbMissionState.getInstant(DbMissionStateField.Timestamp));
+				missionState.setObjectiveIndex(dbMissionState.getLong(DbMissionStateField.ObjectiveIndex));
+				missionState.setStartTimestamp(dbMissionState.getInstant(DbMissionStateField.StartTimestamp));
+				missionState.setEndTimestamp(dbMissionState.getInstant(DbMissionStateField.EndTimestamp));
 
-			MissionState missionState = new MissionState();
-			missionState.setKey(dbMissionState.getEntity().getKey().getName());
-			missionState.setTimestamp(dbMissionState.getInstant(DbMissionStateField.Timestamp));
-			missionState.setObjectiveIndex(dbMissionState.getLong(DbMissionStateField.ObjectiveIndex));
-			missionState.setStartTimestamp(dbMissionState.getInstant(DbMissionStateField.StartTimestamp));
-			missionState.setEndTimestamp(dbMissionState.getInstant(DbMissionStateField.EndTimestamp));
+				while (mission == null || !missionState.getKey().startsWith(mission.getKey())) {
+					mission = missions.get(++idxMission);
+				}
 
-			missionStates.add(missionState);
+				mission.getMissionStates().add(missionState);
+			}
 		}
-		return missionStates;
+
+		return missions;
 	}
 
 	public List<SpaceshipState> createSpaceshipStates(Iterator<Entity> dbSpaceshipStates) {
@@ -264,7 +276,8 @@ public class RestFactory {
 				spaceshipState.setLocationKeyKind(dbLocationKey.getKind());
 				spaceshipState.setLocationKeyValue(getKeyValue(dbLocationKey));
 			}
-			spaceshipState.setLocationArrival(dbSpaceshipState.getInstant(DbSpaceshipStateField.LocationArrival));
+			spaceshipState
+					.setLocationArrival(dbSpaceshipState.getInstant(DbSpaceshipStateField.LocationArrivalTimestamp));
 			spaceshipState.setSpeed(dbSpaceshipState.getDouble(DbSpaceshipStateField.Speed));
 			spaceshipState.setDestinationX(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationX));
 			spaceshipState.setDestinationY(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationY));
@@ -295,7 +308,8 @@ public class RestFactory {
 				crewMemberState.setLocationKeyKind(dbLocationKey.getKind());
 				crewMemberState.setLocationKeyValue(getKeyValue(dbLocationKey));
 			}
-			crewMemberState.setLocationArrival(dbCrewMemberState.getInstant(DbCrewMemberStateField.LocationArrival));
+			crewMemberState
+					.setLocationArrival(dbCrewMemberState.getInstant(DbCrewMemberStateField.LocationArrivalTimestamp));
 			if (dbDestinationKey != null) {
 				crewMemberState.setDestinationKeyKind(dbDestinationKey.getKind());
 				crewMemberState.setDestinationKeyValue(getKeyValue(dbDestinationKey));

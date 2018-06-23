@@ -72,7 +72,6 @@ public class ModelFactory {
 		result.setFirstName(crewMember.getFirstName());
 		result.setLastName(crewMember.getLastName());
 		result.setMissions(createMissions(crewMember.getMissions()));
-		result.setMissionStates(createMissionStates(crewMember.getMissionStates()));
 		result.setStates(createCrewMemberStates(crewMember.getStates()));
 		return result;
 	}
@@ -126,7 +125,6 @@ public class ModelFactory {
 		result.setKey(spaceship.getKey());
 		result.setName(spaceship.getName());
 		result.setMissions(createMissions(spaceship.getMissions()));
-		result.setMissionStates(createMissionStates(spaceship.getMissionStates()));
 		result.setStates(createSpaceshipStates(spaceship.getStates()));
 		return result;
 	}
@@ -219,7 +217,10 @@ public class ModelFactory {
 		MissionModel result = new MissionModel();
 		result.setKey(mission.getKey());
 		result.setStatus(mission.getStatus());
+		result.setStartDateTime(toZonedDateTime(mission.getStartTimestamp()));
+		result.setEndDateTime(toZonedDateTime(mission.getEndTimestamp()));
 		result.setObjectives(createMissionObjectives(mission.getObjectives()));
+		result.setMissionStates(createMissionStates(mission.getMissionStates()));
 		return result;
 	}
 

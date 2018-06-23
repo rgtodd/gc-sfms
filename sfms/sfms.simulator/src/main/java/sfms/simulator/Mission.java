@@ -29,6 +29,8 @@ public class Mission {
 	//
 	private MissionDefinition m_missionDefinition;
 	private String m_status;
+	private Instant m_startTimestamp;
+	private Instant m_endTimestamp;
 
 	private Mission() {
 	}
@@ -66,6 +68,8 @@ public class Mission {
 		Mission result = new Mission(actorKind, actorId, serialInstant);
 		result.setMissionDefinition(createMissionFromJson(entity.getString(DbMissionField.MissionDefinition)));
 		result.setStatus(entity.getString(DbMissionField.MissionStatus));
+		result.setStartTimestamp(entity.getInstant(DbMissionField.StartTimestamp));
+		result.setEndTimestamp(entity.getInstant(DbMissionField.EndTimestamp));
 
 		return result;
 	}
@@ -98,6 +102,22 @@ public class Mission {
 		m_status = status;
 	}
 
+	public Instant getEndTimestamp() {
+		return m_endTimestamp;
+	}
+
+	public void setEndTimestamp(Instant endTimestamp) {
+		m_endTimestamp = endTimestamp;
+	}
+
+	public Instant getStartTimestamp() {
+		return m_startTimestamp;
+	}
+
+	public void setStartTimestamp(Instant startTimestamp) {
+		m_startTimestamp = startTimestamp;
+	}
+
 	public void save(Datastore datastore) {
 
 		String jsonMission = getMissionDefinition().toJson();
@@ -116,6 +136,8 @@ public class Mission {
 		Entity dbEntity = Entity.newBuilder(dbKey)
 				.set(DbMissionField.MissionDefinition.getName(), DbValueFactory.asValue(jsonMission))
 				.set(DbMissionField.MissionStatus.getName(), DbValueFactory.asValue(getStatus()))
+				.set(DbMissionField.StartTimestamp.getName(), DbValueFactory.asValue(getStartTimestamp()))
+				.set(DbMissionField.EndTimestamp.getName(), DbValueFactory.asValue(getEndTimestamp()))
 				.build();
 
 		datastore.put(dbEntity);

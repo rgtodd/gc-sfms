@@ -13,12 +13,13 @@ import sfms.db.DbValueType;
  */
 public enum DbCrewMemberStateField implements DbFieldSchema {
 
-	Timestamp("ts", DbValueType.Timestamp, "Timestamp", "Effective date/time for state information."),
+	Timestamp("ts", DbValueType.Timestamp, "Timestamp", "Effective timestamp for state information."),
 
 	// Intrinsic properties
 	//
 	LocationKey("lk", DbValueType.Key, "Location Entity", "Key of entity associated with current location."),
-	LocationArrival("la", DbValueType.Timestamp, "Location Arrival", "Arrival date/time for current location."),
+	LocationArrivalTimestamp("la", DbValueType.Timestamp, "Location Arrival",
+			"Arrival timestamp for current location."),
 
 	// Crew member movement properties
 	//

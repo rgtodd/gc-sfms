@@ -90,7 +90,7 @@ public class SpaceshipActorState {
 		state.setLocationY(entity.getDouble(DbSpaceshipStateField.LocationY));
 		state.setLocationZ(entity.getDouble(DbSpaceshipStateField.LocationZ));
 		state.setLocationKey(entity.getKey(DbSpaceshipStateField.LocationKey));
-		state.setLocationArrival(entity.getInstant(DbSpaceshipStateField.LocationArrival));
+		state.setLocationArrival(entity.getInstant(DbSpaceshipStateField.LocationArrivalTimestamp));
 		state.setSpeed(entity.getDouble(DbSpaceshipStateField.Speed));
 		state.setDestinationX(entity.getDouble(DbSpaceshipStateField.DestinationX));
 		state.setDestinationY(entity.getDouble(DbSpaceshipStateField.DestinationY));
@@ -329,7 +329,8 @@ public class SpaceshipActorState {
 				.set(DbSpaceshipStateField.LocationY.getName(), DbValueFactory.asValue(getLocationY()))
 				.set(DbSpaceshipStateField.LocationZ.getName(), DbValueFactory.asValue(getLocationZ()))
 				.set(DbSpaceshipStateField.LocationKey.getName(), DbValueFactory.asValue(getLocationKey()))
-				.set(DbSpaceshipStateField.LocationArrival.getName(), DbValueFactory.asValue(getLocationArrival()))
+				.set(DbSpaceshipStateField.LocationArrivalTimestamp.getName(),
+						DbValueFactory.asValue(getLocationArrival()))
 				.set(DbSpaceshipStateField.Speed.getName(), DbValueFactory.asValue(getSpeed()))
 				.set(DbSpaceshipStateField.DestinationX.getName(), DbValueFactory.asValue(getDestinationX()))
 				.set(DbSpaceshipStateField.DestinationY.getName(), DbValueFactory.asValue(getDestinationY()))

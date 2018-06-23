@@ -50,7 +50,32 @@
 		<h3>Missions</h3>
 		<th:block th:each="mission : ${crewMember.missions}">
 			<h4 th:text="${mission.key}">#</h4>
-			<table>
+			<form>
+				<div class="form-group row">
+					<label for="txtStatus" class="col-sm-2 col-form-label">Status</label>
+					<div class="col-sm-10">
+						<span class="form-control-plaintext" id="txtStatus"
+							th:text="${mission.status}">#</span>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label for="txtStartDateTime" class="col-sm-2 col-form-label">Start
+						Date/Time</label>
+					<div class="col-sm-10">
+						<span class="form-control-plaintext" id="txtStartDateTime"
+							th:text="${{mission.startDateTime}}">#</span>
+					</div>
+				</div>
+				<div class="form-group row">
+					<label for="txtEndDateTime" class="col-sm-2 col-form-label">End
+						Date/Time</label>
+					<div class="col-sm-10">
+						<span class="form-control-plaintext" id="txtEndDateTime"
+							th:text="${{mission.endDateTime}}">#</span>
+					</div>
+				</div>
+			</form>
+			<table class="table">
 				<thead>
 					<tr>
 						<th>Objective</th>
@@ -62,28 +87,27 @@
 					</tr>
 				</tbody>
 			</table>
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Key</th>
+						<th>Date/Time</th>
+						<th>Objective Index</th>
+						<th>Start Date/Time</th>
+						<th>End Date/Time</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="missionState: ${mission.missionStates}">
+						<td th:text="${missionState.key}">#</td>
+						<td th:text="${{missionState.dateTime}}">#</td>
+						<td th:text="${missionState.objectiveIndex}">#</td>
+						<td th:text="${{missionState.startDateTime}}">#</td>
+						<td th:text="${{missionState.endDateTime}}">#</td>
+					</tr>
+				</tbody>
+			</table>
 		</th:block>
-		<h3>Mission States</h3>
-		<table class="table">
-			<thead>
-				<tr>
-					<th>Key</th>
-					<th>Date/Time</th>
-					<th>Objective Index</th>
-					<th>Start Date/Time</th>
-					<th>End Date/Time</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="missionState: ${crewMember.missionStates}">
-					<td th:text="${missionState.key}">#</td>
-					<td th:text="${{missionState.dateTime}}">#</td>
-					<td th:text="${missionState.objectiveIndex}">#</td>
-					<td th:text="${{missionState.startDateTime}}">#</td>
-					<td th:text="${{missionState.endDateTime}}">#</td>
-				</tr>
-			</tbody>
-		</table>
 		<h3>Crew Member States</h3>
 		<table class="table">
 			<thead>

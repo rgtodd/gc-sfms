@@ -13,7 +13,7 @@ import sfms.db.DbValueType;
  */
 public enum DbSimulationField implements DbFieldSchema {
 
-	Timestamp("ts", DbValueType.Timestamp, "Timestamp", "Date/time of the simulation.");
+	Timestamp("ts", DbValueType.Timestamp, "Timestamp", "Timestamp of the simulation.");
 
 	private String m_name;
 	private DbValueType m_dbValueType;
