@@ -265,6 +265,7 @@ public class ModelFactory {
 		result.setLocationKeyValue(spaceshipState.getLocationKeyValue());
 		result.setLocationArrivalDateTime(toZonedDateTime(spaceshipState.getLocationArrival()));
 		result.setSpeed(spaceshipState.getSpeed());
+		result.setDistance(spaceshipState.getDistance());
 		result.setDestinationX(spaceshipState.getDestinationX());
 		result.setDestinationY(spaceshipState.getDestinationY());
 		result.setDestinationZ(spaceshipState.getDestinationZ());

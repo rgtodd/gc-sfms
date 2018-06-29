@@ -23,6 +23,7 @@ public enum DbSpaceshipStateField implements DbFieldSchema {
 	LocationKey("lk", DbValueType.Key, "Location Entity", "Key of entity associated with current location."),
 	LocationArrivalTimestamp("la", DbValueType.Timestamp, "Location Arrival",
 			"Arrival timestamp for current location."),
+	Distance("d", DbValueType.Double, "Distance", "Distance travelled."),
 
 	// Spaceship movement properties
 	//

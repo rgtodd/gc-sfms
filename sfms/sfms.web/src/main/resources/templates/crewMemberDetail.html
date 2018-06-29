@@ -121,11 +121,11 @@
 			</thead>
 			<tbody>
 				<tr th:each="crewMemberState: ${crewMember.states}">
-					<td th:text="${{crewMemberState.key}}">#</td>
+					<td th:text="${crewMemberState.key}">#</td>
 					<td th:text="${{crewMemberState.dateTime}}">#</td>
-					<td th:text="${{crewMemberState.locationKey}}">#</td>
+					<td th:text="${crewMemberState.locationKey}">#</td>
 					<td th:text="${{crewMemberState.locationArrivalDateTime}}">#</td>
-					<td th:text="${{crewMemberState.destinationKey}}">#</td>
+					<td th:text="${crewMemberState.destinationKey}">#</td>
 				</tr>
 			</tbody>
 		</table>

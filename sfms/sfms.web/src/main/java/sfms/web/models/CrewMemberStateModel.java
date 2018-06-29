@@ -2,9 +2,6 @@ package sfms.web.models;
 
 import java.time.ZonedDateTime;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CrewMemberStateModel {
 
 	private String m_key;

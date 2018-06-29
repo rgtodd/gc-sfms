@@ -20,6 +20,7 @@ public class SpaceshipState {
 	private String m_locationKeyValue;
 	private Instant m_locationArrival;
 	private Double m_speed;
+	private Double m_distance;
 	private Double m_destinationX;
 	private Double m_destinationY;
 	private Double m_destinationZ;
@@ -136,6 +137,14 @@ public class SpaceshipState {
 
 	public void setDestinationKeyValue(String destinationKeyValue) {
 		m_destinationKeyValue = destinationKeyValue;
+	}
+
+	public Double getDistance() {
+		return m_distance;
+	}
+
+	public void setDistance(Double distance) {
+		m_distance = distance;
 	}
 
 }

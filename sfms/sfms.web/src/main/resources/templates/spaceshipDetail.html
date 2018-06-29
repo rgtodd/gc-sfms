@@ -109,20 +109,23 @@
 					<th>Location Key</th>
 					<th>Location Arrival Date/Time</th>
 					<th>Speed</th>
+					<th>Distance</th>
 					<th>Destination Coordinate</th>
 					<th>Destination Key</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr th:each="spaceshipState: ${spaceship.states}">
-					<td th:text="${{spaceshipState.key}}">#</td>
+					<td th:text="${spaceshipState.key}">#</td>
 					<td th:text="${{spaceshipState.dateTime}}">#</td>
-					<td th:text="${{spaceshipState.locationXYZ}}">#</td>
-					<td th:text="${{spaceshipState.locationKey}}">#</td>
+					<td th:text="${spaceshipState.locationXYZ}">#</td>
+					<td th:text="${spaceshipState.locationKey}">#</td>
 					<td th:text="${{spaceshipState.locationArrivalDateTime}}">#</td>
-					<td th:text="${{spaceshipState.speed}}">#</td>
-					<td th:text="${{spaceshipState.destinationXYZ}}">#</td>
-					<td th:text="${{spaceshipState.destinationKey}}">#</td>
+					<td th:text="${#numbers.formatDecimal(spaceshipState.speed,3,2)}">#</td>
+					<td
+						th:text="${#numbers.formatDecimal(spaceshipState.distance,3,2)}">#</td>
+					<td th:text="${spaceshipState.destinationXYZ}">#</td>
+					<td th:text="${spaceshipState.destinationKey}">#</td>
 				</tr>
 			</tbody>
 		</table>

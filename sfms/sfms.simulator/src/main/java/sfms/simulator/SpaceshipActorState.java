@@ -37,6 +37,7 @@ public class SpaceshipActorState {
 	private Key m_locationKey;
 	private Instant m_locationArrival;
 	private Double m_speed;
+	private Double m_distance;
 	private Double m_destinationX;
 	private Double m_destinationY;
 	private Double m_destinationZ;
@@ -92,6 +93,7 @@ public class SpaceshipActorState {
 		state.setLocationKey(entity.getKey(DbSpaceshipStateField.LocationKey));
 		state.setLocationArrival(entity.getInstant(DbSpaceshipStateField.LocationArrivalTimestamp));
 		state.setSpeed(entity.getDouble(DbSpaceshipStateField.Speed));
+		state.setDistance(entity.getDouble(DbSpaceshipStateField.Distance));
 		state.setDestinationX(entity.getDouble(DbSpaceshipStateField.DestinationX));
 		state.setDestinationY(entity.getDouble(DbSpaceshipStateField.DestinationY));
 		state.setDestinationZ(entity.getDouble(DbSpaceshipStateField.DestinationZ));
@@ -164,6 +166,14 @@ public class SpaceshipActorState {
 		m_speed = speed;
 	}
 
+	public Double getDistance() {
+		return m_distance;
+	}
+
+	public void setDistance(Double distance) {
+		m_distance = distance;
+	}
+
 	public Key getLocationKey() {
 		return m_locationKey;
 	}
@@ -225,6 +235,7 @@ public class SpaceshipActorState {
 		Key locationKey = m_locationKey;
 		Instant locationArrival = m_locationArrival;
 		Double speed = m_speed;
+		Double distance = m_distance;
 		Double destinationX = m_destinationX;
 		Double destinationY = m_destinationY;
 		Double destinationZ = m_destinationZ;
@@ -256,6 +267,7 @@ public class SpaceshipActorState {
 				locationArrival = timestamp;
 				locationKey = destinationKey;
 				speed = 0.0;
+				distance = distanceToDestination;
 				destination = null;
 				destinationKey = null;
 
@@ -267,7 +279,10 @@ public class SpaceshipActorState {
 				location = Coordinates.add(location, delta);
 				locationArrival = timestamp;
 				locationKey = null;
+				distance = distanceTraveled;
 			}
+		} else {
+			distance = 0.0;
 		}
 
 		if (location == null) {
@@ -303,6 +318,7 @@ public class SpaceshipActorState {
 		updatedState.setLocationKey(locationKey);
 		updatedState.setLocationArrival(locationArrival);
 		updatedState.setSpeed(speed);
+		updatedState.setDistance(distance);
 		updatedState.setDestinationX(destinationX);
 		updatedState.setDestinationY(destinationY);
 		updatedState.setDestinationZ(destinationZ);
@@ -332,6 +348,7 @@ public class SpaceshipActorState {
 				.set(DbSpaceshipStateField.LocationArrivalTimestamp.getName(),
 						DbValueFactory.asValue(getLocationArrival()))
 				.set(DbSpaceshipStateField.Speed.getName(), DbValueFactory.asValue(getSpeed()))
+				.set(DbSpaceshipStateField.Distance.getName(), DbValueFactory.asValue(getDistance()))
 				.set(DbSpaceshipStateField.DestinationX.getName(), DbValueFactory.asValue(getDestinationX()))
 				.set(DbSpaceshipStateField.DestinationY.getName(), DbValueFactory.asValue(getDestinationY()))
 				.set(DbSpaceshipStateField.DestinationZ.getName(), DbValueFactory.asValue(getDestinationZ()))

@@ -279,6 +279,7 @@ public class RestFactory {
 			spaceshipState
 					.setLocationArrival(dbSpaceshipState.getInstant(DbSpaceshipStateField.LocationArrivalTimestamp));
 			spaceshipState.setSpeed(dbSpaceshipState.getDouble(DbSpaceshipStateField.Speed));
+			spaceshipState.setDistance(dbSpaceshipState.getDouble(DbSpaceshipStateField.Distance));
 			spaceshipState.setDestinationX(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationX));
 			spaceshipState.setDestinationY(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationY));
 			spaceshipState.setDestinationZ(dbSpaceshipState.getDouble(DbSpaceshipStateField.DestinationZ));

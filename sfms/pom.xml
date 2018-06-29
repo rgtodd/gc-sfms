@@ -21,7 +21,7 @@
 		<maven-site-plugin.version>3.7.1</maven-site-plugin.version>
 		<maven-surefire-plugin.version>2.21.0</maven-surefire-plugin.version>
 		<maven-war-plugin.version>3.2.0</maven-war-plugin.version>
-		<spring-boot-maven-plugin.version>2.0.2.RELEASE</spring-boot-maven-plugin.version>
+		<spring-boot-maven-plugin.version>2.0.3.RELEASE</spring-boot-maven-plugin.version>
 		<versions-maven-plugin.version>2.3</versions-maven-plugin.version>
 
 		<docker.image.prefix>gcr.io/rgt-ssms</docker.image.prefix>
