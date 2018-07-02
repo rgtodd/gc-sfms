@@ -1,4 +1,4 @@
-package sfms.web.models;
+package sfms.web.models.ajax;
 
 public class MapItemTypes {
 

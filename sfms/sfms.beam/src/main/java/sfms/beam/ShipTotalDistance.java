@@ -6,20 +6,24 @@ import java.util.logging.Logger;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.io.gcp.datastore.DatastoreIO;
+import org.apache.beam.sdk.io.gcp.datastore.DatastoreV1.Read;
+import org.apache.beam.sdk.io.gcp.datastore.DatastoreV1.Write;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.options.Validation.Required;
+import org.apache.beam.sdk.options.ValueProvider;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.Sum;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
-import org.apache.beam.sdk.values.PDone;
 import org.apache.beam.sdk.values.TypeDescriptors;
 
 import com.google.datastore.v1.Entity;
+import com.google.datastore.v1.Key;
+import com.google.datastore.v1.Key.PathElement;
 import com.google.datastore.v1.Query;
 import com.google.datastore.v1.Value;
 import com.google.datastore.v1.Value.ValueTypeCase;
@@ -37,15 +41,15 @@ public class ShipTotalDistance {
 
 		@Description("Google application project ID")
 		@Required
-		String getProjectId();
+		ValueProvider<String> getProjectId();
 
-		void setProjectId(String value);
+		void setProjectId(ValueProvider<String> value);
 
 		@Description("Path of the file to write to")
 		@Required
-		String getOutput();
+		ValueProvider<String> getOutput();
 
-		void setOutput(String value);
+		void setOutput(ValueProvider<String> value);
 	}
 
 	public static void main(String[] args) {
@@ -53,31 +57,49 @@ public class ShipTotalDistance {
 		StarConstellationCountOptions options = PipelineOptionsFactory.fromArgs(args).withValidation()
 				.as(StarConstellationCountOptions.class);
 
-		Query.Builder dbShipStatusQueryBuilder = Query.newBuilder();
-		dbShipStatusQueryBuilder.addKindBuilder().setName(SHIP_STATUS);
-		Query dbShipStatusQuery = dbShipStatusQueryBuilder.build();
-
 		Pipeline p = Pipeline.create(options);
 
-		PCollection<Entity> entities = p.apply(
-				DatastoreIO.v1().read()
-						.withProjectId(options.getProjectId())
-						.withQuery(dbShipStatusQuery));
+		// Read ship distances from Google Datastore and compute totals.
+		//
+		PCollection<KV<String, Double>> totalShipDistances;
+		{
+			Query.Builder dbShipStatusQueryBuilder = Query.newBuilder();
+			dbShipStatusQueryBuilder.addKindBuilder().setName(SHIP_STATUS);
+			Query dbShipStatusQuery = dbShipStatusQueryBuilder.build();
 
-		PCollection<KV<String, Double>> shipDistances = entities.apply(ParDo
-				.of(new GetShipDistanceDoFn()));
+			Read read = DatastoreIO.v1().read()
+					.withProjectId(options.getProjectId())
+					.withQuery(dbShipStatusQuery);
 
-		PCollection<KV<String, Double>> totalShipDistances = shipDistances.apply(Sum.doublesPerKey());
+			PCollection<Entity> entities = p.apply(read);
 
-		MapElements<?, String> mapToString = MapElements.into(TypeDescriptors.strings());
-		MapElements<KV<String, Double>, String> mapTotalShipDistancesToString = mapToString
-				.via((KV<String, Double> totalShipDistance) -> totalShipDistance.getKey() + ": "
-						+ totalShipDistance.getValue());
+			PCollection<KV<String, Double>> shipDistances = entities.apply(ParDo
+					.of(new GetShipDistanceDoFn()));
 
-		PCollection<String> output = totalShipDistances.apply(mapTotalShipDistancesToString);
+			totalShipDistances = shipDistances.apply(Sum.doublesPerKey());
+		}
 
-		@SuppressWarnings("unused")
-		PDone done = output.apply(TextIO.write().to(options.getOutput()));
+		// Write distances to text output
+		{
+			MapElements<?, String> mapToString = MapElements.into(TypeDescriptors.strings());
+			MapElements<KV<String, Double>, String> mapTotalShipDistancesToString = mapToString
+					.via((KV<String, Double> totalShipDistance) -> totalShipDistance.getKey() + ": "
+							+ totalShipDistance.getValue());
+
+			PCollection<String> output = totalShipDistances.apply(mapTotalShipDistancesToString);
+
+			output.apply(TextIO.write().to(options.getOutput()));
+		}
+
+		// Write distances to Google Datastore
+		{
+			PCollection<Entity> totalShipDistanceEntities = totalShipDistances.apply(ParDo.of(new CreateEntityDoFn()));
+
+			Write write = DatastoreIO.v1().write()
+					.withProjectId(options.getProjectId());
+
+			totalShipDistanceEntities.apply(write);
+		}
 
 		p.run().waitUntilFinish();
 	}
@@ -98,6 +120,28 @@ public class ShipTotalDistance {
 				Double distance = DatastoreHelper.getDouble(value);
 				c.output(KV.of(shipId, distance));
 			}
+		}
+	}
+
+	static class CreateEntityDoFn extends DoFn<KV<String, Double>, Entity> {
+
+		private static final long serialVersionUID = 1L;
+
+		@ProcessElement
+		public void processElement(ProcessContext c) {
+			KV<String, Double> element = c.element();
+
+			Key.Builder keyBuilder = Key.newBuilder();
+			PathElement pathElement = keyBuilder.addPathBuilder().setKind("ShipTotalDistance").setName(element.getKey())
+					.build();
+			Key key = keyBuilder.setPath(0, pathElement).build();
+
+			Entity entity = Entity.newBuilder()
+					.setKey(key)
+					.putProperties("distance", Value.newBuilder().setDoubleValue(element.getValue()).build())
+					.build();
+
+			c.output(entity);
 		}
 	}
 }

@@ -42,7 +42,6 @@ import sfms.storage.StorageManagerUtility;
 import sfms.storage.StorageManagerUtility.ObjectFactory;
 import sfms.web.SfmsController;
 import sfms.web.mock.MockSpaceData;
-import sfms.web.models.MapItemTypes;
 import sfms.web.models.ajax.GetMapItemsResponse;
 import sfms.web.models.ajax.GetSectorResponse;
 import sfms.web.models.ajax.GetSectorsResponse;
@@ -50,6 +49,7 @@ import sfms.web.models.ajax.MapItemModel;
 import sfms.web.models.ajax.MapItemPropertyGroupModel;
 import sfms.web.models.ajax.MapItemPropertyModel;
 import sfms.web.models.ajax.MapItemSetModel;
+import sfms.web.models.ajax.MapItemTypes;
 import sfms.web.models.ajax.SectorModel;
 
 @RestController
@@ -94,14 +94,6 @@ public class AjaxController extends SfmsController {
 		response.setSectors(sectorModels);
 
 		return response;
-	}
-
-	private Integer asInteger(Long value) {
-		if (value == null) {
-			return null;
-		}
-
-		return (int) (long) value;
 	}
 
 	@GetMapping({ "/getSectorByLocation" })
@@ -246,18 +238,10 @@ public class AjaxController extends SfmsController {
 		}
 	}
 
-	// @GetMapping({ "/getMapItemsBySector" })
-	// public GetMapItemsResponse getMapItemsBySector(
-	// @RequestParam("sectorKey") String sectorKey,
-	// @RequestParam("mapItemType") Integer mapItemType) {
-	//
-	// return getMapItemsBySectorRest(sectorKey, mapItemType);
-	// }
+	@GetMapping({ "/getMapItemsByRankUncached" })
+	public GetMapItemsResponse getMapItemsByRankUncached(@RequestParam("rank") Long rank) {
 
-	@GetMapping({ "/getMapItemsByRank/get" })
-	public GetMapItemsResponse getMapItemsByRank(@RequestParam("rank") Long rank) {
-
-		GetMapItemsResponse response = getMapItemsByRankRest(rank);
+		GetMapItemsResponse response = getMapItemsByRankResponse(rank);
 
 		return response;
 	}
@@ -269,7 +253,7 @@ public class AjaxController extends SfmsController {
 		ObjectFactory objectFactory = new ObjectFactory() {
 			@Override
 			public byte[] createObject() throws Exception {
-				GetMapItemsResponse serviceResponse = getMapItemsByRankRest(rank);
+				GetMapItemsResponse serviceResponse = getMapItemsByRankResponse(rank);
 
 				ObjectMapper mapper = new ObjectMapper();
 				ObjectWriter writer = mapper.writerFor(GetMapItemsResponse.class);
@@ -291,7 +275,7 @@ public class AjaxController extends SfmsController {
 		}
 	}
 
-	private GetMapItemsResponse getMapItemsByRankRest(Long rank) {
+	private GetMapItemsResponse getMapItemsByRankResponse(Long rank) {
 
 		Long minimumX = -1000 + rank * 200;
 		Long maximumX = minimumX + 200;
@@ -459,6 +443,14 @@ public class AjaxController extends SfmsController {
 		}
 
 		return sb.toString();
+	}
+
+	private Integer asInteger(Long value) {
+		if (value == null) {
+			return null;
+		}
+
+		return (int) (long) value;
 	}
 
 	private void addPropertyGroup(List<MapItemPropertyGroupModel> propertyGroups, String title) {
