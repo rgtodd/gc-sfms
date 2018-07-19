@@ -54,7 +54,6 @@ public class UpdateShipStatistics {
 		void setProjectId(ValueProvider<String> value);
 
 		@Description("Google Datastore emulator address")
-		@Required
 		ValueProvider<String> getLocalhost();
 
 		void setLocalhost(ValueProvider<String> value);
